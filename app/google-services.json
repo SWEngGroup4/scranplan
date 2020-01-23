@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "402487406340",
+    "firebase_url": "https://scran-plan-bc521.firebaseio.com",
+    "project_id": "scran-plan-bc521",
+    "storage_bucket": "scran-plan-bc521.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:402487406340:android:e498801f57daf912b4aa51",
+        "android_client_info": {
+          "package_name": "com.group4sweng.scranplan"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "402487406340-bju4bm6ranfdpu09meu16fa3np42be9q.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.group4sweng.scranplan",
+            "certificate_hash": "1acc538c6a420cae358ad6a63f91c6dab54ea61b"
+          }
+        },
+        {
+          "client_id": "402487406340-is3midju974ioeioj6o361f5t4r4vleq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLRQo-qVa3hMpsaW3lStNxxSBV-t9oTiE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "402487406340-is3midju974ioeioj6o361f5t4r4vleq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
