@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "402487406340-d3632k95q434qk2f7n81rotfpq2i8qeh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.group4sweng.scranplan",
+            "certificate_hash": "3d4f46ffbb2750b96fa29e686a23c2b52f9c6f54"
+          }
+        },
+        {
           "client_id": "402487406340-bju4bm6ranfdpu09meu16fa3np42be9q.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
