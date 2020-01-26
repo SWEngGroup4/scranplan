@@ -6,10 +6,15 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.util.Log;
+import android.widget.FrameLayout;
 
 
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.*;
 
@@ -23,10 +28,8 @@ public class MainActivity extends AppCompatActivity {
     FirebaseAuth.AuthStateListener mAuthListener;
     String mDisplayName;
 
-
-    //testing github
-
-
+    TabLayout tabLayout;
+    FrameLayout frameLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +41,46 @@ public class MainActivity extends AppCompatActivity {
 
         initFirebase();
 
+        tabLayout = findViewById(R.id.tabLayout);
+        frameLayout = findViewById(R.id.frameLayout);
+
+        tabLayout.addTab(tabLayout.newTab().setText("Recipes"));
+        tabLayout.addTab(tabLayout.newTab().setText("Meal Planner"));
+        tabLayout.addTab(tabLayout.newTab().setText("Timeline"));
+        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                Fragment fragment = null;
+                switch (tab.getPosition()) {
+                    case 0:
+                        fragment = new RecipeFragment();
+                        break;
+                    case 1:
+                        fragment = new PlannerFragment();
+                        break;
+                    case 2:
+                        fragment = new TimelinePlanner();
+                        break;
+                }
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.frameLayout, fragment);
+                fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                fragmentTransaction.commit();
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
 
 
 //        FloatingActionButton fab = findViewById(R.id.fab);
