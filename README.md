@@ -1,4 +1,4 @@
-# Scran Plan
+# Scran Plan [![Build Status](https://travis-ci.org/SWEngGroup4/scranplan.svg?branch=master)](https://travis-ci.org/SWEngGroup4/scranplan) 
  Group 4 SWEng Project
  
  ## What is it?
