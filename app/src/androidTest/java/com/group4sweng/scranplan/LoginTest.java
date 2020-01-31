@@ -10,6 +10,9 @@ import android.widget.EditText;
 import androidx.test.rule.ActivityTestRule;
 
 
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -25,17 +28,23 @@ public class LoginTest {
 
     private Login mActivity = null;
 
+
     private EditText email;
     private EditText password;
     private EditText confirmPassword;
     private EditText displayName;
     private Button loginButton;
     private Button registerButton;
+    FirebaseApp testApp;
+    FirebaseAuth testAuth;
 
     @Before
     public void setUp() throws Exception {
 
         mActivity = mActivityTestRule.getActivity();
+        testApp = mActivity.mApp;
+        testAuth = mActivity.mAuth;
+
 
         email = (EditText)mActivity.findViewById(R.id.emailEditText);
         password = (EditText)mActivity.findViewById(R.id.passwordEditText);
@@ -95,13 +104,9 @@ public class LoginTest {
 
     }
 
-    @Test
-    public void onCreate() {
-    }
-
 
     @Test
-    public void testInvalidUserNamePassword() {
+    public void testInvalidUserEmailAndPassword() {
         new Handler(Looper.getMainLooper()).post(new Runnable(){
             @Override
             public void run() {
@@ -111,12 +116,17 @@ public class LoginTest {
                 password.requestFocus();
                 password.setText("testingPassword");
                 loginButton.callOnClick();
+
+                testAuth.signOut();
+                testAuth.signInWithEmailAndPassword(email.toString(), password.toString());
+                assertNull(testAuth.getCurrentUser());
             }
         });
     }
 
+
     @Test
-    public void testInvalidRegisterUserNamePassword() {
+    public void testInvalidRegisterEmailAndPassword() {
         new Handler(Looper.getMainLooper()).post(new Runnable(){
             @Override
             public void run() {
@@ -130,6 +140,11 @@ public class LoginTest {
                 displayName.requestFocus();
                 displayName.setText("testName");
                 registerButton.callOnClick();
+
+
+                testAuth.signOut();
+                testAuth.createUserWithEmailAndPassword(email.toString(), password.toString());
+                assertNull(testAuth.getCurrentUser());
             }
         });
     }
@@ -145,7 +160,8 @@ public class LoginTest {
     }
 
     @Test
-    public void testValidUserNamePassword() {
+    public void testValidEmailAndPassword() {
+        //mActivity.mAuth.signOut();
         new Handler(Looper.getMainLooper()).post(new Runnable(){
             @Override
             public void run() {
@@ -158,6 +174,9 @@ public class LoginTest {
             }
         });
     }
+
+
+
 
     @After
     public void tearDown() throws Exception {
