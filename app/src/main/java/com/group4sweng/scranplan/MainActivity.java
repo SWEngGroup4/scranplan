@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
     TabLayout tabLayout;
     FrameLayout frameLayout;
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
