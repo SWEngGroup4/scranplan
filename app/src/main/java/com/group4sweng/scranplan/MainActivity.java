@@ -8,6 +8,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+
 
 
 import com.google.firebase.FirebaseApp;
@@ -23,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     FirebaseAuth.AuthStateListener mAuthListener;
     String mDisplayName;
 
-
+    Button mLogoutButton;
 
 
 
@@ -37,6 +40,9 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         initFirebase();
+        initPageItems();
+        initPageListeners();
+
 
 
 
@@ -74,6 +80,22 @@ public class MainActivity extends AppCompatActivity {
         };
         mAuth.addAuthStateListener(mAuthListener);
 
+
+    }
+
+    private void initPageItems(){
+        //Defining all relevant members of signin & register page
+        mLogoutButton = (Button) findViewById(R.id.logoutButton);
+    }
+
+    private void initPageListeners() {
+        mLogoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG, "Logout button has been pressed and user has been logged out.");
+                mAuth.signOut();
+            }
+        });
 
     }
 

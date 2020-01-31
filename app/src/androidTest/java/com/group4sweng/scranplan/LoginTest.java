@@ -1,6 +1,6 @@
 package com.group4sweng.scranplan;
 
-import android.widget.Button;
+import android.view.View;
 
 import androidx.test.rule.ActivityTestRule;
 
@@ -11,12 +11,12 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class MainActivityTest {
+public class LoginTest {
 
     @Rule
-    public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<MainActivity>(MainActivity.class);
+    public ActivityTestRule<Login> mActivityTestRule = new ActivityTestRule<Login>(Login.class);
 
-    private MainActivity mActivity = null;
+    private Login mActivity = null;
 
     @Before
     public void setUp() throws Exception {
@@ -28,19 +28,11 @@ public class MainActivityTest {
     }
 
     @Test
-    public void onCreateOptionsMenu() {
-    }
-
-    @Test
-    public void onOptionsItemSelected() {
-    }
-
-    @Test
     public void testLaunch(){
         //Checking that the page is displaying the XML associated with the Login page
-        Button button = mActivity.findViewById(R.id.logoutButton);
+        View view = mActivity.findViewById(R.id.loginButton);
 
-        assertNotNull(button);
+        assertNotNull(view);
     }
 
     @After
@@ -48,4 +40,6 @@ public class MainActivityTest {
 
         mActivity = null;
     }
+
+
 }
