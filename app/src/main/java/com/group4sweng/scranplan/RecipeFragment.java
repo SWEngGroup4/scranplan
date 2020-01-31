@@ -1,8 +1,6 @@
 package com.group4sweng.scranplan;
 
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +12,7 @@ import androidx.fragment.app.Fragment;
 public class RecipeFragment extends Fragment {
 
     public RecipeFragment() {
+
     }
 
     @Override
@@ -24,6 +23,18 @@ public class RecipeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_recipe, container, false);
+        View view = inflater.inflate(R.layout.fragment_recipe, container, false);
+
+        LinearLayout linearLayout = view.findViewById(R.id.linearLayout);
+        for (int i =0; i < 10; i++) {
+            ImageView imageView = new ImageView(view.getContext());
+            imageView.setId(i);
+            imageView.setAdjustViewBounds(true);
+            imageView.setPadding(10,10,10,10);
+            imageView.setImageResource(R.drawable.scran);
+            imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+            linearLayout.addView(imageView);
+        }
+        return view;
     }
 }
