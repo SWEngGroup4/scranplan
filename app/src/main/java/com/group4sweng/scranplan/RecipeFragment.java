@@ -1,15 +1,19 @@
 package com.group4sweng.scranplan;
 
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import androidx.fragment.app.Fragment;
 
 public class RecipeFragment extends Fragment {
-    public RecipeFragment() {
 
+    public RecipeFragment() {
     }
 
     @Override
