@@ -33,6 +33,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics:17.2.0'
     implementation 'com.google.firebase:firebase-auth:19.2.0'
     implementation 'com.google.android.gms:play-services-gcm:17.0.0'
+    implementation 'androidx.gridlayout:gridlayout:1.0.0'
 
 
 // this dependency is not required if you are already using your own
