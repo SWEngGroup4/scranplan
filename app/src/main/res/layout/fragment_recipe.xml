@@ -5,32 +5,15 @@
     android:layout_height="match_parent"
     tools:context="com.group4sweng.scranplan.RecipeFragment">
 
-    <LinearLayout
-        android:id="@+id/topLayout"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Test">
-        </TextView>
-
-        <HorizontalScrollView
-            android:id="@+id/horizontalScroll"
+        <LinearLayout
+            android:id="@+id/linearLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" >
-
-            <LinearLayout
-                android:id="@+id/linearLayout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-            </LinearLayout>
-
-        </HorizontalScrollView>
-
-    </LinearLayout>
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </ScrollView>
 
 </FrameLayout>
