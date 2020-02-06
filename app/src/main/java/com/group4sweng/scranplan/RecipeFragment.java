@@ -36,14 +36,18 @@ public class RecipeFragment extends Fragment {
         ((Activity)getContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int height = displayMetrics.heightPixels;
 
-        for (int i=0; i < 10; i++) {
+        int numberOfCategories = 10;
+        int numberOfRecipes = 10;
+
+        for (int i=0; i < numberOfCategories; i++) {
             TextView mTextView = new TextView(view.getContext());
-            mTextView.setText(Integer.toString(height));
+            mTextView.setTextSize(20);
+            mTextView.setText("test");
             HorizontalScrollView horizontalScrollView = new HorizontalScrollView(view.getContext());
             horizontalScrollView.setLayoutParams(new ViewGroup.LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, height/5));
             LinearLayout horizontalLayout = new LinearLayout(view.getContext());
             horizontalScrollView.addView(horizontalLayout);
-            for (int j =0; j < 10; j++) {
+            for (int j =0; j < numberOfRecipes; j++) {
                 ImageView imageView = new ImageView(view.getContext());
                 imageView.setId(j);
                 imageView.setAdjustViewBounds(true);
