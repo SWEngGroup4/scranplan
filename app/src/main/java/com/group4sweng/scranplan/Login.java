@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -20,14 +21,22 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.*;
+
+import java.util.HashMap;
 
 public class Login extends AppCompatActivity {
 
     final String TAG = "FirebaseTestLogin";
 
+    UserInfo user = new UserInfo();
+
+
     FirebaseApp mApp;
     FirebaseAuth mAuth;
     FirebaseAuth.AuthStateListener mAuthStateListener;
+    final FirebaseFirestore database = FirebaseFirestore.getInstance();
+    CollectionReference ref = database.collection("users");
 
     EditText mEmailEditText;
     EditText mPasswordEditText;
@@ -203,17 +212,63 @@ public class Login extends AppCompatActivity {
         mAuth.addAuthStateListener(mAuthStateListener);
     }
 
-    private void registerUser(String email, String password, String displayName) {
-
+    private void registerUser(String email, String password, final String displayName) {
+        mDisplayName = displayName;
         OnCompleteListener<AuthResult> complete = new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
 
-                if (task.isSuccessful())
+                if (task.isSuccessful()){
                     Log.e(TAG, "SignIn : User registered ");
-                //TODO Save display name to user profile in database, also save any other information needed to default settings for user to change
-                else
+                    //TODO Save display name to user profile in database, also save any other information needed to default settings for user to change
+//                    ((UserInfo) this.getApplication()).setUserInfo("foo");
+
+                    HashMap<String, Object> map = new HashMap<>();
+                    HashMap<String, Object> preferences = new HashMap<>();
+                    map.put("UID", mAuth.getCurrentUser().getUid());
+                    map.put("email", mAuth.getCurrentUser().getEmail());
+                    map.put("displayName", mDisplayName);
+                    map.put("imageURL", null);
+                    map.put("chefRating", 0);
+                    map.put("numRecipes", 0);
+
+                    preferences.put("allergy_celery", false);
+                    preferences.put("allergy_crustacean", false);
+                    preferences.put("allergy_eggs", false);
+                    preferences.put("allergy_fish", false);
+                    preferences.put("allergy_gluten", false);
+                    preferences.put("allergy_milk", false);
+                    preferences.put("allergy_mustard", false);
+                    preferences.put("allergy_nuts", false);
+                    preferences.put("allergy_peanuts", false);
+                    preferences.put("allergy_sesame", false);
+                    preferences.put("allergy_shellfish", false);
+                    preferences.put("allergy_soya", false);
+                    preferences.put("allergy_sulphide", false);
+                    preferences.put("diabetic", false);
+                    preferences.put("halal", false);
+                    preferences.put("high_protein", false);
+                    preferences.put("kosher", false);
+                    preferences.put("lactose_free", false);
+                    preferences.put("lactovegetarian", false);
+                    preferences.put("low_carb", false);
+                    preferences.put("low_sodium", false);
+                    preferences.put("no_alcohol", false);
+                    preferences.put("no_pork", false);
+                    preferences.put("ovovegetarian", false);
+                    preferences.put("pescatarian", false);
+                    preferences.put("vegan", false);
+                    preferences.put("vegetarian", false);
+
+                    map.put("preferences", preferences);
+                    user.setUserInfoMap(map);
+                    DocumentReference usersRef = ref.document(mAuth.getCurrentUser().getUid());
+                    usersRef.set(map);
+
+                }else{
                     Log.e(TAG, "SignIn : User registration response, but failed ");
+                    Toast.makeText(getApplicationContext(),"User registration failed, please try again.",Toast.LENGTH_SHORT).show();
+                }
             }
         };
 
@@ -221,6 +276,7 @@ public class Login extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.e(TAG,"SignIn : Register user failure");
+                Toast.makeText(getApplicationContext(),"Sign in failed, please try again.",Toast.LENGTH_SHORT).show();
             }
         };
 
@@ -234,10 +290,40 @@ public class Login extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
 
-                if (task.isSuccessful())
+                if (task.isSuccessful()){
                     Log.e(TAG, "SignIn : User logged on ");
-                else
+
+                    DocumentReference usersRef = ref.document(mAuth.getCurrentUser().getUid());
+                    usersRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                             @Override
+                                                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                                 if (task.isSuccessful()) {
+                                                                     if (task.getResult() == null) Log.d(TAG, "getResult is null");
+                                                                     Log.d(TAG, "getResult: " + task.getResult());
+                                                                     DocumentSnapshot document = task.getResult();
+                                                                     HashMap<String, Object> map = new HashMap<>();
+
+                                                                     map.put("UID", document.get("UID"));
+                                                                     map.put("email", document.get("email"));
+                                                                     map.put("displayName", document.get("displayName"));
+                                                                     map.put("imageURL", document.get("imageURL"));
+                                                                     map.put("chefRating", document.get("chefRating"));
+                                                                     map.put("numRecipes", document.get("numRecipes"));
+                                                                     map.put("preferences", document.get("preferences"));
+                                                                     user.setUserInfoMap(map);
+                                                                 }else {
+                                                                     Log.e(TAG, "SignIn : Unable to retrieve user document in Firestore ");
+                                                                     Toast.makeText(getApplicationContext(),"Sign in failed, unable to retrieve user details, please try again.",Toast.LENGTH_SHORT).show();
+                                                                     mAuth.signOut();
+                                                                 }
+                                                             }
+                                                         });
+                }
+                else {
                     Log.e(TAG, "SignIn : User log on response, but failed ");
+                    Toast.makeText(getApplicationContext(),"Sign in failed, invalid email or password, please try again.",Toast.LENGTH_SHORT).show();
+
+                }
             }
         };
 
@@ -245,6 +331,7 @@ public class Login extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.e(TAG,"SignIn : Log on user failure");
+                Toast.makeText(getApplicationContext(),"Register failed, please try again.",Toast.LENGTH_SHORT).show();
             }
         };
 
@@ -263,7 +350,7 @@ public class Login extends AppCompatActivity {
         mAuth.removeAuthStateListener(mAuthStateListener);
 
         Intent returningIntent = new Intent();
-        returningIntent.putExtra("displayname", mDisplayName);
+        returningIntent.putExtra("user", user);
         setResult(RESULT_OK, returningIntent);
 
         finish();
