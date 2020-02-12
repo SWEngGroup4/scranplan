@@ -1,6 +1,12 @@
 package com.group4sweng.scranplan;
 
+/**
+ * Preferences class
+ * Used within UserInfo class to save specific preferences user wants to apply to all queries within
+ * the application
+ */
 public class Preferences {
+    // All preference variables
     private boolean allergy_celery;
     private boolean allergy_crustacean;
     private boolean allergy_eggs;
@@ -29,6 +35,7 @@ public class Preferences {
     private boolean vegan;
     private boolean vegetarian;
 
+    // Constructor for all variables
     Preferences(boolean allergy_celery,
                 boolean allergy_crustacean, boolean allergy_eggs, boolean allergy_fish,
                 boolean allergy_gluten, boolean allergy_milk, boolean allergy_mustard,
@@ -67,6 +74,8 @@ public class Preferences {
         this.vegan = vegan;
         this.vegetarian = vegetarian;
     }
+
+    // Getters and setters for all variables
 
     public boolean isAllergy_celery() {
         return allergy_celery;

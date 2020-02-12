@@ -1,23 +1,26 @@
 package com.group4sweng.scranplan;
 
-
-import com.google.firebase.firestore.auth.User;
-
 import java.io.Serializable;
 import java.util.HashMap;
 
+/**
+ * UserInfo class
+ * Used to save current user vital variables that will be used throughout the app for customisation
+ */
 public class UserInfo implements Serializable {
 
-//    private HashMap<String, Object> userInfo = new HashMap<String, Object>();
-
+    // Basic user information
     private String UID;
     private String email;
     private String displayName;
     private String imageURL;
     private double chefRating;
     private long numRecipes;
+
+    // User preferences
     private Preferences preferences;
 
+    // Constructor with all variables
     UserInfo(String UID, String email, String displayName, String imageURL,
              int chefRating, boolean allergy_celery,
              boolean allergy_crustacean, boolean allergy_eggs, boolean allergy_fish,
@@ -42,6 +45,7 @@ public class UserInfo implements Serializable {
         ovovegetarian, pescatarian, vegan, vegetarian);
     }
 
+    // Constructor using maps
     UserInfo(HashMap<String, Object> map, HashMap<String, Object> prefs) {
         this.UID = (String) map.get("UID");
         this.email = (String) map.get("email");
@@ -66,6 +70,8 @@ public class UserInfo implements Serializable {
     }
 
 
+
+    // All getters and setters for all variables
 
     public String getUID() {
         return UID;

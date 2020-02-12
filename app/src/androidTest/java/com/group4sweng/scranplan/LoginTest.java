@@ -20,6 +20,10 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
+/**
+ * LoginTest class
+ * JUnit testing for the Login class testing all components
+ */
 public class LoginTest {
 
 
@@ -38,6 +42,7 @@ public class LoginTest {
     FirebaseApp testApp;
     FirebaseAuth testAuth;
 
+    // Connect XML to tests
     @Before
     public void setUp() throws Exception {
 
@@ -57,12 +62,14 @@ public class LoginTest {
 
     }
 
+    // Test components exist on screen
     @Test
     public void testPreconditions() {
         assertNotNull(email);
         assertNotNull(password);
     }
 
+    // Test user selecting edit text
     @Test
     public void testUsernameTextFocus() {
         new Handler(Looper.getMainLooper()).post(new Runnable(){
@@ -76,6 +83,7 @@ public class LoginTest {
         });
     }
 
+    // Test user selecting edit text
     @Test
     public void testPasswordTextFocus() {
         new Handler(Looper.getMainLooper()).post(new Runnable(){
@@ -90,6 +98,7 @@ public class LoginTest {
 
     }
 
+    // Test user selecting edit text
     @Test
     public void testConfirmPasswordTextFocus() {
         new Handler(Looper.getMainLooper()).post(new Runnable(){
@@ -104,7 +113,7 @@ public class LoginTest {
 
     }
 
-
+    // Test invalid username and password
     @Test
     public void testInvalidUserEmailAndPassword() {
         new Handler(Looper.getMainLooper()).post(new Runnable(){
@@ -124,7 +133,7 @@ public class LoginTest {
         });
     }
 
-
+    // Test creating new user
     @Test
     public void testInvalidRegisterEmailAndPassword() {
         new Handler(Looper.getMainLooper()).post(new Runnable(){
@@ -150,7 +159,7 @@ public class LoginTest {
     }
 
 
-
+    // Check the screen is displaying as expected
     @Test
     public void testLaunch(){
         //Checking that the page is displaying the XML associated with the Login page
@@ -159,6 +168,7 @@ public class LoginTest {
         assertNotNull(view);
     }
 
+    // test if a know username and password successfully logs in
     @Test
     public void testValidEmailAndPassword() {
         //mActivity.mAuth.signOut();
