@@ -20,7 +20,6 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.*;
 
 import java.util.HashMap;
@@ -29,7 +28,7 @@ public class Login extends AppCompatActivity {
 
     final String TAG = "FirebaseTestLogin";
 
-    UserInfo user = new UserInfo();
+    UserInfo user;
 
 
     FirebaseApp mApp;
@@ -143,7 +142,7 @@ public class Login extends AppCompatActivity {
                     if(passwordCheck){
                         registerUser(email, password, displayName);
                     }else{
-                        //TODO need a toast to say passwords do not match
+                        Toast.makeText(getApplicationContext(),"Passwords do not match, please try again.",Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -194,12 +193,6 @@ public class Login extends AppCompatActivity {
 
                 if (user != null) {
                     Log.e(TAG, "SignIn : Valid current user : email [" + user.getEmail() + "]");
-                    //TODO Grab user display name from database along with any other main account info
-                    if (mRegisterInProgress) {
-                        setDisplayName(user);
-                    } else {
-                        mDisplayName = user.getDisplayName();
-                    }
                     mLoginInProgress = false;
                     mRegisterInProgress = false;
 
@@ -220,17 +213,15 @@ public class Login extends AppCompatActivity {
 
                 if (task.isSuccessful()){
                     Log.e(TAG, "SignIn : User registered ");
-                    //TODO Save display name to user profile in database, also save any other information needed to default settings for user to change
-//                    ((UserInfo) this.getApplication()).setUserInfo("foo");
 
                     HashMap<String, Object> map = new HashMap<>();
                     HashMap<String, Object> preferences = new HashMap<>();
                     map.put("UID", mAuth.getCurrentUser().getUid());
                     map.put("email", mAuth.getCurrentUser().getEmail());
                     map.put("displayName", mDisplayName);
-                    map.put("imageURL", null);
-                    map.put("chefRating", 0);
-                    map.put("numRecipes", 0);
+                    map.put("imageURL", (String) null);
+                    map.put("chefRating", (double) 0);
+                    map.put("numRecipes", (long) 0);
 
                     preferences.put("allergy_celery", false);
                     preferences.put("allergy_crustacean", false);
@@ -261,7 +252,7 @@ public class Login extends AppCompatActivity {
                     preferences.put("vegetarian", false);
 
                     map.put("preferences", preferences);
-                    user.setUserInfoMap(map);
+                    user = new UserInfo(map, preferences);
                     DocumentReference usersRef = ref.document(mAuth.getCurrentUser().getUid());
                     usersRef.set(map);
 
@@ -276,7 +267,7 @@ public class Login extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.e(TAG,"SignIn : Register user failure");
-                Toast.makeText(getApplicationContext(),"Sign in failed, please try again.",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(),"User registration failed, please try again.",Toast.LENGTH_SHORT).show();
             }
         };
 
@@ -289,40 +280,43 @@ public class Login extends AppCompatActivity {
         OnCompleteListener<AuthResult> complete = new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
+                try{
+                    if (task.isSuccessful()){
+                        Log.e(TAG, "SignIn : User logged on ");
 
-                if (task.isSuccessful()){
-                    Log.e(TAG, "SignIn : User logged on ");
+                        DocumentReference usersRef = ref.document(mAuth.getCurrentUser().getUid());
+                        usersRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    if (task.getResult() == null) Log.d(TAG, "getResult is null");
+                                    Log.d(TAG, "getResult: " + task.getResult());
+                                    DocumentSnapshot document = task.getResult();
+                                    HashMap<String, Object> map = new HashMap<>();
 
-                    DocumentReference usersRef = ref.document(mAuth.getCurrentUser().getUid());
-                    usersRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                             @Override
-                                                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                                 if (task.isSuccessful()) {
-                                                                     if (task.getResult() == null) Log.d(TAG, "getResult is null");
-                                                                     Log.d(TAG, "getResult: " + task.getResult());
-                                                                     DocumentSnapshot document = task.getResult();
-                                                                     HashMap<String, Object> map = new HashMap<>();
+                                    map.put("UID", document.get("UID"));
+                                    map.put("email", document.get("email"));
+                                    map.put("displayName", document.get("displayName"));
+                                    map.put("imageURL", document.get("imageURL"));
+                                    map.put("chefRating", document.get("chefRating"));
+                                    map.put("numRecipes", document.get("numRecipes"));
+                                    map.put("preferences", document.get("preferences"));
+                                    user = new UserInfo(map, (HashMap<String, Object>) document.get("preferences"));
+                                }else {
+                                    Log.e(TAG, "SignIn : Unable to retrieve user document in Firestore ");
+                                    Toast.makeText(getApplicationContext(),"Sign in failed, unable to retrieve user details, please try again.",Toast.LENGTH_SHORT).show();
+                                    mAuth.signOut();
+                                }
+                            }
+                        });
+                    }
+                    else {
+                        Log.e(TAG, "SignIn : User log on response, but failed ");
+                        Toast.makeText(getApplicationContext(),"Sign in failed, invalid email or password, please try again.",Toast.LENGTH_SHORT).show();
 
-                                                                     map.put("UID", document.get("UID"));
-                                                                     map.put("email", document.get("email"));
-                                                                     map.put("displayName", document.get("displayName"));
-                                                                     map.put("imageURL", document.get("imageURL"));
-                                                                     map.put("chefRating", document.get("chefRating"));
-                                                                     map.put("numRecipes", document.get("numRecipes"));
-                                                                     map.put("preferences", document.get("preferences"));
-                                                                     user.setUserInfoMap(map);
-                                                                 }else {
-                                                                     Log.e(TAG, "SignIn : Unable to retrieve user document in Firestore ");
-                                                                     Toast.makeText(getApplicationContext(),"Sign in failed, unable to retrieve user details, please try again.",Toast.LENGTH_SHORT).show();
-                                                                     mAuth.signOut();
-                                                                 }
-                                                             }
-                                                         });
-                }
-                else {
-                    Log.e(TAG, "SignIn : User log on response, but failed ");
-                    Toast.makeText(getApplicationContext(),"Sign in failed, invalid email or password, please try again.",Toast.LENGTH_SHORT).show();
-
+                    }
+                }catch(Exception e){
+                    Log.e(TAG, "ERROR - Caught when trying to save data to UserInfo, error: (" + e + ")");
                 }
             }
         };
@@ -339,10 +333,6 @@ public class Login extends AppCompatActivity {
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(complete).addOnFailureListener(failure);
     }
 
-    private void setDisplayName(FirebaseUser user) {
-        UserProfileChangeRequest changeRequest = new UserProfileChangeRequest.Builder().setDisplayName(mDisplayName).build();
-        user.updateProfile(changeRequest);
-    }
 
     private void finishActivity() {
 
@@ -354,5 +344,10 @@ public class Login extends AppCompatActivity {
         setResult(RESULT_OK, returningIntent);
 
         finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        //Do nothing
     }
 }

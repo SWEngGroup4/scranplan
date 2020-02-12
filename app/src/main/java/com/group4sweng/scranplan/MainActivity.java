@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                                 map.put("chefRating", document.get("chefRating"));
                                 map.put("numRecipes", document.get("numRecipes"));
                                 map.put("preferences", document.get("preferences"));
-                                userDetails.setUserInfoMap(map);
+                                userDetails = new UserInfo(map, (HashMap<String, Object>) document.get("preferences"));
                             }else {
                                 Log.e(TAG, "User details retrieval : Unable to retrieve user document in Firestore ");
                                 Toast.makeText(getApplicationContext(),"Unable to retrieve current user details, please sign in again.",Toast.LENGTH_SHORT).show();
