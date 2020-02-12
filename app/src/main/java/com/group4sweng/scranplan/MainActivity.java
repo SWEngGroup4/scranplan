@@ -129,6 +129,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.e(TAG, "Logout button has been pressed and user has been logged out.");
+                userDetails = null;
                 mAuth.signOut();
             }
         });
