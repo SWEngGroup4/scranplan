@@ -252,6 +252,7 @@ public class Login extends AppCompatActivity {
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(complete).addOnFailureListener(failure);
     }
 
+
     private void setDisplayName(FirebaseUser user) {
         UserProfileChangeRequest changeRequest = new UserProfileChangeRequest.Builder().setDisplayName(mDisplayName).build();
         user.updateProfile(changeRequest);

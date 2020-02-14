@@ -6,19 +6,10 @@
     tools:context="com.group4sweng.scranplan.RecipeFragment">
 
     <!-- TODO: Update blank fragment layout -->
-
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:text="Recipe" />
-
-    <Button
-        android:id="@+id/RecipeButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="Recipe" />
-
+        android:text="Ingredients" />
 
 </FrameLayout>
