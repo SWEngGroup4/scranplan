@@ -8,9 +8,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.content.Intent;
 
-
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
+
 
 public class RecipeFragment extends Fragment {
 
@@ -42,13 +41,21 @@ public class RecipeFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                Intent in = new Intent(getActivity(), RecipeInfo.class);
-                startActivity(in);
+                //Intent in = new Intent(getActivity(), RecipeInfo.class);
+                //startActivity(in);
+                openRecipeDialog();
 
             }
         });
     }
 
+
+    public void openRecipeDialog(){
+
+        RecipeInfoFragment test = new RecipeInfoFragment();
+        test.show(getFragmentManager(), "test");
+
+    }
 
 
 }
