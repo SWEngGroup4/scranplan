@@ -28,6 +28,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage:16.0.4'
     implementation 'com.google.firebase:firebase-database:16.0.4'
     implementation 'com.android.support:support-v4:29.+'
+    implementation 'androidx.fragment:fragment:1.1.0-alpha03'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
@@ -37,6 +38,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:19.2.0'
     implementation 'com.google.android.gms:play-services-gcm:17.0.0'
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
+    debugImplementation 'androidx.fragment:fragment-testing:1.1.0-alpha03'
 
 
 // this dependency is not required if you are already using your own
