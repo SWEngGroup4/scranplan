@@ -1,5 +1,6 @@
 package com.group4sweng.scranplan;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -18,6 +19,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.multidex.MultiDex;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -26,8 +28,8 @@ import com.google.firebase.firestore.*;
 
 public class RecipeFragment extends Fragment {
 
-//    private FirebaseFirestore database = FirebaseFirestore.getInstance();
-//    CollectionReference ref = database.collection("recipes");
+    private FirebaseFirestore database = FirebaseFirestore.getInstance();
+    CollectionReference ref = database.collection("recipes");
 
     public RecipeFragment() {
 
@@ -43,18 +45,18 @@ public class RecipeFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_recipe, container, false);
 
-//        ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-//            @Override
-//            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-//                if (task.isSuccessful()) {
-//                    for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
-//                        Log.d("Test", documentSnapshot.getId() + " => " + documentSnapshot.getData());
-//                    }
-//                } else {
-//                    Log.w("Test", "Error getting documents", task.getException());
-//                }
-//            }
-//        });
+        ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                        Log.d("Test", documentSnapshot.getId() + " => " + documentSnapshot.getData());
+                    }
+                } else {
+                    Log.w("Test", "Error getting documents", task.getException());
+                }
+            }
+        });
 
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
         LinearLayout topLayout = view.findViewById(R.id.topLayout);
@@ -71,9 +73,12 @@ public class RecipeFragment extends Fragment {
                 ImageButton imageButton = new ImageButton(view.getContext());
                 imageButton.setAdjustViewBounds(true);
                 imageButton.setPadding(10,10,10,10);
-                imageButton.setImageResource(R.drawable.scran); // TODO replace image with one downloaded from Firebase
                 imageButton.setBackground(null);
                 imageButton.setScaleType(ImageButton.ScaleType.FIT_XY);
+
+                String imgUrl = "https://firebasestorage.googleapis.com/v0/b/scran-plan-bc521.appspot.com/o/recipe_pictures%2Fbaconsandwich.jpg?alt=media&token=b903704f-a0e4-490b-a046-4c52ce9e60e8";
+                new DownloadImageTask(imageButton).execute(imgUrl);
+                imageButton.setImageResource(R.drawable.scran); // TODO replace image with one downloaded from Firebase
 
                 imageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
