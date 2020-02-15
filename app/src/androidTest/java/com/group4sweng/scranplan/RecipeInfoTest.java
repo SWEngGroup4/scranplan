@@ -15,9 +15,9 @@ import com.google.android.material.tabs.TabLayout;
 public class RecipeInfoTest {
 
     @Rule
-    public ActivityTestRule<RecipeInfo> mActivityTestRule = new ActivityTestRule<RecipeInfo>(RecipeInfo.class);
+    public ActivityTestRule<RecipeInfoFragment> mActivityTestRule = new ActivityTestRule<RecipeInfoFragment>(RecipeInfoFragment.class);
 
-    private RecipeInfo mActivity = null;
+    private RecipeInfoFragment mActivity = null;
     private Button backButton;
     private TabLayout.Tab tabSwitch1;
     private TabLayout.Tab tabSwitch2;
