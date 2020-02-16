@@ -7,15 +7,23 @@ import java.util.HashMap;
  * UserInfo class
  * Used to save current user vital variables that will be used throughout the app for customisation
  */
-public class UserInfo implements Serializable {
+public class UserInfo extends UserBase implements Serializable{
+
+    final static String TAG = "UserInfo";
+    private static UserInfo user;
 
     // Basic user information
-    private String UID;
-    private String email;
-    private String displayName;
-    private String imageURL;
-    private double chefRating;
-    private long numRecipes;
+    private static String UID;
+    private static String email;
+    private static String displayName;
+    private static String imageURL;
+    private static double chefRating;
+    private static long numRecipes;
+    private static Boolean hasPaidSubscription = false;
+
+    /*TODO
+        Add saved recipes here. Check UML profile diagram and Recipe diagram for more information.
+     */
 
     // User preferences
     private Preferences preferences;
@@ -43,6 +51,7 @@ public class UserInfo implements Serializable {
         allergy_shellfish, allergy_soya, allergy_sulphide, diabetic, halal, high_protein, kosher,
         lactose_free, lactovegetarian, low_carb, low_sodium, no_alcohol, no_pork,
         ovovegetarian, pescatarian, vegan, vegetarian);
+
     }
 
     // Constructor using maps
@@ -67,19 +76,10 @@ public class UserInfo implements Serializable {
                 (boolean) prefs.get("no_alcohol"), (boolean) prefs.get("no_pork"),
                 (boolean) prefs.get("ovovegetarian"), (boolean) prefs.get("pescatarian"),
                 (boolean) prefs.get("vegan"), (boolean) prefs.get("vegetarian"));
+
     }
-
-
 
     // All getters and setters for all variables
-
-    public String getUID() {
-        return UID;
-    }
-
-    public void setUID(String UID) {
-        this.UID = UID;
-    }
 
     public String getEmail() {
         return email;
@@ -87,38 +87,6 @@ public class UserInfo implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-
-    public String getImageURL() {
-        return imageURL;
-    }
-
-    public void setImageURL(String imageURL) {
-        this.imageURL = imageURL;
-    }
-
-    public double getChefRating() {
-        return chefRating;
-    }
-
-    public void setChefRating(int chefRating) {
-        this.chefRating = chefRating;
-    }
-
-    public long getNumRecipes() {
-        return numRecipes;
-    }
-
-    public void setNumRecipes(int numRecipes) {
-        this.numRecipes = numRecipes;
     }
 
     public Preferences getPreferences() {
