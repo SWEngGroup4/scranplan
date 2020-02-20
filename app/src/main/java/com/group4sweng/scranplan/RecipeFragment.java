@@ -1,58 +1,29 @@
 package com.group4sweng.scranplan;
 
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import androidx.fragment.app.Fragment;
 
-
 public class RecipeFragment extends Fragment {
-
-    final String TAG = "Recipe Home";
-
-    Button mRecipeButton;
 
     public RecipeFragment() {
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        Log.e(TAG, "Starting recipe Info activity");
-
-        View view =  inflater.inflate(R.layout.fragment_recipe, container, false);
-        mRecipeButton = view.findViewById(R.id.RecipeButton);
-        initPageListeners();
-
-        return view;
-
+        return inflater.inflate(R.layout.fragment_recipe, container, false);
     }
-
-    //Once recipe is clicked on a new activity is created that hold the recipe information
-    private void initPageListeners(){
-        mRecipeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                openRecipeDialog();
-
-            }
-        });
-    }
-
-
-    public void openRecipeDialog(){
-
-        RecipeInfoFragment test = new RecipeInfoFragment();
-        test.show(getFragmentManager(), "test");
-
-    }
-
-
 }
