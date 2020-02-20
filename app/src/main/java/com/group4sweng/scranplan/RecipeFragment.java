@@ -24,6 +24,7 @@ import androidx.multidex.MultiDex;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.*;
+import com.squareup.picasso.Picasso;
 
 
 public class RecipeFragment extends Fragment {
@@ -77,8 +78,7 @@ public class RecipeFragment extends Fragment {
                 imageButton.setScaleType(ImageButton.ScaleType.FIT_XY);
 
                 String imgUrl = "https://firebasestorage.googleapis.com/v0/b/scran-plan-bc521.appspot.com/o/recipe_pictures%2Fbaconsandwich.jpg?alt=media&token=b903704f-a0e4-490b-a046-4c52ce9e60e8";
-                new DownloadImageTask(imageButton).execute(imgUrl);
-                imageButton.setImageResource(R.drawable.scran); // TODO replace image with one downloaded from Firebase
+                Picasso.get().load(imgUrl).into(imageButton);
 
                 imageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
