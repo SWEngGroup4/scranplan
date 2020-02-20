@@ -1,8 +1,6 @@
 package com.group4sweng.scranplan;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,7 +14,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
@@ -25,18 +22,12 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
-
-import org.w3c.dom.Document;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 
 public class RecipeInfoFragment extends AppCompatDialogFragment {
@@ -45,8 +36,9 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
     TabLayout mTabLayout2;
     FrameLayout mRecipeFrameLayout;
     TextView mTitle;
+    TextView mChefName;
+    TextView mDescription;
     ImageView mRecipeImage;
-    FirebaseAuth mAuth;
 
     private FirebaseFirestore mDatabase;
     private CollectionReference mDataRef;
@@ -77,15 +69,14 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         mRecipeFrameLayout = layout.findViewById(R.id.RecipeFrameLayout);
         listViewIngredients = layout.findViewById(R.id.listViewText);
         mTitle = layout.findViewById(R.id.Title);
+        mChefName = layout.findViewById(R.id.chefName);
+        mDescription = layout.findViewById(R.id.description);
         mRecipeImage = layout.findViewById(R.id.recipeImage);
 
-//        mAuth = FirebaseAuth.getInstance();
-//        mAuth.getCurrentUser();
-//        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         mDatabase = FirebaseFirestore.getInstance();
         mDataRef = mDatabase.collection("recipes");
-        DocumentReference docRef = mDataRef.document("wIHQ1GDdvJZ6jr4erzs4");
+        DocumentReference docRef = mDataRef.document("PkMAJA8qEltZH4RZ092u");
 
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
 
@@ -95,7 +86,9 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
 
                     DocumentSnapshot document = task.getResult();
                     Log.d("Recipe Name", ""+ document.getData().get("Name"));
-                    mTitle.setText(document.getData().get("Name").toString());
+                    mTitle.setText(document.getData().get("name").toString());
+                    mChefName.setText(document.getData().get("chef").toString());
+                    mDescription.setText(document.getData().get("Description").toString());
 
 
                 }
@@ -143,6 +136,10 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
      */
     private void tabFragments(){
 
+        FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.RecipeFrameLayout, new RecipeIngredientFragment());
+        fragmentTransaction.commit();
+
         mTabLayout2.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -151,7 +148,6 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
                     case 0:
                         fragment = new RecipeIngredientFragment();
 
-                        //dbData();
 
                         break;
                     case 1:
@@ -178,47 +174,14 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
 
     }
 
-    /*private void dbData(){
-
-        mDatabase = FirebaseDatabase.getInstance();
-        mDataRef = mDatabase.getReference("recipes").child("wIHQ1GDdvJZ6jr4erzs4").child("Name");
-
+    private void dbData(){
 
         listViewIngredients = getActivity().findViewById(R.id.listViewText);
         arrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, ingredientList);
         listViewIngredients.setAdapter(arrayAdapter);
 
-        mDataRef.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+        
+    }
 
-                String value = dataSnapshot.getValue(String.class);
-                ingredientList.add(value);
-                arrayAdapter.notifyDataSetChanged();
-
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-*/
-    //}
 
 }
