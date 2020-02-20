@@ -162,13 +162,18 @@ public class Login extends AppCompatActivity {
                     String password =mPasswordEditText.getText().toString();
                     String confirmPassword = mConfirmPasswordEditText.getText().toString();
                     String displayName = mDisplayNameText.getText().toString();
-                    Boolean passwordCheck = password.equals(confirmPassword);
-                    // Check both passwords match before registering new user
-                    if(passwordCheck){
-                        registerUser(email, password, displayName);
+                    // Check none of fields are just empty strings
+                    if(!email.equals("") && !password.equals("") && !displayName.equals("") ){
+                        // Check both passwords match before registering new user
+                        if(password.equals(confirmPassword)){
+                            registerUser(email, password, displayName);
+                        }else{
+                            // Display message to user if passwords do not match
+                            Toast.makeText(getApplicationContext(),"Passwords do not match, please try again.",Toast.LENGTH_SHORT).show();
+                        }
                     }else{
                         // Display message to user if passwords do not match
-                        Toast.makeText(getApplicationContext(),"Passwords do not match, please try again.",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(),"One or more of the fields are empty, please fill in all sections of the form.",Toast.LENGTH_SHORT).show();
                     }
                 }
             }
