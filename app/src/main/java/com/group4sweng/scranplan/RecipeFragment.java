@@ -29,8 +29,10 @@ import com.squareup.picasso.Picasso;
 
 public class RecipeFragment extends Fragment {
 
-    private FirebaseFirestore database = FirebaseFirestore.getInstance();
-    CollectionReference ref = database.collection("recipes");
+    private FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
+    CollectionReference mColRef = mDatabase.collection("recipes");
+    DocumentReference mDocRef;
+    String imgUrl = "fuckyou";
 
     public RecipeFragment() {
 
@@ -46,11 +48,14 @@ public class RecipeFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_recipe, container, false);
 
-        ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        mColRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                    mDocRef = mColRef.document(documentSnapshot.getId());
+                    imgUrl = documentSnapshot.getId();
+
                         Log.d("Test", documentSnapshot.getId() + " => " + documentSnapshot.getData());
                     }
                 } else {
@@ -59,6 +64,7 @@ public class RecipeFragment extends Fragment {
             }
         });
 
+        String fuckoff = imgUrl;
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
         LinearLayout topLayout = view.findViewById(R.id.topLayout);
 
@@ -77,8 +83,17 @@ public class RecipeFragment extends Fragment {
                 imageButton.setBackground(null);
                 imageButton.setScaleType(ImageButton.ScaleType.FIT_XY);
 
-                String imgUrl = "https://firebasestorage.googleapis.com/v0/b/scran-plan-bc521.appspot.com/o/recipe_pictures%2Fbaconsandwich.jpg?alt=media&token=b903704f-a0e4-490b-a046-4c52ce9e60e8";
-                Picasso.get().load(imgUrl).into(imageButton);
+//                mDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                        if (task.isSuccessful()) {
+//                            DocumentSnapshot documentSnapshot = task.getResult();
+//                            imgUrl = documentSnapshot.get("imgURL").toString();
+//                        }
+//                    }
+//                });
+
+//                Picasso.get().load(imgUrl).into(imageButton);
 
                 imageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
