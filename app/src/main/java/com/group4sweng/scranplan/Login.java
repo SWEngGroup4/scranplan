@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -19,36 +20,50 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.*;
 
+import java.util.HashMap;
+
+/**
+ * Login class
+ * Everything necessary for new users to register or existing users to log in before moving into the
+ * main section of the application
+ */
 public class Login extends AppCompatActivity {
 
+    // TAG for log info
     final String TAG = "FirebaseTestLogin";
 
+    // Variable to hold user info
+    UserInfo user;
+
+    // Firebase variables needed for login/register
     FirebaseApp mApp;
     FirebaseAuth mAuth;
     FirebaseAuth.AuthStateListener mAuthStateListener;
+    final FirebaseFirestore database = FirebaseFirestore.getInstance();
+    CollectionReference ref = database.collection("users");
 
+    // All edit text local variables to link to XML page
     EditText mEmailEditText;
     EditText mPasswordEditText;
     EditText mConfirmPasswordEditText;
     EditText mDisplayNameText;
 
+    // All button local variables used to give function to XML page
     Button mLoginButton;
     TextView mForgottenPasswordText;
     Button mFacebookLoginButton;
     Button mGoogleLoginButton;
     Button mRegisterButton;
-
     ImageView mInfoButton;
 
+    // Variables to save state of page view
     Boolean mLoginInProgress = false;
     Boolean mRegisterInProgress = false;
 
+    // Variable to save display name when registering for a new profile
     String mDisplayName = "Unknown";
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +80,11 @@ public class Login extends AppCompatActivity {
         initFirebase();
     }
 
+    /**
+     * initPageItems
+     * Connecting all XML page values with local variables and hiding all parts that's the user
+     * isn't intended to be able to see yet.
+     */
     private void initPageItems(){
         //Defining all relevant members of signin & register page
         mEmailEditText = (EditText) findViewById(R.id.emailEditText);
@@ -90,20 +110,29 @@ public class Login extends AppCompatActivity {
         mDisplayNameText.setVisibility(View.GONE);
     }
 
+    /**
+     * initPageListeners
+     * Giving each actionable item on the XML page function.
+     */
     private void initPageListeners(){
+
+        /**
+         * Setting login button, first click enables login components, second click initiated sign in
+         */
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // Hiding register user components
                 mRegisterInProgress = false;
                 if(!mLoginInProgress){
-                    // First button press
+                    // First button press, set login components to visible
                     mLoginInProgress = true;
                     mEmailEditText.setVisibility(View.VISIBLE);
                     mPasswordEditText.setVisibility(View.VISIBLE);
                     mConfirmPasswordEditText.setVisibility(View.GONE);
                     mDisplayNameText.setVisibility(View.GONE);
                 }else{
-                    // Second button press
+                    // Second button press, log user in with entered email and password
                     String email = mEmailEditText.getText().toString();
                     String password =mPasswordEditText.getText().toString();
                     loginUser(email, password);
@@ -112,35 +141,43 @@ public class Login extends AppCompatActivity {
             }
         });
 
+        /**
+         * Setting register button, first click enables register components, second click initiates
+         * new user registration
+         */
         mRegisterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mLoginInProgress = false;
-
                 if(!mRegisterInProgress){
-                    // First button press
+                    // First button press - set all components visible
                     mRegisterInProgress = true;
                     mEmailEditText.setVisibility(View.VISIBLE);
                     mPasswordEditText.setVisibility(View.VISIBLE);
                     mConfirmPasswordEditText.setVisibility(View.VISIBLE);
                     mDisplayNameText.setVisibility(View.VISIBLE);
                 }else{
-                    // Second button press
+                    // Second button press - register new user with credentials
                     String email = mEmailEditText.getText().toString();
                     String password =mPasswordEditText.getText().toString();
                     String confirmPassword = mConfirmPasswordEditText.getText().toString();
                     String displayName = mDisplayNameText.getText().toString();
                     Boolean passwordCheck = password.equals(confirmPassword);
+                    // Check both passwords match before registering new user
                     if(passwordCheck){
                         registerUser(email, password, displayName);
                     }else{
-                        //TODO need a toast to say passwords do not match
+                        // Display message to user if passwords do not match
+                        Toast.makeText(getApplicationContext(),"Passwords do not match, please try again.",Toast.LENGTH_SHORT).show();
                     }
                 }
             }
         });
 
 
+        /**
+         * Setting forgotten password button
+         */
         mForgottenPasswordText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -148,6 +185,9 @@ public class Login extends AppCompatActivity {
             }
         });
 
+        /**
+         * Setting Facebook Login button
+         */
         mFacebookLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -156,6 +196,9 @@ public class Login extends AppCompatActivity {
             }
         });
 
+        /**
+         * Setting Google Login button
+         */
         mGoogleLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -164,6 +207,9 @@ public class Login extends AppCompatActivity {
             }
         });
 
+        /**
+         * Setting info button
+         */
         mInfoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -172,6 +218,12 @@ public class Login extends AppCompatActivity {
         });
     }
 
+    /**
+     * Setting up the Firebase, creating a Firebase authentication instance and linking it to a
+     * Firebase app instance. A listener is then added to authentication instance to check when
+     * a user has been logged in. If a user has been logged in the user is sent forward through
+     * to the main menu.
+     */
     private void initFirebase() {
 
         mApp = FirebaseApp.getInstance();
@@ -182,18 +234,12 @@ public class Login extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
 
                 FirebaseUser user = firebaseAuth.getCurrentUser();
-
+                // Is user is a real authentication
                 if (user != null) {
                     Log.e(TAG, "SignIn : Valid current user : email [" + user.getEmail() + "]");
-                    //TODO Grab user display name from database along with any other main account info
-                    if (mRegisterInProgress) {
-                        setDisplayName(user);
-                    } else {
-                        mDisplayName = user.getDisplayName();
-                    }
                     mLoginInProgress = false;
                     mRegisterInProgress = false;
-
+                    // User sent back to main menu
                     finishActivity();
                 }
                 else
@@ -203,69 +249,182 @@ public class Login extends AppCompatActivity {
         mAuth.addAuthStateListener(mAuthStateListener);
     }
 
-    private void registerUser(String email, String password, String displayName) {
-
+    /**
+     * Setting up a new user both via Firebase authentication and setting up a user profile
+     * on the database
+     * @param email - users email address, saved as authentication and in database
+     * @param password - Users password, saved as authentication
+     * @param displayName - users display name, saved in database
+     */
+    private void registerUser(String email, String password, final String displayName) {
+        mDisplayName = displayName;
         OnCompleteListener<AuthResult> complete = new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
 
-                if (task.isSuccessful())
+                // if authentication successful
+                if (task.isSuccessful()){
                     Log.e(TAG, "SignIn : User registered ");
-                //TODO Save display name to user profile in database, also save any other information needed to default settings for user to change
-                else
+                    // Setting up default user profile on database with email and display name
+                    HashMap<String, Object> map = new HashMap<>();
+                    HashMap<String, Object> preferences = new HashMap<>();
+                    map.put("UID", mAuth.getCurrentUser().getUid());
+                    map.put("email", mAuth.getCurrentUser().getEmail());
+                    map.put("displayName", mDisplayName);
+                    map.put("imageURL", (String) null);
+                    map.put("chefRating", (double) 0);
+                    map.put("numRecipes", (long) 0);
+
+                    // Default user food preferences
+                    preferences.put("allergy_celery", false);
+                    preferences.put("allergy_crustacean", false);
+                    preferences.put("allergy_eggs", false);
+                    preferences.put("allergy_fish", false);
+                    preferences.put("allergy_gluten", false);
+                    preferences.put("allergy_milk", false);
+                    preferences.put("allergy_mustard", false);
+                    preferences.put("allergy_nuts", false);
+                    preferences.put("allergy_peanuts", false);
+                    preferences.put("allergy_sesame", false);
+                    preferences.put("allergy_shellfish", false);
+                    preferences.put("allergy_soya", false);
+                    preferences.put("allergy_sulphide", false);
+                    preferences.put("diabetic", false);
+                    preferences.put("halal", false);
+                    preferences.put("high_protein", false);
+                    preferences.put("kosher", false);
+                    preferences.put("lactose_free", false);
+                    preferences.put("lactovegetarian", false);
+                    preferences.put("low_carb", false);
+                    preferences.put("low_sodium", false);
+                    preferences.put("no_alcohol", false);
+                    preferences.put("no_pork", false);
+                    preferences.put("ovovegetarian", false);
+                    preferences.put("pescatarian", false);
+                    preferences.put("vegan", false);
+                    preferences.put("vegetarian", false);
+
+                    map.put("preferences", preferences);
+                    // Saving default profile locally to user
+                    user = new UserInfo(map, preferences);
+                    // Saving default user to Firebase Firestore database
+                    DocumentReference usersRef = ref.document(mAuth.getCurrentUser().getUid());
+                    usersRef.set(map);
+
+                }else{
+                    // Log and alert user if unsuccessful
                     Log.e(TAG, "SignIn : User registration response, but failed ");
+                    Toast.makeText(getApplicationContext(),"User registration failed, please try again.",Toast.LENGTH_SHORT).show();
+                }
             }
         };
 
+        // Log and alert user if unsuccessful
         OnFailureListener failure = new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.e(TAG,"SignIn : Register user failure");
+                Toast.makeText(getApplicationContext(),"User registration failed, please try again.",Toast.LENGTH_SHORT).show();
             }
         };
 
+        // Logging user log in
         Log.e(TAG, "SignIn : Registering : eMail [" + email + "] password [" + password + "] Display Name [" + displayName + "]");
+        // Creating new authentication account
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(complete).addOnFailureListener(failure);
     }
 
+    /**
+     * Log in know user both via Firebase authentication and downloading user profile from Firestore
+     * @param email - users email address, to log into authentication
+     * @param password - Users password, to log into authentication
+     */
     private void loginUser(String email, String password) {
 
+        // Listening to check if login complete
         OnCompleteListener<AuthResult> complete = new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
+                try{
+                    if (task.isSuccessful()){
+                        Log.e(TAG, "SignIn : User logged on ");
+                        // If successful, log complete and attempt to download user data
+                        DocumentReference usersRef = ref.document(mAuth.getCurrentUser().getUid());
+                        usersRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    if (task.getResult() == null) Log.d(TAG, "getResult is null");
+                                    // If download successful, data is saved to local variable
+                                    Log.d(TAG, "getResult: " + task.getResult());
+                                    DocumentSnapshot document = task.getResult();
+                                    HashMap<String, Object> map = new HashMap<>();
+                                    map.put("UID", document.get("UID"));
+                                    map.put("email", document.get("email"));
+                                    map.put("displayName", document.get("displayName"));
+                                    map.put("imageURL", document.get("imageURL"));
+                                    map.put("chefRating", document.get("chefRating"));
+                                    map.put("numRecipes", document.get("numRecipes"));
+                                    map.put("preferences", document.get("preferences"));
+                                    user = new UserInfo(map, (HashMap<String, Object>) document.get("preferences"));
+                                }else {
+                                    // Log and alert user if unsuccessful with data retrieval
+                                    Log.e(TAG, "SignIn : Unable to retrieve user document in Firestore ");
+                                    Toast.makeText(getApplicationContext(),"Sign in failed, unable to retrieve user details, please try again.",Toast.LENGTH_SHORT).show();
+                                    // Log user back out as they have no user profile in database
+                                    mAuth.signOut();
+                                }
+                            }
+                        });
+                    }
+                    else {
+                        // Log and alert user if unsuccessful with sign in
+                        Log.e(TAG, "SignIn : User log on response, but failed ");
+                        Toast.makeText(getApplicationContext(),"Sign in failed, invalid email or password, please try again.",Toast.LENGTH_SHORT).show();
 
-                if (task.isSuccessful())
-                    Log.e(TAG, "SignIn : User logged on ");
-                else
-                    Log.e(TAG, "SignIn : User log on response, but failed ");
+                    }
+                }catch(Exception e){
+                    // Log that an exception has been called when trying to download from database
+                    Log.e(TAG, "ERROR - Caught when trying to save data to UserInfo, error: (" + e + ")");
+                }
             }
         };
 
+        // Unable to log in so user alerted and logged
         OnFailureListener failure = new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.e(TAG,"SignIn : Log on user failure");
+                Toast.makeText(getApplicationContext(),"Register failed, please try again.",Toast.LENGTH_SHORT).show();
             }
         };
 
+        // Attempt to log user in with given credentials
         Log.e(TAG, "SignIn : Logging in : eMail [" + email + "] password [" + password + "]");
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(complete).addOnFailureListener(failure);
     }
 
-    private void setDisplayName(FirebaseUser user) {
-        UserProfileChangeRequest changeRequest = new UserProfileChangeRequest.Builder().setDisplayName(mDisplayName).build();
-        user.updateProfile(changeRequest);
-    }
 
+    /**
+     * When user logged-in/registered and all data downloaded-from/saved-to database, user sent to
+     * main menu
+     */
     private void finishActivity() {
 
         Log.e(TAG,"SignIn Returning to main activity");
         mAuth.removeAuthStateListener(mAuthStateListener);
 
+        // User data returned to main menu
         Intent returningIntent = new Intent();
-        returningIntent.putExtra("displayname", mDisplayName);
+        returningIntent.putExtra("user", user);
         setResult(RESULT_OK, returningIntent);
 
         finish();
+    }
+
+    // Disable user from pressing back button on login page
+    @Override
+    public void onBackPressed() {
+        //Do nothing
     }
 }
