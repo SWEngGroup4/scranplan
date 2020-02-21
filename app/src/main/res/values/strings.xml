@@ -1,7 +1,10 @@
 <resources>
     <string name="app_name">scranplan</string>
     <string name="action_settings">Settings</string>
-    <string name="scranplanTitle">Scranplan Project</string>
+    <string name="scranplan_title">Scranplan Project</string>
     <string name="nav_drawer_open">Open Nav Drawer</string>
     <string name="nav_drawer_close">Close Nav Drawer</string>
+    <string name="planner_breakfast">Breakfast</string>
+    <string name="planner_lunch">Lunch</string>
+    <string name="planner_dinner">Dinner</string>
 </resources>
