@@ -4,4 +4,13 @@
     <string name="scranplanTitle">Scranplan Project</string>
     <string name="nav_drawer_open">Open Nav Drawer</string>
     <string name="nav_drawer_close">Close Nav Drawer</string>
+
+    <!--Sidebar navigation String-->
+    <string name="sidebarnav_profile">Profile</string>
+    <string name="sidebarnav_recipes">Recipes</string>
+    <string name="sidebarnav_my_recipes">My Recipes</string>
+    <string name="sidebarnav_saved_recipes">Saved Recipes</string>
+
+    <string name="nav_recipes">Recipes</string>
+
 </resources>
