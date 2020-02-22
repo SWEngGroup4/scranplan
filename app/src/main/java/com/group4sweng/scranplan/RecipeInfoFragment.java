@@ -26,6 +26,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -76,7 +77,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
 
         mDatabase = FirebaseFirestore.getInstance();
         mDataRef = mDatabase.collection("recipes");
-        DocumentReference docRef = mDataRef.document("PkMAJA8qEltZH4RZ092u");
+        final DocumentReference docRef = mDataRef.document("PkMAJA8qEltZH4RZ092u");
 
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
 
@@ -86,10 +87,12 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
 
                     DocumentSnapshot document = task.getResult();
                     Log.d("Recipe Name", ""+ document.getData().get("Name"));
-                    mTitle.setText(document.getData().get("name").toString());
-                    mChefName.setText(document.getData().get("chef").toString());
+                    mTitle.setText(document.getData().get("Name").toString());
+                    mChefName.setText(document.getData().get("Chef").toString());
                     mDescription.setText(document.getData().get("Description").toString());
 
+
+                    Picasso.get().load(document.get("imageURL").toString()).into(mRecipeImage);
 
                 }
             }
@@ -180,7 +183,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         arrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, ingredientList);
         listViewIngredients.setAdapter(arrayAdapter);
 
-        
+
     }
 
 
