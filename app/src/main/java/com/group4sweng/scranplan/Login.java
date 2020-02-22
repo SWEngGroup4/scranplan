@@ -1,8 +1,5 @@
 package com.group4sweng.scranplan;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +10,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -20,7 +20,10 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.*;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 
@@ -29,13 +32,14 @@ import java.util.HashMap;
  * Everything necessary for new users to register or existing users to log in before moving into the
  * main section of the application
  */
-public class Login extends AppCompatActivity {
+public class Login extends AppCompatActivity{
 
     // TAG for log info
     final String TAG = "FirebaseTestLogin";
 
     // Variable to hold user info
-    UserInfo user;
+    private UserInfo user;
+    private ProfileView profileView;
 
     // Firebase variables needed for login/register
     FirebaseApp mApp;
@@ -62,7 +66,7 @@ public class Login extends AppCompatActivity {
     Boolean mLoginInProgress = false;
     Boolean mRegisterInProgress = false;
 
-    // Variable to save display name when registering for a new profile
+    // Variable to save display name when registering for a new profileView
     String mDisplayName = "Unknown";
 
     @Override
@@ -78,6 +82,8 @@ public class Login extends AppCompatActivity {
         initPageListeners();
 
         initFirebase();
+
+        profileView = new ProfileView(user);
     }
 
     /**
@@ -250,7 +256,7 @@ public class Login extends AppCompatActivity {
     }
 
     /**
-     * Setting up a new user both via Firebase authentication and setting up a user profile
+     * Setting up a new user both via Firebase authentication and setting up a user profileView
      * on the database
      * @param email - users email address, saved as authentication and in database
      * @param password - Users password, saved as authentication
@@ -265,7 +271,7 @@ public class Login extends AppCompatActivity {
                 // if authentication successful
                 if (task.isSuccessful()){
                     Log.e(TAG, "SignIn : User registered ");
-                    // Setting up default user profile on database with email and display name
+                    // Setting up default user profileView on database with email and display name
                     HashMap<String, Object> map = new HashMap<>();
                     HashMap<String, Object> preferences = new HashMap<>();
                     map.put("UID", mAuth.getCurrentUser().getUid());
@@ -305,12 +311,12 @@ public class Login extends AppCompatActivity {
                     preferences.put("vegetarian", false);
 
                     map.put("preferences", preferences);
-                    // Saving default profile locally to user
+                    // Saving default profileView locally to user
                     user = new UserInfo(map, preferences);
                     // Saving default user to Firebase Firestore database
                     DocumentReference usersRef = ref.document(mAuth.getCurrentUser().getUid());
                     usersRef.set(map);
-
+                    profileView = new ProfileView(user);
                 }else{
                     // Log and alert user if unsuccessful
                     Log.e(TAG, "SignIn : User registration response, but failed ");
@@ -335,7 +341,7 @@ public class Login extends AppCompatActivity {
     }
 
     /**
-     * Log in know user both via Firebase authentication and downloading user profile from Firestore
+     * Log in know user both via Firebase authentication and downloading user profileView from Firestore
      * @param email - users email address, to log into authentication
      * @param password - Users password, to log into authentication
      */
@@ -347,7 +353,7 @@ public class Login extends AppCompatActivity {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 try{
                     if (task.isSuccessful()){
-                        Log.e(TAG, "SignIn : User logged on ");
+                        Log.i(TAG, "SignIn : User logged on ");
                         // If successful, log complete and attempt to download user data
                         DocumentReference usersRef = ref.document(mAuth.getCurrentUser().getUid());
                         usersRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -367,11 +373,13 @@ public class Login extends AppCompatActivity {
                                     map.put("numRecipes", document.get("numRecipes"));
                                     map.put("preferences", document.get("preferences"));
                                     user = new UserInfo(map, (HashMap<String, Object>) document.get("preferences"));
+                                    Log.i(TAG, "Reached serialization");
+                                    profileView = new ProfileView(user);
                                 }else {
                                     // Log and alert user if unsuccessful with data retrieval
                                     Log.e(TAG, "SignIn : Unable to retrieve user document in Firestore ");
                                     Toast.makeText(getApplicationContext(),"Sign in failed, unable to retrieve user details, please try again.",Toast.LENGTH_SHORT).show();
-                                    // Log user back out as they have no user profile in database
+                                    // Log user back out as they have no user profileView in database
                                     mAuth.signOut();
                                 }
                             }
@@ -427,4 +435,6 @@ public class Login extends AppCompatActivity {
     public void onBackPressed() {
         //Do nothing
     }
+
+
 }

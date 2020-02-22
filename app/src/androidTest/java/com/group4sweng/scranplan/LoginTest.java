@@ -26,7 +26,6 @@ import static org.junit.Assert.*;
  */
 public class LoginTest {
 
-
     @Rule
     public ActivityTestRule<Login> mActivityTestRule = new ActivityTestRule<Login>(Login.class);
 
@@ -50,15 +49,12 @@ public class LoginTest {
         testApp = mActivity.mApp;
         testAuth = mActivity.mAuth;
 
-
         email = (EditText)mActivity.findViewById(R.id.emailEditText);
         password = (EditText)mActivity.findViewById(R.id.passwordEditText);
         confirmPassword = (EditText)mActivity.findViewById(R.id.confirmPasswordEditText);
         displayName = (EditText)mActivity.findViewById(R.id.displayNameEditText);
         loginButton = (Button)mActivity.findViewById(R.id.loginButton);
         registerButton = (Button)mActivity.findViewById(R.id.registerButton);
-
-
 
     }
 
@@ -184,8 +180,6 @@ public class LoginTest {
             }
         });
     }
-
-
 
 
     @After
