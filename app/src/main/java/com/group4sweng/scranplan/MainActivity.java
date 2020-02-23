@@ -2,6 +2,11 @@ package com.group4sweng.scranplan;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -12,20 +17,12 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
-
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import android.widget.FrameLayout;
-
-
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.auth.*;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -198,8 +195,20 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
+      
+      /*TODO Clean up temporary profile settings page listener*/
+        final Button tempProfileSettings = findViewById(R.id.profile_settings_button);
+        tempProfileSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)  {
+                tempOpenProfileSettings();
+            }
+        });
     }
 
+    public void tempOpenProfileSettings() {
+        Intent intent = new Intent(this, ProfileSettings.class);
+        startActivity(intent);
+    }
 
 }
