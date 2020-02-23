@@ -39,7 +39,6 @@ public class Login extends AppCompatActivity{
 
     // Variable to hold user info
     private UserInfo user;
-    private ProfileView profileView;
 
     // Firebase variables needed for login/register
     FirebaseApp mApp;
@@ -83,7 +82,6 @@ public class Login extends AppCompatActivity{
 
         initFirebase();
 
-        profileView = new ProfileView(user);
     }
 
     /**
@@ -316,7 +314,6 @@ public class Login extends AppCompatActivity{
                     // Saving default user to Firebase Firestore database
                     DocumentReference usersRef = ref.document(mAuth.getCurrentUser().getUid());
                     usersRef.set(map);
-                    profileView = new ProfileView(user);
                 }else{
                     // Log and alert user if unsuccessful
                     Log.e(TAG, "SignIn : User registration response, but failed ");
@@ -374,7 +371,6 @@ public class Login extends AppCompatActivity{
                                     map.put("preferences", document.get("preferences"));
                                     user = new UserInfo(map, (HashMap<String, Object>) document.get("preferences"));
                                     Log.i(TAG, "Reached serialization");
-                                    profileView = new ProfileView(user);
                                 }else {
                                     // Log and alert user if unsuccessful with data retrieval
                                     Log.e(TAG, "SignIn : Unable to retrieve user document in Firestore ");

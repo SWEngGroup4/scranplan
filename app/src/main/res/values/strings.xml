@@ -4,4 +4,5 @@
     <string name="scranplanTitle">Scranplan Project</string>
     <string name="nav_drawer_open">Open Nav Drawer</string>
     <string name="nav_drawer_close">Close Nav Drawer</string>
+    <string name="profile_settings_button_string">profile settings</string>
 </resources>
