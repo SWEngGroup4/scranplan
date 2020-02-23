@@ -15,12 +15,16 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.*;
+import com.google.firebase.firestore.model.DocumentSet;
+import com.google.firestore.v1.DocumentChange;
+import com.google.firestore.v1.WriteResult;
 
 import java.util.HashMap;
 
@@ -40,7 +44,6 @@ public class Login extends AppCompatActivity {
     // Firebase variables needed for login/register
     FirebaseApp mApp;
     FirebaseAuth mAuth;
-    FirebaseAuth.AuthStateListener mAuthStateListener;
     final FirebaseFirestore database = FirebaseFirestore.getInstance();
     CollectionReference ref = database.collection("users");
 
@@ -186,7 +189,19 @@ public class Login extends AppCompatActivity {
         mForgottenPasswordText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO implement password reset via Firebase -> easily done via Tools->FireBase
+                // Checking if email is filled in to be able to send recovery email.
+                if(mEmailEditText.getText() != null && !mEmailEditText.getText().toString().equals("") && mEmailEditText.getVisibility() != View.GONE){
+                    mAuth.sendPasswordResetEmail(mEmailEditText.getText().toString());
+                    Log.e(TAG, "SignIn : Password reset initiated with recovery email.");
+                    Toast.makeText(getApplicationContext(),"Password reset sent to email.",Toast.LENGTH_LONG).show();
+                }else{
+                    Log.e(TAG, "SignIn : Unable to send email to recover password, lack of email.");
+                    Toast.makeText(getApplicationContext(),"Please fill in email for password reset to be sent.",Toast.LENGTH_SHORT).show();
+                }
+                mLoginInProgress = false;
+                mRegisterInProgress = false;
+                mEmailEditText.setVisibility(View.VISIBLE);
+
             }
         });
 
@@ -234,24 +249,6 @@ public class Login extends AppCompatActivity {
         mApp = FirebaseApp.getInstance();
         mAuth = FirebaseAuth.getInstance(mApp);
 
-        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                // Is user is a real authentication
-                if (user != null) {
-                    Log.e(TAG, "SignIn : Valid current user : email [" + user.getEmail() + "]");
-                    mLoginInProgress = false;
-                    mRegisterInProgress = false;
-                    // User sent back to main menu
-                    finishActivity();
-                }
-                else
-                    Log.e(TAG, "SignIn : No Current user");
-            }
-        };
-        mAuth.addAuthStateListener(mAuthStateListener);
     }
 
     /**
@@ -261,7 +258,7 @@ public class Login extends AppCompatActivity {
      * @param password - Users password, saved as authentication
      * @param displayName - users display name, saved in database
      */
-    private void registerUser(String email, String password, final String displayName) {
+    private void registerUser(final String email, String password, final String displayName) {
         mDisplayName = displayName;
         OnCompleteListener<AuthResult> complete = new OnCompleteListener<AuthResult>() {
             @Override
@@ -311,11 +308,23 @@ public class Login extends AppCompatActivity {
 
                     map.put("preferences", preferences);
                     // Saving default profile locally to user
-                    user = new UserInfo(map, preferences);
+                    //user = new UserInfo(map, preferences);
                     // Saving default user to Firebase Firestore database
                     DocumentReference usersRef = ref.document(mAuth.getCurrentUser().getUid());
-                    usersRef.set(map);
-
+                    mAuth.getCurrentUser().sendEmailVerification();
+                    Log.e(TAG, "SignIn : Email authentication sent for new user and logged out.");
+                    Toast.makeText(getApplicationContext(),"Email authentication sent to email, please verify email and log in with your new account.",Toast.LENGTH_LONG).show();
+                    usersRef.set(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            mAuth.signOut();
+                        }
+                    });
+                    mRegisterInProgress = false;
+                    mDisplayNameText.getText().clear();
+                    mPasswordEditText.getText().clear();
+                    mConfirmPasswordEditText.getText().clear();
+                    mLoginInProgress = true;
                 }else{
                     // Log and alert user if unsuccessful
                     Log.e(TAG, "SignIn : User registration response, but failed ");
@@ -352,35 +361,50 @@ public class Login extends AppCompatActivity {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 try{
                     if (task.isSuccessful()){
-                        Log.e(TAG, "SignIn : User logged on ");
-                        // If successful, log complete and attempt to download user data
-                        DocumentReference usersRef = ref.document(mAuth.getCurrentUser().getUid());
-                        usersRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    if (task.getResult() == null) Log.d(TAG, "getResult is null");
-                                    // If download successful, data is saved to local variable
-                                    Log.d(TAG, "getResult: " + task.getResult());
-                                    DocumentSnapshot document = task.getResult();
-                                    HashMap<String, Object> map = new HashMap<>();
-                                    map.put("UID", document.get("UID"));
-                                    map.put("email", document.get("email"));
-                                    map.put("displayName", document.get("displayName"));
-                                    map.put("imageURL", document.get("imageURL"));
-                                    map.put("chefRating", document.get("chefRating"));
-                                    map.put("numRecipes", document.get("numRecipes"));
-                                    map.put("preferences", document.get("preferences"));
-                                    user = new UserInfo(map, (HashMap<String, Object>) document.get("preferences"));
-                                }else {
-                                    // Log and alert user if unsuccessful with data retrieval
-                                    Log.e(TAG, "SignIn : Unable to retrieve user document in Firestore ");
-                                    Toast.makeText(getApplicationContext(),"Sign in failed, unable to retrieve user details, please try again.",Toast.LENGTH_SHORT).show();
-                                    // Log user back out as they have no user profile in database
-                                    mAuth.signOut();
+                        if(mAuth.getCurrentUser().isEmailVerified()){
+                            Log.e(TAG, "SignIn : User logged on ");
+                            // If successful, log complete and attempt to download user data
+                            DocumentReference usersRef = ref.document(mAuth.getCurrentUser().getUid());
+                            usersRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        if (task.getResult() == null){
+                                            Log.d(TAG, "getResult is null, setting up new user.");
+                                        }else{
+                                            // If download successful, data is saved to local variable
+                                            Log.d(TAG, "getResult: " + task.getResult());
+                                            DocumentSnapshot document = task.getResult();
+                                            HashMap<String, Object> map = new HashMap<>();
+                                            map.put("UID", mAuth.getCurrentUser().getUid());
+                                            map.put("email", document.get("email"));
+                                            map.put("displayName", document.get("displayName"));
+                                            map.put("imageURL", document.get("imageURL"));
+                                            map.put("chefRating", document.get("chefRating"));
+                                            map.put("numRecipes", document.get("numRecipes"));
+                                            map.put("preferences", document.get("preferences"));
+                                            user = new UserInfo(map, (HashMap<String, Object>) document.get("preferences"));
+                                            Log.e(TAG, "SignIn : Valid current user : email [" + user.getEmail() + "]");
+                                            mLoginInProgress = false;
+                                            mRegisterInProgress = false;
+                                            finishActivity();
+                                        }
+                                    }else {
+                                        // Log and alert user if unsuccessful with data retrieval
+                                        Log.e(TAG, "SignIn : Unable to retrieve user document in Firestore ");
+                                        Toast.makeText(getApplicationContext(),"Sign in failed, unable to retrieve user details, please try again.",Toast.LENGTH_SHORT).show();
+                                        // Log user back out as they have no user profile in database
+                                        mAuth.signOut();
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }else{
+                            mAuth.getCurrentUser().sendEmailVerification();
+                            Log.e(TAG, "SignIn : Email authentication sent for user trying to log in with unverified email, user logged out.");
+                            Toast.makeText(getApplicationContext(),"Email is not yet verified, a new verification email has been sent, please verify email and try again.",Toast.LENGTH_LONG).show();
+                            mAuth.signOut();
+                        }
+
                     }
                     else {
                         // Log and alert user if unsuccessful with sign in
@@ -417,7 +441,6 @@ public class Login extends AppCompatActivity {
     private void finishActivity() {
 
         Log.e(TAG,"SignIn Returning to main activity");
-        mAuth.removeAuthStateListener(mAuthStateListener);
 
         // User data returned to main menu
         Intent returningIntent = new Intent();

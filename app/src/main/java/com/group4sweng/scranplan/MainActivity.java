@@ -96,37 +96,44 @@ public class MainActivity extends AppCompatActivity {
                 FirebaseUser user = mAuth.getCurrentUser();
 
                 if(user != null){
-                    Log.e(TAG, "AUTHENTICATION STATE UPDATE : Valid user logged in : email [" + user.getEmail() + "]");
+                    if(mAuth.getCurrentUser().isEmailVerified()){
+                        Log.e(TAG, "AUTHENTICATION STATE UPDATE : Valid user logged in : email [" + user.getEmail() + "]");
 
-                    DocumentReference usersRef = database.collection("users").document(mAuth.getCurrentUser().getUid());
-                    usersRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if (task.isSuccessful()) {
-                                if (task.getResult() == null) Log.d(TAG, "getResult is null");
-                                Log.d(TAG, "getResult: " + task.getResult());
-                                DocumentSnapshot document = task.getResult();
-                                HashMap<String, Object> map = new HashMap<>();
+                        DocumentReference usersRef = database.collection("users").document(mAuth.getCurrentUser().getUid());
+                        usersRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    if (task.getResult() == null) Log.d(TAG, "getResult is null");
+                                    Log.d(TAG, "getResult: " + task.getResult());
+                                    DocumentSnapshot document = task.getResult();
+                                    HashMap<String, Object> map = new HashMap<>();
 
-                                map.put("UID", document.get("UID"));
-                                map.put("email", document.get("email"));
-                                map.put("displayName", document.get("displayName"));
-                                map.put("imageURL", document.get("imageURL"));
-                                map.put("chefRating", document.get("chefRating"));
-                                map.put("numRecipes", document.get("numRecipes"));
-                                map.put("preferences", document.get("preferences"));
-                                userDetails = new UserInfo(map, (HashMap<String, Object>) document.get("preferences"));
-                            }else {
-                                Log.e(TAG, "User details retrieval : Unable to retrieve user document in Firestore ");
-                                Toast.makeText(getApplicationContext(),"Unable to retrieve current user details, please sign in again.",Toast.LENGTH_SHORT).show();
-                                mAuth.signOut();
+                                    map.put("UID", document.get("UID"));
+                                    map.put("email", document.get("email"));
+                                    map.put("displayName", document.get("displayName"));
+                                    map.put("imageURL", document.get("imageURL"));
+                                    map.put("chefRating", document.get("chefRating"));
+                                    map.put("numRecipes", document.get("numRecipes"));
+                                    map.put("preferences", document.get("preferences"));
+                                    userDetails = new UserInfo(map, (HashMap<String, Object>) document.get("preferences"));
+                                }else {
+                                    Log.e(TAG, "User details retrieval : Unable to retrieve user document in Firestore ");
+                                    Toast.makeText(getApplicationContext(),"Unable to retrieve current user details, please sign in again.",Toast.LENGTH_SHORT).show();
+                                    mAuth.signOut();
+                                }
                             }
-                        }
-                    });
+                        });
+                    }else{
+                        mAuth.getCurrentUser().sendEmailVerification();
+                        Log.e(TAG, "SignIn : Email authentication sent for user trying to log in with unverified email, user logged out.");
+                        Toast.makeText(getApplicationContext(),"Email is not yet verified, a new verification email has been sent, please verify email and try again.",Toast.LENGTH_LONG).show();
+                        mAuth.signOut();
+                    }
                 }else{
                     Log.e(TAG,"AUTHENTICATION STATE UPDATE : No Valid current user logged in");
                     mDisplayName = "No Valid User";
-
+                    mAuth.removeAuthStateListener(mAuthListener);
                     Intent signIn = new Intent(getApplicationContext(), Login.class);
                     startActivity(signIn);
                     userDetails = (UserInfo)signIn.getSerializableExtra("user");
