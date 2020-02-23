@@ -67,6 +67,84 @@ public class MainActivity extends AppCompatActivity {
         initPageListeners();
 
 
+
+
+
+
+
+//        FloatingActionButton fab = findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
+    }
+
+    private void initFirebase(){
+        mApp = FirebaseApp.getInstance();
+        mAuth = FirebaseAuth.getInstance();
+
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+
+                FirebaseUser user = mAuth.getCurrentUser();
+
+                if(user != null){
+                    if(mAuth.getCurrentUser().isEmailVerified()){
+                        Log.e(TAG, "AUTHENTICATION STATE UPDATE : Valid user logged in : email [" + user.getEmail() + "]");
+
+                        DocumentReference usersRef = database.collection("users").document(mAuth.getCurrentUser().getUid());
+                        usersRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    if (task.getResult() == null) Log.d(TAG, "getResult is null");
+                                    Log.d(TAG, "getResult: " + task.getResult());
+                                    DocumentSnapshot document = task.getResult();
+                                    HashMap<String, Object> map = new HashMap<>();
+
+                                    map.put("UID", document.get("UID"));
+                                    map.put("email", document.get("email"));
+                                    map.put("displayName", document.get("displayName"));
+                                    map.put("imageURL", document.get("imageURL"));
+                                    map.put("chefRating", document.get("chefRating"));
+                                    map.put("numRecipes", document.get("numRecipes"));
+                                    map.put("preferences", document.get("preferences"));
+                                    userDetails = new UserInfo(map, (HashMap<String, Object>) document.get("preferences"));
+                                }else {
+                                    Log.e(TAG, "User details retrieval : Unable to retrieve user document in Firestore ");
+                                    Toast.makeText(getApplicationContext(),"Unable to retrieve current user details, please sign in again.",Toast.LENGTH_SHORT).show();
+                                    mAuth.signOut();
+                                }
+                            }
+                        });
+                    }else{
+                        mAuth.getCurrentUser().sendEmailVerification();
+                        Log.e(TAG, "SignIn : Email authentication sent for user trying to log in with unverified email, user logged out.");
+                        Toast.makeText(getApplicationContext(),"Email is not yet verified, a new verification email has been sent, please verify email and try again.",Toast.LENGTH_LONG).show();
+                        mAuth.signOut();
+                    }
+                }else{
+                    Log.e(TAG,"AUTHENTICATION STATE UPDATE : No Valid current user logged in");
+                    mDisplayName = "No Valid User";
+                    mAuth.removeAuthStateListener(mAuthListener);
+                    Intent signIn = new Intent(getApplicationContext(), Login.class);
+                    startActivity(signIn);
+                    userDetails = (UserInfo)signIn.getSerializableExtra("user");
+                }
+            }
+        };
+        mAuth.addAuthStateListener(mAuthListener);
+
+
+    }
+
+    private void initPageItems(){
+        //Defining all relevant members of signin & register page
+        mLogoutButton = (Button) findViewById(R.id.logoutButton);
         tabLayout = findViewById(R.id.tabLayout);
         frameLayout = findViewById(R.id.frameLayout);
 
@@ -74,6 +152,17 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.addTab(tabLayout.newTab().setText("Meal Planner"));
         tabLayout.addTab(tabLayout.newTab().setText("Timeline"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+    }
+
+    private void initPageListeners() {
+        mLogoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG, "Logout button has been pressed and user has been logged out.");
+                userDetails = null;
+                mAuth.signOut();
+            }
+        });
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -106,88 +195,8 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
-
-//        FloatingActionButton fab = findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
-    }
-
-    private void initFirebase(){
-        mApp = FirebaseApp.getInstance();
-        mAuth = FirebaseAuth.getInstance();
-
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-
-                FirebaseUser user = mAuth.getCurrentUser();
-
-                if(user != null){
-                    Log.e(TAG, "AUTHENTICATION STATE UPDATE : Valid user logged in : email [" + user.getEmail() + "]");
-
-                    DocumentReference usersRef = database.collection("users").document(mAuth.getCurrentUser().getUid());
-                    usersRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if (task.isSuccessful()) {
-                                if (task.getResult() == null) Log.d(TAG, "getResult is null");
-                                Log.d(TAG, "getResult: " + task.getResult());
-                                DocumentSnapshot document = task.getResult();
-                                HashMap<String, Object> map = new HashMap<>();
-
-                                map.put("UID", document.get("UID"));
-                                map.put("email", document.get("email"));
-                                map.put("displayName", document.get("displayName"));
-                                map.put("imageURL", document.get("imageURL"));
-                                map.put("chefRating", document.get("chefRating"));
-                                map.put("numRecipes", document.get("numRecipes"));
-                                map.put("preferences", document.get("preferences"));
-                                userDetails = new UserInfo(map, (HashMap<String, Object>) document.get("preferences"));
-                            }else {
-                                Log.e(TAG, "User details retrieval : Unable to retrieve user document in Firestore ");
-                                Toast.makeText(getApplicationContext(),"Unable to retrieve current user details, please sign in again.",Toast.LENGTH_SHORT).show();
-                                mAuth.signOut();
-                            }
-                        }
-                    });
-                }else{
-                    Log.e(TAG,"AUTHENTICATION STATE UPDATE : No Valid current user logged in");
-                    mDisplayName = "No Valid User";
-
-                    Intent signIn = new Intent(getApplicationContext(), Login.class);
-                    startActivity(signIn);
-                    userDetails = (UserInfo)signIn.getSerializableExtra("user");
-                }
-            }
-        };
-        mAuth.addAuthStateListener(mAuthListener);
-
-
-    }
-
-    private void initPageItems(){
-        //Defining all relevant members of signin & register page
-        mLogoutButton = (Button) findViewById(R.id.logoutButton);
-    }
-
-    private void initPageListeners() {
-        mLogoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.e(TAG, "Logout button has been pressed and user has been logged out.");
-                userDetails = null;
-                mAuth.signOut();
-            }
-        });
-
-
-        /*TODO Clean up temporary profile settings page listener*/
+      
+      /*TODO Clean up temporary profile settings page listener*/
         final Button tempProfileSettings = findViewById(R.id.profile_settings_button);
         tempProfileSettings.setOnClickListener(new View.OnClickListener() {
             @Override

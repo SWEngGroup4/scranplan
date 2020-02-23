@@ -173,9 +173,9 @@ public class LoginTest {
             public void run() {
                 loginButton.callOnClick();
                 email.requestFocus();
-                email.setText("testuser@email.com");
+                email.setText("theloupapp@gmail.com");
                 password.requestFocus();
-                password.setText("passwordTest1");
+                password.setText("testuser");
                 loginButton.callOnClick();
             }
         });
