@@ -19,6 +19,8 @@ import android.widget.Toast;
 
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import android.widget.FrameLayout;
 
@@ -31,6 +33,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
+
+import static com.google.firebase.firestore.FieldValue.delete;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -199,6 +203,79 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+
+    /**
+     * deleteAccount
+     * called when user wants to delete their account, needs users password to be re-entered
+     * FireBase Auth is deleted along with all local data and their personal account in the database
+     * @param rePassword
+     */
+    private void deleteAccount(String rePassword){
+        final String password = rePassword;
+        userDetails = null;
+        database.collection("users").document(mAuth.getUid()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                AuthCredential credential = EmailAuthProvider
+                        .getCredential(mAuth.getCurrentUser().getEmail(), password);
+
+                // Prompt the user to re-provide their sign-in credentials
+                mAuth.getCurrentUser().reauthenticate(credential)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                mAuth.getCurrentUser().delete()
+                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()) {
+                                                    Log.d(TAG, "User account deleted.");
+                                                    Toast.makeText(getApplicationContext(),"Account deleted.",Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+                                        });
+                            }
+                        });
+            }
+        });
+    }
+
+    /**
+     * resetPassword
+     * taked both the old password and the new password and resets the users password to the new one
+     * @param rePassword
+     * @param newPassword
+     */
+    private void resetPassword(final String rePassword, final String newPassword){
+        final String password = rePassword;
+        AuthCredential credential = EmailAuthProvider
+                .getCredential(mAuth.getCurrentUser().getEmail(), password);
+
+        // Prompt the user to re-provide their sign-in credentials
+        mAuth.getCurrentUser().reauthenticate(credential)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        mAuth.getCurrentUser().updatePassword(newPassword)
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            Log.d(TAG, "Password updated.");
+                                            Toast.makeText(getApplicationContext(),"Password updated.",Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                }).addOnFailureListener( new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.e(TAG,"Password update failed.");
+                                Toast.makeText(getApplicationContext(),"Password update failed, please try again.",Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                });
     }
 
 
