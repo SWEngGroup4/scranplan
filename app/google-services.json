@@ -15,6 +15,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "402487406340-k1gq3n5la68ijqo0a38995khdisbutap.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.group4sweng.scranplan",
+            "certificate_hash": "487aa6ef638e9422b3efdb97a3e8022d14504382"
+          }
+        },
+        {
+          "client_id": "402487406340-r42uehn9ekc3bnvaa65es4b9m9uctlu4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.group4sweng.scranplan",
+            "certificate_hash": "73ff55f7a14edd9713d21fe5c7130c3bfd263bdb"
+          }
+        },
+        {
           "client_id": "402487406340-d3632k95q434qk2f7n81rotfpq2i8qeh.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
