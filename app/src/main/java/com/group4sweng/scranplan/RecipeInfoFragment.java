@@ -43,6 +43,8 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
 
     private FirebaseFirestore mDatabase;
     private CollectionReference mDataRef;
+    private CollectionReference mIngredient;
+    private CollectionReference mUserRef;
 
     // Define a String ArrayList for the ingredients
     private ArrayList<String> ingredientList = new ArrayList<>();
@@ -54,6 +56,11 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
     private ArrayAdapter<String> arrayAdapter;
 
 
+    // Auto-generated super method
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
 
     @Override
@@ -65,43 +72,11 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
 
         builder.setView(layout);
 
-        mReturnButton = layout.findViewById(R.id.ReturnButton);
-        mTabLayout2 = layout.findViewById(R.id.tabLayout2);
-        mRecipeFrameLayout = layout.findViewById(R.id.RecipeFrameLayout);
-        listViewIngredients = layout.findViewById(R.id.listViewText);
-        mTitle = layout.findViewById(R.id.Title);
-        mChefName = layout.findViewById(R.id.chefName);
-        mDescription = layout.findViewById(R.id.description);
-        mRecipeImage = layout.findViewById(R.id.recipeImage);
+        displayInfo(layout);
 
+        initPageListeners(layout);
 
-        mDatabase = FirebaseFirestore.getInstance();
-        mDataRef = mDatabase.collection("recipes");
-        final DocumentReference docRef = mDataRef.document("PkMAJA8qEltZH4RZ092u");
-
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()){
-
-                    DocumentSnapshot document = task.getResult();
-                    Log.d("Recipe Name", ""+ document.getData().get("Name"));
-                    mTitle.setText(document.getData().get("Name").toString());
-                    mChefName.setText(document.getData().get("Chef").toString());
-                    mDescription.setText(document.getData().get("Description").toString());
-
-
-                    Picasso.get().load(document.get("imageURL").toString()).into(mRecipeImage);
-
-                }
-            }
-        });
-
-
-        initPageListeners();
-
-        tabFragments();
+        tabFragments(layout);
 
         return layout;
     }
@@ -122,7 +97,10 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
      * When back button is clicked within the recipe information dialogFragment,
      * Recipe information dialogFragment is closed and returns to recipe fragment
      */
-    private void initPageListeners(){
+    private void initPageListeners(View layout){
+
+        mReturnButton = layout.findViewById(R.id.ReturnButton);
+
         mReturnButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -137,7 +115,10 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
      * Method that controls the tabs within the recipe information dialogFragment
      * to select between the ingredient information and the comments section
      */
-    private void tabFragments(){
+    private void tabFragments(final View layout){
+
+        mTabLayout2 = layout.findViewById(R.id.tabLayout2);
+        mRecipeFrameLayout = layout.findViewById(R.id.RecipeFrameLayout);
 
         FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.RecipeFrameLayout, new RecipeIngredientFragment());
@@ -151,6 +132,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
                     case 0:
                         fragment = new RecipeIngredientFragment();
 
+                        displayedIngredients(layout);
 
                         break;
                     case 1:
@@ -177,14 +159,99 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
 
     }
 
-    private void dbData(){
+    /**
+     * TODO - Method that takes all ingredients in the collection and displays them in
+     * TODO - a list view to be displayed in the ingredient fragment
+     */
+    private void displayedIngredients(final View layout){
 
-        listViewIngredients = getActivity().findViewById(R.id.listViewText);
+        listViewIngredients = layout.findViewById(R.id.listViewText);
         arrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, ingredientList);
-        listViewIngredients.setAdapter(arrayAdapter);
+
+        mIngredient = mDatabase.collection("recipes");
+        final DocumentReference ingredients = mIngredient.document("PkMAJA8qEltZH4RZ092u");
+
+        ingredients.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                if (task.isSuccessful()){
+
+                    DocumentSnapshot document = task.getResult();
+
+                    arrayAdapter.addAll(document.getData().get("Ingredients").toString());
+                    listViewIngredients.setAdapter(arrayAdapter);
+
+
+                }
+
+            }
+        });
+
 
 
     }
 
+    private void displayInfo(View layout){
+
+        mTitle = layout.findViewById(R.id.Title);
+        mChefName = layout.findViewById(R.id.chefName);
+        mDescription = layout.findViewById(R.id.description);
+        mRecipeImage = layout.findViewById(R.id.recipeImage);
+
+
+        // Database objects for accessing recipes
+        mDatabase = FirebaseFirestore.getInstance();
+        mDataRef = mDatabase.collection("recipes");
+        mUserRef = mDatabase.collection("users");
+
+        final DocumentReference docRef = mDataRef.document("PkMAJA8qEltZH4RZ092u");
+
+        /**
+         * Adds OnCompleteListener that gets snapshot of objects from the firestore
+         * taking the objects from the snapshot to assign them to the xml variables for displaying
+         */
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()){
+
+                    //Takes objects from the firestore and assigns them to their relevant variables
+                    DocumentSnapshot document = task.getResult();
+                    Log.d("Recipe Name", ""+ document.getData().get("Name"));
+                    mTitle.setText(document.getData().get("Name").toString());
+                    mDescription.setText(document.getData().get("Description").toString());
+                    Picasso.get().load(document.get("imageURL").toString()).into(mRecipeImage);
+
+
+                    /**
+                     * Using the UID from the Chef field in recipes, the following takes a snapshot of
+                     * all the fields associated with the UID in users and assigns the name to Chef on the xml
+                     * since that users UID is associated with creating that recipe
+                     */
+                    final DocumentReference userRef = mUserRef.document(document.getData().get("Chef").toString());
+                    userRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                            if (task.isSuccessful()){
+
+                                //Takes objects from the firestore and assigns them to their relevant variables
+                                DocumentSnapshot userDocument = task.getResult();
+
+                                mChefName.setText("Chef: " +(userDocument.getData().get("displayName").toString()));
+
+
+                            }
+
+                        }
+                    });
+
+                }
+            }
+        });
+
+    }
 
 }

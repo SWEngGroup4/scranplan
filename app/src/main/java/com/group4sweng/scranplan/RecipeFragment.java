@@ -19,6 +19,8 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 import java.util.Random;
 
+import javax.annotation.Nullable;
+
 
 public class RecipeFragment extends Fragment {
 
@@ -73,7 +75,7 @@ public class RecipeFragment extends Fragment {
                 imageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        // TODO launch recipe screen
+                        openRecipeDialog();
                     }
                 });
 
@@ -104,8 +106,16 @@ public class RecipeFragment extends Fragment {
                     List<DocumentSnapshot> docs = querySnapshot.getDocuments(); // Get documents from queried collection
                     int n = random.nextInt(docs.size() - 1); // Random number generated
                     Picasso.get().load(docs.get(n).get("imageURL").toString()).into(imageButton); //Loads image using picasso library TODO - NullPointerException check
+
                 }
             }
         });
+    }
+
+    public void openRecipeDialog(){
+
+        RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
+        recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");
+
     }
 }
