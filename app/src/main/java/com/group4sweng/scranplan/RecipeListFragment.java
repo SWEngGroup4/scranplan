@@ -1,10 +1,14 @@
 package com.group4sweng.scranplan;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
@@ -25,6 +29,7 @@ public class RecipeListFragment extends AppCompatDialogFragment {
 
     private FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
     private CollectionReference mColRef = mDatabase.collection("recipes");
+    private ImageButton imageButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -39,6 +44,10 @@ public class RecipeListFragment extends AppCompatDialogFragment {
         return view;
     }
 
+    public void setValue(ImageButton imageButton) {
+        this.imageButton = imageButton;
+    }
+
     public void onResume() {
         super.onResume();
         ViewGroup.LayoutParams params = getDialog().getWindow().getAttributes();
@@ -48,17 +57,21 @@ public class RecipeListFragment extends AppCompatDialogFragment {
     }
 
     public void loadRecipes(final View view) {
-        final ArrayList<String> names = new ArrayList<>();
-        final ArrayList<String> imgURLs = new ArrayList<>();
 
         mColRef.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot querySnapshot) {
                 if (!querySnapshot.isEmpty()) {
+                    List<RecyclerAdapter.RecipePreviewData> data = new ArrayList<>();
                     List<DocumentSnapshot> docs = querySnapshot.getDocuments();
                     for (int i = 0; i < docs.size(); i++) {
-                        names.add(docs.get(i).get("Name").toString());
-                        imgURLs.add(docs.get(i).get("imageURL").toString());
+                        DocumentSnapshot doc = docs.get(i);
+                        data.add(new RecyclerAdapter.RecipePreviewData(
+                                doc.getId(),
+                                doc.get("Name").toString(),
+                                doc.get("Description").toString(),
+                                doc.get("imageURL").toString()
+                        ));
                     }
 
                     RecyclerView recyclerView = view.findViewById(R.id.recipeList);
@@ -67,11 +80,19 @@ public class RecipeListFragment extends AppCompatDialogFragment {
                     RecyclerView.LayoutManager rManager = new LinearLayoutManager(getContext());
                     recyclerView.setLayoutManager(rManager);
 
-                    RecyclerView.Adapter rAdapter = new RecyclerAdapter(names);
+                    RecyclerView.Adapter rAdapter = new RecyclerAdapter(RecipeListFragment.this, data);
                     recyclerView.setAdapter(rAdapter);
                 }
             }
         });
+    }
+
+    public void recipeSelected(String recipeID) {
+//        Toast.makeText(getContext(), "" + recipeID, Toast.LENGTH_SHORT).show();
+        Intent i = new Intent();
+        i.putExtra("recipeID", recipeID);
+        getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, i);
+        dismiss();
     }
 
 }
