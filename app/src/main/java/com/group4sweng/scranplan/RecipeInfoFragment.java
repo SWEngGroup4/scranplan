@@ -29,6 +29,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
 
 
 public class RecipeInfoFragment extends AppCompatDialogFragment {
@@ -77,6 +79,8 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         initPageListeners(layout);
 
         tabFragments(layout);
+
+        displayedIngredients(layout);
 
         return layout;
     }
@@ -131,9 +135,6 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
                 switch (tab.getPosition()) {
                     case 0:
                         fragment = new RecipeIngredientFragment();
-
-                        displayedIngredients(layout);
-
                         break;
                     case 1:
                         fragment = new RecipeCommentsFragment();
@@ -179,10 +180,19 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
 
                     DocumentSnapshot document = task.getResult();
 
-                    arrayAdapter.addAll(document.getData().get("Ingredients").toString());
+                    ArrayList<String> ingredientArray = new ArrayList<>();
+
+                    Map<String, Map<String, Object>> test = (Map) document.getData().get("Ingredients");
+                    Iterator hmIterator = test.entrySet().iterator();
+
+                    while (hmIterator.hasNext()) {
+                        Map.Entry mapElement = (Map.Entry) hmIterator.next();
+                        String string = mapElement.getKey().toString() + ": " + mapElement.getValue().toString();
+                        ingredientArray.add(string);
+
+                    }
+                    arrayAdapter.addAll(ingredientArray);
                     listViewIngredients.setAdapter(arrayAdapter);
-
-
                 }
 
             }
