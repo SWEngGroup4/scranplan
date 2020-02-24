@@ -1,6 +1,5 @@
 package com.group4sweng.scranplan;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -23,7 +22,6 @@ import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
-import java.util.Map;
 
 public class initialUserCustomisation extends AppCompatActivity {
     final String TAG = "userCustomisation";
@@ -36,9 +34,8 @@ public class initialUserCustomisation extends AppCompatActivity {
 
     Preferences preferences = userDetails.getPreferences();
 
-
-
     Button mSkipButton;
+    Button mSubmitButton;
     CheckBox mVegetarianBox;
     CheckBox mVeganBox;
     CheckBox mNutsBox;
@@ -47,9 +44,7 @@ public class initialUserCustomisation extends AppCompatActivity {
     CheckBox mWheatBox;
     CheckBox mShellfishBox;
     CheckBox mSoyBox;
-
-    Boolean mVegBox = false;
-    Boolean mVveganBoxBool = false;
+    CheckBox mpescatarianBox;
 
 
     @Override
@@ -61,37 +56,39 @@ public class initialUserCustomisation extends AppCompatActivity {
         Log.e(TAG, "Starting Login activity");
 
         initPageItems();
-
+        getResources().getColor(R.color.colorPrimary);
         initPageListeners();
+        initFirebase();
     }
 
-    private void initFirebase(){
+    private void initFirebase() {
         mApp = FirebaseApp.getInstance();
         mAuth = FirebaseAuth.getInstance();
 
-
-
     }
 
-    private void initPageItems(){
+    private void initPageItems() {
         //Defining all relevant members of signin & register page
-        mSkipButton = (Button) findViewById(R.id.skipButton);
-        mVegetarianBox = (CheckBox) findViewById(R.id.VegCheckBox);
-        mVeganBox = (CheckBox) findViewById(R.id.veganCheckBox);
-        mNutsBox = (CheckBox) findViewById(R.id.nutCheckBox);
-        mEggsBox = (CheckBox) findViewById(R.id.eggCheckBox);
-        mMilkBox = (CheckBox) findViewById(R.id.milkCheckBox);
-        mWheatBox = (CheckBox) findViewById(R.id.wheatCheckBox);
-        mShellfishBox = (CheckBox) findViewById(R.id.shellfishCheckBox);
-        mSoyBox = (CheckBox) findViewById(R.id.soyCheckBox);
+        mSkipButton = findViewById(R.id.skipButton);
+        mSubmitButton = findViewById(R.id.submitButton);
+        mVegetarianBox = findViewById(R.id.VegCheckBox);
+        mVeganBox = findViewById(R.id.veganCheckBox);
+        mNutsBox = findViewById(R.id.nutCheckBox);
+        mEggsBox = findViewById(R.id.eggCheckBox);
+        mMilkBox = findViewById(R.id.milkCheckBox);
+        mWheatBox = findViewById(R.id.wheatCheckBox);
+        mShellfishBox = findViewById(R.id.shellfishCheckBox);
+        mSoyBox = findViewById(R.id.soyCheckBox);
+        mpescatarianBox = findViewById(R.id.pescatarianCheckBox);
+
 
     }
 
-    private void initPageListeners(){
+    private void initPageListeners() {
         mSkipButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.e(TAG,"Initial user returning to main activity");
+                Log.e(TAG, "Initial user returning to main activity");
 
                 Intent returningIntent = new Intent();
                 setResult(RESULT_OK, returningIntent);
@@ -100,73 +97,126 @@ public class initialUserCustomisation extends AppCompatActivity {
             }
         });
 
+        mSubmitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                savePref();
+                Log.e(TAG, "Initial user returning to main activity");
+
+                Intent returningIntent = new Intent();
+                setResult(RESULT_OK, returningIntent);
+
+                finish();
+            }
+
+            //make function to add info to firestore
+            private void savePref() {
+                DocumentReference usersRef = database.document(mAuth.getCurrentUser().getUid());
+                HashMap<String, Object> preferences = new HashMap<>();
+
+                if (mEggsBox.isChecked()) {
+                    preferences.put("allergy_eggs", true);
+                    mMilkBox.setChecked(false);
+                    mNutsBox.setChecked(false);
+                    mShellfishBox.setChecked(false);
+                    mSoyBox.setChecked(false);
+                    mWheatBox.setChecked(false);
+                    mMilkBox.setChecked(false);
+                }
+
+                if (mMilkBox.isChecked()) {
+                    preferences.put("allergy_milk", true);
+                    mEggsBox.setChecked(false);
+                    mNutsBox.setChecked(false);
+                    mShellfishBox.setChecked(false);
+                    mSoyBox.setChecked(false);
+                    mWheatBox.setChecked(false);
+                    mMilkBox.setChecked(false);
+                }
+
+                if (mNutsBox.isChecked()) {
+                    preferences.put("allergy_nuts", true);
+                    mMilkBox.setChecked(false);
+                    mEggsBox.setChecked(false);
+                    mShellfishBox.setChecked(false);
+                    mSoyBox.setChecked(false);
+                    mWheatBox.setChecked(false);
+                    mMilkBox.setChecked(false);
+                }
+
+                if (mShellfishBox.isChecked()) {
+                    preferences.put("allergy_shellfish", true);
+                    mMilkBox.setChecked(false);
+                    mNutsBox.setChecked(false);
+                    mEggsBox.setChecked(false);
+                    mSoyBox.setChecked(false);
+                    mWheatBox.setChecked(false);
+                    mMilkBox.setChecked(false);
+                }
+                if (mSoyBox.isChecked()) {
+                    preferences.put("allergy_soya", true);
+                    mMilkBox.setChecked(false);
+                    mNutsBox.setChecked(false);
+                    mShellfishBox.setChecked(false);
+                    mEggsBox.setChecked(false);
+                    mWheatBox.setChecked(false);
+                    mMilkBox.setChecked(false);
+                }
+                if (mWheatBox.isChecked()) {
+                    preferences.put("allergy_gluten", true);
+                    mMilkBox.setChecked(false);
+                    mNutsBox.setChecked(false);
+                    mShellfishBox.setChecked(false);
+                    mSoyBox.setChecked(false);
+                    mEggsBox.setChecked(false);
+                    mMilkBox.setChecked(false);
+                }
+                if (mMilkBox.isChecked()) {
+                    preferences.put("lactose_free", true);
+                    mEggsBox.setChecked(false);
+                    mNutsBox.setChecked(false);
+                    mShellfishBox.setChecked(false);
+                    mSoyBox.setChecked(false);
+                    mWheatBox.setChecked(false);
+                    mMilkBox.setChecked(false);
+                }
+                if (mpescatarianBox.isChecked()) {
+                    preferences.put("pescatarian", true);
+                    mVeganBox.setChecked(false);
+                    mVegetarianBox.setChecked(false);
+                }
+                if (mVeganBox.isChecked()) {
+                    preferences.put("vegan", true);
+                    mpescatarianBox.setChecked(false);
+                    mVegetarianBox.setChecked(false);
+                }
+                if (mVegetarianBox.isChecked()) {
+                    preferences.put("vegetarian", true);
+                    mVeganBox.setChecked(false);
+                    mpescatarianBox.setChecked(false);
+                }
+
+                usersRef.update("preferences", preferences);
+                userDetails.updatePreferences(preferences);
+                finishActivity();
+            }
+
+
+            //TODO need to add opening intent to this page after user is logged in or has returned from the user registration page
+
+            private void finishActivity() {
+
+                Log.e(TAG, "Initial User Customisation returning to main activity");
+
+                // User data returned to main menu
+                Intent returningIntent = new Intent();
+                returningIntent.putExtra("user", userDetails);
+                setResult(RESULT_OK, returningIntent);
+
+                finish();
+            }
+
+
+        });
     }
-
-    //make function to add info to firestore
-    private void savePref(){
-        DocumentReference usersRef =  database.document(mAuth.getCurrentUser().getUid());
-        HashMap<String, Object> preferences = new HashMap<>();
-
-        // Default user food preferences
-        preferences.put("allergy_celery", false);
-        preferences.put("allergy_crustacean", false);
-        preferences.put("allergy_eggs", false);
-        preferences.put("allergy_fish", false);
-        preferences.put("allergy_gluten", false);
-        preferences.put("allergy_milk", false);
-        preferences.put("allergy_mustard", false);
-        preferences.put("allergy_nuts", false);
-        preferences.put("allergy_peanuts", false);
-        preferences.put("allergy_sesame", false);
-        preferences.put("allergy_shellfish", false);
-        preferences.put("allergy_soya", false);
-        preferences.put("allergy_sulphide", false);
-        preferences.put("diabetic", false);
-        preferences.put("halal", false);
-        preferences.put("high_protein", false);
-        preferences.put("kosher", false);
-        preferences.put("lactose_free", false);
-        preferences.put("lactovegetarian", false);
-        preferences.put("low_carb", false);
-        preferences.put("low_sodium", false);
-        preferences.put("no_alcohol", false);
-        preferences.put("no_pork", false);
-        preferences.put("ovovegetarian", false);
-        preferences.put("pescatarian", false);
-        preferences.put("vegan", false);
-        preferences.put("vegetarian", false);
-
-
-        usersRef.update("preferences", preferences);
-        userDetails.updatePreferences(preferences);
-    }
-
-
-    //TODO need to add opening intent to this page after user is logged in or has returned from the user registration page
-
-    private void finishActivity() {
-
-        Log.e(TAG,"Initial User Customisation returning to main activity");
-
-        // User data returned to main menu
-        Intent returningIntent = new Intent();
-        returningIntent.putExtra("user", userDetails);
-        setResult(RESULT_OK, returningIntent);
-
-        finish();
-    }
-
-
-    @Exclude
-    public Map<String, Object> toMap() {
-        HashMap<String, Object> result = new HashMap<>();
-
-        if (mVegetarianBox.isChecked()){
-            result.put("vegetarian", true);
-        }
-        if (mVeganBox.isChecked()){
-            result.put("vegetarian", true);
-        }
-    }
-
 }

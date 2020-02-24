@@ -4,45 +4,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
     tools:context=".initialUserCustomisation">
 
     <CheckBox
-        android:id="@+id/veganCheckBox2"
+        android:id="@+id/pescatarianCheckBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="19dp"
-        android:layout_marginTop="17dp"
+        android:layout_marginTop="15dp"
         android:layout_marginEnd="155dp"
         android:text="Pescatarian"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@+id/VegCheckBox"
         app:layout_constraintTop_toBottomOf="@+id/textView3" />
-
-    <CheckBox
-        android:id="@+id/soyCheckBox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="31sp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="294sp"
-        android:text="Soy"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/shellfishCheckBox" />
-
-    <CheckBox
-        android:id="@+id/wheatCheckBox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="31sp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="294sp"
-        android:text="Wheat"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/eggCheckBox" />
 
     <Button
         android:id="@+id/skipButton"
@@ -52,6 +28,7 @@
         android:layout_marginEnd="174sp"
         android:layout_marginBottom="39sp"
         android:text="Skip"
+        android:background="@color/colorAccent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -61,10 +38,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="30sp"
-        android:layout_marginTop="63sp"
+        android:layout_marginTop="76dp"
         android:layout_marginEnd="282sp"
         android:text="Vegetarian"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -73,10 +51,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="30sp"
-        android:layout_marginTop="18sp"
+        android:layout_marginTop="36dp"
         android:layout_marginEnd="309sp"
         android:text="Vegan"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/VegCheckBox" />
 
@@ -85,36 +64,50 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="30sp"
-        android:layout_marginTop="148sp"
+        android:layout_marginTop="128dp"
         android:layout_marginEnd="285sp"
         android:text="Nuts"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.023"
+        app:layout_constraintHorizontal_bias="0.029"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/veganCheckBox" />
 
-    <TextView
-        android:id="@+id/textView2"
+    <CheckBox
+        android:id="@+id/wheatCheckBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="21dp"
-        android:layout_marginTop="111dp"
-        android:layout_marginEnd="334dp"
-        android:text="Allergies"
+        android:layout_marginStart="31sp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="294sp"
+        android:text="Wheat"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/veganCheckBox" />
+        app:layout_constraintTop_toBottomOf="@+id/eggCheckBox" />
+
+    <CheckBox
+        android:id="@+id/soyCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="31sp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="294sp"
+        android:text="Soy"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/shellfishCheckBox" />
 
     <CheckBox
         android:id="@+id/milkCheckBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="30sp"
-        android:layout_marginTop="8sp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="300sp"
         android:text="Milk"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.025"
+        app:layout_constraintHorizontal_bias="0.043"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/nutCheckBox" />
 
@@ -123,10 +116,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="31sp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="317sp"
         android:text="Eggs"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/milkCheckBox" />
 
@@ -135,7 +129,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="31sp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="294sp"
         android:text="Shellfish"
         app:layout_constraintEnd_toEndOf="parent"
@@ -144,15 +138,46 @@
         app:layout_constraintTop_toBottomOf="@+id/wheatCheckBox" />
 
     <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="21dp"
+        android:layout_marginTop="80dp"
+        android:layout_marginEnd="334dp"
+        android:text="Allergies"
+        android:textColor="#180707"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.138"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/veganCheckBox" />
+
+    <TextView
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="40dp"
-        android:layout_marginTop="27dp"
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="238dp"
         android:text="Customisation filters"
+        android:textColor="#140303"
+        android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.122"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/submitButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="149sp"
+        android:layout_marginEnd="175sp"
+        android:layout_marginBottom="29sp"
+        android:text="Submit"
+        android:background="@color/colorAccent"
+        app:layout_constraintBottom_toTopOf="@+id/skipButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
