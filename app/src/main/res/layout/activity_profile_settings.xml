@@ -6,15 +6,32 @@
     android:layout_height="match_parent"
     tools:context=".ProfileSettings">
 
+    <Button
+        android:id="@+id/settings_delete_profile"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="143dp"
+        android:layout_height="38dp"
+        android:layout_marginStart="33dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="17dp"
+        android:background="@color/colorDangerRed"
+        android:text="delete profile"
+        android:textColor="#C8FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.81"
+        app:layout_constraintStart_toEndOf="@+id/settings_save_settings" />
+
     <ImageView
         android:id="@+id/settings_profile_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
+        android:layout_width="142dp"
+        android:layout_height="128dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/avatars" />
+        app:srcCompat="@drawable/temp_settings_profile_image"
+        tools:srcCompat="@drawable/temp_settings_profile_image" />
 
     <TextView
         android:id="@+id/settings_username_value"
@@ -42,7 +59,7 @@
         android:id="@+id/settings_username"
         android:layout_width="97dp"
         android:layout_height="23dp"
-        android:layout_marginStart="20dp"
+        android:layout_marginStart="10dp"
         android:layout_marginTop="28dp"
         android:text="Username:"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
@@ -53,7 +70,7 @@
         android:id="@+id/settings_recipes"
         android:layout_width="82dp"
         android:layout_height="29dp"
-        android:layout_marginStart="20dp"
+        android:layout_marginStart="10dp"
         android:layout_marginTop="44dp"
         android:text="Recipes:"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
@@ -65,7 +82,7 @@
         android:layout_width="375dp"
         android:layout_height="72dp"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="10dp"
         android:layout_marginEnd="20dp"
         android:ems="10"
         android:gravity="start|top"
@@ -162,7 +179,7 @@
         android:layout_width="88dp"
         android:layout_height="21dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="8dp"
         android:text="About Me"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         app:layout_constraintStart_toStartOf="parent"
@@ -182,7 +199,7 @@
         android:layout_width="99dp"
         android:layout_height="26dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="10dp"
         android:text="Filters"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         app:layout_constraintStart_toStartOf="parent"
@@ -190,26 +207,14 @@
 
     <Button
         android:id="@+id/settings_save_settings"
-        android:layout_width="231dp"
-        android:layout_height="47dp"
-        android:layout_marginStart="10dp"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="212dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="20dp"
         android:layout_marginBottom="10dp"
-        android:text="Save settings"
+        android:text="save settings"
+        android:textColor="#C8FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/settings_delete_profile"
         app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/settings_delete_profile"
-        android:layout_width="125dp"
-        android:layout_height="49dp"
-        android:layout_marginStart="29dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="10dp"
-        android:text="delete profile"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/settings_save_settings" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

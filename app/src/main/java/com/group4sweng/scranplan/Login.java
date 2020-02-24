@@ -1,5 +1,6 @@
 package com.group4sweng.scranplan;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,11 +21,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.*;
-import com.google.firebase.firestore.model.DocumentSet;
-import com.google.firestore.v1.DocumentChange;
-import com.google.firestore.v1.WriteResult;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 
@@ -38,8 +38,7 @@ public class Login extends AppCompatActivity{
     // TAG for log info
     final String TAG = "FirebaseTestLogin";
 
-    // Variable to hold user info
-    private UserInfo user;
+    Context mContext = this;
 
     // Firebase variables needed for login/register
     FirebaseApp mApp;

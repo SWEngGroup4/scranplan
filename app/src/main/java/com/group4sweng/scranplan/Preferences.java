@@ -6,6 +6,14 @@ package com.group4sweng.scranplan;
  * the application
  */
 public class Preferences {
+
+    /* Shared preferences key is...
+        [variable name in capitals] + _KEY
+        For e.g. the key-value pair key for a celery allergy is.
+
+            ALLERGY_CELERY_KEY
+     */
+
     // All preference variables
     private boolean allergy_celery;
     private boolean allergy_crustacean;

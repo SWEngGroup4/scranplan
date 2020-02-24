@@ -1,6 +1,8 @@
 package com.group4sweng.scranplan;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -11,7 +13,10 @@ import java.net.URL;
 public class ProfileSettings extends AppCompatActivity {
 
     private URL mImageURL;
+    private Context mContext = this;
 
+    // TAG for Profile Settings
+    final String TAG = "ProfileSettings";
 
     ImageView mProfileImage;
     TextView mUsername;
@@ -23,9 +28,8 @@ public class ProfileSettings extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_settings);
 
-        initPageItems();
-
-
+        Log.i(TAG, "Context is: " + mContext.getClass().getName());
+        //com.group4sweng.scranplan.ProfileSettings
     }
 
     private void initPageItems(){

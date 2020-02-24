@@ -15,15 +15,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-
 import static com.google.firebase.firestore.util.Assert.fail;
 import static org.junit.Assert.assertNotNull;
 
 
-public class UserInfoTest implements StorageRead {
+public class UserInfoPrivateTest {
 
     final String TAG = "UserInfoTest";
     UserInfo user;
@@ -60,27 +56,7 @@ public class UserInfoTest implements StorageRead {
         loginButton = (Button)mActivity.findViewById(R.id.loginButton);
         registerButton = (Button)mActivity.findViewById(R.id.registerButton);
 
-        deserialize();
         forceLogin();
-    }
-
-    //TODO Implement serialization.
-    public void deserialize() {
-
-        System.out.println("DESERIALIZATION STARTED!");
-        try {
-            FileInputStream file = new FileInputStream(filename);
-            ObjectInputStream input = new ObjectInputStream(file);
-
-            user = (UserInfo)input.readObject();
-            input.close();
-            file.close();
-        }
-        catch (IOException e){
-            System.out.println("IOException when attempting to deserialize user info");
-        } catch (ClassNotFoundException e){
-            System.out.println("ClassNotFoundException. Unable to retrieve an instance of a users user info");
-        }
     }
 
     public void forceLogin() {
@@ -101,7 +77,6 @@ public class UserInfoTest implements StorageRead {
     @Test
     public void testBasicInfoCanBeRetrievedFromUser() {
         assertNotNull(user.getClass());
-        assertNotNull(user.getEmail());
         assertNotNull(user.getPreferences());
         assertNotNull(user.getUID());
         assertNotNull(user.getDisplayName());
