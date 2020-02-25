@@ -22,6 +22,7 @@
         android:id="@+id/Title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:ems="10"
         android:gravity="center"
         android:inputType="textPersonName"
@@ -29,9 +30,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/addFavorite"
-        android:layout_marginTop="16dp"
-        app:layout_constraintBottom_toTopOf="@id/recipeImage"/>
+        app:layout_constraintTop_toBottomOf="@+id/addFavorite" />
 
     <Button
         android:id="@+id/LetsCook"
@@ -45,17 +44,20 @@
 
     <TextView
         android:id="@+id/chefName"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:layout_marginBottom="72dp"
+        android:layout_marginTop="48dp"
+        android:layout_marginEnd="16dp"
         android:ems="10"
         android:gravity="center"
         android:text="Chef"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/recipeImage" />
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toRightOf="@id/recipeImage"
+        app:layout_constraintRight_toLeftOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/recipeImage"
+        app:layout_constraintTop_toBottomOf="@+id/Title" />
 
     <ImageButton
         android:id="@+id/addFavorite"
@@ -70,18 +72,19 @@
 
     <ImageView
         android:id="@+id/recipeImage"
-        android:layout_width="222dp"
-        android:layout_height="210dp"
+        android:layout_width="179dp"
+        android:layout_height="161dp"
+        app:layout_constraintBottom_toTopOf="@+id/tabLayout2"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintHorizontal_bias="0.068"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/Title"
-        app:layout_constraintBottom_toTopOf="@id/chefName"
+        app:layout_constraintVertical_bias="0.161"
         app:srcCompat="@drawable/scran" />
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout2"
-        android:layout_width="match_parent"
+        android:layout_width="399dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="2dp"
         app:layout_constraintBottom_toTopOf="@+id/RecipeFrameLayout"
@@ -99,7 +102,7 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Comments" />
+            android:text="Reviews" />
 
     </com.google.android.material.tabs.TabLayout>
 
@@ -119,8 +122,8 @@
             android:layout_width="match_parent"
             android:layout_height="197dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
-            android:background="@color/colorWindow"/>
+
+            android:background="@color/colorWindow" />
     </FrameLayout>
 
     <TextView
@@ -130,8 +133,12 @@
         android:text="Description"
         app:layout_constraintBottom_toTopOf="@+id/tabLayout2"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.505"
+        app:layout_constraintLeft_toRightOf="@id/recipeImage"
+        app:layout_constraintRight_toLeftOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/recipeImage" />
+        app:layout_constraintTop_toBottomOf="@+id/recipeImage"
+        app:layout_constraintVertical_bias="0.222" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

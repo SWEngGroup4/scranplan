@@ -1,15 +1,31 @@
 package com.group4sweng.scranplan;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.widget.ImageButton;
+
+import androidx.test.rule.ActivityTestRule;
+
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+public class RecipeInfoFragmentTest  {
 
-public class RecipeInfoFragmentTest {
+    @Rule
+    public ActivityTestRule mActivityTestRule = new ActivityTestRule (MainActivity.class);
+
+
+    private MainActivity mActivity = null;
+    private ImageButton imageButton;
+
 
     @Before
     public void setUp() throws Exception {
+
+        mActivity = (MainActivity) mActivityTestRule.getActivity();
+
     }
 
     @After
@@ -17,14 +33,12 @@ public class RecipeInfoFragmentTest {
     }
 
     @Test
-    public void onCreate() {
-    }
+    public void fragment_can_be_instantiated() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
 
-    @Test
-    public void onCreateView() {
-    }
-
-    @Test
-    public void onResume() {
+            }
+        });
     }
 }
