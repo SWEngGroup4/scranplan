@@ -32,8 +32,6 @@ import java.util.HashMap;
 public class MainActivity extends AppCompatActivity {
 
     final String TAG = "FirebaseTest";
-
-    UserInfo userDetails;
     final FirebaseFirestore database = FirebaseFirestore.getInstance();
 
     FirebaseAuth mAuth;
@@ -66,12 +64,6 @@ public class MainActivity extends AppCompatActivity {
         initPageItems();
         initPageListeners();
 
-
-
-
-
-
-
 //        FloatingActionButton fab = findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -81,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
     }
+
 
     private void initFirebase(){
         mApp = FirebaseApp.getInstance();
@@ -113,7 +106,14 @@ public class MainActivity extends AppCompatActivity {
                                     map.put("chefRating", document.get("chefRating"));
                                     map.put("numRecipes", document.get("numRecipes"));
                                     map.put("preferences", document.get("preferences"));
-                                    userDetails = new UserInfo(map, (HashMap<String, Object>) document.get("preferences"));
+
+                                    try {
+                                        UserInfoPrivate.createInstance(map, (HashMap<String, Object>) document.get("preferences"));
+                                    } catch (Exception e){
+                                        e.printStackTrace();
+                                    }
+
+                                    Log.i(TAG, "Successfully logged back in");
                                 }else {
                                     Log.e(TAG, "User details retrieval : Unable to retrieve user document in Firestore ");
                                     Toast.makeText(getApplicationContext(),"Unable to retrieve current user details, please sign in again.",Toast.LENGTH_SHORT).show();
@@ -133,10 +133,11 @@ public class MainActivity extends AppCompatActivity {
                     mAuth.removeAuthStateListener(mAuthListener);
                     Intent signIn = new Intent(getApplicationContext(), Login.class);
                     startActivity(signIn);
-                    userDetails = (UserInfo)signIn.getSerializableExtra("user");
                 }
             }
         };
+
+
         mAuth.addAuthStateListener(mAuthListener);
 
 
@@ -159,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.e(TAG, "Logout button has been pressed and user has been logged out.");
-                userDetails = null;
+                //userDetails = null;
                 mAuth.signOut();
             }
         });

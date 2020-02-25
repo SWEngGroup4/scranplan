@@ -1,7 +1,6 @@
 package com.group4sweng.scranplan;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -383,8 +382,14 @@ public class Login extends AppCompatActivity{
                                             map.put("chefRating", document.get("chefRating"));
                                             map.put("numRecipes", document.get("numRecipes"));
                                             map.put("preferences", document.get("preferences"));
-                                            user = new UserInfo(map, (HashMap<String, Object>) document.get("preferences"));
-                                            Log.e(TAG, "SignIn : Valid current user : email [" + user.getEmail() + "]");
+
+                                            try {
+                                                UserInfoPrivate.createInstance(map, (HashMap<String, Object>) document.get("preferences"));
+                                            } catch (Exception e){
+                                                e.printStackTrace();
+                                            }
+
+                                            Log.i(TAG, "SignIn : Valid current user : UID [" + UserInfoPrivate.getInstance().getUID() + "]");
                                             mLoginInProgress = false;
                                             mRegisterInProgress = false;
                                             finishActivity();
@@ -442,10 +447,12 @@ public class Login extends AppCompatActivity{
 
         Log.e(TAG,"SignIn Returning to main activity");
 
-        // User data returned to main menu
+        //  TODO Check if this is needed or not. Seems like it's not.
+        /* //User data returned to main menu
         Intent returningIntent = new Intent();
         returningIntent.putExtra("user", user);
         setResult(RESULT_OK, returningIntent);
+         */
 
         finish();
     }

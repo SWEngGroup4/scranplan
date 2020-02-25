@@ -1,7 +1,5 @@
 package com.group4sweng.scranplan;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -15,14 +13,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static com.google.firebase.firestore.util.Assert.fail;
-import static org.junit.Assert.assertNotNull;
 
-
-public class UserInfoPrivateTest {
+public class UserInfoPrivateTest{
 
     final String TAG = "UserInfoTest";
-    UserInfo user;
     private Login mActivity = null;
 
     private EditText email;
@@ -45,54 +39,14 @@ public class UserInfoPrivateTest {
     // Connect XML to tests
     @Before
     public void setUp() {
-        mActivity = mActivityTestRule.getActivity();
-        testApp = mActivity.mApp;
-        testAuth = mActivity.mAuth;
-
-        email = (EditText)mActivity.findViewById(R.id.emailEditText);
-        password = (EditText)mActivity.findViewById(R.id.passwordEditText);
-        confirmPassword = (EditText)mActivity.findViewById(R.id.confirmPasswordEditText);
-        displayName = (EditText)mActivity.findViewById(R.id.displayNameEditText);
-        loginButton = (Button)mActivity.findViewById(R.id.loginButton);
-        registerButton = (Button)mActivity.findViewById(R.id.registerButton);
-
         forceLogin();
     }
 
     public void forceLogin() {
-        //mActivity.mAuth.signOut();
-        new Handler(Looper.getMainLooper()).post(new Runnable(){
-            @Override
-            public void run() {
-                loginButton.callOnClick();
-                email.requestFocus();
-                email.setText("testuser@email.com");
-                password.requestFocus();
-                password.setText("passwordTest1");
-                loginButton.callOnClick();
-            }
-        });
     }
 
     @Test
     public void testBasicInfoCanBeRetrievedFromUser() {
-        assertNotNull(user.getClass());
-        assertNotNull(user.getPreferences());
-        assertNotNull(user.getUID());
-        assertNotNull(user.getDisplayName());
-        assertNotNull(user.getImageURL());
-        assertNotNull(user.getChefRating());
-        if (user.getNumRecipes() > 0){
-            System.out.println("Valid number of recipes");
-        } else {
-            fail("Invalid number of recipes");
-        }
-        if (user.getChefRating() > 0){
-            System.out.println("Valid chef rating");
-        } else {
-            fail("Invalid chef rating");
-        }
-
     }
 
 
