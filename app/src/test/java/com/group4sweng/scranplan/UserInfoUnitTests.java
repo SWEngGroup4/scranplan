@@ -15,21 +15,18 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 /**
- * Example local unit test, which will execute on the development machine (host).
- *
- * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
+ * JUnit 4 tests (Including Mockito) for User Info testing that do not require instrumentation tests.
  */
 public class UserInfoUnitTests {
 
     //  Default test values.
-    String TEST_UID = "0UxMqO57gjSfAXuSwUiE1ip1Ca83";
-    String TEST_ALTERNATE_UID = "9YEzEhqlOYbhwEqS334JEzhdKPi2";
-    String TEST_EMAIL = "Fake@email.com";
-    String TEST_DISPLAYNAME = "FakeDisplayName";
-    String TEST_ABOUT = "I am a fake person.";
-    String TEST_IMAGEURL = "https://www.displayfakefoods.com/store/pc/catalog/9815e_2030_detail.jpg";
-    double TEST_CHEFRATING = 3.5;
-    int TEST_NUM_RECIPES = 10;
+    private final String TEST_UID = "0UxMqO57gjSfAXuSwUiE1ip1Ca83";
+    private final String TEST_EMAIL = "Fake@email.com";
+    private final String TEST_DISPLAYNAME = "FakeDisplayName";
+    private final String TEST_ABOUT = "I am a fake person.";
+    private final String TEST_IMAGEURL = "https://www.displayfakefoods.com/store/pc/catalog/9815e_2030_detail.jpg";
+    private double TEST_CHEFRATING = 3.5;
+    private int TEST_NUM_RECIPES = 10;
 
     //  Mocked context of the Login screen.
     Context LOGIN_CONTEXT = mock(Login.class);
