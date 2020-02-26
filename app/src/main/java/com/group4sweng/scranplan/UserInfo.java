@@ -10,6 +10,7 @@ import java.util.HashMap;
 public class UserInfo implements Serializable {
 
     // Basic user information
+    private Boolean firstSetup = true;
     private String UID;
     private String email;
     private String displayName;
@@ -39,10 +40,10 @@ public class UserInfo implements Serializable {
         this.chefRating = chefRating;
         this.numRecipes = numRecipes;
         this.preferences = new Preferences(allergy_celery, allergy_crustacean, allergy_eggs, allergy_fish,
-        allergy_gluten, allergy_milk, allergy_mustard, allergy_nuts, allergy_peanuts, allergy_sesame,
-        allergy_shellfish, allergy_soya, allergy_sulphide, diabetic, halal, high_protein, kosher,
-        lactose_free, lactovegetarian, low_carb, low_sodium, no_alcohol, no_pork,
-        ovovegetarian, pescatarian, vegan, vegetarian);
+                allergy_gluten, allergy_milk, allergy_mustard, allergy_nuts, allergy_peanuts, allergy_sesame,
+                allergy_shellfish, allergy_soya, allergy_sulphide, diabetic, halal, high_protein, kosher,
+                lactose_free, lactovegetarian, low_carb, low_sodium, no_alcohol, no_pork,
+                ovovegetarian, pescatarian, vegan, vegetarian);
     }
 
     // Constructor using maps
@@ -69,9 +70,35 @@ public class UserInfo implements Serializable {
                 (boolean) prefs.get("vegan"), (boolean) prefs.get("vegetarian"));
     }
 
+    public void updatePreferences (HashMap<String, Object> prefs){
+        this.preferences = new Preferences((boolean) prefs.get("allergy_celery"),
+                (boolean) prefs.get("allergy_crustacean"), (boolean) prefs.get("allergy_eggs"),
+                (boolean) prefs.get("allergy_fish"), (boolean) prefs.get("allergy_gluten"),
+                (boolean) prefs.get("allergy_milk"), (boolean) prefs.get("allergy_mustard"),
+                (boolean) prefs.get("allergy_nuts"), (boolean) prefs.get("allergy_peanuts"),
+                (boolean) prefs.get("allergy_sesame"), (boolean) prefs.get("allergy_shellfish"),
+                (boolean) prefs.get("allergy_soya"), (boolean) prefs.get("allergy_sulphide"),
+                (boolean) prefs.get("diabetic"), (boolean) prefs.get("halal"),
+                (boolean) prefs.get("high_protein"), (boolean) prefs.get("kosher"),
+                (boolean) prefs.get("lactose_free"), (boolean) prefs.get("lactovegetarian"),
+                (boolean) prefs.get("low_carb"), (boolean) prefs.get("low_sodium"),
+                (boolean) prefs.get("no_alcohol"), (boolean) prefs.get("no_pork"),
+                (boolean) prefs.get("ovovegetarian"), (boolean) prefs.get("pescatarian"),
+                (boolean) prefs.get("vegan"), (boolean) prefs.get("vegetarian"));
+        this.firstSetup = false;
+    }
+
 
 
     // All getters and setters for all variables
+
+    public Boolean getFirstSetup() {
+        return firstSetup;
+    }
+
+    public void setFirstSetup(Boolean firstSetup) {
+        this.firstSetup = firstSetup;
+    }
 
     public String getUID() {
         return UID;
