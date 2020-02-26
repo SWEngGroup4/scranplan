@@ -1,8 +1,5 @@
 package com.group4sweng.scranplan;
 
-import android.widget.Button;
-import android.widget.EditText;
-
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.Espresso;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -18,119 +15,90 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.HashMap;
-
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
+/**
+ * Checks retrival, removal and initiation of the UserInfoPrivate class which stores all local user data from Firebase.
+ */
+
+// TODO Launching individual tests works for the moment. Launching all at once causes Thread issues.
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class UserInfoPrivateTest{
 
-    final String TAG = "UserInfoTest";
     private MainActivity mActivity = null;
 
-    private EditText email;
-    private EditText password;
-    private EditText confirmPassword;
-    private EditText displayName;
-    private Button loginButton;
-    private Button registerButton;
     FirebaseApp testApp;
     FirebaseAuth testAuth;
 
-    UserInfoPrivate ui;
-    /*
-        Only added private, restricted, public retrieval tests.
-        Tests for whether the user info is stored correctly is not included and should be done
-        when a user story requires it. E.g. adding chef star integration into the userInfo ProfileView.
-     */
-
     //  Default test values.
-    private final String TEST_UID = "0UxMqO57gjSfAXuSwUiE1ip1Ca83";
-    private final String TEST_EMAIL = "Fake@email.com";
-    private final String TEST_DISPLAYNAME = "FakeDisplayName";
-    private final String TEST_ABOUT = "I am a fake person.";
-    private final String TEST_IMAGEURL = "https://www.displayfakefoods.com/store/pc/catalog/9815e_2030_detail.jpg";
-    private double TEST_CHEFRATING = 3.5;
-    private int TEST_NUM_RECIPES = 10;
-
-    //  Creates a test user info HashMap
-    private HashMap<String, Object> createUserInfoHashMap() {
-        HashMap<String, Object> map = new HashMap<>();
-
-        map.put("UID", TEST_UID);
-        map.put("email", TEST_EMAIL);
-        map.put("displayName", TEST_DISPLAYNAME);
-        map.put("imageURL", TEST_IMAGEURL);
-        map.put("chefRating", TEST_CHEFRATING);
-        map.put("numRecipes", TEST_NUM_RECIPES);
-        map.put("about", TEST_ABOUT);
-        return map;
-    }
-
-    //  Creates a test preferences HashMap
-    private HashMap<String, Object> createPreferencesHashMap() {
-        HashMap<String, Object> preferences = new HashMap<>();
-        // Default user food preferences
-        preferences.put("allergy_celery", false);
-        preferences.put("allergy_crustacean", false);
-        preferences.put("allergy_eggs", false);
-        preferences.put("allergy_fish", false);
-        preferences.put("allergy_gluten", false);
-        preferences.put("allergy_milk", false);
-        preferences.put("allergy_mustard", false);
-        preferences.put("allergy_nuts", false);
-        preferences.put("allergy_peanuts", false);
-        preferences.put("allergy_sesame", false);
-        preferences.put("allergy_shellfish", false);
-        preferences.put("allergy_soya", false);
-        preferences.put("allergy_sulphide", false);
-        preferences.put("diabetic", false);
-        preferences.put("halal", false);
-        preferences.put("high_protein", false);
-        preferences.put("kosher", false);
-        preferences.put("lactose_free", false);
-        preferences.put("lactovegetarian", false);
-        preferences.put("low_carb", false);
-        preferences.put("low_sodium", false);
-        preferences.put("no_alcohol", false);
-        preferences.put("no_pork", false);
-        preferences.put("ovovegetarian", false);
-        preferences.put("pescatarian", false);
-        preferences.put("vegan", false);
-        preferences.put("vegetarian", false);
-        return preferences;
-    }
+    private static final String TEST_EMAIL = "jb2200@york.ac.uk";
+    private static String TEST_PASSWORD = "password";
 
     @Rule
     public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<MainActivity>(MainActivity.class);
 
     @Before
-    public void setUp(){
+    public void setUp() throws InterruptedException {
+
+        ActivityScenario.launch(Login.class);
+
         mActivity = mActivityTestRule.getActivity();
         testApp = mActivity.mApp;
         testAuth = mActivity.mAuth;
 
-        ActivityScenario.launch(Login.class);
         onView(withId(R.id.loginButton))
                 .perform(click());
 
         onView(withId(R.id.emailEditText))
-                .perform(typeText("jb2200@york.ac.uk"));
+                .perform(typeText(TEST_EMAIL));
         onView(withId(R.id.passwordEditText))
-                .perform(typeText("password"));
+                .perform(typeText(TEST_PASSWORD));
         Espresso.closeSoftKeyboard();
+
         onView(withId(R.id.loginButton))
                 .perform(click());
+
     }
 
-    //  Test data can be stored in Singleton class and retrieved using HashMaps.
+    /*@Test
+    public void testUIDIsStoredInUserInfoPrivate() {
+        assertEquals(mActivity.mUser.getUID(), (String) testAuth.getUid());
+    }
+
     @Test
-    public void testDataIsStored() {
+    public void testPreferencesAreStoredInUserInfoPrivate(){
+        assertNotNull(mActivity.mUser.getPreferences());
+    }*/
+
+    //  Checks on log out all of the users data is removed.
+    @Test
+    public void testDataInUserInfoPrivateRemovedOnLogOut() throws InterruptedException {
+
+        Thread.sleep(10000);
+        onView(withId(R.id.logoutButton))
+                .perform(click());
+
+
+        assertNull(mActivity.mAuth.getCurrentUser());
+        assertNull(mActivity.mUser);
+        Thread.sleep(10000);
+
+    }
+
+    //  Test all data grabbed from Firebase at login is stored locally within the app.
+    @Test
+    public void testAllDataIsStoredInUserInfoPrivate() throws InterruptedException {
+
+        Thread.sleep(2000); //Gives enough time for userInfo object to be passed to MainActivity screen
         assertEquals(mActivity.mUser.getUID(), (String) testAuth.getUid());
         assertNotNull(mActivity.mUser.getAbout());
         assertNotNull(mActivity.mUser.getPreferences());
@@ -145,34 +113,16 @@ public class UserInfoPrivateTest{
         } else {
             fail();
         }
+
+        Thread.sleep(2000); //Gives enough time for userInfo object to be passed to MainActivity screen
+        onView(withId(R.id.logoutButton))
+            .perform(click());
+
     }
 
 
-    @Test
-    public void testBasicInfoCanBeRetrievedFromUser() {
-    }
 
 
-    @Test
-    public void testPrivateInfoIsHiddenToOtherUsers() {
-        /*TODO
-            Check that we are unable to retrieve private info on other users.
-         */
-    }
-
-    @Test
-    public void testPublicInfoIsVisible() {
-        /*TODO
-            Check that the public profile info is visible from another user account.
-         */
-    }
-
-    @Test
-    public void testOnlyRestrictedInfoIsDisplayed() {
-        /*TODO
-            Test that for the restriced 'enum' preset only a limited amount of options are displayed.
-         */
-    }
     @After
     public void tearDown() throws Exception {
         mActivity = null;

@@ -110,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
                                     map.put("chefRating", document.get("chefRating"));
                                     map.put("numRecipes", document.get("numRecipes"));
                                     map.put("preferences", document.get("preferences"));
+                                    map.put("about", document.get("about"));
 
                                     try {
                                         mUser = new UserInfoPrivate(map, (HashMap<String, Object>) document.get("preferences"), mContext);

@@ -275,9 +275,10 @@ public class Login extends AppCompatActivity{
                     map.put("UID", mAuth.getCurrentUser().getUid());
                     map.put("email", mAuth.getCurrentUser().getEmail());
                     map.put("displayName", mDisplayName);
-                    map.put("imageURL", (String) null);
+                    map.put("imageURL", "");
                     map.put("chefRating", (double) 0);
                     map.put("numRecipes", (long) 0);
+                    map.put("about", "");
 
                     // Default user food preferences
                     preferences.put("allergy_celery", false);
