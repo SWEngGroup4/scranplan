@@ -1,6 +1,7 @@
 package com.group4sweng.scranplan;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -38,6 +39,8 @@ public class Login extends AppCompatActivity{
     final String TAG = "FirebaseTestLogin";
 
     Context mContext = this;
+
+    UserInfoPrivate mUser;
 
     // Firebase variables needed for login/register
     FirebaseApp mApp;
@@ -341,8 +344,6 @@ public class Login extends AppCompatActivity{
             }
         };
 
-        // Logging user log in
-        Log.e(TAG, "SignIn : Registering : eMail [" + email + "] password [" + password + "] Display Name [" + displayName + "]");
         // Creating new authentication account
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(complete).addOnFailureListener(failure);
     }
@@ -382,14 +383,15 @@ public class Login extends AppCompatActivity{
                                             map.put("chefRating", document.get("chefRating"));
                                             map.put("numRecipes", document.get("numRecipes"));
                                             map.put("preferences", document.get("preferences"));
+                                            map.put("about", document.get("about"));
 
                                             try {
-                                                UserInfoPrivate.createInstance(map, (HashMap<String, Object>) document.get("preferences"));
+                                               mUser = new UserInfoPrivate(map, (HashMap<String, Object>) document.get("preferences"), mContext);
                                             } catch (Exception e){
                                                 e.printStackTrace();
                                             }
 
-                                            Log.i(TAG, "SignIn : Valid current user : UID [" + UserInfoPrivate.getInstance().getUID() + "]");
+                                            Log.i(TAG, "SignIn : Valid current user : UID [" + mUser.getUID() + "]");
                                             mLoginInProgress = false;
                                             mRegisterInProgress = false;
                                             finishActivity();
@@ -433,8 +435,6 @@ public class Login extends AppCompatActivity{
             }
         };
 
-        // Attempt to log user in with given credentials
-        Log.e(TAG, "SignIn : Logging in : eMail [" + email + "] password [" + password + "]");
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(complete).addOnFailureListener(failure);
     }
 
@@ -448,11 +448,10 @@ public class Login extends AppCompatActivity{
         Log.e(TAG,"SignIn Returning to main activity");
 
         //  TODO Check if this is needed or not. Seems like it's not.
-        /* //User data returned to main menu
+        //User data returned to main menu
         Intent returningIntent = new Intent();
-        returningIntent.putExtra("user", user);
+        returningIntent.putExtra("user", mUser);
         setResult(RESULT_OK, returningIntent);
-         */
 
         finish();
     }

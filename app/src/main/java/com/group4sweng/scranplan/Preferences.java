@@ -1,18 +1,13 @@
 package com.group4sweng.scranplan;
 
+import java.io.Serializable;
+
 /**
  * Preferences class
  * Used within UserInfo class to save specific preferences user wants to apply to all queries within
  * the application
  */
-public class Preferences {
-
-    /* Shared preferences key is...
-        [variable name in capitals] + _KEY
-        For e.g. the key-value pair key for a celery allergy is.
-
-            ALLERGY_CELERY_KEY
-     */
+public class Preferences implements Serializable {
 
     // All preference variables
     private boolean allergy_celery;

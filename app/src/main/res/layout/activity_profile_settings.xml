@@ -7,7 +7,7 @@
     tools:context=".ProfileSettings">
 
     <EditText
-        android:id="@+id/settings_input_username2"
+        android:id="@+id/settings_input_username"
         style="@style/Widget.AppCompat.EditText"
         android:layout_width="235dp"
         android:layout_height="33dp"
@@ -59,7 +59,7 @@
         android:text="0"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         app:layout_constraintStart_toEndOf="@+id/settings_recipes"
-        app:layout_constraintTop_toBottomOf="@+id/settings_input_username2" />
+        app:layout_constraintTop_toBottomOf="@+id/settings_input_about_me" />
 
     <TextView
         android:id="@+id/settings_username"
@@ -200,7 +200,7 @@
         android:text="Filters"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/settings_input_username" />
+        app:layout_constraintTop_toBottomOf="@+id/settings_input_about_me" />
 
     <Button
         android:id="@+id/settings_save_settings"
@@ -215,7 +215,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
-        android:id="@+id/settings_input_username"
+        android:id="@+id/settings_input_about_me"
         style="@style/Widget.AppCompat.EditText"
         android:layout_width="372dp"
         android:layout_height="70dp"

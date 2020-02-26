@@ -3,14 +3,13 @@ package com.group4sweng.scranplan;
 import android.content.Context;
 
 import com.group4sweng.scranplan.Exceptions.InvalidContextException;
-import com.group4sweng.scranplan.Exceptions.MultipleSingletonCreationException;
 
+import org.junit.After;
 import org.junit.Test;
 
 import java.util.HashMap;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
@@ -18,6 +17,9 @@ import static org.mockito.Mockito.mock;
  * JUnit 4 tests (Including Mockito) for User Info testing that do not require instrumentation tests.
  */
 public class UserInfoUnitTests {
+
+    UserInfoPrivate ui;
+
 
     //  Default test values.
     private final String TEST_UID = "0UxMqO57gjSfAXuSwUiE1ip1Ca83";
@@ -28,8 +30,7 @@ public class UserInfoUnitTests {
     private double TEST_CHEFRATING = 3.5;
     private int TEST_NUM_RECIPES = 10;
 
-    //  Mocked context of the Login screen.
-    Context LOGIN_CONTEXT = mock(Login.class);
+    private Context PROFILE_SETTINGS_CONTEXT = mock(ProfileSettings.class);
 
     //  Creates a test user info HashMap
     private HashMap<String, Object> createUserInfoHashMap() {
@@ -78,21 +79,20 @@ public class UserInfoUnitTests {
         preferences.put("vegetarian", false);
         return preferences;
     }
-
+    /*
     //  Test data can be stored in Singleton class and retrieved using HashMaps.
     @Test
-    public void testCanBeCreatedAndRetrievedFromHashMap() {
+    public void testCanBeCreatedAndRetrievedFromCorrectContext() {
 
         HashMap<String, Object> map = createUserInfoHashMap();
         HashMap<String, Object> preferences = createPreferencesHashMap();
 
         try {
-            UserInfoPrivate.createInstance(map, preferences);
+             ui = new UserInfoPrivate(map, preferences, MAIN_ACTIVITY_CONTEXT);
         } catch (Exception e){
             e.printStackTrace();
         }
 
-        UserInfoPrivate ui = UserInfoPrivate.getInstance();
         assertSame(ui.getUID(), TEST_UID);
         assertSame(ui.getAbout(), TEST_ABOUT);
         assertSame(ui.getDisplayName(), TEST_DISPLAYNAME);
@@ -102,19 +102,39 @@ public class UserInfoUnitTests {
 
         //Only check one preference. Will take forever to write every preference check.
         assertSame(ui.getPreferences().isAllergy_celery(), preferences.get("allergy_celery"));
-    }
 
-    //  Test we cannot get an instance of the Singleton class 'UserInfoPrivate' before it is initialized.
-    @Test
-    public void testCannotGetInstanceBeforeInitiating(){
+        ui = null;
+
         try {
-            UserInfoPrivate.getInstance();
-            fail("UserInfoPrivate() Should throw Runtime Exception if we try to retrieve an instance before initiating it");
-        } catch (RuntimeException e){
-            System.out.println("Runtime exception caught properly");
+            ui = new UserInfoPrivate(map, preferences, LOGIN_CONTEXT);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        assertSame(ui.getUID(), TEST_UID);
+        assertSame(ui.getAbout(), TEST_ABOUT);
+        assertSame(ui.getDisplayName(), TEST_DISPLAYNAME);
+        assertEquals(ui.getNumRecipes(), TEST_NUM_RECIPES);
+        assertSame(ui.getImageURL(), TEST_IMAGEURL);
+        assertEquals(ui.getChefRating(), TEST_CHEFRATING);
+
+        assertSame(ui.getPreferences().isAllergy_celery(), preferences.get("allergy_celery"));
+    }*/
+
+    @Test
+    public void testFalseContextFails(){
+        HashMap<String, Object> map = createUserInfoHashMap();
+        HashMap<String, Object> preferences = createPreferencesHashMap();
+
+        try {
+            ui = new UserInfoPrivate(map, preferences, PROFILE_SETTINGS_CONTEXT);
+            fail("Failed to throw error when setting a false context when creating the UserInfoPrivate Class.");
+        } catch (InvalidContextException e){
+            assertEquals("Current Activity context does not relate to: com.group4sweng.scranplan.Login or com.group4sweng.scranplan.MainActivity. Hence Will not initialize class.", e.getMessage());
         }
     }
 
+    /*
     //  Test we have a valid context for the 'ProfileSettings' page activity and therefore any edits made to user info are only made within this activity.
     @Test
     public void testUserInfoCannotBeSetOutsideProfileSettings(){
@@ -123,33 +143,23 @@ public class UserInfoUnitTests {
         HashMap<String, Object> preferences = createPreferencesHashMap();
 
         try {
-            UserInfoPrivate.createInstance(map, preferences);
+            ui = new UserInfoPrivate(map, preferences, LOGIN_CONTEXT);
         } catch (Exception e){
             e.printStackTrace();
         }
 
         try {
-            UserInfoPrivate.getInstance().setUID(TEST_UID, LOGIN_CONTEXT);
+            ui.setUID(TEST_UID, LOGIN_CONTEXT);
             fail("Failed to throw error when setting user info outside user profile settings");
         } catch (InvalidContextException e){
             assertEquals("Current Activity context required to set UID of user is: com.group4sweng.scranplan.ProfileSettings", e.getMessage());
         }
 
     }
+    */
 
-    //  Test that multiple instances of the Singleton class 'UserInfoPrivate' are not possible.
-    @Test
-    public void testMultipleInstanceCreationFails(){
-        HashMap<String, Object> map = createUserInfoHashMap();
-        HashMap<String, Object> preferences = createPreferencesHashMap();
-
-        try {
-            UserInfoPrivate.createInstance(map, preferences);
-            UserInfoPrivate.createInstance(map, preferences);
-            fail("Unable to retrieve exception when creating multiple instances of the Singleton 'UserInfoPrivate' class.");
-        } catch (MultipleSingletonCreationException e){
-            assertEquals("Cannot create multiple instances of Singleton class 'UserInfoPrivate'", e.getMessage());
-        }
-
+    @After
+    public void cleanUp(){
+        ui = null;
     }
 }

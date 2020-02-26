@@ -4,65 +4,59 @@ import android.app.Application;
 import android.content.Context;
 
 import com.group4sweng.scranplan.Exceptions.InvalidContextException;
-import com.group4sweng.scranplan.Exceptions.MultipleSingletonCreationException;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
  * UserInfo class
  * Used to save current user vital variables that will be used throughout the app for customisation
  */
-public class UserInfoPrivate extends Application {
+public class UserInfoPrivate extends Application implements Serializable {
 
     final static String TAG = "UserInfo";
-    private static UserInfoPrivate INSTANCE; //Instance of current class. Used for Singletons.
 
     /*  The class names relating to the context of the Activity in which private user info is to be retrieved from.
             Login = At initial login
             Profile Settings = Whilst on the profile settings Activity.
     */
     private static final String CONTEXT_PROFILE_SETTINGS = "com.group4sweng.scranplan.ProfileSettings";
-    private static final String CONTEXT_LOGIN = "com.group4sweng.scranplan.Login";
-    //private static final String USER_INFO_SHARED_PREFERENCES = "userinfo";
-
-    /*  Key-value pairs for SharedPreferences.
-    private static final String UID_KEY = "UID";
-    private static final String DISPLAY_NAME_KEY = "Display_Name";
-    private static final String IMAGEURL_KEY = "Image_URL";
-    private static final String ABOUT_KEY = "About";
-    private static final String CHEF_RATING_KEY = "Chef_Rating";
-    private static final String NUM_OF_RECIPES = "Number_Of_Recipes";
-    */
+    private static final String CONTEXT_LOGIN_SETTINGS = "com.group4sweng.scranplan.Login";
+    private static final String CONTEXT_MAIN_ACTIVITY_SETTINGS = "com.group4sweng.scranplan.MainActivity";
 
     //  User information
-    private static String UID;
-    private static String displayName;
-    private static String imageURL;
-    private static String about;
-    private static double chefRating;
-    private static int numRecipes;
+    private String mUID;
+    private String mDisplayName;
+    private String mImageURL;
+    private String mAbout;
+    private double mChefRating;
+    private long mNumRecipes;
 
     /*TODO
         Add saved recipes here. Check UML profile diagram and Recipe diagram for more information.
      */
 
     // User preferences
-    private static Preferences preferences;
+    private Preferences mPreferences;
 
 
-    //  Private constructor for associated 'createInstance(HashMap<String, Object> map, HashMap<String, Object> prefs)'
-    private UserInfoPrivate(HashMap<String, Object> map, HashMap<String, Object> prefs) {
-        if (INSTANCE != null) {
-            throw new RuntimeException("Tried to retrieve without getting instance of Singleton class");
+    public UserInfoPrivate(HashMap<String, Object> map, HashMap<String, Object> prefs, Context context) throws InvalidContextException{
+        Boolean checkLogin = checkContext(CONTEXT_LOGIN_SETTINGS, context);
+        Boolean checkMainActivity = checkContext(CONTEXT_MAIN_ACTIVITY_SETTINGS, context);
+
+        if (!checkLogin && !checkMainActivity){
+            throw new InvalidContextException("Current Activity context does not relate to: " + CONTEXT_LOGIN_SETTINGS + " or " + CONTEXT_MAIN_ACTIVITY_SETTINGS + ". Hence Will not initialize class.");
         }
 
-        UID = (String) map.get("UID");
-        displayName = (String) map.get("displayName");
-        imageURL = (String) map.get("imageURL");
-        chefRating = (double) map.get("chefRating");
-        numRecipes =  (int) map.get("numRecipes");
-        about = (String) map.get("about");
-        preferences = new Preferences((boolean) prefs.get("allergy_celery"),
+        this.mUID = (String) map.get("UID");
+        System.out.println("UID is" + this.mUID);
+
+        this.mDisplayName = (String) map.get("displayName");
+        this.mImageURL = (String) map.get("imageURL");
+        this.mChefRating = (double) map.get("chefRating");
+        this.mNumRecipes =  (long) map.get("numRecipes");
+        this.mAbout = (String) map.get("about");
+        this.mPreferences = new Preferences((boolean) prefs.get("allergy_celery"),
                 (boolean) prefs.get("allergy_crustacean"), (boolean) prefs.get("allergy_eggs"),
                 (boolean) prefs.get("allergy_fish"), (boolean) prefs.get("allergy_gluten"),
                 (boolean) prefs.get("allergy_milk"), (boolean) prefs.get("allergy_mustard"),
@@ -76,12 +70,6 @@ public class UserInfoPrivate extends Application {
                 (boolean) prefs.get("no_alcohol"), (boolean) prefs.get("no_pork"),
                 (boolean) prefs.get("ovovegetarian"), (boolean) prefs.get("pescatarian"),
                 (boolean) prefs.get("vegan"), (boolean) prefs.get("vegetarian"));
-
-        //saveSharedPreferences();
-    }
-
-    //  Private constructor for associated 'createInstance(Context context)'
-    private UserInfoPrivate(Context context) {
 
     }
 
@@ -125,67 +113,18 @@ public class UserInfoPrivate extends Application {
     */
 
     /**
-     * Initiate Singleton User Profile Class from a HashMap of values.
-     * Initiated on login/registering for the first time.
-     *
-     * @param map   - Map of user specific information
-     * @param prefs - Map of dietary preferences
-     */
-    public synchronized static void createInstance(HashMap<String, Object> map, HashMap<String, Object> prefs) throws MultipleSingletonCreationException {
-        if (INSTANCE == null) {
-            INSTANCE = new UserInfoPrivate(map, prefs);
-        } else {
-            throw new MultipleSingletonCreationException("Cannot create multiple instances of Singleton class 'UserInfoPrivate'");
-        }
-    }
-
-    /* TODO implement only if Shared Preferences (local storage) is required.
-    /**
-     * Constructor for initiating Singleton User Info Class from the apps 'Login' Activity context
-     * Initiated when user has already logged in and is returning to the MainActivity screen.
-     *
-     * @param context - The context of the current Activity. Should be 'Login'.
-     */
-    /*
-    public synchronized static void createInstance(Context context) throws InvalidContextException {
-
-        //Checks we can only initiate from the Login.class & an instance of the class hasn't already been created.
-        if (checkContext(CONTEXT_LOGIN, context) && INSTANCE == null) {
-            INSTANCE = new UserInfoPrivate(context);
-        } else if (!checkContext(CONTEXT_LOGIN, context) && INSTANCE == null) {
-            throw new InvalidContextException("Activity context required to create instance of class is: " + CONTEXT_LOGIN);
-        } else {
-            Log.e(TAG, "Instance of singleton class 'UserInfoPrivate' already exists");
-        }
-    }
-    */
-
-    /**
-     * Get an instance of the users info (Singleton class) or throw an error if an instance of the class dosen't exist.
-     * It should exist at runtime.
-     *
-     * @return - Valid instance of the class.
-     */
-    public synchronized static UserInfoPrivate getInstance() { //Thread safe
-        if (INSTANCE == null) {
-            throw new java.lang.RuntimeException("Cannot retrieve an instance of the users information from UserInfoPrivate. Make sure an instance of the class is created before retrieving an instance.");
-        }
-        return INSTANCE;
-    }
-
-
-    /**
      * Checks the context we expect for the associated Activity against what is retrieved.
      *
      * @param expectedContextClassName - The class name identifier of the expected context. E.g. com.group4sweng.scranplan.[name]
      * @param context                  - Our current actual context.
      * @return - Boolean value specifying if the context matches or not.
      */
-    private static boolean checkContext(String expectedContextClassName, Context context) {
+    private boolean checkContext(String expectedContextClassName, Context context) {
         String actualContextClassname = context.getClass().getName();
         if (actualContextClassname.equals(expectedContextClassName)) {
             return true;
         } else {
+            System.out.println("Tried to create context from: " + actualContextClassname);
             return false;
         }
     }
@@ -197,73 +136,73 @@ public class UserInfoPrivate extends Application {
      * @param name                     - Name identifier to use within the InvalidContextException message.
      * @throws InvalidContextException - Throws if contexts don't match.
      */
-    private static void checkContext(String expectedContextClassname, Context context, String name) throws InvalidContextException {
+    private void checkContext(String expectedContextClassname, Context context, String name) throws InvalidContextException {
         if (!checkContext(expectedContextClassname, context)) {
             throw new InvalidContextException("Current Activity context required to set " + name + " of user is: " + expectedContextClassname);
         }
     }
 
     public String getUID() {
-        return UID;
+        return mUID;
     }
 
     public void setUID(String UID, Context context) throws InvalidContextException {
         checkContext(CONTEXT_PROFILE_SETTINGS, context, "UID");
-        UserInfoPrivate.UID = UID;
+        mUID = UID;
     }
 
     public String getDisplayName() {
-        return displayName;
+        return mDisplayName;
     }
 
     public void setDisplayName(String displayName, Context context) throws InvalidContextException {
         checkContext(CONTEXT_PROFILE_SETTINGS, context, "Display Name");
-        UserInfoPrivate.displayName = displayName;
+        mDisplayName = displayName;
     }
 
     public String getImageURL() {
-        return imageURL;
+        return mImageURL;
     }
 
     public void setImageURL(String imageURL, Context context) throws InvalidContextException {
         checkContext(CONTEXT_PROFILE_SETTINGS, context, "Image URL");
-        UserInfoPrivate.imageURL = imageURL;
+        mImageURL = imageURL;
     }
 
     public double getChefRating() {
-        return chefRating;
+        return mChefRating;
     }
 
     public void setChefRating(double chefRating, Context context) throws InvalidContextException {
         checkContext(CONTEXT_PROFILE_SETTINGS, context, "Chef Rating");
-        UserInfoPrivate.chefRating = chefRating;
+        mChefRating = chefRating;
     }
 
     public long getNumRecipes() {
-        return numRecipes;
+        return mNumRecipes;
     }
 
     public void setNumRecipes(int numRecipes, Context context) throws InvalidContextException {
         checkContext(CONTEXT_PROFILE_SETTINGS, context, "Number Of Recipes");
-        UserInfoPrivate.numRecipes = numRecipes;
+        mNumRecipes = numRecipes;
     }
 
     public String getAbout() {
-        return about;
+        return mAbout;
     }
 
     public void setAbout(String about, Context context) throws InvalidContextException {
         checkContext(CONTEXT_PROFILE_SETTINGS, context, "About");
-        UserInfoPrivate.about = about;
+        mAbout = about;
     }
 
     public Preferences getPreferences() {
-        return preferences;
+        return mPreferences;
     }
 
     public void setPreferences(Preferences preferences, Context context) throws InvalidContextException {
         checkContext(CONTEXT_PROFILE_SETTINGS, context, "Preferences");
-        UserInfoPrivate.preferences = preferences;
+        mPreferences = preferences;
     }
 
 }

@@ -1,5 +1,6 @@
 package com.group4sweng.scranplan;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -31,8 +32,12 @@ import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
 
+    Context mContext = this;
+
     final String TAG = "FirebaseTest";
     final FirebaseFirestore database = FirebaseFirestore.getInstance();
+
+    UserInfoPrivate mUser;
 
     FirebaseAuth mAuth;
     FirebaseApp mApp;
@@ -87,7 +92,6 @@ public class MainActivity extends AppCompatActivity {
 
                 if(user != null){
                     if(mAuth.getCurrentUser().isEmailVerified()){
-                        Log.e(TAG, "AUTHENTICATION STATE UPDATE : Valid user logged in : email [" + user.getEmail() + "]");
 
                         DocumentReference usersRef = database.collection("users").document(mAuth.getCurrentUser().getUid());
                         usersRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -108,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
                                     map.put("preferences", document.get("preferences"));
 
                                     try {
-                                        UserInfoPrivate.createInstance(map, (HashMap<String, Object>) document.get("preferences"));
+                                        mUser = new UserInfoPrivate(map, (HashMap<String, Object>) document.get("preferences"), mContext);
                                     } catch (Exception e){
                                         e.printStackTrace();
                                     }
@@ -133,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
                     mAuth.removeAuthStateListener(mAuthListener);
                     Intent signIn = new Intent(getApplicationContext(), Login.class);
                     startActivity(signIn);
+                    mUser = (UserInfoPrivate)signIn.getSerializableExtra("user");
                 }
             }
         };
@@ -160,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.e(TAG, "Logout button has been pressed and user has been logged out.");
-                //userDetails = null;
+                mUser = null;
                 mAuth.signOut();
             }
         });
