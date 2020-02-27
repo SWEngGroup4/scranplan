@@ -6,6 +6,7 @@
     <color name="colorText">#1c1f1d</color> //Text Colour
     <color name="colorPrimaryText">#1c1f1d</color>
     <color name="colorSecondaryText">#000000</color>
+    <color name="colorWhiteText">#ffffff</color>
     <color name="colorDivider">#8D8D8D</color>
     <color name="colorAccent">#7C4DFF</color>
     <color name="colorWindow">#bdb5c7</color>

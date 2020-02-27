@@ -5,4 +5,7 @@
     <string name="nav_drawer_open">Open Nav Drawer</string>
     <string name="nav_drawer_close">Close Nav Drawer</string>
     <string name="profile_settings_button_string">profile settings</string>
+    <string name="planner_breakfast">Breakfast</string>
+    <string name="planner_lunch">Lunch</string>
+    <string name="planner_dinner">Dinner</string>
 </resources>

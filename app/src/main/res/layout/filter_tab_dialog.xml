@@ -34,12 +34,12 @@
                     tools:context=".InitialUserCustomisation">
 
                     <CheckBox
-                        android:id="@+id/pescatarianCheckBox"
+                        android:id="@+id/ingredientCheckBox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="20sp"
                         android:layout_marginTop="20sp"
-                        android:text="Pescatarian"
+                        android:text="Search by ingredients"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toStartOf="parent"
@@ -47,34 +47,34 @@
 
 
                     <CheckBox
-                        android:id="@+id/vegCheckBox"
+                        android:id="@+id/nameCheckBox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="20sp"
                         android:layout_marginTop="20sp"
-                        android:text="Vegetarian"
+                        android:text="Search by name"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/pescatarianCheckBox" />
+                        app:layout_constraintTop_toBottomOf="@+id/ingredientCheckBox" />
 
                     <CheckBox
-                        android:id="@+id/veganCheckBox"
+                        android:id="@+id/chefCheckBox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="20sp"
                         android:layout_marginTop="20sp"
-                        android:text="Vegan"
+                        android:text="Search by chef"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/vegCheckBox" />
+                        app:layout_constraintTop_toBottomOf="@+id/nameCheckBox" />
+
 
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </ScrollView>
-
 
             <ScrollView android:id="@+id/ScrollView02"
                 android:layout_width="match_parent"
@@ -87,9 +87,58 @@
                     android:layout_height="match_parent"
                     tools:context=".InitialUserCustomisation">
 
+                    <CheckBox
+                        android:id="@+id/menuPescatarianCheckBox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20sp"
+                        android:layout_marginTop="20sp"
+                        android:text="Pescatarian"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
 
                     <CheckBox
-                        android:id="@+id/nutCheckBox"
+                        android:id="@+id/menuVegCheckBox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20sp"
+                        android:layout_marginTop="20sp"
+                        android:text="Vegetarian"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/menuPescatarianCheckBox" />
+
+                    <CheckBox
+                        android:id="@+id/menuVeganCheckBox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20sp"
+                        android:layout_marginTop="20sp"
+                        android:text="Vegan"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/menuVegCheckBox" />
+
+                    <TextView
+                        android:id="@+id/allergyTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20sp"
+                        android:layout_marginTop="20sp"
+                        android:text="Allergies"
+                        android:textFontWeight="700"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/menuVeganCheckBox" />
+
+                    <CheckBox
+                        android:id="@+id/menuNutCheckBox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="20sp"
@@ -98,10 +147,10 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="@+id/allergyTitle" />
 
                     <CheckBox
-                        android:id="@+id/wheatCheckBox"
+                        android:id="@+id/menuWheatCheckBox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="20sp"
@@ -110,10 +159,10 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/nutCheckBox" />
+                        app:layout_constraintTop_toBottomOf="@+id/menuNutCheckBox" />
 
                     <CheckBox
-                        android:id="@+id/soyCheckBox"
+                        android:id="@+id/menuSoyCheckBox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="20sp"
@@ -122,10 +171,10 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/wheatCheckBox" />
+                        app:layout_constraintTop_toBottomOf="@+id/menuWheatCheckBox" />
 
                     <CheckBox
-                        android:id="@+id/milkCheckBox"
+                        android:id="@+id/menuMilkCheckBox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="20sp"
@@ -134,10 +183,10 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/soyCheckBox" />
+                        app:layout_constraintTop_toBottomOf="@+id/menuSoyCheckBox" />
 
                     <CheckBox
-                        android:id="@+id/eggCheckBox"
+                        android:id="@+id/menuEggCheckBox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="20sp"
@@ -146,10 +195,10 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/milkCheckBox" />
+                        app:layout_constraintTop_toBottomOf="@+id/menuMilkCheckBox" />
 
                     <CheckBox
-                        android:id="@+id/shellfishCheckBox"
+                        android:id="@+id/menuShellfishCheckBox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="20sp"
@@ -158,14 +207,104 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/eggCheckBox" />
-
-
+                        app:layout_constraintTop_toBottomOf="@+id/menuEggCheckBox" />
 
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </ScrollView>
+
+
+<!--            <ScrollView android:id="@+id/ScrollView03"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent">-->
+
+<!--                <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--                    xmlns:app="http://schemas.android.com/apk/res-auto"-->
+<!--                    xmlns:tools="http://schemas.android.com/tools"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    tools:context=".InitialUserCustomisation">-->
+
+
+<!--                    <CheckBox-->
+<!--                        android:id="@+id/nutCheckBox"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginStart="20sp"-->
+<!--                        android:layout_marginTop="20sp"-->
+<!--                        android:text="Allergic to nuts"-->
+<!--                        app:layout_constraintEnd_toEndOf="parent"-->
+<!--                        app:layout_constraintHorizontal_bias="0.0"-->
+<!--                        app:layout_constraintStart_toStartOf="parent"-->
+<!--                        app:layout_constraintTop_toTopOf="parent" />-->
+
+<!--                    <CheckBox-->
+<!--                        android:id="@+id/wheatCheckBox"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginStart="20sp"-->
+<!--                        android:layout_marginTop="20sp"-->
+<!--                        android:text="Allergic to wheat"-->
+<!--                        app:layout_constraintEnd_toEndOf="parent"-->
+<!--                        app:layout_constraintHorizontal_bias="0.0"-->
+<!--                        app:layout_constraintStart_toStartOf="parent"-->
+<!--                        app:layout_constraintTop_toBottomOf="@+id/nutCheckBox" />-->
+
+<!--                    <CheckBox-->
+<!--                        android:id="@+id/soyCheckBox"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginStart="20sp"-->
+<!--                        android:layout_marginTop="20sp"-->
+<!--                        android:text="Allergic to soy"-->
+<!--                        app:layout_constraintEnd_toEndOf="parent"-->
+<!--                        app:layout_constraintHorizontal_bias="0.0"-->
+<!--                        app:layout_constraintStart_toStartOf="parent"-->
+<!--                        app:layout_constraintTop_toBottomOf="@+id/wheatCheckBox" />-->
+
+<!--                    <CheckBox-->
+<!--                        android:id="@+id/milkCheckBox"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginStart="20sp"-->
+<!--                        android:layout_marginTop="20sp"-->
+<!--                        android:text="Allergic to milk"-->
+<!--                        app:layout_constraintEnd_toEndOf="parent"-->
+<!--                        app:layout_constraintHorizontal_bias="0.0"-->
+<!--                        app:layout_constraintStart_toStartOf="parent"-->
+<!--                        app:layout_constraintTop_toBottomOf="@+id/soyCheckBox" />-->
+
+<!--                    <CheckBox-->
+<!--                        android:id="@+id/eggCheckBox"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginStart="20sp"-->
+<!--                        android:layout_marginTop="20sp"-->
+<!--                        android:text="Allergic to eggs"-->
+<!--                        app:layout_constraintEnd_toEndOf="parent"-->
+<!--                        app:layout_constraintHorizontal_bias="0.0"-->
+<!--                        app:layout_constraintStart_toStartOf="parent"-->
+<!--                        app:layout_constraintTop_toBottomOf="@+id/milkCheckBox" />-->
+
+<!--                    <CheckBox-->
+<!--                        android:id="@+id/shellfishCheckBox"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginStart="20sp"-->
+<!--                        android:layout_marginTop="20sp"-->
+<!--                        android:text="Allergic to shellfish"-->
+<!--                        app:layout_constraintEnd_toEndOf="parent"-->
+<!--                        app:layout_constraintHorizontal_bias="0.0"-->
+<!--                        app:layout_constraintStart_toStartOf="parent"-->
+<!--                        app:layout_constraintTop_toBottomOf="@+id/eggCheckBox" />-->
+
+
+
+
+<!--                </androidx.constraintlayout.widget.ConstraintLayout>-->
+
+<!--            </ScrollView>-->
 
             <ScrollView android:id="@+id/ScrollView03"
                 android:layout_width="match_parent"

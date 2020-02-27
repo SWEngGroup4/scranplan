@@ -64,12 +64,16 @@ public class MainActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     FirebaseApp mApp;
 
+    FragmentManager fragmentManager = getSupportFragmentManager();
+    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
     FirebaseAuth.AuthStateListener mAuthListener;
     String mDisplayName;
 
     Button mLogoutButton;
     TabLayout tabLayout;
     FrameLayout frameLayout;
+    Query query;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,8 +98,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         Fragment fragment = new RecipeFragment();
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frameLayout, fragment);
         fragmentTransaction.commit();
 
@@ -121,6 +123,11 @@ public class MainActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
+                // add search function here
+                SearchListFragment searchListFragment = new SearchListFragment();
+                searchListFragment.setValue(query);
+                Log.e(TAG, "I'm pressing it boss");
+                searchListFragment.show(fragmentManager, "test");
                 return false;
             }
 
@@ -161,9 +168,9 @@ public class MainActivity extends AppCompatActivity {
             TabHost.TabSpec tabpage1 = tabs.newTabSpec("type");
             tabpage1.setContent(R.id.ScrollView01);
             tabpage1.setIndicator("Type");
-            TabHost.TabSpec tabpage2 = tabs.newTabSpec("allergens");
+            TabHost.TabSpec tabpage2 = tabs.newTabSpec("type");
             tabpage2.setContent(R.id.ScrollView02);
-            tabpage2.setIndicator("Allergens");
+            tabpage2.setIndicator("Diet");
             TabHost.TabSpec tabpage3 = tabs.newTabSpec("sort");
             tabpage3.setContent(R.id.ScrollView03);
             tabpage3.setIndicator("Sort");
@@ -177,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
                     .setPositiveButton("Ok",
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-
+                                    query = new Query();
                                 }
                             })
                     .setNegativeButton("Cancel",
@@ -302,7 +309,7 @@ public class MainActivity extends AppCompatActivity {
                         fragment = new TimelinePlanner();
                         break;
                 }
-                FragmentManager fragmentManager = getSupportFragmentManager();
+
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.frameLayout, fragment);
                 fragmentTransaction.commit();
