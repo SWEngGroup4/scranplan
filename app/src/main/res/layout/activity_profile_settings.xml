@@ -51,7 +51,7 @@
         tools:srcCompat="@drawable/temp_settings_profile_image" />
 
     <TextView
-        android:id="@+id/settings_recipe_value"
+        android:id="@+id/public_profile_recipes"
         android:layout_width="65dp"
         android:layout_height="30dp"
         android:layout_marginStart="5dp"
@@ -225,6 +225,7 @@
         android:ems="10"
         android:padding="5.5dp"
         android:text="Input Field"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         android:textColor="#353236"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"

@@ -89,7 +89,7 @@ public class ProfileSettings extends AppCompatActivity {
     private void initPageItems(){
         mUsername = findViewById(R.id.settings_input_username);
         mAboutMe = findViewById(R.id.settings_input_about_me);
-        mNumRecipes = findViewById(R.id.settings_recipe_value);
+        mNumRecipes = findViewById(R.id.public_profile_recipes);
 
         mFilters = new ArrayList<>();
         findViewById(R.id.settings_privacy).addChildrenForAccessibility(mFilters);

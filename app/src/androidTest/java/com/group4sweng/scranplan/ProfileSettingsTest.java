@@ -176,7 +176,7 @@ public class ProfileSettingsTest {
         onView(withId(R.id.settings_input_about_me))
                 .check(matches(withText(testUser.getAbout())));
 
-        onView(withId(R.id.settings_recipe_value))
+        onView(withId(R.id.public_profile_recipes))
                 .check(matches(withText(String.valueOf(testUser.getNumRecipes()))));
 
     }
