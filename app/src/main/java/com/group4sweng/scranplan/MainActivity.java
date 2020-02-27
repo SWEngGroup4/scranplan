@@ -7,6 +7,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -30,17 +35,16 @@ import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import android.widget.FrameLayout;
-
-
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.auth.*;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -89,6 +93,11 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+        Fragment fragment = new RecipeFragment();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.frameLayout, fragment);
+        fragmentTransaction.commit();
 
 
 
@@ -134,12 +143,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        final CharSequence[] items = {" Easy "," Medium "," Hard "," Very Hard "};
-        final ArrayList selectedItems=new ArrayList();
-
         if (id == R.id.menuSortButton) {
-
-
 
             // do something here
             AlertDialog.Builder builder;
@@ -195,71 +199,6 @@ public class MainActivity extends AppCompatActivity {
             tv = (TextView)tabs.getTabWidget().getChildAt(2).findViewById(android.R.id.title);
             tv.setTextColor(Color.GRAY);
 
-            //old
-//            builder = new AlertDialog.Builder(MainActivity.this);
-//            builder.setTitle("This is a title");
-//
-//
-//
-//            builder.setMultiChoiceItems(items, null, new DialogInterface.OnMultiChoiceClickListener() {
-//                @Override
-//                public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-//                    //Here you add or remove the items from the list selectedItems. That list will be the result of the user selection.
-//                    if (isChecked) {
-//                        selectedItems.add(which);
-//                    } else if (selectedItems.contains(which)) {
-//                        selectedItems.remove(Integer.valueOf(which));
-//                    }
-//                }
-//            });
-//
-//            final CharSequence[] charSequence = new CharSequence[] {"As Guest","I have account here"};
-//
-//            builder.setSingleChoiceItems(charSequence, 0, new DialogInterface.OnClickListener() {
-//                @Override
-//                public void onClick(DialogInterface dialog, int which) {
-//                    //utility.toast(" "+charSequence);
-//                    // TODO add toast
-//                }
-//            })
-//                    .setPositiveButton("Go", new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            dialog.dismiss();
-//                        }
-//                    });
-//
-//            builder.setMultiChoiceItems(items, null, new DialogInterface.OnMultiChoiceClickListener() {
-//                @Override
-//                public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-//                    //Here you add or remove the items from the list selectedItems. That list will be the result of the user selection.
-//                    if (isChecked) {
-//                        selectedItems.add(which);
-//                    } else if (selectedItems.contains(which)) {
-//                        selectedItems.remove(Integer.valueOf(which));
-//                    }
-//                }
-//            });
-//
-//
-//            builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
-//                @Override
-//                public void onClick(DialogInterface dialog, int which) {
-//
-//                    //Do something when the user closes the dialog by pressing the Done button
-//                }
-//            });
-//
-//            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-//                @Override
-//                public void onClick(DialogInterface dialog, int which) {
-//                    dialog.dismiss();
-//                    //Do something else if you want
-//                }
-//            });
-//
-//            builder.create();
-//            builder.show();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -379,9 +318,21 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
+      
+      /*TODO Clean up temporary profile settings page listener*/
+        final Button tempProfileSettings = findViewById(R.id.profile_settings_button);
+        tempProfileSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)  {
+                tempOpenProfileSettings();
+            }
+        });
     }
 
+    public void tempOpenProfileSettings() {
+        Intent intent = new Intent(this, ProfileSettings.class);
+        startActivity(intent);
+    }
 
     /**
      * deleteAccount

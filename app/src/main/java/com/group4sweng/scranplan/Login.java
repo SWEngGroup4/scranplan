@@ -1,8 +1,5 @@
 package com.group4sweng.scranplan;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +9,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -33,13 +33,13 @@ import java.util.HashMap;
  * Everything necessary for new users to register or existing users to log in before moving into the
  * main section of the application
  */
-public class Login extends AppCompatActivity {
+public class Login extends AppCompatActivity{
 
     // TAG for log info
     final String TAG = "FirebaseTestLogin";
 
     // Variable to hold user info
-    UserInfo user;
+    private UserInfo user;
 
     // Firebase variables needed for login/register
     FirebaseApp mApp;
@@ -65,7 +65,7 @@ public class Login extends AppCompatActivity {
     Boolean mLoginInProgress = false;
     Boolean mRegisterInProgress = false;
 
-    // Variable to save display name when registering for a new profile
+    // Variable to save display name when registering for a new profileView
     String mDisplayName = "Unknown";
 
     @Override
@@ -81,6 +81,7 @@ public class Login extends AppCompatActivity {
         initPageListeners();
 
         initFirebase();
+
     }
 
     /**
@@ -252,7 +253,7 @@ public class Login extends AppCompatActivity {
     }
 
     /**
-     * Setting up a new user both via Firebase authentication and setting up a user profile
+     * Setting up a new user both via Firebase authentication and setting up a user profileView
      * on the database
      * @param email - users email address, saved as authentication and in database
      * @param password - Users password, saved as authentication
@@ -267,7 +268,7 @@ public class Login extends AppCompatActivity {
                 // if authentication successful
                 if (task.isSuccessful()){
                     Log.e(TAG, "SignIn : User registered ");
-                    // Setting up default user profile on database with email and display name
+                    // Setting up default user profileView on database with email and display name
                     HashMap<String, Object> map = new HashMap<>();
                     HashMap<String, Object> preferences = new HashMap<>();
                     map.put("UID", mAuth.getCurrentUser().getUid());
@@ -349,7 +350,7 @@ public class Login extends AppCompatActivity {
     }
 
     /**
-     * Log in know user both via Firebase authentication and downloading user profile from Firestore
+     * Log in know user both via Firebase authentication and downloading user profileView from Firestore
      * @param email - users email address, to log into authentication
      * @param password - Users password, to log into authentication
      */
@@ -455,4 +456,6 @@ public class Login extends AppCompatActivity {
     public void onBackPressed() {
         //Do nothing
     }
+
+
 }
