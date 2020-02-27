@@ -1,6 +1,11 @@
 package com.group4sweng.scranplan;
 
+import android.app.AlertDialog;
+import android.app.SearchManager;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -13,8 +18,16 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.SearchView;
+import android.widget.TabHost;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -32,13 +45,14 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import static com.google.firebase.firestore.FieldValue.delete;
 
 public class MainActivity extends AppCompatActivity {
 
-    final String TAG = "FirebaseTest";
+    final String TAG = "ScranPlanHome";
 
     UserInfo userDetails;
     final FirebaseFirestore database = FirebaseFirestore.getInstance();
@@ -88,6 +102,169 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
     }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_search, menu);
+        MenuItem item = menu.findItem(R.id.menuSearch);
+        SearchView searchView = (SearchView)item.getActionView();
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                return false;
+            }
+        });
+
+//        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+//        if(null!=searchManager ) {
+//            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+//        }
+//        searchView.setIconifiedByDefault(false);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    // handle button activities
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        final CharSequence[] items = {" Easy "," Medium "," Hard "," Very Hard "};
+        final ArrayList selectedItems=new ArrayList();
+
+        if (id == R.id.menuSortButton) {
+
+
+
+            // do something here
+            AlertDialog.Builder builder;
+            AlertDialog alertDialog;
+
+            LayoutInflater inflater = (LayoutInflater)
+                    getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+            View layout = inflater.inflate(R.layout.filter_tab_dialog,
+                    (ViewGroup) findViewById(R.id.tabhost));
+
+
+
+            TabHost tabs = (TabHost) layout.findViewById(R.id.tabhost);
+            tabs.setup();
+            TabHost.TabSpec tabpage1 = tabs.newTabSpec("type");
+            tabpage1.setContent(R.id.ScrollView01);
+            tabpage1.setIndicator("Type");
+            TabHost.TabSpec tabpage2 = tabs.newTabSpec("allergens");
+            tabpage2.setContent(R.id.ScrollView02);
+            tabpage2.setIndicator("Allergens");
+            TabHost.TabSpec tabpage3 = tabs.newTabSpec("sort");
+            tabpage3.setContent(R.id.ScrollView03);
+            tabpage3.setIndicator("Sort");
+            tabs.addTab(tabpage1);
+            tabs.addTab(tabpage2);
+            tabs.addTab(tabpage3);
+            builder = new AlertDialog.Builder(MainActivity.this);
+
+            builder
+                    .setCancelable(false)
+                    .setPositiveButton("Ok",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+
+                                }
+                            })
+                    .setNegativeButton("Cancel",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            });
+            builder.setTitle("Filter options");
+            builder.setView(layout);
+            alertDialog = builder.create();
+            alertDialog.show();
+
+            TextView tv;
+            tv = (TextView)tabs.getTabWidget().getChildAt(0).findViewById(android.R.id.title);
+            tv.setTextColor(Color.GRAY);
+            tv = (TextView)tabs.getTabWidget().getChildAt(1).findViewById(android.R.id.title);
+            tv.setTextColor(Color.GRAY);
+            tv = (TextView)tabs.getTabWidget().getChildAt(2).findViewById(android.R.id.title);
+            tv.setTextColor(Color.GRAY);
+
+            //old
+//            builder = new AlertDialog.Builder(MainActivity.this);
+//            builder.setTitle("This is a title");
+//
+//
+//
+//            builder.setMultiChoiceItems(items, null, new DialogInterface.OnMultiChoiceClickListener() {
+//                @Override
+//                public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+//                    //Here you add or remove the items from the list selectedItems. That list will be the result of the user selection.
+//                    if (isChecked) {
+//                        selectedItems.add(which);
+//                    } else if (selectedItems.contains(which)) {
+//                        selectedItems.remove(Integer.valueOf(which));
+//                    }
+//                }
+//            });
+//
+//            final CharSequence[] charSequence = new CharSequence[] {"As Guest","I have account here"};
+//
+//            builder.setSingleChoiceItems(charSequence, 0, new DialogInterface.OnClickListener() {
+//                @Override
+//                public void onClick(DialogInterface dialog, int which) {
+//                    //utility.toast(" "+charSequence);
+//                    // TODO add toast
+//                }
+//            })
+//                    .setPositiveButton("Go", new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            dialog.dismiss();
+//                        }
+//                    });
+//
+//            builder.setMultiChoiceItems(items, null, new DialogInterface.OnMultiChoiceClickListener() {
+//                @Override
+//                public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+//                    //Here you add or remove the items from the list selectedItems. That list will be the result of the user selection.
+//                    if (isChecked) {
+//                        selectedItems.add(which);
+//                    } else if (selectedItems.contains(which)) {
+//                        selectedItems.remove(Integer.valueOf(which));
+//                    }
+//                }
+//            });
+//
+//
+//            builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
+//                @Override
+//                public void onClick(DialogInterface dialog, int which) {
+//
+//                    //Do something when the user closes the dialog by pressing the Done button
+//                }
+//            });
+//
+//            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//                @Override
+//                public void onClick(DialogInterface dialog, int which) {
+//                    dialog.dismiss();
+//                    //Do something else if you want
+//                }
+//            });
+//
+//            builder.create();
+//            builder.show();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
 
     private void initFirebase(){
         mApp = FirebaseApp.getInstance();
