@@ -37,11 +37,13 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:19.2.0'
     implementation 'com.google.android.gms:play-services-auth:17.0.0'
     implementation 'com.google.android.gms:play-services-gcm:17.0.0'
+    implementation 'com.squareup.picasso:picasso:2.71828'
 
     implementation 'com.google.firebase:firebase-firestore:21.0.0'
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
 
+    debugImplementation 'androidx.fragment:fragment-testing:1.2.2'
 
 // this dependency is not required if you are already using your own
 // slf4j implementation

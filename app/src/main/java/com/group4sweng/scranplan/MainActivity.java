@@ -68,6 +68,16 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+        Fragment fragment = new RecipeFragment();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.frameLayout, fragment);
+        fragmentTransaction.commit();
+
+        tabLayout.addTab(tabLayout.newTab().setText("Recipes"));
+        tabLayout.addTab(tabLayout.newTab().setText("Meal Planner"));
+        tabLayout.addTab(tabLayout.newTab().setText("Timeline"));
+        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
 
 
