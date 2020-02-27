@@ -52,14 +52,14 @@
 
     <TextView
         android:id="@+id/settings_recipe_value"
-        android:layout_width="16dp"
-        android:layout_height="28dp"
+        android:layout_width="65dp"
+        android:layout_height="30dp"
         android:layout_marginStart="5dp"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="16dp"
         android:text="0"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         app:layout_constraintStart_toEndOf="@+id/settings_recipes"
-        app:layout_constraintTop_toBottomOf="@+id/settings_input_about_me" />
+        app:layout_constraintTop_toBottomOf="@+id/settings_input_username" />
 
     <TextView
         android:id="@+id/settings_username"

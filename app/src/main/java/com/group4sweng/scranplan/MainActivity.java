@@ -54,6 +54,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if(mUser != null){
+            mUser = (UserInfoPrivate) getIntent().getSerializableExtra("user");
+        }
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -78,6 +82,8 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
     }
+
+
 
 
     private void initFirebase(){
@@ -138,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
                     mAuth.removeAuthStateListener(mAuthListener);
                     Intent signIn = new Intent(getApplicationContext(), Login.class);
                     startActivity(signIn);
-                    mUser = (UserInfoPrivate)signIn.getSerializableExtra("user");
+                    mUser = (UserInfoPrivate) getIntent().getSerializableExtra("user");
                 }
             }
         };
@@ -214,8 +220,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void tempOpenProfileSettings() {
-        Intent intent = new Intent(this, ProfileSettings.class);
-        startActivity(intent);
-    }
+        Intent intentProfile = new Intent(this, ProfileSettings.class);
+        //Bundle bundle = new Bundle();
 
+        System.out.println("USER UID IS: " + mUser.getUID());
+
+        intentProfile.putExtra("user", mUser);
+        setResult(RESULT_OK, intentProfile);
+
+        startActivity(intentProfile);
+
+    }
 }

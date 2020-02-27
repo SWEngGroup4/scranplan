@@ -38,6 +38,13 @@ public class Preferences implements Serializable {
     private boolean vegan;
     private boolean vegetarian;
 
+    Preferences(boolean allergy_nuts, boolean allergy_eggs, boolean allergy_milk, boolean allergy_shellfish, boolean allergy_soya){
+        this.allergy_nuts = allergy_nuts;
+        this.allergy_eggs = allergy_eggs;
+        this.allergy_milk = allergy_shellfish;
+        this.allergy_soya = allergy_soya;
+    }
+
     // Constructor for all variables
     Preferences(boolean allergy_celery,
                 boolean allergy_crustacean, boolean allergy_eggs, boolean allergy_fish,

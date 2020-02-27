@@ -40,7 +40,7 @@ public class Login extends AppCompatActivity{
 
     Context mContext = this;
 
-    UserInfoPrivate mUser;
+    private UserInfoPrivate mUser;
 
     // Firebase variables needed for login/register
     FirebaseApp mApp;
@@ -448,11 +448,10 @@ public class Login extends AppCompatActivity{
 
         Log.e(TAG,"SignIn Returning to main activity");
 
-        //  TODO Check if this is needed or not. Seems like it's not.
-        //User data returned to main menu
-        Intent returningIntent = new Intent();
+        Intent returningIntent = new Intent(Login.this, MainActivity.class);
+
         returningIntent.putExtra("user", mUser);
-        setResult(RESULT_OK, returningIntent);
+        startActivity(returningIntent);
 
         finish();
     }
