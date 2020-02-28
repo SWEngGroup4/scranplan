@@ -139,7 +139,7 @@ public class UserInfoPrivate extends Application implements Serializable {
      * @throws InvalidContextException - Throws if contexts don't match.
      */
     private void checkContext(String expectedContextClassname, Context context, String name) throws InvalidContextException {
-        if (checkContext(expectedContextClassname, context)) {
+        if (!checkContext(expectedContextClassname, context)) {
             throw new InvalidContextException("Current Activity context required to set " + name + " of user is: " + expectedContextClassname);
         }
     }
