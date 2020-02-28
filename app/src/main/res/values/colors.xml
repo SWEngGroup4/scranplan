@@ -13,4 +13,6 @@
     <color name="colorWindow">#bdb5c7</color>
     <color name="colorBackground">#bed1c3</color>
     <color name="colorBlueButton">#2d4fad</color>
+    <color name="colorPurpleDark">#36675B7A</color>
+    <color name="colorPurpleLight">#cecce0</color>
 </resources>
