@@ -281,7 +281,6 @@ public class Login extends AppCompatActivity{
                     map.put("about", "");
 
                     // Default user food preferences
-                    preferences.put("allergy_wheat", false);
                     preferences.put("allergy_celery", false);
                     preferences.put("allergy_crustacean", false);
                     preferences.put("allergy_eggs", false);

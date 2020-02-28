@@ -57,8 +57,7 @@ public class UserInfoPrivate extends Application implements Serializable {
         this.mChefRating = (double) map.get("chefRating");
         this.mNumRecipes =  (long) map.get("numRecipes");
         this.mAbout = (String) map.get("about");
-        this.mPreferences = new Preferences(
-                (boolean) prefs.get("allergy_wheat"), (boolean) prefs.get("allergy_celery"),
+        this.mPreferences = new Preferences( (boolean) prefs.get("allergy_celery"),
                 (boolean) prefs.get("allergy_crustacean"), (boolean) prefs.get("allergy_eggs"),
                 (boolean) prefs.get("allergy_fish"), (boolean) prefs.get("allergy_gluten"),
                 (boolean) prefs.get("allergy_milk"), (boolean) prefs.get("allergy_mustard"),
@@ -208,7 +207,7 @@ public class UserInfoPrivate extends Application implements Serializable {
         mPreferences = preferences;
     }
 
-    public void setInitialPreferences(Preferences preferences, Context context) throws InvalidContextException {
+    public void setInitialPreferences(HashMap<String, Object> preferences, Context context) throws InvalidContextException {
         checkContext(CONTEXT_INITIAL_USER_CUSTOMISATION, context, "Initial User Preferences");
         mPreferences = preferences;
     }
