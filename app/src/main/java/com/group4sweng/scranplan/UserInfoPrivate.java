@@ -32,7 +32,7 @@ public class UserInfoPrivate extends Application implements Serializable {
     private Preferences mPreferences;
 
 
-    public UserInfoPrivate(HashMap<String, Object> map, HashMap<String, Object> prefs, Context context) throws InvalidContextException{
+    public UserInfoPrivate(HashMap<String, Object> map, HashMap<String, Object> prefs) {
         this.mUID = (String) map.get("UID");
         System.out.println("UID is" + this.mUID);
 
