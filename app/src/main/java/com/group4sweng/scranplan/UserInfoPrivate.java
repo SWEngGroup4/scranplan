@@ -1,7 +1,6 @@
 package com.group4sweng.scranplan;
 
 import android.app.Application;
-import android.content.Context;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -30,7 +29,7 @@ public class UserInfoPrivate extends Application implements Serializable {
     private Preferences mPreferences;
 
 
-    public UserInfoPrivate(HashMap<String, Object> map, HashMap<String, Object> prefs, Context context){
+    public UserInfoPrivate(HashMap<String, Object> map, HashMap<String, Object> prefs){
 
         this.mUID = (String) map.get("UID");
         System.out.println("UID is" + this.mUID);
@@ -101,7 +100,7 @@ public class UserInfoPrivate extends Application implements Serializable {
         return mUID;
     }
 
-    public void setUID(String UID, Context context)  {
+    public void setUID(String UID )  {
         mUID = UID;
     }
 
@@ -109,7 +108,7 @@ public class UserInfoPrivate extends Application implements Serializable {
         return mDisplayName;
     }
 
-    public void setDisplayName(String displayName, Context context){
+    public void setDisplayName(String displayName ){
         mDisplayName = displayName;
     }
 
@@ -117,7 +116,7 @@ public class UserInfoPrivate extends Application implements Serializable {
         return mImageURL;
     }
 
-    public void setImageURL(String imageURL, Context context)  {
+    public void setImageURL(String imageURL)  {
         mImageURL = imageURL;
     }
 
@@ -125,7 +124,7 @@ public class UserInfoPrivate extends Application implements Serializable {
         return mChefRating;
     }
 
-    public void setChefRating(double chefRating, Context context)  {
+    public void setChefRating(double chefRating)  {
         mChefRating = chefRating;
     }
 
@@ -133,7 +132,7 @@ public class UserInfoPrivate extends Application implements Serializable {
         return mNumRecipes;
     }
 
-    public void setNumRecipes(int numRecipes, Context context)  {
+    public void setNumRecipes(int numRecipes)  {
         mNumRecipes = numRecipes;
     }
 
@@ -141,7 +140,7 @@ public class UserInfoPrivate extends Application implements Serializable {
         return mAbout;
     }
 
-    public void setAbout(String about, Context context)  {
+    public void setAbout(String about)  {
         mAbout = about;
     }
 
@@ -149,7 +148,7 @@ public class UserInfoPrivate extends Application implements Serializable {
         return mPreferences;
     }
 
-    public void setPreferences(Preferences preferences, Context context)  {
+    public void setPreferences(Preferences preferences)  {
         mPreferences = preferences;
     }
 

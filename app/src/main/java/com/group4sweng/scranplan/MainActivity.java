@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
                                     map.put("about", document.get("about"));
 
                                     try {
-                                        mUser = new UserInfoPrivate(map, (HashMap<String, Object>) document.get("preferences"), mContext);
+                                        mUser = new UserInfoPrivate(map, (HashMap<String, Object>) document.get("preferences"));
                                     } catch (Exception e){
                                         e.printStackTrace();
                                     }
