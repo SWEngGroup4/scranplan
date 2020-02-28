@@ -23,6 +23,7 @@ public class UserInfoPrivate extends Application implements Serializable {
     private static final String CONTEXT_PROFILE_SETTINGS = "com.group4sweng.scranplan.ProfileSettings";
     private static final String CONTEXT_LOGIN_SETTINGS = "com.group4sweng.scranplan.Login";
     private static final String CONTEXT_MAIN_ACTIVITY_SETTINGS = "com.group4sweng.scranplan.MainActivity";
+    private static final String CONTEXT_INITIAL_USER_CUSTOMISATION = "com.group4sweng.scranplan.InitialUserCustomisation";
 
     //  User information
     private String mUID;
@@ -56,7 +57,8 @@ public class UserInfoPrivate extends Application implements Serializable {
         this.mChefRating = (double) map.get("chefRating");
         this.mNumRecipes =  (long) map.get("numRecipes");
         this.mAbout = (String) map.get("about");
-        this.mPreferences = new Preferences((boolean) prefs.get("allergy_celery"),
+        this.mPreferences = new Preferences(
+                (boolean) prefs.get("allergy_wheat"), (boolean) prefs.get("allergy_celery"),
                 (boolean) prefs.get("allergy_crustacean"), (boolean) prefs.get("allergy_eggs"),
                 (boolean) prefs.get("allergy_fish"), (boolean) prefs.get("allergy_gluten"),
                 (boolean) prefs.get("allergy_milk"), (boolean) prefs.get("allergy_mustard"),
@@ -74,7 +76,8 @@ public class UserInfoPrivate extends Application implements Serializable {
     }
 
     /*TODO
-        Instead of implementing shared preferences for user profile. Use instead for Saved Recipes.
+        Instead of implementing shared preferences for user profile. Use instead for Saved Recipes and any other locally stored info.
+        Likely to come in iteration 2/3.
      */
     /*
     private void loadSharedPreferences(){
@@ -202,6 +205,11 @@ public class UserInfoPrivate extends Application implements Serializable {
 
     public void setPreferences(Preferences preferences, Context context) throws InvalidContextException {
         checkContext(CONTEXT_PROFILE_SETTINGS, context, "Preferences");
+        mPreferences = preferences;
+    }
+
+    public void setInitialPreferences(Preferences preferences, Context context) throws InvalidContextException {
+        checkContext(CONTEXT_INITIAL_USER_CUSTOMISATION, context, "Initial User Preferences");
         mPreferences = preferences;
     }
 

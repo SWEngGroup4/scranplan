@@ -120,7 +120,7 @@ public class UserInfoPrivateTest{
 
     }
 
-
+    @Test void testInitialPreferencesCanBeSet() throws
 
 
     @After

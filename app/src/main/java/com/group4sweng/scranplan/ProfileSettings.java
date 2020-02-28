@@ -36,7 +36,6 @@ public class ProfileSettings extends AppCompatActivity {
     final String TAG = "ProfileSettings";
 
     UserInfoPrivate mUserProfile;
-
     ImageView mProfileImage;
     TextView mUsername;
     TextView mAboutMe;
@@ -48,7 +47,6 @@ public class ProfileSettings extends AppCompatActivity {
     CheckBox mAllergy_eggs;
     CheckBox mAllergy_shellfish;
     CheckBox mAllergy_soy;
-    CheckBox mAllergy_wheat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
