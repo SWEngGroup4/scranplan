@@ -3,8 +3,6 @@ package com.group4sweng.scranplan;
 import android.app.Application;
 import android.content.Context;
 
-import com.group4sweng.scranplan.Exceptions.InvalidContextException;
-
 import java.io.Serializable;
 import java.util.HashMap;
 
@@ -15,14 +13,6 @@ import java.util.HashMap;
 public class UserInfoPrivate extends Application implements Serializable {
 
     final static String TAG = "UserInfo";
-
-    /*  The class names relating to the context of the Activity in which private user info is to be retrieved from.
-            Login = At initial login
-            Profile Settings = Whilst on the profile settings Activity.
-    */
-    private static final String CONTEXT_PROFILE_SETTINGS = "com.group4sweng.scranplan.ProfileSettings";
-    private static final String CONTEXT_LOGIN_SETTINGS = "com.group4sweng.scranplan.Login";
-    private static final String CONTEXT_MAIN_ACTIVITY_SETTINGS = "com.group4sweng.scranplan.MainActivity";
 
     //  User information
     private String mUID;
@@ -40,13 +30,7 @@ public class UserInfoPrivate extends Application implements Serializable {
     private Preferences mPreferences;
 
 
-    public UserInfoPrivate(HashMap<String, Object> map, HashMap<String, Object> prefs, Context context) throws InvalidContextException{
-        Boolean checkLogin = checkContext(CONTEXT_LOGIN_SETTINGS, context);
-        Boolean checkMainActivity = checkContext(CONTEXT_MAIN_ACTIVITY_SETTINGS, context);
-
-        if (!checkLogin && !checkMainActivity){
-            throw new InvalidContextException("Current Activity context does not relate to: " + CONTEXT_LOGIN_SETTINGS + " or " + CONTEXT_MAIN_ACTIVITY_SETTINGS + ". Hence Will not initialize class.");
-        }
+    public UserInfoPrivate(HashMap<String, Object> map, HashMap<String, Object> prefs, Context context){
 
         this.mUID = (String) map.get("UID");
         System.out.println("UID is" + this.mUID);
@@ -112,42 +96,12 @@ public class UserInfoPrivate extends Application implements Serializable {
     }
     */
 
-    /**
-     * Checks the context we expect for the associated Activity against what is retrieved.
-     *
-     * @param expectedContextClassName - The class name identifier of the expected context. E.g. com.group4sweng.scranplan.[name]
-     * @param context                  - Our current actual context.
-     * @return - Boolean value specifying if the context matches or not.
-     */
-    private boolean checkContext(String expectedContextClassName, Context context) {
-        String actualContextClassname = context.getClass().getName();
-        if (actualContextClassname.equals(expectedContextClassName)) {
-            return true;
-        } else {
-            System.out.println("Tried to create context from: " + actualContextClassname);
-            return false;
-        }
-    }
-
-    /**
-     * Replica of 'checkContext' but with a reference 'name' and throwable error value instead of a boolean.
-     * @param expectedContextClassname - The class name identifier of the expected context. E.g. com.group4sweng.scranplan.[name]
-     * @param context                  - Our current actual context.
-     * @param name                     - Name identifier to use within the InvalidContextException message.
-     * @throws InvalidContextException - Throws if contexts don't match.
-     */
-    private void checkContext(String expectedContextClassname, Context context, String name) throws InvalidContextException {
-        if (!checkContext(expectedContextClassname, context)) {
-            throw new InvalidContextException("Current Activity context required to set " + name + " of user is: " + expectedContextClassname);
-        }
-    }
 
     public String getUID() {
         return mUID;
     }
 
-    public void setUID(String UID, Context context) throws InvalidContextException {
-        checkContext(CONTEXT_PROFILE_SETTINGS, context, "UID");
+    public void setUID(String UID, Context context)  {
         mUID = UID;
     }
 
@@ -155,8 +109,7 @@ public class UserInfoPrivate extends Application implements Serializable {
         return mDisplayName;
     }
 
-    public void setDisplayName(String displayName, Context context) throws InvalidContextException {
-        checkContext(CONTEXT_PROFILE_SETTINGS, context, "Display Name");
+    public void setDisplayName(String displayName, Context context){
         mDisplayName = displayName;
     }
 
@@ -164,8 +117,7 @@ public class UserInfoPrivate extends Application implements Serializable {
         return mImageURL;
     }
 
-    public void setImageURL(String imageURL, Context context) throws InvalidContextException {
-        checkContext(CONTEXT_PROFILE_SETTINGS, context, "Image URL");
+    public void setImageURL(String imageURL, Context context)  {
         mImageURL = imageURL;
     }
 
@@ -173,8 +125,7 @@ public class UserInfoPrivate extends Application implements Serializable {
         return mChefRating;
     }
 
-    public void setChefRating(double chefRating, Context context) throws InvalidContextException {
-        checkContext(CONTEXT_PROFILE_SETTINGS, context, "Chef Rating");
+    public void setChefRating(double chefRating, Context context)  {
         mChefRating = chefRating;
     }
 
@@ -182,8 +133,7 @@ public class UserInfoPrivate extends Application implements Serializable {
         return mNumRecipes;
     }
 
-    public void setNumRecipes(int numRecipes, Context context) throws InvalidContextException {
-        checkContext(CONTEXT_PROFILE_SETTINGS, context, "Number Of Recipes");
+    public void setNumRecipes(int numRecipes, Context context)  {
         mNumRecipes = numRecipes;
     }
 
@@ -191,8 +141,7 @@ public class UserInfoPrivate extends Application implements Serializable {
         return mAbout;
     }
 
-    public void setAbout(String about, Context context) throws InvalidContextException {
-        checkContext(CONTEXT_PROFILE_SETTINGS, context, "About");
+    public void setAbout(String about, Context context)  {
         mAbout = about;
     }
 
@@ -200,8 +149,7 @@ public class UserInfoPrivate extends Application implements Serializable {
         return mPreferences;
     }
 
-    public void setPreferences(Preferences preferences, Context context) throws InvalidContextException {
-        checkContext(CONTEXT_PROFILE_SETTINGS, context, "Preferences");
+    public void setPreferences(Preferences preferences, Context context)  {
         mPreferences = preferences;
     }
 
