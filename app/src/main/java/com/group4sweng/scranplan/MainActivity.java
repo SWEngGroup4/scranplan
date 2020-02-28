@@ -208,42 +208,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-      
-      /*TODO Clean up temporary profile settings & public profile page listener*/
-        final Button tempProfileSettings = findViewById(R.id.profile_settings_button);
-        tempProfileSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view)  {
-                tempOpenProfileSettings();
-            }
-        });
-
-        final Button tempPublicProfile = findViewById(R.id.public_profile_button);
-        tempPublicProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view)  {
-                tempOpenPublicProfile();
-            }
-        });
+        
     }
 
-    public void tempOpenPublicProfile() {
-        Intent intentProfile = new Intent(this, PublicProfile.class);
-
-        intentProfile.putExtra("user", mUser);
-        setResult(RESULT_OK, intentProfile);
-
-        startActivity(intentProfile);
-    }
-
-    public void tempOpenProfileSettings() {
-        Intent intentProfile = new Intent(this, ProfileSettings.class);
-
-
-        intentProfile.putExtra("user", mUser);
-        setResult(RESULT_OK, intentProfile);
-
-        startActivity(intentProfile);
-
-    }
 }

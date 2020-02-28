@@ -110,7 +110,6 @@ public class UserInfoPrivate extends Application implements Serializable {
         editor.putBoolean("ALLERGY_EGGS", getPreferences().isAllergy_eggs());
         editor.apply();
     }
-    */
 
     /**
      * Checks the context we expect for the associated Activity against what is retrieved.
