@@ -195,11 +195,7 @@ public class InitialUserCustomisation extends AppCompatActivity {
 
                 usersRef.update("preferences", preferences);
 
-                try {
-                    userDetails.setInitialPreferences(preferences, mContext);
-                } catch (Exception e){
-                    e.printStackTrace();
-                }
+                userDetails.setInitialPreferences(preferences);
                 finishActivity();
             }
 
