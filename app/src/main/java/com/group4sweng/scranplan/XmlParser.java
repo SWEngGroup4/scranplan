@@ -14,6 +14,9 @@ import java.util.Map;
 
 class XmlParser {
 
+    // TODO - Add handlers for multiple repeated tags
+    // TODO - Add handlers for optional attributes (starttime, endtime etc.)
+
     private Defaults defaults;
 
     Map<String, Object> parse(InputStream in) throws XmlPullParserException, IOException {
@@ -32,6 +35,7 @@ class XmlParser {
 
     private Map<String, Object> readFeed(XmlPullParser parser) throws XmlPullParserException, IOException {
         Map<String, Object> data = new HashMap<>();
+        DocumentInfo documentInfo = null;
         List<Slide> slides = new ArrayList<>();
 
         parser.require(XmlPullParser.START_TAG, null, "slideshow");
@@ -40,7 +44,9 @@ class XmlParser {
                 continue;
             }
             String name = parser.getName();
-            if (name.equals("defaults")) {
+            if (name.equals("documentinfo")) {
+                documentInfo = readDocumentInfo(parser);
+            } else if (name.equals("defaults")) {
                 defaults = readDefaults(parser);
             } else if (name.equals("slide")) {
                 slides.add(readSlide(parser));
@@ -48,9 +54,49 @@ class XmlParser {
                 skip(parser);
             }
         }
+        data.put("documentInfo", documentInfo);
         data.put("defaults", defaults);
         data.put("slides", slides);
         return data;
+    }
+
+    private DocumentInfo readDocumentInfo(XmlPullParser parser) throws XmlPullParserException, IOException {
+        parser.require(XmlPullParser.START_TAG, null, "documentinfo");
+
+        String author = null;
+        String dateModified = null;
+        Float version = null;
+        Integer totalSlides = null;
+        String comment = null;
+
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) {
+                continue;
+            }
+            String name = parser.getName();
+            switch (name) {
+                case "author":
+                    author = readString(parser);
+                    break;
+                case "datemodified":
+                    dateModified = readString(parser);
+                    break;
+                case "version":
+                    version = readFloat(parser);
+                    break;
+                case "totalslides":
+                    totalSlides = readInteger(parser);
+                    break;
+                case "comment":
+                    comment = readString(parser);
+                    break;
+                default:
+                    skip(parser);
+                    break;
+            }
+        }
+
+        return new DocumentInfo(author, dateModified, version, totalSlides, comment);
     }
 
     private Defaults readDefaults(XmlPullParser parser) throws XmlPullParserException, IOException {
@@ -115,9 +161,10 @@ class XmlParser {
         Audio audio = null;
         Image image = null;
         Video video = null;
-        Comments comments = null;
+        List<Comment> comments = null;
         Float timer = null;
 
+        // TODO - parser trips up on tags without an end tag e.g. <image ... />. NEEDS FIX
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
@@ -269,6 +316,7 @@ class XmlParser {
         parser.require(XmlPullParser.START_TAG, null, "image");
 
         String urlName = parser.getAttributeValue(null, "urlname");
+        urlName = urlName.replace("%26", "&");
         Float xStart = Float.valueOf(parser.getAttributeValue(null, "xstart"));
         Float yStart = Float.valueOf(parser.getAttributeValue(null, "ystart"));
         Float width = Float.valueOf(parser.getAttributeValue(null, "width"));
@@ -276,6 +324,7 @@ class XmlParser {
         Integer startTime = Integer.valueOf(parser.getAttributeValue(null, "starttime"));
         Integer endTime = Integer.valueOf(parser.getAttributeValue(null, "endtime"));
 
+        parser.nextTag();
         parser.require(XmlPullParser.END_TAG, null, "image");
 
         return new Image(urlName, xStart, yStart, width, height, startTime, endTime);
@@ -295,15 +344,39 @@ class XmlParser {
         return new Video(urlName, startTime, loop, xStart, yStart);
     }
 
-    private Comments readComments(XmlPullParser parser) throws IOException, XmlPullParserException {
+    private List<Comment> readComments(XmlPullParser parser) throws  IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, null, "comments");
 
-        String userID = parser.getAttributeValue(null, "userID");
-        Text text = readText(parser);
+        List<Comment> comments = new ArrayList<>();
+
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) {
+                continue;
+            }
+            String name = parser.getName();
+            if ("comment".equals(name)) {
+                comments.add(readComment(parser));
+            } else {
+                skip(parser);
+            }
+        }
 
         parser.require(XmlPullParser.END_TAG, null, "comments");
 
-        return new Comments(userID, text);
+        return comments;
+    }
+
+    private Comment readComment(XmlPullParser parser) throws IOException, XmlPullParserException {
+        parser.require(XmlPullParser.START_TAG, null, "comment");
+
+        String userID = parser.getAttributeValue(null, "userID");
+        parser.nextTag();
+        Text text = readText(parser);
+        parser.nextTag();
+
+        parser.require(XmlPullParser.END_TAG, null, "comment");
+
+        return new Comment(userID, text);
     }
 
     private String readString(XmlPullParser parser) throws IOException, XmlPullParserException {
@@ -358,7 +431,24 @@ class XmlParser {
 
     //TODO - worth moving these into their own class files/different folder/nesting them in a different class?
 
-    public static class Defaults {
+    public static class DocumentInfo {
+        final String author;
+        final String dateModified;
+        final Float version;
+        final Integer totalSlides;
+        final String comment;
+
+        DocumentInfo(String author, String dateModified, Float version,
+                     Integer totalSlides, String comment) {
+            this.author = author;
+            this.dateModified = dateModified;
+            this.version = version;
+            this.totalSlides = totalSlides;
+            this.comment = comment;
+        }
+    }
+
+    static class Defaults {
         final String backgroundColor;
         final String font;
         final Integer fontSize;
@@ -382,7 +472,7 @@ class XmlParser {
         }
     }
 
-    public static class Slide {
+    static class Slide {
         final String id;
         final Integer duration;
         final Text text;
@@ -391,11 +481,11 @@ class XmlParser {
         final Audio audio;
         final Image image;
         final Video video;
-        final Comments comments;
+        final List<Comment> comments;
         final Float timer;
 
         private Slide(String id, Integer duration, Text text, Line line, Shape shape,
-                      Audio audio, Image image, Video video, Comments comments, Float timer) {
+                      Audio audio, Image image, Video video, List<Comment> comments, Float timer) {
             this.id = id;
             this.duration = duration;
             this.text = text;
@@ -409,8 +499,8 @@ class XmlParser {
         }
     }
 
-    public static class Text {
-        final String text;
+    static class Text {
+        String text;
         final String font;
         final Integer fontSize;
         final String fontColor;
@@ -420,6 +510,19 @@ class XmlParser {
         final Integer endTime;
         final String b;
         final String i;
+
+        public Text(String text, Defaults defaults) {
+            this.text = text;
+            this.font = defaults.font;
+            this.fontSize = defaults.fontSize;
+            this.fontColor = defaults.fontColor;
+            this.xPos = 0f;
+            this.yPos = 0f;
+            this.startTime = 0;
+            this.endTime = 0;
+            this.b = "";
+            this.i = "";
+        }
 
         private Text(String text, String font, Integer fontSize, String fontColor, Float xPos,
                      Float yPos, Integer startTime, Integer endTime, String b, String i) {
@@ -554,11 +657,11 @@ class XmlParser {
         }
     }
 
-    public static class Comments {
+    public static class Comment {
         final String userID;
         final Text text;
 
-        private Comments(String userID, Text text) {
+        private Comment(String userID, Text text) {
             this.userID = userID;
             this.text = text;
         }
