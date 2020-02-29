@@ -82,7 +82,6 @@ public class Login extends AppCompatActivity{
         initPageListeners();
 
         initFirebase();
-
     }
 
     /**
@@ -272,6 +271,8 @@ public class Login extends AppCompatActivity{
                     // Setting up default user profileView on database with email and display name
                     HashMap<String, Object> map = new HashMap<>();
                     HashMap<String, Object> preferences = new HashMap<>();
+                    HashMap<String, Object> privacy = new HashMap();
+
                     map.put("UID", mAuth.getCurrentUser().getUid());
                     map.put("email", mAuth.getCurrentUser().getEmail());
                     map.put("displayName", mDisplayName);
@@ -280,8 +281,12 @@ public class Login extends AppCompatActivity{
                     map.put("numRecipes", (long) 0);
                     map.put("about", "");
 
+                    privacy.put("display_username", true);
+                    privacy.put("display_about_me", true);
+                    privacy.put("display_recipes", false);
+                    privacy.put("display_profile_image", true);
+
                     // Default user food preferences
-                    preferences.put("allergy_wheat", false);
                     preferences.put("allergy_celery", false);
                     preferences.put("allergy_crustacean", false);
                     preferences.put("allergy_eggs", false);
@@ -311,8 +316,9 @@ public class Login extends AppCompatActivity{
                     preferences.put("vegetarian", false);
 
                     map.put("preferences", preferences);
+                    map.put("privacy", privacy);
                     // Saving default profile locally to user
-                    //user = new UserInfo(map, preferences);
+
                     // Saving default user to Firebase Firestore database
                     DocumentReference usersRef = ref.document(mAuth.getCurrentUser().getUid());
                     mAuth.getCurrentUser().sendEmailVerification();
@@ -385,13 +391,16 @@ public class Login extends AppCompatActivity{
                                             map.put("chefRating", document.get("chefRating"));
                                             map.put("numRecipes", document.get("numRecipes"));
                                             map.put("preferences", document.get("preferences"));
+                                            map.put("privacy", document.get("privacy"));
                                             map.put("about", document.get("about"));
 
-                                            try {
-                                               mUser = new UserInfoPrivate(map, (HashMap<String, Object>) document.get("preferences"), mContext);
-                                            } catch (Exception e){
-                                                e.printStackTrace();
-                                            }
+                                            @SuppressWarnings("unchecked")
+                                            HashMap<String, Object> preferences = (HashMap<String, Object>) document.get("preferences");
+
+                                            @SuppressWarnings("unchecked")
+                                            HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacy");
+
+                                            mUser = new UserInfoPrivate(map, preferences, privacy);
 
                                             Log.i(TAG, "SignIn : Valid current user : UID [" + mUser.getUID() + "]");
                                             mLoginInProgress = false;

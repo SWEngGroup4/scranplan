@@ -1,12 +1,8 @@
 package com.group4sweng.scranplan;
 
 import android.app.Application;
-import android.content.Context;
-
-import com.group4sweng.scranplan.Exceptions.InvalidContextException;
 
 import java.io.Serializable;
-import java.util.HashMap;
 
 public class UserInfoPublic extends Application implements Serializable{
 

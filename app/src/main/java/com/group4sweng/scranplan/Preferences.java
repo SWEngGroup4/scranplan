@@ -7,7 +7,7 @@ import java.io.Serializable;
  * Used within UserInfo class to save specific preferences user wants to apply to all queries within
  * the application
  */
-public class Preferences implements Serializable {
+public class Preferences implements Serializable, FilterType {
 
     // All preference variables
     private boolean allergy_celery;
@@ -22,7 +22,6 @@ public class Preferences implements Serializable {
     private boolean allergy_sesame;
     private boolean allergy_shellfish;
     private boolean allergy_soya;
-    private boolean allergy_wheat;
     private boolean allergy_sulphide;
     private boolean diabetic;
     private boolean halal;
@@ -39,18 +38,8 @@ public class Preferences implements Serializable {
     private boolean vegan;
     private boolean vegetarian;
 
-
-    //  Basic constructor for setting a users allergy preferences. (6 allegerns)
-    Preferences(boolean allergy_nuts, boolean allergy_eggs, boolean allergy_milk, boolean allergy_shellfish, boolean allergy_soya, boolean allergy_wheat){
-        this.allergy_nuts = allergy_nuts;
-        this.allergy_eggs = allergy_eggs;
-        this.allergy_milk = allergy_shellfish;
-        this.allergy_soya = allergy_soya;
-        this.allergy_wheat = allergy_wheat;
-    }
-
     //  Constructor for setting all of a users preferences.
-    Preferences(boolean allergy_wheat, boolean allergy_celery,
+    Preferences(boolean allergy_celery,
                 boolean allergy_crustacean, boolean allergy_eggs, boolean allergy_fish,
                 boolean allergy_gluten, boolean allergy_milk, boolean allergy_mustard,
                 boolean allergy_nuts, boolean allergy_peanuts, boolean allergy_sesame,
@@ -60,7 +49,6 @@ public class Preferences implements Serializable {
                 boolean low_sodium, boolean no_alcohol, boolean no_pork,
                 boolean ovovegetarian, boolean pescatarian, boolean vegan,
                 boolean vegetarian){
-        this.allergy_wheat = allergy_wheat;
         this.allergy_celery = allergy_celery;
         this.allergy_crustacean = allergy_crustacean;
         this.allergy_eggs = allergy_eggs;
@@ -92,9 +80,6 @@ public class Preferences implements Serializable {
 
     // Getters and setters for all variables
 
-    public boolean iSallergy_wheat() { return allergy_celery; }
-
-    public void setAllergy_wheat(boolean allergy_wheat) {this.allergy_wheat = allergy_wheat; }
 
     public void setAllergy_celery(boolean allergy_celery) {
         this.allergy_celery = allergy_celery;

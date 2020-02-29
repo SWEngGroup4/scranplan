@@ -120,8 +120,6 @@ public class UserInfoPrivateTest{
 
     }
 
-    @Test void testInitialPreferencesCanBeSet() throws
-
 
     @After
     public void tearDown() throws Exception {

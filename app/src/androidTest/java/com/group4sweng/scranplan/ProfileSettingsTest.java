@@ -1,7 +1,5 @@
 package com.group4sweng.scranplan;
 
-import android.content.Context;
-
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.Espresso;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -21,7 +19,9 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.hasFocus;
+import static androidx.test.espresso.matcher.ViewMatchers.isChecked;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.isNotChecked;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
@@ -32,11 +32,11 @@ public class ProfileSettingsTest {
 
     private ProfileSettings mActivity = null;
 
+    String TAG = "profileSettingsTest";
+
     FirebaseApp testApp;
     FirebaseAuth testAuth;
     UserInfoPrivate testUser;
-
-    Context mContext;
 
     //  Default test values.
     private static final String TEST_EMAIL = "jb2200@york.ac.uk";
@@ -66,7 +66,7 @@ public class ProfileSettingsTest {
         onView(withId(R.id.loginButton))
                 .perform(click());
 
-        Thread.sleep(2000);
+        Thread.sleep(4000);
     }
 
     @Test
@@ -137,7 +137,7 @@ public class ProfileSettingsTest {
                 .perform(click())
                 .check(matches(hasFocus()));
 
-        onView(withId(R.id.settings_privacy_filters))
+        onView(withId(R.id.settings_privacy_profile_image))
                 .check(matches(isDisplayed()));
 
         onView(withId(R.id.settings_privacy))
@@ -169,8 +169,6 @@ public class ProfileSettingsTest {
         onView(allOf(withId(R.id.profile_settings_button), withText("profile settings")))
                 .perform(click());
 
-
-
         testUser = (UserInfoPrivate) mActivityTestRule.getActivity().getIntent().getSerializableExtra("user");
 
         onView(withId(R.id.settings_input_about_me))
@@ -181,27 +179,30 @@ public class ProfileSettingsTest {
 
     }
 
-    /*@Test
-    public void testFiltersRetrieved() {
+    @Test
+    public void testFiltersRetrieved() throws InterruptedException {
+        Preferences testPref = new Preferences(true, false, true, false, true, false);
         onView(allOf(withId(R.id.profile_settings_button), withText("profile settings")))
                 .perform(click());
 
         testUser = (UserInfoPrivate) mActivityTestRule.getActivity().getIntent().getSerializableExtra("user");
+        testUser.setPreferences(testPref);
+        //mActivityTestRule.getActivity().updatePreferences();
 
-        //TODO Ran out of time. Only done one test.
 
-        Preferences testPref = new Preferences(true, false, true, false, false);
-
-        Context testContext = mActivityTestRule.getActivity().getBaseContext();
-
-        try{
-            testUser.setPreferences(testPref, testContext);
-        } catch (InvalidContextException e){
-            e.printStackTrace();
-        }
-
+        onView(withId(R.id.settings_allergy_nuts))
+                .check(matches(isChecked()));
+        onView(withId(R.id.settings_allergy_eggs))
+                .check(matches(isNotChecked()));
         onView(withId(R.id.settings_allergy_milk))
                 .check(matches(isChecked()));
-    }*/
+        onView(withId(R.id.settings_allergy_shellfish))
+                .check(matches(isNotChecked()));
+        onView(withId(R.id.settings_allergy_soy))
+                .check(matches(isChecked()));
+        onView(withId(R.id.settings_allergy_wheat))
+                .check(matches(isNotChecked()));
+    }
+
 
 }

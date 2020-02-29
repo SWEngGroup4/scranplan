@@ -1,10 +1,5 @@
 package com.group4sweng.scranplan;
 
-import android.app.Application;
-import android.content.Context;
-
-import com.group4sweng.scranplan.Exceptions.InvalidContextException;
-
 import java.io.Serializable;
 import java.util.HashMap;
 
@@ -12,53 +7,34 @@ import java.util.HashMap;
  * UserInfo class
  * Used to save current user vital variables that will be used throughout the app for customisation
  */
-public class UserInfoPrivate extends Application implements Serializable {
+public class UserInfoPrivate implements Serializable {
 
     final static String TAG = "UserInfo";
 
-    /*  The class names relating to the context of the Activity in which private user info is to be retrieved from.
-            Login = At initial login
-            Profile Settings = Whilst on the profile settings Activity.
-    */
-    private static final String CONTEXT_PROFILE_SETTINGS = "com.group4sweng.scranplan.ProfileSettings";
-    private static final String CONTEXT_LOGIN_SETTINGS = "com.group4sweng.scranplan.Login";
-    private static final String CONTEXT_MAIN_ACTIVITY_SETTINGS = "com.group4sweng.scranplan.MainActivity";
-    private static final String CONTEXT_INITIAL_USER_CUSTOMISATION = "com.group4sweng.scranplan.InitialUserCustomisation";
-
     //  User information
-    private String mUID;
-    private String mDisplayName;
-    private String mImageURL;
-    private String mAbout;
-    private double mChefRating;
-    private long mNumRecipes;
+    private String UID;
+    private String displayName;
+    private String imageURL;
+    private String about;
+    private HashMap<String, Object> privacy;
+    private double chefRating;
+    private long numRecipes;
 
     /*TODO
         Add saved recipes here. Check UML profile diagram and Recipe diagram for more information.
      */
 
     // User preferences
-    private Preferences mPreferences;
+    private Preferences preferences;
 
-
-    public UserInfoPrivate(HashMap<String, Object> map, HashMap<String, Object> prefs, Context context) throws InvalidContextException{
-        Boolean checkLogin = checkContext(CONTEXT_LOGIN_SETTINGS, context);
-        Boolean checkMainActivity = checkContext(CONTEXT_MAIN_ACTIVITY_SETTINGS, context);
-
-        if (!checkLogin && !checkMainActivity){
-            throw new InvalidContextException("Current Activity context does not relate to: " + CONTEXT_LOGIN_SETTINGS + " or " + CONTEXT_MAIN_ACTIVITY_SETTINGS + ". Hence Will not initialize class.");
-        }
-
-        this.mUID = (String) map.get("UID");
-        System.out.println("UID is" + this.mUID);
-
-        this.mDisplayName = (String) map.get("displayName");
-        this.mImageURL = (String) map.get("imageURL");
-        this.mChefRating = (double) map.get("chefRating");
-        this.mNumRecipes =  (long) map.get("numRecipes");
-        this.mAbout = (String) map.get("about");
-        this.mPreferences = new Preferences(
-                (boolean) prefs.get("allergy_wheat"), (boolean) prefs.get("allergy_celery"),
+    public UserInfoPrivate(HashMap<String, Object> map, HashMap<String, Object> prefs, HashMap<String, Object> privacy) {
+        this.UID = (String) map.get("UID");
+        this.displayName = (String) map.get("displayName");
+        this.imageURL = (String) map.get("imageURL");
+        this.chefRating = (double) map.get("chefRating");
+        this.numRecipes =  (long) map.get("numRecipes");
+        this.about = (String) map.get("about");
+        this.preferences = new Preferences( (boolean) prefs.get("allergy_celery"),
                 (boolean) prefs.get("allergy_crustacean"), (boolean) prefs.get("allergy_eggs"),
                 (boolean) prefs.get("allergy_fish"), (boolean) prefs.get("allergy_gluten"),
                 (boolean) prefs.get("allergy_milk"), (boolean) prefs.get("allergy_mustard"),
@@ -72,7 +48,7 @@ public class UserInfoPrivate extends Application implements Serializable {
                 (boolean) prefs.get("no_alcohol"), (boolean) prefs.get("no_pork"),
                 (boolean) prefs.get("ovovegetarian"), (boolean) prefs.get("pescatarian"),
                 (boolean) prefs.get("vegan"), (boolean) prefs.get("vegetarian"));
-
+        this.privacy = privacy;
     }
 
     /*TODO
@@ -115,102 +91,65 @@ public class UserInfoPrivate extends Application implements Serializable {
     }
     */
 
-    /**
-     * Checks the context we expect for the associated Activity against what is retrieved.
-     *
-     * @param expectedContextClassName - The class name identifier of the expected context. E.g. com.group4sweng.scranplan.[name]
-     * @param context                  - Our current actual context.
-     * @return - Boolean value specifying if the context matches or not.
-     */
-    private boolean checkContext(String expectedContextClassName, Context context) {
-        String actualContextClassname = context.getClass().getName();
-        if (actualContextClassname.equals(expectedContextClassName)) {
-            return true;
-        } else {
-            System.out.println("Tried to create context from: " + actualContextClassname);
-            return false;
-        }
-    }
-
-    /**
-     * Replica of 'checkContext' but with a reference 'name' and throwable error value instead of a boolean.
-     * @param expectedContextClassname - The class name identifier of the expected context. E.g. com.group4sweng.scranplan.[name]
-     * @param context                  - Our current actual context.
-     * @param name                     - Name identifier to use within the InvalidContextException message.
-     * @throws InvalidContextException - Throws if contexts don't match.
-     */
-    private void checkContext(String expectedContextClassname, Context context, String name) throws InvalidContextException {
-        if (!checkContext(expectedContextClassname, context)) {
-            throw new InvalidContextException("Current Activity context required to set " + name + " of user is: " + expectedContextClassname);
-        }
-    }
-
     public String getUID() {
-        return mUID;
+        return UID;
     }
 
-    public void setUID(String UID, Context context) throws InvalidContextException {
-        checkContext(CONTEXT_PROFILE_SETTINGS, context, "UID");
-        mUID = UID;
+    public void setUID(String UID) {
+        this.UID = UID;
     }
 
     public String getDisplayName() {
-        return mDisplayName;
+        return displayName;
     }
 
-    public void setDisplayName(String displayName, Context context) throws InvalidContextException {
-        checkContext(CONTEXT_PROFILE_SETTINGS, context, "Display Name");
-        mDisplayName = displayName;
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     public String getImageURL() {
-        return mImageURL;
+        return imageURL;
     }
 
-    public void setImageURL(String imageURL, Context context) throws InvalidContextException {
-        checkContext(CONTEXT_PROFILE_SETTINGS, context, "Image URL");
-        mImageURL = imageURL;
+    public void setImageURL(String imageURL)  {
+        this.imageURL = imageURL;
     }
 
     public double getChefRating() {
-        return mChefRating;
+        return chefRating;
     }
 
-    public void setChefRating(double chefRating, Context context) throws InvalidContextException {
-        checkContext(CONTEXT_PROFILE_SETTINGS, context, "Chef Rating");
-        mChefRating = chefRating;
-    }
+    public void setChefRating(double chefRating )  { this.chefRating = chefRating; }
 
     public long getNumRecipes() {
-        return mNumRecipes;
+        return numRecipes;
     }
 
-    public void setNumRecipes(int numRecipes, Context context) throws InvalidContextException {
-        checkContext(CONTEXT_PROFILE_SETTINGS, context, "Number Of Recipes");
-        mNumRecipes = numRecipes;
+    public void setNumRecipes(int numRecipes )   {
+        this.numRecipes = numRecipes;
     }
 
     public String getAbout() {
-        return mAbout;
+        return about;
     }
 
-    public void setAbout(String about, Context context) throws InvalidContextException {
-        checkContext(CONTEXT_PROFILE_SETTINGS, context, "About");
-        mAbout = about;
-    }
+    public void setAbout(String about)   { this.about = about; }
 
     public Preferences getPreferences() {
-        return mPreferences;
+        return preferences;
     }
 
-    public void setPreferences(Preferences preferences, Context context) throws InvalidContextException {
-        checkContext(CONTEXT_PROFILE_SETTINGS, context, "Preferences");
-        mPreferences = preferences;
+    public void setPreferences(Preferences preferences)   {
+        this.preferences = preferences;
     }
 
-    public void setInitialPreferences(Preferences preferences, Context context) throws InvalidContextException {
-        checkContext(CONTEXT_INITIAL_USER_CUSTOMISATION, context, "Initial User Preferences");
-        mPreferences = preferences;
-    }
+    public HashMap<String, Object> getPrivacy() { return privacy; }
 
+    public void setPrivacy(HashMap<String, Object> privacy) {
+        if (privacy.containsKey("display_username") && privacy.containsKey("display_profile_image") && privacy.containsKey("display_about_me") && privacy.containsKey("display_recipes")) {
+            this.privacy = privacy;
+        } else {
+            throw new RuntimeException("Tried to set privacy settings with invalid inputs");
+        }
+    }
 }

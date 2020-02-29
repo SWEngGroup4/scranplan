@@ -118,11 +118,13 @@ public class MainActivity extends AppCompatActivity {
                                     map.put("preferences", document.get("preferences"));
                                     map.put("about", document.get("about"));
 
-                                    try {
-                                        mUser = new UserInfoPrivate(map, (HashMap<String, Object>) document.get("preferences"), mContext);
-                                    } catch (Exception e){
-                                        e.printStackTrace();
-                                    }
+                                    @SuppressWarnings("unchecked")
+                                    HashMap<String, Object> preferences = (HashMap<String, Object>) document.get("preferences");
+
+                                    @SuppressWarnings("unchecked")
+                                    HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacy");
+
+                                    mUser = new UserInfoPrivate(map, preferences, privacy);
 
                                     Log.i(TAG, "Successfully logged back in");
                                 }else {
@@ -238,7 +240,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void tempOpenProfileSettings() {
         Intent intentProfile = new Intent(this, ProfileSettings.class);
-
 
         intentProfile.putExtra("user", mUser);
         setResult(RESULT_OK, intentProfile);
