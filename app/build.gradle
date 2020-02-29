@@ -19,6 +19,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+            returnDefaultValues = true
+        }
+    }
 }
 
 dependencies {
@@ -29,6 +35,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage:16.0.4'
 
     testImplementation 'junit:junit:4.12'
+    testImplementation 'org.robolectric:robolectric:4.3'
+    testImplementation 'org.mockito:mockito-core:2.7.22'
     androidTestImplementation 'androidx.test:rules:1.1.1'
     androidTestImplementation 'androidx.test:runner:1.1.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
@@ -46,6 +54,7 @@ dependencies {
 // this dependency is not required if you are already using your own
 // slf4j implementation
     implementation 'org.slf4j:slf4j-nop:1.7.25'
+    implementation 'org.jetbrains:annotations-java5:15.0'
 
 
 }

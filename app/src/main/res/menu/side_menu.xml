@@ -5,19 +5,19 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_profile"
-            android:title="Profile" />
+            android:title="@string/navProfile" />
         <item
             android:id="@+id/nav_my_recipes"
-            android:title="My Recipes" />
+            android:title="@string/navMyRecipes" />
     </group>
 
-    <group android:title="Recipes">
+    <group android:title="@string/navRecipes">
         <item
             android:id="@+id/nav_recipes"
-            android:title="Recipes" />
+            android:title="@string/navRecipes" />
         <item
             android:id="@+id/nav_saved_recipes"
-            android:title="Saved Recipes" />
+            android:title="@string/navSavedRecipes" />
     </group>
 
 

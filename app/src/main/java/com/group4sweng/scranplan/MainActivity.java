@@ -2,30 +2,24 @@ package com.group4sweng.scranplan;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
-
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import android.widget.FrameLayout;
-
-
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.auth.*;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -54,15 +48,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-
         // Drawer setup and and synchronising the states
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.nav_drawer_open, R.string.nav_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
+        SideMenu mSideMenu = new SideMenu();
+        mSideMenu.mMenuToolbar = findViewById(R.id.toolbar);
+        mSideMenu.mMenuDrawer = findViewById(R.id.drawer_layout);
+        mSideMenu.mNavigationView = findViewById(R.id.side_menu);
+        setSupportActionBar(mSideMenu.mMenuToolbar);
+        mSideMenu.init(this, this);
 
 
         initFirebase();
