@@ -1,5 +1,6 @@
 package com.group4sweng.scranplan;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -114,8 +115,10 @@ public class RecipeFragment extends Fragment {
 
     public void openRecipeDialog(){
 
-        RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
-        recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");
+//        RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
+//        recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");
 
+        Intent intent = new Intent(getActivity(), VideoPlayerActivity.class);
+        startActivity(intent);
     }
 }

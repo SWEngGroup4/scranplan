@@ -161,8 +161,8 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
     }
 
     /**
-     * TODO - Method that takes all ingredients in the collection and displays them in
-     * TODO - a list view to be displayed in the ingredient fragment
+     *  Method that takes all ingredients in the collection and displays them in
+     *  a list view to be displayed in the ingredient fragment
      */
     private void displayedIngredients(final View layout){
 
