@@ -3,7 +3,7 @@
     <color name="colorPrimary">#446631</color>
     <color name="colorPrimaryDark">#0f1f13</color>
     <color name="colorPrimaryLight">#7bb088</color>
-    <color name="colorText">#1c1f1d</color>
+    <color name="colorText">#1c1f1d</color> //Text Colour
     <color name="colorPrimaryText">#1c1f1d</color>
     <color name="colorSecondaryText">#000000</color>
     <color name="colorDivider">#8D8D8D</color>
@@ -11,4 +11,5 @@
     <color name="colorWindow">#bdb5c7</color>
     <color name="colorBackgroundPrimary">#bed1c3</color>
     <color name="colorBackground">#bed1c3</color>
+    <color name="colorDangerRed">#F44336</color>
 </resources>
