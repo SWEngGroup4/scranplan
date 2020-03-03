@@ -1,11 +1,14 @@
 package com.group4sweng.scranplan;
 
+import java.io.Serializable;
+
 /**
  * Preferences class
  * Used within UserInfo class to save specific preferences user wants to apply to all queries within
  * the application
  */
-public class Preferences {
+public class Preferences implements Serializable {
+
     // All preference variables
     private boolean allergy_celery;
     private boolean allergy_crustacean;
@@ -34,6 +37,13 @@ public class Preferences {
     private boolean pescatarian;
     private boolean vegan;
     private boolean vegetarian;
+
+    Preferences(boolean allergy_nuts, boolean allergy_eggs, boolean allergy_milk, boolean allergy_shellfish, boolean allergy_soya){
+        this.allergy_nuts = allergy_nuts;
+        this.allergy_eggs = allergy_eggs;
+        this.allergy_milk = allergy_shellfish;
+        this.allergy_soya = allergy_soya;
+    }
 
     // Constructor for all variables
     Preferences(boolean allergy_celery,
