@@ -10,53 +10,58 @@
 
     <Button
         android:id="@+id/ReturnButton"
+        style="@style/Widget.AppCompat.Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:text="Back"
+        android:textColor="#000000"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/Title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_width="412dp"
+        android:layout_height="43dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/colorPrimary"
         android:ems="10"
         android:gravity="center"
         android:inputType="textPersonName"
         android:text="Title"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="#CBFFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintHorizontal_bias="0.51"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/addFavorite" />
 
     <Button
         android:id="@+id/LetsCook"
+        style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:text="Lets Cook!"
+        android:textColor="#FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/chefName"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="177dp"
+        android:layout_height="87dp"
         android:layout_centerInParent="true"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:ems="10"
         android:gravity="center"
-        android:text="Chef"
+        android:text="Chef:"
+        android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toRightOf="@id/recipeImage"
         app:layout_constraintRight_toLeftOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/recipeImage"
         app:layout_constraintTop_toBottomOf="@+id/Title" />
 
     <ImageButton
@@ -72,32 +77,36 @@
 
     <ImageView
         android:id="@+id/recipeImage"
-        android:layout_width="179dp"
-        android:layout_height="161dp"
+        android:layout_width="177dp"
+        android:layout_height="168dp"
+        android:background="@color/colorPrimary"
+        android:padding="10dp"
+        android:scaleType="fitXY"
         app:layout_constraintBottom_toTopOf="@+id/tabLayout2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.068"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/Title"
-        app:layout_constraintVertical_bias="0.161"
+        app:layout_constraintVertical_bias="0.089"
         app:srcCompat="@drawable/scran" />
+
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout2"
-        android:layout_width="399dp"
-        android:layout_height="wrap_content"
+        android:layout_width="389dp"
+        android:layout_height="48dp"
         android:layout_marginBottom="2dp"
+        android:background="@color/colorPurpleDark"
+        android:textColor="#ffffff"
         app:layout_constraintBottom_toTopOf="@+id/RecipeFrameLayout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/chefName"
-        app:layout_constraintVertical_bias="1.0">
+        app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ingredients" />
+            android:text="Ingredients"
+            android:textColor="#ffffff" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
@@ -105,7 +114,6 @@
             android:text="Reviews" />
 
     </com.google.android.material.tabs.TabLayout>
-
 
     <FrameLayout
         android:id="@+id/RecipeFrameLayout"
@@ -128,17 +136,18 @@
 
     <TextView
         android:id="@+id/description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="377dp"
+        android:layout_height="65dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/colorPurpleLight"
+        android:padding="5dp"
         android:text="Description"
-        app:layout_constraintBottom_toTopOf="@+id/tabLayout2"
+        android:textColor="#0E0E0E"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.505"
         app:layout_constraintLeft_toRightOf="@id/recipeImage"
         app:layout_constraintRight_toLeftOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/recipeImage"
-        app:layout_constraintVertical_bias="0.222" />
+        app:layout_constraintTop_toBottomOf="@+id/recipeImage" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
