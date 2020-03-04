@@ -91,3 +91,5 @@ lint/tmp/
 app/.classpath
 
 app/.settings/org.eclipse.buildship.core.prefs
+
+.vscode/settings.json

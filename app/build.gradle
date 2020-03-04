@@ -1,7 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
-apply plugin: 'jacoco'
-apply plugin: 'java'
+apply plugin: 'jacoco-android'
 
 android {
     compileSdkVersion 29
@@ -62,12 +61,6 @@ dependencies {
     implementation 'org.jetbrains:annotations-java5:15.0'
 }
 
-jacocoTestReport {
-    reports {
-        xml.enabled true
-        html.enabled false
-    }
-}
 
 check.dependsOn jacocoTestReport
 
