@@ -1,6 +1,11 @@
 language: android
 jdk: oraclejdk8
 
+env:
+    global:
+      - ANDROID_TARGET=android-29
+      - ANDROID_ABI=x86
+
 before_install:
   - chmod +x gradlew
 android:
