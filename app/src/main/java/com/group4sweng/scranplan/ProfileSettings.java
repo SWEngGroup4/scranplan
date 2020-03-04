@@ -1,6 +1,9 @@
 package com.group4sweng.scranplan;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -23,6 +26,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.Exceptions.InvalidUserException;
 
 import java.util.HashMap;
+
+import static java.util.Objects.requireNonNull;
 
 public class ProfileSettings extends AppCompatActivity implements FilterType {
 
@@ -57,10 +62,27 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
     Button mSaveProfile;
     Button mDeleteProfile;
 
+    private long saveCountdownSecondsLeft = 0;
+    private boolean saveCountdownFinished = true;
+
+    CountDownTimer saveCountdown = new CountDownTimer(10000, 1000) {
+
+        @Override
+        public void onTick(long millisUntilFinished) {
+            saveCountdownSecondsLeft = millisUntilFinished/1000;
+        }
+
+        @Override
+        public void onFinish() {
+            saveCountdownFinished = true;
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_settings);
+
         initPageItems();
     }
 
@@ -83,11 +105,58 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent returnIntent = new Intent(this, MainActivity.class);
+        returnIntent.putExtra("user", mUserProfile);
+        setResult(Activity.RESULT_OK, returnIntent);
+        startActivity(returnIntent);
+    }
+
     public void saveSettings(View v){
-        try {
-            updateFirebase();
-        } catch (InvalidUserException e){
-            e.printStackTrace();
+
+        if(saveCountdownFinished || saveCountdownSecondsLeft == 0){
+            mUserProfile.setAbout(mAboutMe.getText().toString());
+            mUserProfile.setDisplayName(mUsername.getText().toString());
+            mUserProfile.setNumRecipes(Long.parseLong(mNumRecipes.getText().toString()));
+
+            try {
+                updateFirebase();
+            } catch (InvalidUserException e){
+                e.printStackTrace();
+            }
+        } else {
+            Toast.makeText(getApplicationContext(), "Please wait " + saveCountdownSecondsLeft + " second(s) before pressing save again", Toast.LENGTH_LONG).show();
+        }
+
+    }
+
+    public void onSwitchClicked(View v){
+        boolean switched = ((Switch) v).isChecked();
+
+        HashMap<String, Object> privacy = mUserProfile.getPrivacy();
+
+        switch(v.getId()){
+            case R.id.settings_privacy_about_me:
+                if(switched)
+                    privacy.put("display_about_me", true);
+                else
+                    privacy.put("display_about_me", false);
+            case R.id.settings_privacy_recipes:
+                if(switched)
+                    privacy.put("display_recipes", true);
+                else
+                    privacy.put("display_recipes", false);
+            case R.id.settings_privacy_username:
+                if(switched)
+                    privacy.put("display_username", true);
+                else
+                    privacy.put("display_username", false);
+            case R.id.settings_privacy_profile_image:
+                if(switched)
+                    privacy.put("display_profile_image", true);
+                else
+                    privacy.put("display_profile_image", false);
         }
     }
 
@@ -118,7 +187,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
                         if (checked)
                             preferences.setAllergy_milk(true);
                         else
-                            preferences.setAllergy_nuts(false);
+                            preferences.setAllergy_milk(false);
                         break;
                     case R.id.settings_allergy_shellfish:
                         if (checked)
@@ -147,7 +216,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
                 //TODO
         }
     }
-
 
     // TODO Make proper image download class.
     /*private void downloadImage(String UID){
@@ -234,10 +302,17 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         FirebaseUser user = mAuth.getCurrentUser();
 
         if(user != null){
+            if(saveCountdownFinished){
+                saveCountdown.start();
+                saveCountdownFinished = false;
+            }
+
             HashMap<String, Object> map = new HashMap<>();
             HashMap<String, Object> prefMap = new HashMap<>();
-            HashMap<String, Object> privacy = new HashMap();
+            HashMap<String, Object> privacy = new HashMap<>();
 
+            map.put("UID", requireNonNull(mAuth.getCurrentUser()).getUid());
+            map.put("email", mAuth.getCurrentUser().getEmail());
             map.put("displayName", mUserProfile.getDisplayName());
             map.put("imageURL", mUserProfile.getImageURL());
             map.put("chefRating", mUserProfile.getChefRating());
@@ -285,6 +360,10 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
             privacy.put("display_recipes", privacyMap.get("display_recipes"));
             privacy.put("display_profile_image", privacyMap.get("display_profile_image"));
 
+            map.put("privacy", privacy);
+
+            mUserProfile = new UserInfoPrivate(map, prefMap, privacy);
+
             DocumentReference usersRef = mRef.document(user.getUid());
             usersRef.set(map).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
@@ -304,7 +383,4 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         }
     }
 
-    public void updatePreferences(){
-        loadProfileData();
-    }
 }

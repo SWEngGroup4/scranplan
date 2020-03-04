@@ -34,8 +34,9 @@ public class MainActivity extends AppCompatActivity {
 
     Context mContext = this;
 
-    final String TAG = "FirebaseTest";
+    final static String TAG = "FirebaseTest";
     final FirebaseFirestore database = FirebaseFirestore.getInstance();
+    final static int PROFILE_SETTINGS_REQUEST_CODE = 1;
 
     UserInfoPrivate mUser;
 
@@ -210,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-      
+
       /*TODO Clean up temporary profile settings & public profile page listener*/
         final Button tempProfileSettings = findViewById(R.id.profile_settings_button);
         tempProfileSettings.setOnClickListener(new View.OnClickListener() {
@@ -229,22 +230,39 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch(requestCode) {
+            case (PROFILE_SETTINGS_REQUEST_CODE):
+                if (resultCode == RESULT_OK) {
+                    // TODO Extract the data returned from the child Activity.
+                    mUser = (UserInfoPrivate) getIntent().getSerializableExtra("user");
+                    mUser.getPreferences();
+                }
+                break;
+            default:
+                Log.e(TAG, "I am not returning anything");
+        }
+    }
+
     public void tempOpenPublicProfile() {
         Intent intentProfile = new Intent(this, PublicProfile.class);
 
         intentProfile.putExtra("user", mUser);
-        setResult(RESULT_OK, intentProfile);
-
+        //setResult(RESULT_OK, intentProfile);
         startActivity(intentProfile);
     }
 
     public void tempOpenProfileSettings() {
         Intent intentProfile = new Intent(this, ProfileSettings.class);
-
         intentProfile.putExtra("user", mUser);
-        setResult(RESULT_OK, intentProfile);
 
-        startActivity(intentProfile);
+        setResult(RESULT_OK, intentProfile);
+        startActivityForResult(intentProfile, PROFILE_SETTINGS_REQUEST_CODE);
 
     }
+
+
 }

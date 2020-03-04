@@ -28,6 +28,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * Login class
  * Everything necessary for new users to register or existing users to log in before moving into the
@@ -271,9 +273,9 @@ public class Login extends AppCompatActivity{
                     // Setting up default user profileView on database with email and display name
                     HashMap<String, Object> map = new HashMap<>();
                     HashMap<String, Object> preferences = new HashMap<>();
-                    HashMap<String, Object> privacy = new HashMap();
+                    HashMap<String, Object> privacy = new HashMap<>();
 
-                    map.put("UID", mAuth.getCurrentUser().getUid());
+                    map.put("UID", requireNonNull(mAuth.getCurrentUser()).getUid());
                     map.put("email", mAuth.getCurrentUser().getEmail());
                     map.put("displayName", mDisplayName);
                     map.put("imageURL", "");
@@ -461,6 +463,8 @@ public class Login extends AppCompatActivity{
         Intent returningIntent = new Intent(Login.this, MainActivity.class);
 
         returningIntent.putExtra("user", mUser);
+
+        mUser = null;
         startActivity(returningIntent);
 
         finish();

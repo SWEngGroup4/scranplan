@@ -17,6 +17,7 @@
         android:ems="10"
         android:padding="5.5dp"
         android:text="Input Field"
+        android:singleLine="true"
         android:textColor="#353236"
         android:textSize="17sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -265,6 +266,7 @@
                 android:padding="6dp"
                 android:text="Username"
                 android:textSize="16sp"
+                android:onClick="onSwitchClicked"
                 tools:checked="true" />
 
             <Switch
@@ -276,6 +278,7 @@
                 android:padding="6dp"
                 android:text="About Me"
                 android:textSize="16sp"
+                android:onClick="onSwitchClicked"
                 tools:checked="true" />
 
 
@@ -292,6 +295,7 @@
                 android:padding="6dp"
                 android:text="Recipes"
                 android:textSize="16sp"
+                android:onClick="onSwitchClicked"
                 tools:checked="true" />
 
             <Switch
@@ -303,6 +307,7 @@
                 android:padding="6dp"
                 android:text="Profile Image"
                 android:textSize="16sp"
+                android:onClick="onSwitchClicked"
                 tools:checked="false" />
 
 

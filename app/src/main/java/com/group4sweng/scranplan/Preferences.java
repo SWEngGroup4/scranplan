@@ -38,6 +38,8 @@ public class Preferences implements Serializable, FilterType {
     private boolean vegan;
     private boolean vegetarian;
 
+    
+
     //  Constructor for setting all of a users preferences.
     Preferences(boolean allergy_celery,
                 boolean allergy_crustacean, boolean allergy_eggs, boolean allergy_fish,

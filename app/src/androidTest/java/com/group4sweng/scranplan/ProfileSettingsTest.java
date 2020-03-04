@@ -1,5 +1,7 @@
 package com.group4sweng.scranplan;
 
+import android.util.Log;
+
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.Espresso;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -50,7 +52,7 @@ public class ProfileSettingsTest {
     @Before
     public void setUp() throws InterruptedException {
 
-        System.out.println("Happens before stuff!");
+        Log.i(TAG, "Starting texts");
 
         ActivityScenario.launch(Login.class);
 

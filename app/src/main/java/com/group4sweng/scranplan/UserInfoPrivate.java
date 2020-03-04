@@ -125,7 +125,7 @@ public class UserInfoPrivate implements Serializable {
         return numRecipes;
     }
 
-    public void setNumRecipes(int numRecipes )   {
+    public void setNumRecipes(long numRecipes )   {
         this.numRecipes = numRecipes;
     }
 
@@ -149,7 +149,7 @@ public class UserInfoPrivate implements Serializable {
         if (privacy.containsKey("display_username") && privacy.containsKey("display_profile_image") && privacy.containsKey("display_about_me") && privacy.containsKey("display_recipes")) {
             this.privacy = privacy;
         } else {
-            throw new RuntimeException("Tried to set privacy settings with invalid inputs");
+            throw new RuntimeException("Tried to set privacy settings with invalid or incomplete inputs");
         }
     }
 }
