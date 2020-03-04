@@ -34,7 +34,6 @@
         android:layout_marginBottom="17dp"
         android:background="@color/colorDangerRed"
         android:text="delete profile"
-        android:onClick="deleteProfile"
         android:textColor="#C8FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

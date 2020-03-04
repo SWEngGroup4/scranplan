@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.Switch;
@@ -33,6 +32,8 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
 
     // TAG for Profile Settings
     final String TAG = "ProfileSettings";
+
+    //  Default filter type enumeration. Types shown in 'FilterType' interface.
     filterType currentFilterType = filterType.ALLERGENS;
 
     // Firebase user variables.
@@ -42,6 +43,8 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
     CollectionReference mRef = mDatabase.collection("users");
 
     UserInfoPrivate mUserProfile;
+
+    //  TODO - Add profile image.
     ImageView mProfileImage;
     TextView mUsername;
     TextView mAboutMe;
@@ -59,13 +62,12 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
     Switch mDisplay_recipes;
     Switch mDisplay_profile_image;
 
-    Button mSaveProfile;
-    Button mDeleteProfile;
-
+    private final int COUNTDOWN_TIMER_MILLIS = 10000;
+    private final int COUNTDOWN_INTERVAL_MILLIS = 1000;
     private long saveCountdownSecondsLeft = 0;
     private boolean saveCountdownFinished = true;
 
-    CountDownTimer saveCountdown = new CountDownTimer(10000, 1000) {
+    CountDownTimer saveCountdown = new CountDownTimer(COUNTDOWN_TIMER_MILLIS, COUNTDOWN_INTERVAL_MILLIS) {
 
         @Override
         public void onTick(long millisUntilFinished) {
