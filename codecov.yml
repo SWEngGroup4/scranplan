@@ -14,6 +14,17 @@ parsers:
       method: no
       macro: no
 
+
+flags:
+  # filter the folder(s) you wish to measure by that flag
+  main:
+    # only include files in the main folder
+    paths:
+      - src/main/java/com.group4sweng.scranplan
+  tests:
+    paths:
+      - src/androidTest/java/com.group4sweng.scranplan
+      - src/test/java/com.group4sweng.scranplan
 comment:
   layout: "reach,diff,flags,tree"
   behavior: default
