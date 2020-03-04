@@ -4,7 +4,7 @@ jdk: oraclejdk8
 env:
     global:
       - ANDROID_TARGET=android-29
-      - ANDROID_ABI=armeabi-v7a
+      - ANDROID_ABI=x86_64
 
 before_install:
   - chmod +x gradlew
