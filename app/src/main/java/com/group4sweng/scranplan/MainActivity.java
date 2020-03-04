@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     Button mLogoutButton;
     TabLayout tabLayout;
     FrameLayout frameLayout;
+    SideMenu mSideMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // Drawer setup and and synchronising the states
-        SideMenu mSideMenu = new SideMenu();
+        mSideMenu = new SideMenu();
         mSideMenu.mMenuToolbar = findViewById(R.id.toolbar);
         mSideMenu.mMenuDrawer = findViewById(R.id.drawer_layout);
         mSideMenu.mNavigationView = findViewById(R.id.side_menu);

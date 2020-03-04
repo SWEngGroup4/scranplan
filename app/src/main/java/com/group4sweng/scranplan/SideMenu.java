@@ -10,10 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.navigation.NavigationView;
 
@@ -29,7 +25,6 @@ public class SideMenu extends Activity implements NavigationView.OnNavigationIte
         mActivity = activity;
         mContext = context;
         startMenu();
-
     }
 
     @Override
@@ -59,18 +54,18 @@ public class SideMenu extends Activity implements NavigationView.OnNavigationIte
      */
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        Fragment mFragment = null;
-        switch (item.getItemId()){
-            case R.id.nav_profile:
-                // insert nav fragment here
-                // mFragment = new ProfileFragment();
-                break;
-        }
-        FragmentManager mFragmentManager = ((FragmentActivity)mContext).getSupportFragmentManager();
-        FragmentTransaction mFragmentTransaction = mFragmentManager.beginTransaction();
-        mFragmentTransaction.replace(R.id.frameLayout, mFragment);
-        mFragmentTransaction.commit();
-     return true;
+//        Fragment mFragment = null;
+//        switch (item.getItemId()){
+//            case R.id.nav_profile:
+//                // insert nav fragment here
+//                // mFragment = new ProfileFragment();
+//                break;
+//        }
+//        FragmentManager mFragmentManager = ((FragmentActivity)mContext).getSupportFragmentManager();
+//        FragmentTransaction mFragmentTransaction = mFragmentManager.beginTransaction();
+//        mFragmentTransaction.replace(R.id.frameLayout, mFragment);
+//        mFragmentTransaction.commit();
+     return false;
     }
 }
 
