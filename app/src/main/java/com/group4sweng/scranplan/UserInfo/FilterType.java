@@ -1,4 +1,4 @@
-package com.group4sweng.scranplan;
+package com.group4sweng.scranplan.UserInfo;
 
 public interface FilterType {
     enum filterType {

@@ -1,9 +1,11 @@
 package com.group4sweng.scranplan;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -23,6 +25,10 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.Exceptions.InvalidUserException;
+import com.group4sweng.scranplan.Helper.CheckAndroidServices;
+import com.group4sweng.scranplan.UserInfo.FilterType;
+import com.group4sweng.scranplan.UserInfo.Preferences;
+import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.HashMap;
 
@@ -42,14 +48,20 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
     FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
     CollectionReference mRef = mDatabase.collection("users");
 
+    Context mContext;
+
     UserInfoPrivate mUserProfile;
 
     //  TODO - Add profile image.
+    //  TODO - Add valid network connection checks.
+
+    //  Basic user settings.
     ImageView mProfileImage;
     TextView mUsername;
     TextView mAboutMe;
     TextView mNumRecipes;
 
+    //  User allegern filters.
     CheckBox mAllergy_nuts;
     CheckBox mAllergy_milk;
     CheckBox mAllergy_eggs;
@@ -57,16 +69,25 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
     CheckBox mAllergy_soy;
     CheckBox mAllergy_gluten;
 
+    //  User privacy filters.
     Switch mDisplay_username;
     Switch mDisplay_about_me;
     Switch mDisplay_recipes;
     Switch mDisplay_profile_image;
 
+    //  Timer in milliseconds for minimum interval between 'Save Settings' button presses..
     private final int COUNTDOWN_TIMER_MILLIS = 10000;
-    private final int COUNTDOWN_INTERVAL_MILLIS = 1000;
-    private long saveCountdownSecondsLeft = 0;
-    private boolean saveCountdownFinished = true;
 
+    //  Timer in milliseconds for update rate of the Toast message.
+    private final int COUNTDOWN_INTERVAL_MILLIS = 1000;
+
+    private long saveCountdownSecondsLeft = 0; //Initial timer is set to 0.
+    private boolean saveCountdownFinished = true; //Initial countdown is finished.
+
+    CheckAndroidServices androidServices;
+    boolean connectionEstablished;
+
+    //  Initialize 'Save Settings minimum interval countdown timer.
     CountDownTimer saveCountdown = new CountDownTimer(COUNTDOWN_TIMER_MILLIS, COUNTDOWN_INTERVAL_MILLIS) {
 
         @Override
@@ -92,8 +113,9 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
     protected void onStart(){
         super.onStart();
 
-        mUserProfile = (UserInfoPrivate) getIntent().getSerializableExtra("user");
-        if(mUserProfile != null){
+        //connectionEstablished = checkNetworkConnection(mContext);
+        mUserProfile = (UserInfoPrivate) getIntent().getSerializableExtra("user"); //Grabs serializable UserInfoPrivate data from main activity.
+        if(mUserProfile != null){ //Checks if there is actually any Serializable data received.
             loadProfileData();
         }
     }
@@ -102,6 +124,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
     protected void onRestart() {
         super.onRestart();
 
+        //connectionEstablished = checkNetworkConnection(mContext);
         if(mUserProfile != null){
             loadProfileData();
         }
@@ -109,22 +132,36 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
 
     @Override
     public void onBackPressed() {
+
+        //  Send back with intent and update the MainActivity's UserInfoPrivate class.
         Intent returnIntent = new Intent(this, MainActivity.class);
         returnIntent.putExtra("user", mUserProfile);
         setResult(Activity.RESULT_OK, returnIntent);
         startActivity(returnIntent);
     }
 
+    /** Activated on 'save settings' button press.
+     * @param v - Button View.
+     */
     public void saveSettings(View v){
+        //connectionEstablished = checkNetworkConnection(mContext);
 
-        if(saveCountdownFinished || saveCountdownSecondsLeft == 0){
+        /*if(!connectionEstablished){
+            Toast.makeText(getApplicationContext(), "A connection cannot be established. Please make sure you are connected to the internet otherwise your settings may not be saved.", Toast.LENGTH_LONG).show();
+        }*/
+
+        //  Ignore save button press if countdown isn't finished or isn't equal to 0s.
+        if(saveCountdownFinished || saveCountdownSecondsLeft == 0) {
+
+            //  Set all info not set in other proprietary methods.
             mUserProfile.setAbout(mAboutMe.getText().toString());
             mUserProfile.setDisplayName(mUsername.getText().toString());
             mUserProfile.setNumRecipes(Long.parseLong(mNumRecipes.getText().toString()));
 
+            //  Update the server relative to the client or throw an exception if a valid user isn't found.
             try {
                 updateFirebase();
-            } catch (InvalidUserException e){
+            } catch (InvalidUserException e) {
                 e.printStackTrace();
             }
         } else {
@@ -133,12 +170,15 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
 
     }
 
+    /** Activated on checking of privacy switches
+     * @param v - Switch view.
+     */
     public void onSwitchClicked(View v){
-        boolean switched = ((Switch) v).isChecked();
+        boolean switched = ((Switch) v).isChecked(); // Check if switch is on or not.
 
         HashMap<String, Object> privacy = mUserProfile.getPrivacy();
 
-        switch(v.getId()){
+        switch(v.getId()){ // Retrieve switches unique ID.
             case R.id.settings_privacy_about_me:
                 if(switched)
                     privacy.put("display_about_me", true);
@@ -162,6 +202,9 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         }
     }
 
+    /** Activated on Filters checked
+     * @param v - Filters checkbox view.
+     */
     public void onCheckboxClicked(View v) {
         // Is the Checkbox Checked?
         boolean checked = ((CheckBox) v).isChecked();
@@ -255,8 +298,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         mDisplay_recipes = findViewById(R.id.settings_privacy_recipes);
         mDisplay_username = findViewById(R.id.settings_privacy_username);
 
-        //   Buttons
-
     }
 
     private void loadProfileData(){
@@ -271,6 +312,9 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         setPrivacyOptions(mUserProfile.getPrivacy());
     }
 
+    /** Set which filter checkboxes should be selected
+     * @param type - Enumeration of the type of filter to be displayed. E.g. Allegern, Religious...
+     */
     private void setFilters(filterType type){
         switch(type){
             case ALLERGENS:
@@ -289,6 +333,9 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         }
     }
 
+    /** Set which privacy swtiches should be selected
+     * @param privacy - HashMap of valid privacy options.
+     */
     private void setPrivacyOptions(HashMap<String, Object> privacy){
         mDisplay_username.setChecked( (boolean) privacy.get("display_username"));
         mDisplay_about_me.setChecked( (boolean) privacy.get("display_about_me"));
@@ -296,17 +343,36 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         mDisplay_recipes.setChecked( (boolean) privacy.get("display_recipes"));
     }
 
-
-
+    /** Update the server relative to the client on a valid 'Save Settings' button press
+     * @throws InvalidUserException - Error returned when a valid user cannot be found and therefore the server
+     * cannot update relative to the client. This can occur when Wifi signal is lost.
+     */
     private void updateFirebase() throws InvalidUserException {
         mApp = FirebaseApp.getInstance();
         mAuth = FirebaseAuth.getInstance(mApp);
         FirebaseUser user = mAuth.getCurrentUser();
 
-        if(user != null){
+        String usernameInput = mUsername.getText().toString();
+        String aboutMeInput = mAboutMe.getText().toString();
+
+        if(user != null){ //Checks for a valid user.
+            String usersEmail = requireNonNull(mAuth.getCurrentUser()).getEmail();
+
+            //  If the 'saveCountdown' countdown has finished. Restart it.
             if(saveCountdownFinished){
                 saveCountdown.start();
                 saveCountdownFinished = false;
+            }
+
+            //  Check the users email exists. It should do.
+            if(usersEmail != null){
+                if (usernameInput.contains(usersEmail) || aboutMeInput.contains(usersEmail)){ //Make sure none of the TextView input fields have the users email contained in them.
+                    Log.e(TAG, "Email address found in Username/About me section");
+                    Toast.makeText(getApplicationContext(), "Found your email address in Username/About me section. Unable to save settings.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+            } else {
+                throw new RuntimeException("Unable to find associated email address of the user");
             }
 
             HashMap<String, Object> map = new HashMap<>();
@@ -314,7 +380,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
             HashMap<String, Object> privacy = new HashMap<>();
 
             map.put("UID", requireNonNull(mAuth.getCurrentUser()).getUid());
-            map.put("email", mAuth.getCurrentUser().getEmail());
+            map.put("email", usersEmail);
             map.put("displayName", mUserProfile.getDisplayName());
             map.put("imageURL", mUserProfile.getImageURL());
             map.put("chefRating", mUserProfile.getChefRating());
@@ -364,9 +430,11 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
 
             map.put("privacy", privacy);
 
-            mUserProfile = new UserInfoPrivate(map, prefMap, privacy);
+            mUserProfile = new UserInfoPrivate(map, prefMap, privacy); //Create a new UserInfoPrivate class based upon our inputs.
 
             DocumentReference usersRef = mRef.document(user.getUid());
+
+            //  Sync the Firebase info with the client info if successful.
             usersRef.set(map).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {

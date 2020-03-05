@@ -1,14 +1,15 @@
-package com.group4sweng.scranplan;
+package com.group4sweng.scranplan.UserInfo;
 
 import java.io.Serializable;
 import java.util.HashMap;
 
 /**
- * UserInfo class
- * Used to save current user vital variables that will be used throughout the app for customisation
+ * UserInfoPrivate class
+ * Used to save the current users attributes locally on the device that will be used throughout the app for customisation.
  */
-public class UserInfoPrivate implements Serializable {
+public class UserInfoPrivate implements Serializable{
 
+    //  Unique Log TAG ID.
     final static String TAG = "UserInfo";
 
     //  User information
@@ -16,6 +17,8 @@ public class UserInfoPrivate implements Serializable {
     private String displayName;
     private String imageURL;
     private String about;
+
+    //  HashMap privacy values are Boolean values of: 'display_username', 'display_about_me', 'display_recipes' & 'display_profile_image'.
     private HashMap<String, Object> privacy;
     private double chefRating;
     private long numRecipes;
@@ -27,6 +30,11 @@ public class UserInfoPrivate implements Serializable {
     // User preferences
     private Preferences preferences;
 
+    /** Initiate a users private profile.
+     * @param map - Basic user information. E.g. UID, display name. (HashMap, String) pair
+     * @param prefs - The users preferences found within the 'Preferences' class. (HashMap, Boolean) pair
+     * @param privacy - A HashMap of the users privacy settings. (HashMap, Boolean) pair.
+     */
     public UserInfoPrivate(HashMap<String, Object> map, HashMap<String, Object> prefs, HashMap<String, Object> privacy) {
         this.UID = (String) map.get("UID");
         this.displayName = (String) map.get("displayName");
@@ -146,6 +154,7 @@ public class UserInfoPrivate implements Serializable {
     public HashMap<String, Object> getPrivacy() { return privacy; }
 
     public void setPrivacy(HashMap<String, Object> privacy) {
+        //  Check the HashMap has been properly initialized with all valid privacy parameters., otherwise return a runtime exception.
         if (privacy.containsKey("display_username") && privacy.containsKey("display_profile_image") && privacy.containsKey("display_about_me") && privacy.containsKey("display_recipes")) {
             this.privacy = privacy;
         } else {

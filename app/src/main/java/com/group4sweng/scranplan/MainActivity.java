@@ -27,6 +27,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.HashMap;
 
@@ -237,13 +238,11 @@ public class MainActivity extends AppCompatActivity {
         switch(requestCode) {
             case (PROFILE_SETTINGS_REQUEST_CODE):
                 if (resultCode == RESULT_OK) {
-                    // TODO Extract the data returned from the child Activity.
                     mUser = (UserInfoPrivate) getIntent().getSerializableExtra("user");
-                    mUser.getPreferences();
                 }
                 break;
             default:
-                Log.e(TAG, "I am not returning anything");
+                Log.e(TAG, "I am not returning anything. Should return new profile settings from Profile Settings Activity.");
         }
     }
 

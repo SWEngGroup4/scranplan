@@ -1,4 +1,4 @@
-package com.group4sweng.scranplan;
+package com.group4sweng.scranplan.UserInfo;
 
 import android.app.Application;
 

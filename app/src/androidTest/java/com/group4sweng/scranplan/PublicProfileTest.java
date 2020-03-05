@@ -8,6 +8,7 @@ import androidx.test.rule.ActivityTestRule;
 
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -37,6 +38,10 @@ public class PublicProfileTest {
     private static final int THREAD_SLEEP_TIME = 4000;
 
     PublicProfile mPublicProfile;
+
+    /* TODO
+        Most of this class. Follow 'ProfileSettingsTest' for an example.
+     */
 
     @Rule
     public ActivityTestRule<PublicProfile> mActivityTestRule = new ActivityTestRule<PublicProfile>(PublicProfile.class);
