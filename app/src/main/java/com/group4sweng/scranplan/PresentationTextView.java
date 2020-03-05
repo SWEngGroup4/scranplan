@@ -80,7 +80,9 @@ public class PresentationTextView extends ScrollView {
         textView.setText(Html.fromHtml(text));
     }
 
-    public void setFont(String font) {
+    public void setFont(String font, Integer weight) {
+
+        font = "name=" + font + "&weight=" + weight;
 
         FontRequest fontRequest = new FontRequest("com.google.android.gms.fonts",
                 "com.google.android.gms",
