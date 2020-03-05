@@ -21,6 +21,8 @@ public class UserInfoPrivate extends Application implements Serializable {
     private String mDisplayName;
     private String mImageURL;
     private String mAbout;
+
+    private boolean mFirstTimeLogin;
     private double mChefRating;
     private long mNumRecipes;
 
@@ -41,6 +43,8 @@ public class UserInfoPrivate extends Application implements Serializable {
         this.mChefRating = (double) map.get("chefRating");
         this.mNumRecipes =  (long) map.get("numRecipes");
         this.mAbout = (String) map.get("about");
+        this.mFirstTimeLogin = (boolean) map.get("firstTimeLogin");
+
         this.mPreferences = new Preferences( (boolean) prefs.get("allergy_celery"),
                 (boolean) prefs.get("allergy_crustacean"), (boolean) prefs.get("allergy_eggs"),
                 (boolean) prefs.get("allergy_fish"), (boolean) prefs.get("allergy_gluten"),
@@ -98,6 +102,15 @@ public class UserInfoPrivate extends Application implements Serializable {
     }
     */
 
+
+    public boolean ismFirstTimeLogin() {
+        return mFirstTimeLogin;
+    }
+
+    public void setmFirstTimeLogin(boolean mFirstTimeLogin) {
+        this.mFirstTimeLogin = mFirstTimeLogin;
+    }
+
     public String getUID() {
         return mUID;
     }
@@ -146,15 +159,12 @@ public class UserInfoPrivate extends Application implements Serializable {
         mAbout = about;
     }
 
+
     public Preferences getPreferences() {
         return mPreferences;
     }
 
     public void setPreferences(Preferences preferences) {
-        mPreferences = preferences;
-    }
-
-    public void setInitialPreferences(HashMap<String, Object> preferences)  {
         mPreferences = preferences;
     }
 

@@ -117,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
                                     map.put("numRecipes", document.get("numRecipes"));
                                     map.put("preferences", document.get("preferences"));
                                     map.put("about", document.get("about"));
+                                    map.put("firstTimeLogin", document.get("firstTimeLogin"));
 
                                     try {
                                         mUser = new UserInfoPrivate(map, (HashMap<String, Object>) document.get("preferences"));
@@ -125,6 +126,18 @@ public class MainActivity extends AppCompatActivity {
                                     }
 
                                     Log.i(TAG, "Successfully logged back in");
+                                    if(mUser.ismFirstTimeLogin()){
+                                        Log.e(TAG,"Sending user to initial preference setup page");
+
+                                        Intent initialCustom = new Intent(getApplicationContext(), InitialUserCustomisation.class);
+
+                                        initialCustom.putExtra("user", mUser);
+
+                                         mUser = (UserInfoPrivate) getIntent().getSerializableExtra("user");
+
+                                        startActivity(initialCustom);
+                                    }
+
                                 }else {
                                     Log.e(TAG, "User details retrieval : Unable to retrieve user document in Firestore ");
                                     Toast.makeText(getApplicationContext(),"Unable to retrieve current user details, please sign in again.",Toast.LENGTH_SHORT).show();
@@ -145,6 +158,8 @@ public class MainActivity extends AppCompatActivity {
                     Intent signIn = new Intent(getApplicationContext(), Login.class);
                     startActivity(signIn);
                     mUser = (UserInfoPrivate) getIntent().getSerializableExtra("user");
+
+
                 }
             }
         };

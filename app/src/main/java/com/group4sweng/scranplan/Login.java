@@ -279,6 +279,7 @@ public class Login extends AppCompatActivity{
                     map.put("chefRating", (double) 0);
                     map.put("numRecipes", (long) 0);
                     map.put("about", "");
+                    map.put("firstTimeLogin", true);
 
                     // Default user food preferences
                     preferences.put("allergy_celery", false);
@@ -385,6 +386,7 @@ public class Login extends AppCompatActivity{
                                             map.put("numRecipes", document.get("numRecipes"));
                                             map.put("preferences", document.get("preferences"));
                                             map.put("about", document.get("about"));
+                                            map.put("firstTimeLogin", document.get("firstTimeLogin"));
 
                                             try {
                                                mUser = new UserInfoPrivate(map, (HashMap<String, Object>) document.get("preferences"));

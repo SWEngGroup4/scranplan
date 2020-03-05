@@ -1,12 +1,13 @@
 package com.group4sweng.scranplan;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -15,8 +16,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.HashMap;
-//Broken
 
 public class InitialUserCustomisation extends AppCompatActivity {
     final String TAG = "userCustomisation";
@@ -29,8 +28,6 @@ public class InitialUserCustomisation extends AppCompatActivity {
 
     Preferences preferences = userDetails.getPreferences();
 
-    Context mContext = this;
-
     Button mSkipButton;
     Button mSubmitButton;
     CheckBox mVegetarianBox;
@@ -41,16 +38,16 @@ public class InitialUserCustomisation extends AppCompatActivity {
     CheckBox mWheatBox;
     CheckBox mShellfishBox;
     CheckBox mSoyBox;
-    CheckBox mpescatarianBox;
+    CheckBox mPescatarianBox;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-        getSupportActionBar().hide();
+        setContentView(R.layout.activity_initial_user_customisation);
 
-        Log.e(TAG, "Starting Login activity");
+        getSupportActionBar().hide();
+        Log.e(TAG, "Starting initial user customisation activity");
 
         initPageItems();
         getResources().getColor(R.color.colorPrimary);
@@ -58,10 +55,24 @@ public class InitialUserCustomisation extends AppCompatActivity {
         initFirebase();
     }
 
+  /*  public void popUpCreate(View view){
+
+        LayoutInflater inflater = (LayoutInflater)
+                getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popupView = inflater.inflate(R.layout.activity_initial_user_customisation, null);
+
+        // create the popup window
+        int width = LinearLayout.LayoutParams.WRAP_CONTENT;
+        int height = LinearLayout.LayoutParams.WRAP_CONTENT;
+        boolean focusable = true;
+        final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+
+        popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+    }*/
+
     private void initFirebase() {
         mApp = FirebaseApp.getInstance();
         mAuth = FirebaseAuth.getInstance();
-
     }
 
     private void initPageItems() {
@@ -76,7 +87,7 @@ public class InitialUserCustomisation extends AppCompatActivity {
         mWheatBox = findViewById(R.id.wheatCheckBox);
         mShellfishBox = findViewById(R.id.shellfishCheckBox);
         mSoyBox = findViewById(R.id.soyCheckBox);
-        mpescatarianBox = findViewById(R.id.pescatarianCheckBox);
+        mPescatarianBox = findViewById(R.id.pescatarianCheckBox);
 
 
     }
@@ -109,10 +120,9 @@ public class InitialUserCustomisation extends AppCompatActivity {
             //make function to add info to firestore
             private void savePref() {
                 DocumentReference usersRef = database.document(mAuth.getCurrentUser().getUid());
-                HashMap<String, Object> preferences = new HashMap<>();
 
                 if (mEggsBox.isChecked()) {
-                    preferences.put("allergy_eggs", true);
+                    userDetails.getPreferences().setAllergy_eggs(true);
                     mMilkBox.setChecked(false);
                     mNutsBox.setChecked(false);
                     mShellfishBox.setChecked(false);
@@ -122,7 +132,7 @@ public class InitialUserCustomisation extends AppCompatActivity {
                 }
 
                 if (mMilkBox.isChecked()) {
-                    preferences.put("allergy_milk", true);
+                    userDetails.getPreferences().setAllergy_milk(true);
                     mEggsBox.setChecked(false);
                     mNutsBox.setChecked(false);
                     mShellfishBox.setChecked(false);
@@ -132,7 +142,7 @@ public class InitialUserCustomisation extends AppCompatActivity {
                 }
 
                 if (mNutsBox.isChecked()) {
-                    preferences.put("allergy_nuts", true);
+                    userDetails.getPreferences().setAllergy_nuts(true);
                     mMilkBox.setChecked(false);
                     mEggsBox.setChecked(false);
                     mShellfishBox.setChecked(false);
@@ -142,7 +152,7 @@ public class InitialUserCustomisation extends AppCompatActivity {
                 }
 
                 if (mShellfishBox.isChecked()) {
-                    preferences.put("allergy_shellfish", true);
+                    userDetails.getPreferences().setAllergy_shellfish(true);
                     mMilkBox.setChecked(false);
                     mNutsBox.setChecked(false);
                     mEggsBox.setChecked(false);
@@ -151,7 +161,7 @@ public class InitialUserCustomisation extends AppCompatActivity {
                     mMilkBox.setChecked(false);
                 }
                 if (mSoyBox.isChecked()) {
-                    preferences.put("allergy_soya", true);
+                    userDetails.getPreferences().setAllergy_soya(true);
                     mMilkBox.setChecked(false);
                     mNutsBox.setChecked(false);
                     mShellfishBox.setChecked(false);
@@ -160,7 +170,7 @@ public class InitialUserCustomisation extends AppCompatActivity {
                     mMilkBox.setChecked(false);
                 }
                 if (mWheatBox.isChecked()) {
-                    preferences.put("allergy_gluten", true);
+                    userDetails.getPreferences().setAllergy_gluten(true);
                     mMilkBox.setChecked(false);
                     mNutsBox.setChecked(false);
                     mShellfishBox.setChecked(false);
@@ -168,46 +178,36 @@ public class InitialUserCustomisation extends AppCompatActivity {
                     mEggsBox.setChecked(false);
                     mMilkBox.setChecked(false);
                 }
-                if (mMilkBox.isChecked()) {
-                    preferences.put("lactose_free", true);
-                    mEggsBox.setChecked(false);
-                    mNutsBox.setChecked(false);
-                    mShellfishBox.setChecked(false);
-                    mSoyBox.setChecked(false);
-                    mWheatBox.setChecked(false);
-                    mMilkBox.setChecked(false);
-                }
-                if (mpescatarianBox.isChecked()) {
-                    preferences.put("pescatarian", true);
+
+                if (mPescatarianBox.isChecked()) {
+                    userDetails.getPreferences().setPescatarian(true);
                     mVeganBox.setChecked(false);
                     mVegetarianBox.setChecked(false);
                 }
                 if (mVeganBox.isChecked()) {
-                    preferences.put("vegan", true);
-                    mpescatarianBox.setChecked(false);
+                    userDetails.getPreferences().setVegan(true);
+                    mPescatarianBox.setChecked(false);
                     mVegetarianBox.setChecked(false);
                 }
                 if (mVegetarianBox.isChecked()) {
-                    preferences.put("vegetarian", true);
+                    userDetails.getPreferences().setVegetarian(true);
                     mVeganBox.setChecked(false);
-                    mpescatarianBox.setChecked(false);
+                    mPescatarianBox.setChecked(false);
                 }
 
+
+
                 usersRef.update("preferences", preferences);
+                userDetails.setPreferences(preferences);
 
-                userDetails.setInitialPreferences(preferences);
-                finishActivity();
             }
-
-
-            //TODO need to add opening intent to this page after user is logged in or has returned from the user registration page
 
             private void finishActivity() {
 
                 Log.e(TAG, "Initial User Customisation returning to main activity");
 
                 // User data returned to main menu
-                Intent returningIntent = new Intent();
+                Intent returningIntent = new Intent(InitialUserCustomisation.this, MainActivity.class);
                 returningIntent.putExtra("user", userDetails);
                 setResult(RESULT_OK, returningIntent);
 
