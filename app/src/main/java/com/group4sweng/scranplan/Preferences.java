@@ -1,6 +1,8 @@
 package com.group4sweng.scranplan;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Preferences class
@@ -87,6 +89,20 @@ public class Preferences implements Serializable {
         this.pescatarian = pescatarian;
         this.vegan = vegan;
         this.vegetarian = vegetarian;
+    }
+
+    public HashMap returnPrefMap(){
+        HashMap<String, Object> updateMap = new HashMap<>();
+        updateMap.put("pescatarian", pescatarian);
+        updateMap.put("vegan", vegan);
+        updateMap.put("vegetarian", vegetarian);
+        updateMap.put("allergy_eggs", allergy_eggs);
+        updateMap.put("allergy_gluten", allergy_gluten);
+        updateMap.put("allergy_milk", allergy_milk);
+        updateMap.put("allergy_nuts", allergy_nuts);
+        updateMap.put("allergy_shellfish", allergy_shellfish);
+        updateMap.put("allergy_soya", allergy_soya);
+        return updateMap;
     }
 
 

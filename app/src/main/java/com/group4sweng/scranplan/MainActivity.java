@@ -133,8 +133,6 @@ public class MainActivity extends AppCompatActivity {
 
                                         initialCustom.putExtra("user", mUser);
 
-                                         mUser = (UserInfoPrivate) getIntent().getSerializableExtra("user");
-
                                         startActivity(initialCustom);
                                     }
 
