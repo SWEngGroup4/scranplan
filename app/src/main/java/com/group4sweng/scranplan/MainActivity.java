@@ -27,6 +27,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.HashMap;
 
@@ -34,8 +35,9 @@ public class MainActivity extends AppCompatActivity {
 
     Context mContext = this;
 
-    final String TAG = "FirebaseTest";
+    final static String TAG = "FirebaseTest";
     final FirebaseFirestore database = FirebaseFirestore.getInstance();
+    final static int PROFILE_SETTINGS_REQUEST_CODE = 1;
 
     UserInfoPrivate mUser;
 
@@ -72,52 +74,6 @@ public class MainActivity extends AppCompatActivity {
         initPageItems();
         initPageListeners();
 
-        tabLayout = findViewById(R.id.tabLayout);
-        frameLayout = findViewById(R.id.frameLayout);
-
-        Fragment fragment = new RecipeFragment();
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.frameLayout, fragment);
-        fragmentTransaction.commit();
-
-        tabLayout.addTab(tabLayout.newTab().setText("Recipes"));
-        tabLayout.addTab(tabLayout.newTab().setText("Meal Planner"));
-        tabLayout.addTab(tabLayout.newTab().setText("Timeline"));
-        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
-
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                Fragment fragment = null;
-                switch (tab.getPosition()) {
-                    case 0:
-                        fragment = new RecipeFragment();
-                        break;
-                    case 1:
-                        fragment = new PlannerFragment();
-                        break;
-                    case 2:
-                        fragment = new TimelinePlanner();
-                        break;
-                }
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.frameLayout, fragment);
-                fragmentTransaction.commit();
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-        });
-
 //        FloatingActionButton fab = findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -127,6 +83,8 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
     }
+
+
 
 
     private void initFirebase(){
@@ -161,11 +119,13 @@ public class MainActivity extends AppCompatActivity {
                                     map.put("preferences", document.get("preferences"));
                                     map.put("about", document.get("about"));
 
-                                    try {
-                                        mUser = new UserInfoPrivate(map, (HashMap<String, Object>) document.get("preferences"));
-                                    } catch (Exception e){
-                                        e.printStackTrace();
-                                    }
+                                    @SuppressWarnings("unchecked")
+                                    HashMap<String, Object> preferences = (HashMap<String, Object>) document.get("preferences");
+
+                                    @SuppressWarnings("unchecked")
+                                    HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacy");
+
+                                    mUser = new UserInfoPrivate(map, preferences, privacy);
 
                                     Log.i(TAG, "Successfully logged back in");
                                 }else {
@@ -198,10 +158,22 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
     private void initPageItems(){
         //Defining all relevant members of signin & register page
         mLogoutButton = (Button) findViewById(R.id.logoutButton);
+        tabLayout = findViewById(R.id.tabLayout);
+        frameLayout = findViewById(R.id.frameLayout);
+
+        Fragment fragment = new RecipeFragment();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.frameLayout, fragment);
+        fragmentTransaction.commit();
+
+        tabLayout.addTab(tabLayout.newTab().setText("Recipes"));
+        tabLayout.addTab(tabLayout.newTab().setText("Meal Planner"));
+        tabLayout.addTab(tabLayout.newTab().setText("Timeline"));
+        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
     }
 
     private void initPageListeners() {
@@ -213,6 +185,87 @@ public class MainActivity extends AppCompatActivity {
                 mAuth.signOut();
             }
         });
+
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                Fragment fragment = null;
+                switch (tab.getPosition()) {
+                    case 0:
+                        fragment = new RecipeFragment();
+                        break;
+                    case 1:
+                        fragment = new PlannerFragment();
+                        break;
+                    case 2:
+                        fragment = new TimelinePlanner();
+                        break;
+                }
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.frameLayout, fragment);
+                fragmentTransaction.commit();
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+
+      /*TODO Clean up temporary profile settings & public profile page listener*/
+        final Button tempProfileSettings = findViewById(R.id.profile_settings_button);
+        tempProfileSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)  {
+                tempOpenProfileSettings();
+            }
+        });
+
+        final Button tempPublicProfile = findViewById(R.id.public_profile_button);
+        tempPublicProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)  {
+                tempOpenPublicProfile();
+            }
+        });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch(requestCode) {
+            case (PROFILE_SETTINGS_REQUEST_CODE):
+                if (resultCode == RESULT_OK) {
+                    mUser = (UserInfoPrivate) getIntent().getSerializableExtra("user");
+                }
+                break;
+            default:
+                Log.e(TAG, "I am not returning anything. Should return new profile settings from Profile Settings Activity.");
+        }
+    }
+
+    public void tempOpenPublicProfile() {
+        Intent intentProfile = new Intent(this, PublicProfile.class);
+
+        intentProfile.putExtra("user", mUser);
+        //setResult(RESULT_OK, intentProfile);
+        startActivity(intentProfile);
+    }
+
+    public void tempOpenProfileSettings() {
+        Intent intentProfile = new Intent(this, ProfileSettings.class);
+        intentProfile.putExtra("user", mUser);
+
+        setResult(RESULT_OK, intentProfile);
+        startActivityForResult(intentProfile, PROFILE_SETTINGS_REQUEST_CODE);
+
     }
 
 }
