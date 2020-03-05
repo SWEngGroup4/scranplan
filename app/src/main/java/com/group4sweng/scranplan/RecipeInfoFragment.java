@@ -42,6 +42,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
     TextView mChefName;
     TextView mDescription;
     ImageView mRecipeImage;
+    String recipeID;
 
     private FirebaseFirestore mDatabase;
     private CollectionReference mDataRef;
@@ -71,6 +72,8 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         View layout = inflater.inflate(R.layout.fragment_recipe_info, null);
+
+        recipeID = getArguments().getString("recipeID");
 
         builder.setView(layout);
 
@@ -170,7 +173,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         arrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, ingredientList);
 
         mIngredient = mDatabase.collection("recipes");
-        final DocumentReference ingredients = mIngredient.document("PkMAJA8qEltZH4RZ092u");
+        final DocumentReference ingredients = mIngredient.document(recipeID);
 
         ingredients.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -215,7 +218,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         mDataRef = mDatabase.collection("recipes");
         mUserRef = mDatabase.collection("users");
 
-        final DocumentReference docRef = mDataRef.document("PkMAJA8qEltZH4RZ092u");
+        final DocumentReference docRef = mDataRef.document(recipeID);
 
         /**
          * Adds OnCompleteListener that gets snapshot of objects from the firestore

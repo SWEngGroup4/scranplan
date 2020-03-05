@@ -22,7 +22,7 @@
 
     <TextView
         android:id="@+id/Title"
-        android:layout_width="412dp"
+        android:layout_width="match_parent"
         android:layout_height="43dp"
         android:layout_marginTop="8dp"
         android:background="@color/colorPrimary"
@@ -142,6 +142,7 @@
         android:background="@color/colorPurpleLight"
         android:padding="5dp"
         android:text="Description"
+        android:gravity="center"
         android:textColor="#0E0E0E"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintLeft_toRightOf="@id/recipeImage"
