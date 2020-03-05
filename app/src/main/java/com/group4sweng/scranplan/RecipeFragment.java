@@ -46,6 +46,7 @@ public class RecipeFragment extends Fragment {
 
         // Procedurally fills topLayout with imageButton content
         LinearLayout topLayout = view.findViewById(R.id.topLayout);
+
         for (int i = 0; i < 10; i++) {
 
             // Placeholder text TODO - change to query type
@@ -115,10 +116,7 @@ public class RecipeFragment extends Fragment {
 
     public void openRecipeDialog(){
 
-//        RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
-//        recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");
-
-        Intent intent = new Intent(getActivity(), VideoPlayerActivity.class);
-        startActivity(intent);
+        RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
+        recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");
     }
 }

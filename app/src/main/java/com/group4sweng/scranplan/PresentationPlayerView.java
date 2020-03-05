@@ -2,6 +2,8 @@ package com.group4sweng.scranplan;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
+import android.widget.LinearLayout;
 
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -10,27 +12,33 @@ import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.firebase.firestore.FirebaseFirestore;
-
-import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 
 public class PresentationPlayerView extends PlayerView {
 
     private SimpleExoPlayer exoPlayer;
-    private boolean playWhenReady = true;
     private int currentWindow = 0;
     private long playbackPosition = 0;
     private Context context;
 
-    public PresentationPlayerView(Context context) {
+    private LinearLayout.LayoutParams layoutParams;
+    private Integer slideHeight;
+    private Integer slideWidth;
+
+    public PresentationPlayerView(Context context, Integer slideHeight, Integer slideWidth) {
         super(context);
         this.context = context;
+        this.slideHeight = slideHeight;
+        this.slideWidth = slideWidth;
+
+        layoutParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        this.setLayoutParams(layoutParams);
     }
 
-    public void initializePlayer(String URL){
+    public void initializePlayer(String URL, Boolean playWhenReady){
 
-
-        exoPlayer = ExoPlayerFactory.newSimpleInstance(getApplicationContext());
+        exoPlayer = ExoPlayerFactory.newSimpleInstance(getContext());
         this.setPlayer(exoPlayer);
 
         Uri uri = Uri.parse(URL);
@@ -40,9 +48,11 @@ public class PresentationPlayerView extends PlayerView {
         exoPlayer.seekTo(currentWindow, playbackPosition);
         exoPlayer.prepare(mediaSource, false, false);
 
-
     }
 
+    /**
+     *  Method 
+     */
     private MediaSource buildMediaSource(Uri uri) {
         DataSource.Factory dataSourceFactory =
                 new DefaultDataSourceFactory(context, "exoplayer-codelab");
@@ -52,11 +62,22 @@ public class PresentationPlayerView extends PlayerView {
 
     public void releasePlayer() {
         if (exoPlayer != null) {
-            playWhenReady = exoPlayer.getPlayWhenReady();
-            playbackPosition = exoPlayer.getCurrentPosition();
-            currentWindow = exoPlayer.getCurrentWindowIndex();
             exoPlayer.release();
             exoPlayer = null;
         }
     }
+
+    public void setDims(Float width, Float height) {
+        layoutParams.width = Math.round(slideWidth * (width / 100));
+        layoutParams.height = Math.round(slideHeight * (height / 100));
+
+        Log.d("Test", "Width: " + layoutParams.width);
+        Log.d("Test", "Height: " + layoutParams.height);
+    }
+
+    public void setPos(Float xPos, Float yPos) {
+        layoutParams.setMargins(Math.round(slideWidth * (xPos / 100)),
+                Math.round(slideHeight * (yPos / 100)), 0, 0);
+    }
+
 }
