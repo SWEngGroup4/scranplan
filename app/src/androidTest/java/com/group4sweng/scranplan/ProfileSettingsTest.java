@@ -145,7 +145,7 @@ public class ProfileSettingsTest{
         onView(withId(R.id.settings_allergy_eggs))
                 .check(matches(isDisplayed()));
 
-        onView(withId(R.id.settings_delete_profile))
+        onView(withId(R.id.settings_reset_password))
                 .check(matches(isDisplayed()));
 
         onView(withId(R.id.settings_input_about_me))

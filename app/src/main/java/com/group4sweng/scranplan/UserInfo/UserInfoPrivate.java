@@ -17,6 +17,7 @@ public class UserInfoPrivate implements Serializable{
     private String displayName;
     private String imageURL;
     private String about;
+    private String email;
 
     //  HashMap privacy values are Boolean values of: 'display_username', 'display_about_me', 'display_recipes' & 'display_profile_image'.
     private HashMap<String, Object> privacy;
@@ -36,6 +37,7 @@ public class UserInfoPrivate implements Serializable{
      * @param privacy - A HashMap of the users privacy settings. (HashMap, Boolean) pair.
      */
     public UserInfoPrivate(HashMap<String, Object> map, HashMap<String, Object> prefs, HashMap<String, Object> privacy) {
+        this.email = (String) map.get("email");
         this.UID = (String) map.get("UID");
         this.displayName = (String) map.get("displayName");
         this.imageURL = (String) map.get("imageURL");
@@ -98,6 +100,14 @@ public class UserInfoPrivate implements Serializable{
         editor.apply();
     }
     */
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     public String getUID() {
         return UID;

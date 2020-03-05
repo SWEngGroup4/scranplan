@@ -1,14 +1,20 @@
 package com.group4sweng.scranplan;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.text.InputType;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -16,9 +22,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -138,6 +148,189 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         returnIntent.putExtra("user", mUserProfile);
         setResult(Activity.RESULT_OK, returnIntent);
         startActivity(returnIntent);
+    }
+
+    public void deleteProfile(View v){
+        AlertDialog.Builder builder = new AlertDialog.Builder(ProfileSettings.this);
+
+        LinearLayout layout = new LinearLayout(this);
+        LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setLayoutParams(parms);
+
+        final EditText passwordConfirm = new EditText(this);
+        passwordConfirm.setHint("Enter password");
+        passwordConfirm.setPadding(40, 40, 40, 40);
+        passwordConfirm.setGravity(Gravity.CENTER);
+        passwordConfirm.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+        layout.addView(passwordConfirm);
+        builder.setView(layout);
+
+        builder.setMessage("Are you sure you want to delete?");
+        builder.setTitle("Delete Profile");
+        builder.setCancelable(true);
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                final String passwordString = passwordConfirm.getText().toString();
+                                deleteAccount(passwordString);
+                                finish();
+                            }
+                        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    /**
+     * deleteAccount
+     * called when user wants to delete their account, needs users password to be re-entered
+     * FireBase Auth is deleted along with all local data and their personal account in the database
+     * @param rePassword
+     */
+    private void deleteAccount(String rePassword){
+        mApp = FirebaseApp.getInstance();
+        mAuth = FirebaseAuth.getInstance(mApp);
+
+        final String password = rePassword;
+
+        Log.e(TAG, "INPUTTED PASSWORD IS: " + password);
+
+        mDatabase.collection("users").document(mAuth.getUid()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+
+                AuthCredential credential = EmailAuthProvider
+                        .getCredential(mUserProfile.getEmail(), password);
+                // Prompt the user to re-provide their sign-in credentials
+                    mAuth.getCurrentUser().reauthenticate(credential)
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    mUserProfile = null;
+                                    mAuth.getCurrentUser().delete()
+                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if (task.isSuccessful()) {
+                                                        Log.d(TAG, "User account deleted.");
+                                                        Toast.makeText(getApplicationContext(),"Account deleted.",Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }
+                                            });
+                                }
+                            });
+            }
+        });
+    }
+
+    public void changePassword(View v){
+        AlertDialog.Builder builder = new AlertDialog.Builder(ProfileSettings.this);
+
+        LinearLayout layout = new LinearLayout(this);
+        LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setLayoutParams(parms);
+
+        final EditText newPassword = new EditText(this);
+        newPassword.setHint("Enter new password");
+        newPassword.setPadding(40, 40, 40, 40);
+        newPassword.setGravity(Gravity.CENTER);
+        newPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        final EditText newPassword2 = new EditText(this);
+        newPassword2.setHint("Re-enter new password");
+        newPassword2.setPadding(40, 40, 40, 40);
+        newPassword2.setGravity(Gravity.CENTER);
+        newPassword2.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        final EditText passwordConfirm = new EditText(this);
+        passwordConfirm.setHint("Enter old password");
+        passwordConfirm.setPadding(40, 40, 40, 40);
+        passwordConfirm.setGravity(Gravity.CENTER);
+        passwordConfirm.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+        layout.addView(passwordConfirm);
+        layout.addView(newPassword);
+        layout.addView(newPassword2);
+        builder.setView(layout);
+
+//        builder.setMessage("Are you sure you want to delete?");
+        builder.setTitle("Change Password");
+        builder.setCancelable(true);
+        builder.setPositiveButton("Change password", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                final String passwordString = passwordConfirm.getText().toString();
+                final String newPasswordString = newPassword.getText().toString();
+                final String newPassword2String = newPassword2.getText().toString();
+                if(newPasswordString.equals(newPassword2String)){
+                    resetPassword(passwordString, newPasswordString);
+                }else{
+                    Toast.makeText(getApplicationContext(),"Passwords do not match. Please try again...",Toast.LENGTH_LONG).show();
+                }
+
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    /**
+     * resetPassword
+     * taked both the old password and the new password and resets the users password to the new one
+     * @param rePassword
+     * @param newPassword
+     */
+    private void resetPassword(final String rePassword, final String newPassword){
+        mApp = FirebaseApp.getInstance();
+        mAuth = FirebaseAuth.getInstance(mApp);
+        AuthCredential credential = EmailAuthProvider
+                .getCredential(mUserProfile.getEmail(), rePassword);
+
+        // Prompt the user to re-provide their sign-in credentials
+        mAuth.getCurrentUser().reauthenticate(credential)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        mAuth.getCurrentUser().updatePassword(newPassword)
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            Log.d(TAG, "Password updated.");
+                                            Toast.makeText(getApplicationContext(),"Password updated.",Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                }).addOnFailureListener( new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.e(TAG,"Password update failed.");
+                                Toast.makeText(getApplicationContext(),"Password update failed, please try again.",Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                        });
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e(TAG,"Failed to re-authenticate.");
+                Toast.makeText(getApplicationContext(),"Failed to re-authenticate. Please try again and make sure you are connected to the internet.",Toast.LENGTH_LONG).show();
+            }
+        });
+
+
+
     }
 
     /** Activated on 'save settings' button press.
