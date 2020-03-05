@@ -70,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-
         initFirebase();
         initPageItems();
         initPageListeners();
@@ -164,6 +163,12 @@ public class MainActivity extends AppCompatActivity {
         mLogoutButton = (Button) findViewById(R.id.logoutButton);
         tabLayout = findViewById(R.id.tabLayout);
         frameLayout = findViewById(R.id.frameLayout);
+
+        Fragment fragment = new RecipeFragment();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.frameLayout, fragment);
+        fragmentTransaction.commit();
 
         tabLayout.addTab(tabLayout.newTab().setText("Recipes"));
         tabLayout.addTab(tabLayout.newTab().setText("Meal Planner"));
@@ -262,6 +267,5 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intentProfile, PROFILE_SETTINGS_REQUEST_CODE);
 
     }
-
 
 }
