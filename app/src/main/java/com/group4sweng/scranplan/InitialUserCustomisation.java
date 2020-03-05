@@ -48,16 +48,14 @@ public class InitialUserCustomisation extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initial_user_customisation);
-
-        if(userDetails != null){
-            userDetails = (UserInfoPrivate) getIntent().getSerializableExtra("user");
-            preferences = userDetails.getPreferences();
-        }
+        userDetails = (UserInfoPrivate) getIntent().getSerializableExtra("user");
+        preferences = userDetails.getPreferences();
 
         getSupportActionBar().hide();
         Log.e(TAG, "Starting initial user customisation activity");
-        initCheckBoxes();
+
         initPageItems();
+        initCheckBoxes();
         getResources().getColor(R.color.colorPrimary);
         initPageListeners();
         initFirebase();
@@ -134,11 +132,7 @@ public class InitialUserCustomisation extends AppCompatActivity {
              public void onClick(View view) {
                  savePref();
                  userDetails.setmFirstTimeLogin(false);
-                 Log.e(TAG, "Initial user returning to main activity");
-                 Intent returningIntent = new Intent();
-                 setResult(RESULT_OK, returningIntent);
-
-                 finish();
+                 finishActivity();
              }
         });
 
@@ -149,51 +143,46 @@ public class InitialUserCustomisation extends AppCompatActivity {
         CollectionReference colRef = database.collection("users");
         DocumentReference usersRef = colRef.document(mAuth.getCurrentUser().getUid());
 
-        userDetails.getPreferences().setAllergy_eggs(mEggsBox.isChecked());
-        if (mEggsBox.isChecked()) {
-            userDetails.getPreferences().setAllergy_eggs(true);
-        }
+        preferences.setAllergy_eggs(mEggsBox.isChecked());
+        preferences.setAllergy_milk(mMilkBox.isChecked());
+        preferences.setAllergy_nuts(mNutsBox.isChecked());
+        preferences.setAllergy_shellfish(mShellfishBox.isChecked());
+       
 
-        if (mMilkBox.isChecked()) {
-            userDetails.getPreferences().setAllergy_milk(true);
-        }
 
-        if (mNutsBox.isChecked()) {
-            userDetails.getPreferences().setAllergy_nuts(true);
-        }
-
-        if (mShellfishBox.isChecked()) {
-            userDetails.getPreferences().setAllergy_shellfish(true);
-
-        }
-        if (mSoyBox.isChecked()) {
-            userDetails.getPreferences().setAllergy_soya(true);
-        }
-
-        if (mWheatBox.isChecked()) {
-            userDetails.getPreferences().setAllergy_gluten(true);
-        }
-
-        if (mPescatarianBox.isChecked()) {
-            userDetails.getPreferences().setPescatarian(true);
-
-        }
-        if (mVeganBox.isChecked()) {
-            userDetails.getPreferences().setVegan(true);
-            mPescatarianBox.setChecked(false);
-            mVegetarianBox.setChecked(false);
-        }
-        if (mVegetarianBox.isChecked()) {
-            userDetails.getPreferences().setVegetarian(true);
-            mVeganBox.setChecked(false);
-            mPescatarianBox.setChecked(false);
-        }
+//        if (mShellfishBox.isChecked()) {
+//            preferences.setAllergy_shellfish(mShellfishBox.isChecked());
+//
+//        }
+//        if (mSoyBox.isChecked()) {
+//            userDetails.getPreferences().setAllergy_soya(true);
+//        }
+//
+//        if (mWheatBox.isChecked()) {
+//            userDetails.getPreferences().setAllergy_gluten(true);
+//        }
+//
+//        if (mPescatarianBox.isChecked()) {
+//            userDetails.getPreferences().setPescatarian(true);
+//
+//        }
+//        if (mVeganBox.isChecked()) {
+//            userDetails.getPreferences().setVegan(true);
+//            mPescatarianBox.setChecked(false);
+//            mVegetarianBox.setChecked(false);
+//        }
+//        if (mVegetarianBox.isChecked()) {
+//            userDetails.getPreferences().setVegetarian(true);
+//            mVeganBox.setChecked(false);
+//            mPescatarianBox.setChecked(false);
+//        }
 
         userDetails.setPreferences(preferences);
 
         HashMap<String, Object> updatedPrefs = userDetails.getPreferences().returnPrefMap();
 
         usersRef.update("preferences", updatedPrefs);
+        usersRef.update("firstTimeLogin", false);
 
     }
 
