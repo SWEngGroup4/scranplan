@@ -18,8 +18,10 @@ cache:
 
 before_install:
   - chmod +x gradlew
+  - yes | sdkmanager "platforms;$ANDROID_TARGET"
 android:
   components:
+    - tools
     - tools
     - platform-tools
     # The BuildTools version used by your project
