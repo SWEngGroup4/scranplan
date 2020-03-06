@@ -36,6 +36,11 @@ public class PresentationPlayerView extends PlayerView {
         this.setLayoutParams(layoutParams);
     }
 
+    /**
+     * Method that initialises the video player. Takes in the Url of the video as an argument as well
+     * as a boolean value that determines if the video player automatically starts or if the user will click play
+     * first.
+     */
     public void initializePlayer(String URL, Boolean playWhenReady){
 
         exoPlayer = ExoPlayerFactory.newSimpleInstance(getContext());
@@ -51,22 +56,30 @@ public class PresentationPlayerView extends PlayerView {
     }
 
     /**
-     *  Method 
+     *  Method that takes a URI as an argument which is the location of the media file.
+     *  Method sets up the player as a progressive download
+     *  https://en.wikipedia.org/wiki/Progressive_download
      */
     private MediaSource buildMediaSource(Uri uri) {
-        DataSource.Factory dataSourceFactory =
+        DataSource.Factory dSFactory =
                 new DefaultDataSourceFactory(context, "exoplayer-codelab");
-        return new ProgressiveMediaSource.Factory(dataSourceFactory)
+        return new ProgressiveMediaSource.Factory(dSFactory)
                 .createMediaSource(uri);
     }
 
-    public void releasePlayer() {
+    /**
+     * Releases and destroys the video player
+     */
+    public void releaseVidPlayer() {
         if (exoPlayer != null) {
             exoPlayer.release();
             exoPlayer = null;
         }
     }
 
+    /**
+     * Sets the dimensions of the video player as a percentage of the screen
+     */
     public void setDims(Float width, Float height) {
         layoutParams.width = Math.round(slideWidth * (width / 100));
         layoutParams.height = Math.round(slideHeight * (height / 100));
@@ -75,6 +88,9 @@ public class PresentationPlayerView extends PlayerView {
         Log.d("Test", "Height: " + layoutParams.height);
     }
 
+    /**
+     * Sets the position of the video on screen
+     */
     public void setPos(Float xPos, Float yPos) {
         layoutParams.setMargins(Math.round(slideWidth * (xPos / 100)),
                 Math.round(slideHeight * (yPos / 100)), 0, 0);

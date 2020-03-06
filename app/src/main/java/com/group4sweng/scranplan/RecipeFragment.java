@@ -74,12 +74,7 @@ public class RecipeFragment extends Fragment {
                 loadImage(imageButton);
 
                 // Button functionality
-                imageButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        openRecipeDialog();
-                    }
-                });
+
 
                 linearLayout.addView(imageButton);
             }
@@ -105,18 +100,27 @@ public class RecipeFragment extends Fragment {
             public void onSuccess(QuerySnapshot querySnapshot) {
                 // Not necessary but worth checking
                 if (!querySnapshot.isEmpty()) {
-                    List<DocumentSnapshot> docs = querySnapshot.getDocuments(); // Get documents from queried collection
-                    int n = random.nextInt(docs.size() - 1); // Random number generated
-                    Picasso.get().load(docs.get(n).get("imageURL").toString()).into(imageButton); //Loads image using picasso library TODO - NullPointerException check
+                    final List<DocumentSnapshot> docs = querySnapshot.getDocuments(); // Get documents from queried collection
+                    final int n = random.nextInt(docs.size() - 1); // Random number generated
 
+                    Picasso.get().load(docs.get(n).get("imageURL").toString()).into(imageButton); //Loads image using picasso library TODO - NullPointerException check
+                    imageButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            openRecipeDialog(docs.get(n).getId());
+                        }
+                    });
                 }
             }
         });
     }
 
-    public void openRecipeDialog(){
-
+    public void openRecipeDialog(String recipeID){
+        Bundle bundle = new Bundle();
+        bundle.putString("recipeID", recipeID);
         RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
+        recipeDialogFragment.setArguments(bundle);
         recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");
+
     }
 }
