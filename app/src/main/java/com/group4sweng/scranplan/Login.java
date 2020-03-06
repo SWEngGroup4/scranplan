@@ -328,17 +328,17 @@ public class Login extends AppCompatActivity{
                     mAuth.getCurrentUser().sendEmailVerification();
                     Log.e(TAG, "SignIn : Email authentication sent for new user and logged out.");
                     Toast.makeText(getApplicationContext(),"Email authentication sent to email, please verify email and log in with your new account.",Toast.LENGTH_LONG).show();
+                    mLoginInProgress = false;
+                    mRegisterInProgress = false;
                     usersRef.set(map).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             mAuth.signOut();
                         }
                     });
-                    mRegisterInProgress = false;
                     mDisplayNameText.getText().clear();
                     mPasswordEditText.getText().clear();
                     mConfirmPasswordEditText.getText().clear();
-                    mLoginInProgress = true;
                 }else{
                     // Log and alert user if unsuccessful
                     Log.e(TAG, "SignIn : User registration response, but failed ");
@@ -466,7 +466,7 @@ public class Login extends AppCompatActivity{
 
         returningIntent.putExtra("user", mUser);
 
-        mUser = null;
+//        mUser = null;
         startActivity(returningIntent);
 
         finish();

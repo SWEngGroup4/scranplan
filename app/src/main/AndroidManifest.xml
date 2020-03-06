@@ -16,10 +16,10 @@
         <activity android:name=".PublicProfile" >
         </activity>
         <activity android:name=".ProfileSettings" />
-        <activity android:name=".Root" />
+        <activity android:name=".MainActivity" />
         <activity android:name=".Login" />
         <activity
-            android:name=".MainActivity"
+            android:name=".Home"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" >
             <intent-filter>
