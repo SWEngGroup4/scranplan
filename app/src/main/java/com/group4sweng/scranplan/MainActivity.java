@@ -120,6 +120,8 @@ public class MainActivity extends AppCompatActivity {
                                     map.put("preferences", document.get("preferences"));
                                     map.put("about", document.get("about"));
                                     map.put("shortPreferences", document.get("shortPreferences"));
+                                    map.put("firstAppLaunch", document.get("firstAppLaunch"));
+                                    map.put("firstPresentationLaunch", document.get("firstPresentationLaunch"));
 
                                     @SuppressWarnings("unchecked")
                                     HashMap<String, Object> preferences = (HashMap<String, Object>) document.get("preferences");

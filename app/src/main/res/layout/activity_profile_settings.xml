@@ -50,7 +50,7 @@
             app:layout_constraintTop_toBottomOf="@+id/settings_save_settings" />
 
         <Button
-            android:id="@+id/settings_delete_profile3"
+            android:id="@+id/settings_delete_profile"
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="180sp"
             android:layout_height="40sp"

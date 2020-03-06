@@ -4,12 +4,15 @@ import android.util.Log;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.Espresso;
+import androidx.test.espresso.action.ViewActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,11 +24,14 @@ import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.RootMatchers.withDecorView;
 import static androidx.test.espresso.matcher.ViewMatchers.hasFocus;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withHint;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 
@@ -53,6 +59,7 @@ public class ProfileSettingsTest{
     public ActivityTestRule<ProfileSettings> mActivityTestRule = new ActivityTestRule<ProfileSettings>(ProfileSettings.class);
 
     //  Login with the associated test credentials before testing, wait for Firebase to update and enter profile settings.
+    @Before
     public void setUp() throws InterruptedException {
 
         Log.i(TAG, "Starting tests");
@@ -103,8 +110,6 @@ public class ProfileSettingsTest{
     //  Check all filter and privacy tables can be displayed
     @Test
     public void testTablesLoad() {
-        onView(allOf(withId(R.id.profile_settings_button), withText("profile settings")))
-                .perform(click());
 
         onView(withId(R.id.settings_privacy))
                 .check(matches(isDisplayed()));
@@ -146,6 +151,15 @@ public class ProfileSettingsTest{
                 .check(matches(isDisplayed()));
 
         onView(withId(R.id.settings_reset_password))
+                .perform(ViewActions.scrollTo())
+                .check(matches(isDisplayed()));
+
+        onView(withId(R.id.settings_delete_profile))
+                .perform(ViewActions.scrollTo())
+                .check(matches(isDisplayed()));
+
+        onView(withId(R.id.settings_save_settings))
+                .perform(ViewActions.scrollTo())
                 .check(matches(isDisplayed()));
 
         onView(withId(R.id.settings_input_about_me))
@@ -158,8 +172,7 @@ public class ProfileSettingsTest{
                 .perform(click())
                 .check(matches(hasFocus()));
 
-        onView(withId(R.id.settings_privacy_profile_image))
-                .check(matches(isDisplayed()));
+        Espresso.closeSoftKeyboard();
 
         onView(withId(R.id.settings_privacy))
                 .check(matches(isDisplayed()));
@@ -254,21 +267,21 @@ public class ProfileSettingsTest{
         HashMap<String, Boolean> initialAllergies = new HashMap<>();
         HashMap<String, Boolean> initialPrivacy = new HashMap<>();
 
-        Thread.sleep(THREAD_SLEEP_TIME/4);
-        ProfileSettings testRule = mActivityTestRule.getActivity();
+        //Thread.sleep(THREAD_SLEEP_TIME/4);
+        //ProfileSettings testRule = mActivityTestRule.getActivity();
 
         //  Store all initial filters + privacy settings in 2 seperate HashMaps.
-        initialAllergies.put("eggs",  testRule.mAllergy_eggs.isChecked());
-        initialAllergies.put("milk",  testRule.mAllergy_milk.isChecked());
-        initialAllergies.put("soya",  testRule.mAllergy_soy.isChecked());
-        initialAllergies.put("gluten",  testRule.mAllergy_gluten.isChecked());
-        initialAllergies.put("shellfish",  testRule.mAllergy_shellfish.isChecked());
-        initialAllergies.put("nuts",  testRule.mAllergy_nuts.isChecked());
+        initialAllergies.put("eggs",  mActivityTestRule.getActivity().mAllergy_eggs.isChecked());
+        initialAllergies.put("milk",  mActivityTestRule.getActivity().mAllergy_milk.isChecked());
+        initialAllergies.put("soya",  mActivityTestRule.getActivity().mAllergy_soy.isChecked());
+        initialAllergies.put("gluten",  mActivityTestRule.getActivity().mAllergy_gluten.isChecked());
+        initialAllergies.put("shellfish",  mActivityTestRule.getActivity().mAllergy_shellfish.isChecked());
+        initialAllergies.put("nuts",  mActivityTestRule.getActivity().mAllergy_nuts.isChecked());
 
-        initialPrivacy.put("username", testRule.mDisplay_username.isChecked());
-        initialPrivacy.put("about_me", testRule.mDisplay_about_me.isChecked());
-        initialPrivacy.put("recipes", testRule.mDisplay_recipes.isChecked());
-        initialPrivacy.put("profile_image", testRule.mDisplay_profile_image.isChecked());
+        initialPrivacy.put("username", mActivityTestRule.getActivity().mDisplay_username.isChecked());
+        initialPrivacy.put("about_me", mActivityTestRule.getActivity().mDisplay_about_me.isChecked());
+        initialPrivacy.put("recipes", mActivityTestRule.getActivity().mDisplay_recipes.isChecked());
+        initialPrivacy.put("profile_image", mActivityTestRule.getActivity().mDisplay_profile_image.isChecked());
 
         //  Change every switch and Checkboxes value.
         onView(withId(R.id.settings_allergy_soy))
@@ -304,20 +317,20 @@ public class ProfileSettingsTest{
 
         setUp(); // Relaunch the login screen.
 
-        ProfileSettings newTestRule = mActivityTestRule.getActivity(); // Initiate a new test rule based on the current activity state.
+        //ProfileSettings newTestRule = mActivityTestRule.getActivity(); // Initiate a new test rule based on the current activity state.
 
         //  Check the new 'checked' boolean value has changed.
-        assertNotEquals(initialAllergies.get("eggs"), newTestRule.mAllergy_eggs.isChecked());
-        assertNotEquals(initialAllergies.get("nuts"), newTestRule.mAllergy_nuts.isChecked());
-        assertNotEquals(initialAllergies.get("milk"), newTestRule.mAllergy_milk.isChecked());
-        assertNotEquals(initialAllergies.get("soya"), newTestRule.mAllergy_soy.isChecked());
-        assertNotEquals(initialAllergies.get("shellfish"), newTestRule.mAllergy_shellfish.isChecked());
-        assertNotEquals(initialAllergies.get("gluten"), newTestRule.mAllergy_gluten.isChecked());
+        assertNotEquals(initialAllergies.get("eggs"), mActivityTestRule.getActivity().mAllergy_eggs.isChecked());
+        assertNotEquals(initialAllergies.get("nuts"), mActivityTestRule.getActivity().mAllergy_nuts.isChecked());
+        assertNotEquals(initialAllergies.get("milk"), mActivityTestRule.getActivity().mAllergy_milk.isChecked());
+        assertNotEquals(initialAllergies.get("soya"), mActivityTestRule.getActivity().mAllergy_soy.isChecked());
+        assertNotEquals(initialAllergies.get("shellfish"), mActivityTestRule.getActivity().mAllergy_shellfish.isChecked());
+        assertNotEquals(initialAllergies.get("gluten"), mActivityTestRule.getActivity().mAllergy_gluten.isChecked());
 
-        assertNotEquals(initialPrivacy.get("about_me"), newTestRule.mDisplay_about_me.isChecked());
-        assertNotEquals(initialPrivacy.get("recipes"), newTestRule.mDisplay_recipes.isChecked());
-        assertNotEquals(initialPrivacy.get("username"), newTestRule.mDisplay_username.isChecked());
-        assertNotEquals(initialPrivacy.get("profile_image"), newTestRule.mDisplay_profile_image.isChecked());
+        assertNotEquals(initialPrivacy.get("about_me"), mActivityTestRule.getActivity().mDisplay_about_me.isChecked());
+        assertNotEquals(initialPrivacy.get("recipes"), mActivityTestRule.getActivity().mDisplay_recipes.isChecked());
+        assertNotEquals(initialPrivacy.get("username"), mActivityTestRule.getActivity().mDisplay_username.isChecked());
+        assertNotEquals(initialPrivacy.get("profile_image"), mActivityTestRule.getActivity().mDisplay_profile_image.isChecked());
 
     }
 
@@ -387,17 +400,196 @@ public class ProfileSettingsTest{
         assertNotEquals(aboutMe, "newAboutMe");
     }
 
+
+    /** ====BEGIN PROFILE SETTINGS ALERT DIALOG BOX TESTS====
+     * All other tests are either manual tests to check data is properly stored, deleted and retrieved within firebase.
+     *
+     * Tests include:
+     *  - After changing a password or deleting an account the client returns a Toast (display message) for confirmation
+     *  - Firebase user profiles and associated document data is removed on profile deletion (for multiple accounts)
+     *  - Firebase user profile password is reset correctly (for multiple accounts)
+     *  - Tests of what happens when an connection to Firebase is lost and if the client updates once the wifi signal is retrieved
+     *  and if the client is notified that no signal is available.
+     */
+
     @Test
-    public void testBlankFieldInputFailsForDeleteAccount() {
-        onView(withId(R.id.settings_delete_profile3))
+    public void testDeleteActionIsDisplayed() {
+
+        onView(withId(R.id.settings_delete_profile))
+                .perform(ViewActions.scrollTo())
+                .check(matches(isDisplayed()))
                 .perform(click());
 
+        onView(withText("Delete Profile"))
+                .check(matches(isDisplayed()));
+
+        onView(withText("Are you sure you want to delete?"))
+                .check(matches(isDisplayed()));
+
+        onView(withHint("Enter password"))
+                .check(matches(isDisplayed()))
+                .perform(click())
+                .check(matches(hasFocus()));
+
+        onView(withText("YES"))
+                .check(matches(isDisplayed()));
+
+        onView(withText("NO"))
+                .check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testResetPasswordActionIsDisplayed(){
+        onView(withId(R.id.settings_reset_password))
+                .perform(ViewActions.scrollTo())
+                .check(matches(isDisplayed()))
+                .perform(click());
+
+        onView(withHint("Enter old password"))
+                .check(matches(isDisplayed()))
+                .perform(click())
+                .check(matches(hasFocus()));
+
+        onView(withHint("Re-enter new password"))
+                .check(matches(isDisplayed()))
+                .perform(click())
+                .check(matches(hasFocus()));
+
+        onView(withText("CANCEL"))
+                .check(matches(isDisplayed()));
+
+        onView(withText("CHANGE PASSWORD"))
+                .check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testBlankFieldInputsFail() throws InterruptedException {
+        //  Make sure we don't actually delete the test account if the following fails. Set to testing.
+        mActivityTestRule.getActivity().isTesting = true;
+
+        onView(withId(R.id.settings_delete_profile))
+                .perform(ViewActions.scrollTo())
+                .perform(click());
+
+        onView(withHint("Enter password"))
+                .perform(click())
+                .perform(typeText(""));
+
+        Espresso.closeSoftKeyboard();
+
+        onView(withText("YES"))
+                .perform(click());
+
+        onView(withText("Cannot enter a blank password. Please try again."))
+                //  Make sure we are not retrieving the canvas (lower level background drawable elements).
+                //  Instead we are checking the 'Toast' return message is equal.
+                .inRoot(withDecorView(not(mActivityTestRule.getActivity().getWindow().getDecorView())))
+                .check(matches(isDisplayed()));
+
+        onView(withId(R.id.settings_reset_password))
+                .perform(ViewActions.scrollTo())
+                .perform(click());
+
+        onView(withHint("Enter old password"))
+                .perform(click())
+                .perform(typeText(""));
+        onView(withHint("Enter new password"))
+                .perform(click())
+                .perform(typeText(""));
+        onView(withHint("Re-enter new password"))
+                .perform(click())
+                .perform(typeText(""));
+
+        Espresso.closeSoftKeyboard();
+
+        onView(withText("CHANGE PASSWORD"))
+                .perform(click());
+
+        onView(withText("Cannot enter a blank password. Please try again."))
+                .inRoot(withDecorView(not(mActivityTestRule.getActivity().getWindow().getDecorView())))
+                .check(matches(isDisplayed()));
 
     }
 
-    /**
-     * TODO - ADD A PROPER WAY OF CHECKING THE INVALIDUSEREXCEPTION.
-     */
+    @Test
+    public void testShortPasswordsFail() {
+        //  Make sure we don't actually delete the test account if the following fails. Set to testing.
+        mActivityTestRule.getActivity().isTesting = true;
+
+        onView(withId(R.id.settings_delete_profile))
+                .perform(ViewActions.scrollTo())
+                .perform(click());
+
+        onView(withHint("Enter password"))
+                .perform(click())
+                .perform(typeText("short1"));
+
+        Espresso.closeSoftKeyboard();
+
+        onView(withText("YES"))
+                .perform(click());
+
+        onView(withText("Password must be greater than 6 characters in length"))
+                .inRoot(withDecorView(not(mActivityTestRule.getActivity().getWindow().getDecorView())))
+                .check(matches(isDisplayed()));
+
+        onView(withId(R.id.settings_reset_password))
+                .perform(ViewActions.scrollTo())
+                .perform(click());
+
+        onView(withHint("Enter new password"))
+                .perform(click())
+                .perform(typeText("oldPassword"));
+        onView(withHint("Enter old password"))
+                .perform(click())
+                .perform(typeText("short1"));
+        onView(withHint("Re-enter new password"))
+                .perform(click())
+                .perform(typeText("short1"));
+
+        Espresso.closeSoftKeyboard();
+
+        onView(withText("CHANGE PASSWORD"))
+                .perform(click());
+
+        onView(withText("Password must be greater than 6 characters in length"))
+                .inRoot(withDecorView(not(mActivityTestRule.getActivity().getWindow().getDecorView())))
+                .check(matches(isDisplayed()));
+
+    }
+
+    @Test
+    public void testNewPasswordsNeedsToMatch() {
+        //  Make sure we don't actually delete the test account if the following fails. Set to testing.
+        mActivityTestRule.getActivity().isTesting = true;
+
+        onView(withId(R.id.settings_reset_password))
+                .perform(ViewActions.scrollTo())
+                .perform(click());
+
+        onView(withHint("Enter new password"))
+                .perform(click())
+                .perform(typeText("oldPassword"));
+        onView(withHint("Enter old password"))
+                .perform(click())
+                .perform(typeText("newPassword"));
+        onView(withHint("Re-enter new password"))
+                .perform(click())
+                .perform(typeText("newPassword2"));
+
+        Espresso.closeSoftKeyboard();
+
+        onView(withText("CHANGE PASSWORD"))
+                .perform(click());
+
+        onView(withText("Passwords do not match. Please try again..."))
+                .inRoot(withDecorView(not(mActivityTestRule.getActivity().getWindow().getDecorView())))
+                .check(matches(isDisplayed()));
+    }
 
 
+    @After
+    public void finishOff() {
+        mActivityTestRule.getActivity().isTesting = false;
+    }
 }

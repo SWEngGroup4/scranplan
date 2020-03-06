@@ -85,6 +85,12 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
     Switch mDisplay_recipes;
     Switch mDisplay_profile_image;
 
+    //  Input fields (Delete profile & Change password)
+    EditText mPasswordConfirm;
+    EditText mPasswordNew1;
+    EditText mPasswordNew2;
+    EditText mPasswordOld;
+
     //  Timer in milliseconds for minimum interval between 'Save Settings' button presses..
     private final int COUNTDOWN_TIMER_MILLIS = 10000;
 
@@ -96,6 +102,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
 
     CheckAndroidServices androidServices;
     boolean connectionEstablished;
+    boolean isTesting = false; //Used to check if the activity is currently being tested. If so, do not delete the users account.
 
     //  Initialize 'Save Settings minimum interval countdown timer.
     CountDownTimer saveCountdown = new CountDownTimer(COUNTDOWN_TIMER_MILLIS, COUNTDOWN_INTERVAL_MILLIS) {
@@ -165,13 +172,13 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         layout.setLayoutParams(params);
 
         //  Add a text input password confirm box
-        final EditText passwordConfirm = new EditText(this);
-        passwordConfirm.setHint("Enter password");
-        passwordConfirm.setPadding(40, 40, 40, 40);
-        passwordConfirm.setGravity(Gravity.CENTER); //Center the box.
-        passwordConfirm.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD); //Set the input type to 'password' (hidden).
+        mPasswordConfirm = new EditText(this);
+        mPasswordConfirm.setHint("Enter password");
+        mPasswordConfirm.setPadding(40, 40, 40, 40);
+        mPasswordConfirm.setGravity(Gravity.CENTER); //Center the box.
+        mPasswordConfirm.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD); //Set the input type to 'password' (hidden).
 
-        layout.addView(passwordConfirm);
+        layout.addView(mPasswordConfirm);
         builder.setView(layout);
 
         builder.setMessage("Are you sure you want to delete?");
@@ -180,9 +187,17 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                final String passwordString = passwordConfirm.getText().toString();
-                                deleteAccount(passwordString);  //Delete our account
-                                finish(); //Destroy this activity preventing any information being sent back.
+                                final String passwordString = mPasswordConfirm.getText().toString();
+
+                                if(passwordString.equals("")){
+                                    Log.e(TAG, "Password cannot be set to an empty field");
+                                    Toast.makeText(getApplicationContext(), "Cannot enter a blank password. Please try again.", Toast.LENGTH_SHORT).show();
+                                } else if(passwordString.length() <= 6){
+                                    Log.e(TAG, "Password must be greater than 6 characters in length");
+                                    Toast.makeText(getApplicationContext(),"Password must be greater than 6 characters in length", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    deleteAccount(passwordString);  //Delete our account
+                                }
                             }
                         });
         builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -192,6 +207,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
                             }
                         });
         AlertDialog alertDialog = builder.create();
+
         alertDialog.show();
     }
 
@@ -207,34 +223,54 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
 
         final String password = rePassword;
 
-        mDatabase.collection("users").document(requireNonNull(mAuth.getUid())).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
+        if(isTesting){ //  Checks if we are testing so we don't actually delete a users account.
+            Log.e(TAG, "Currently in testing phase, haven't deleted Firebase or local profile");
+            return;
+        }
 
-                AuthCredential credential = EmailAuthProvider
-                        .getCredential(mUserProfile.getEmail(), password); //Obtain a users credentials and therefore equivalent password.
-                // Prompt the user to re-provide their sign-in credentials
-                    mAuth.getCurrentUser().reauthenticate(credential)
-                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+        AuthCredential credential = EmailAuthProvider.getCredential(mUserProfile.getEmail(), password); //Obtain a users credentials and therefore equivalent password.
+
+        if(mAuth.getCurrentUser() != null){
+
+            mAuth.getCurrentUser().reauthenticate(credential).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    mDatabase.collection("users").document(mAuth.getCurrentUser().getUid()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            mUserProfile = null;
+                            mAuth.getCurrentUser().delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
-                                    mUserProfile = null;
-                                    mAuth.getCurrentUser().delete()
-                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-                                                    if (task.isSuccessful()) {
-                                                        Log.d(TAG, "User account deleted.");
+                                    if (task.isSuccessful()) {
+                                        Log.d(TAG, "User account deleted.");
 
-                                                        //  Verify the account has been deleted.
-                                                        Toast.makeText(getApplicationContext(),"Account deleted.",Toast.LENGTH_SHORT).show();
-                                                    }
-                                                }
-                                            });
+                                        //  Verify the account has been deleted.
+                                        Toast.makeText(getApplicationContext(), "Account deleted.", Toast.LENGTH_SHORT).show();
+                                        finish();
+                                    }
                                 }
                             });
-            }
-        });
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e(TAG, "Deleted associated collection 'users'. Couldn't delete all users data. User has been asked for this to be removed manually.");
+                            Toast.makeText(getApplicationContext(), "Failed to delete all associated user info. Please contact Scranplan with your email address to have your data manually removed.", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e(TAG, "Failed to re-authenticate. May have entered the wrong password");
+                    Toast.makeText(getApplicationContext(),"Could not delete data. Make sure you are connected to the internet and have inputted a correct previous password.", Toast.LENGTH_LONG).show();
+                }
+            });
+        } else {
+            Log.e(TAG, "Unable to get current user details");
+            Toast.makeText(getApplicationContext(), "Unable to get current user details. Make sure you are connected to the internet", Toast.LENGTH_SHORT).show();
+        }
     }
 
     /** Initiated on a 'Change Password' button press.
@@ -242,7 +278,8 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
      *  and then asks for a new password.
      * @param v - Change Password button view.
      */
-    public void changePassword(View v){
+    public void changePassword(View v)
+    {
         AlertDialog.Builder builder = new AlertDialog.Builder(ProfileSettings.this);
 
         LinearLayout layout = new LinearLayout(this);
@@ -255,25 +292,27 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
             - Repeated new password
             - Old password
          */
-        final EditText newPassword = new EditText(this);
-        newPassword.setHint("Enter new password");
-        newPassword.setPadding(40, 40, 40, 40);
-        newPassword.setGravity(Gravity.CENTER);
-        newPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        final EditText newPassword2 = new EditText(this);
-        newPassword2.setHint("Re-enter new password");
-        newPassword2.setPadding(40, 40, 40, 40);
-        newPassword2.setGravity(Gravity.CENTER);
-        newPassword2.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        final EditText passwordConfirm = new EditText(this);
-        passwordConfirm.setHint("Enter old password");
-        passwordConfirm.setPadding(40, 40, 40, 40);
-        passwordConfirm.setGravity(Gravity.CENTER);
-        passwordConfirm.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        mPasswordNew1 = new EditText(this);
+        mPasswordNew1.setHint("Enter new password");
+        mPasswordNew1.setPadding(40, 40, 40, 40);
+        mPasswordNew1.setGravity(Gravity.CENTER);
+        mPasswordNew1.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
-        layout.addView(passwordConfirm);
-        layout.addView(newPassword);
-        layout.addView(newPassword2);
+        mPasswordNew2 = new EditText(this);
+        mPasswordNew2.setHint("Re-enter new password");
+        mPasswordNew2.setPadding(40, 40, 40, 40);
+        mPasswordNew2.setGravity(Gravity.CENTER);
+        mPasswordNew2.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+        mPasswordOld = new EditText(this);
+        mPasswordOld.setHint("Enter old password");
+        mPasswordOld.setPadding(40, 40, 40, 40);
+        mPasswordOld.setGravity(Gravity.CENTER);
+        mPasswordOld.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+        layout.addView(mPasswordOld);
+        layout.addView(mPasswordNew1);
+        layout.addView(mPasswordNew2);
         builder.setView(layout);
 
         builder.setTitle("Change Password");
@@ -281,13 +320,17 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         builder.setPositiveButton("Change password", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                final String passwordString = passwordConfirm.getText().toString();
-                final String newPasswordString = newPassword.getText().toString();
-                final String newPassword2String = newPassword2.getText().toString();
+                final String passwordString = mPasswordOld.getText().toString();
+                final String newPasswordString = mPasswordNew1.getText().toString();
+                final String passwordNew2String = mPasswordNew2.getText().toString();
 
-                if(newPasswordString.equals(newPassword2String)){ //Check that both of the new password inputs are equal.
+                if(passwordString.equals("") || newPasswordString.equals("") || passwordNew2String.equals("")){
+                    Toast.makeText(getApplicationContext(), "Cannot enter a blank password. Please try again.", Toast.LENGTH_SHORT).show();
+                } else if (passwordNew2String.length() <= 6 || newPasswordString.length() <= 6){
+                    Toast.makeText(getApplicationContext(), "Password must be greater than 6 characters in length", Toast.LENGTH_SHORT).show();
+                } else if(newPasswordString.equals(passwordNew2String)){ //Check that both of the new password inputs are equal.
                     resetPassword(passwordString, newPasswordString); //Attempt to reset a users password.
-                }else{
+                } else {
                     Toast.makeText(getApplicationContext(),"Passwords do not match. Please try again...",Toast.LENGTH_LONG).show();
                 }
 
@@ -310,41 +353,49 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
     private void resetPassword(final String rePassword, final String newPassword){
         mApp = FirebaseApp.getInstance();
         mAuth = FirebaseAuth.getInstance(mApp);
+
+        if(isTesting){ //  Checks if we are testing so we don't actually reset a users password.
+            Log.e(TAG, "Currently in testing phase, haven't reset the users password.");
+            return;
+        }
+
         AuthCredential credential = EmailAuthProvider.getCredential(mUserProfile.getEmail(), rePassword);
 
-        // Prompt the user to re-provide their sign-in credentials
-        mAuth.getCurrentUser().reauthenticate(credential)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        mAuth.getCurrentUser().updatePassword(newPassword)
-                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()) {
-                                            Log.d(TAG, "Password updated.");
-                                            Toast.makeText(getApplicationContext(),"Password updated.",Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                }).addOnFailureListener( new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.e(TAG,"Password update failed.");
-                                Toast.makeText(getApplicationContext(),"Password update failed, please try again.",Toast.LENGTH_SHORT).show();
+        if(mAuth.getCurrentUser() != null){
+            // Prompt the user to re-provide their sign-in credentials
+            mAuth.getCurrentUser().reauthenticate(credential).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    mAuth.getCurrentUser().updatePassword(newPassword).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                Log.d(TAG, "Password updated.");
+                                Toast.makeText(getApplicationContext(),"Password updated.",Toast.LENGTH_SHORT).show();
                             }
-                        });
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.e(TAG,"Failed to re-authenticate.");
-                Toast.makeText(getApplicationContext(),"Failed to re-authenticate. Please try again and make sure you are connected to the internet.",Toast.LENGTH_LONG).show();
-            }
-        });
-
-
+                        }
+                    }).addOnFailureListener( new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e(TAG,"Password update failed.");
+                            Toast.makeText(getApplicationContext(),"Password update failed, please try again.",Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e(TAG,"Failed to re-authenticate.");
+                    Toast.makeText(getApplicationContext(),"Failed to reset password. Make sure you are connected to the internet and have inputted a correct previous password.",Toast.LENGTH_LONG).show();
+                }
+            });
+        } else {
+            Log.e(TAG, "Unable to get current user details");
+            Toast.makeText(getApplicationContext(), "Unable to get current user details. Make sure you are connected to the internet", Toast.LENGTH_SHORT).show();
+        }
 
     }
+
 
     /** Activated on 'save settings' button press.
      * @param v - Button View.
@@ -593,6 +644,8 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
             map.put("numRecipes", mUserProfile.getNumRecipes());
             map.put("about", mUserProfile.getAbout());
             map.put("shortPreferences", mUserProfile.getShortPreferences());
+            map.put("firstAppLaunch", mUserProfile.getFirstAppLaunch());
+            map.put("firstPresentationLaunch", mUserProfile.getFirstPresentationLaunch());
 
             Preferences preferences = mUserProfile.getPreferences();
 
@@ -637,6 +690,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
             Toast.makeText(getApplicationContext(),"Invalid user login credentials. Consider logging out and then back in again.",Toast.LENGTH_LONG).show();
             throw new InvalidUserException("Invalid user login credentials. Consider logging out and then back in again.");
         }
+
     }
 
 }

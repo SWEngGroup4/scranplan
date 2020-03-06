@@ -19,6 +19,8 @@ public class UserInfoPrivate implements Serializable{
     private String about;
     private String email;
     private boolean shortPreferences = true;
+    private boolean firstAppLaunch = true;
+    private boolean firstPresentationLaunch = true;
 
     //  HashMap privacy values are Boolean values of: 'display_username', 'display_about_me', 'display_recipes' & 'display_profile_image'.
     private HashMap<String, Object> privacy;
@@ -46,6 +48,8 @@ public class UserInfoPrivate implements Serializable{
         this.numRecipes =  (long) map.get("numRecipes");
         this.about = (String) map.get("about");
         this.shortPreferences = (boolean) map.get("shortPreferences");
+        this.firstAppLaunch = (boolean) map.get("firstAppLaunch");
+        this.firstPresentationLaunch = (boolean) map.get("firstPresentationLaunch");
 
         if(shortPreferences){
             this.preferences = new Preferences((boolean) prefs.get("allergy_nuts"),
@@ -69,6 +73,7 @@ public class UserInfoPrivate implements Serializable{
                     (boolean) prefs.get("vegan"), (boolean) prefs.get("vegetarian"));
         }
         this.privacy = privacy;
+
     }
 
     /*TODO
@@ -182,9 +187,21 @@ public class UserInfoPrivate implements Serializable{
         }
     }
 
-    public void setShortPreferences(boolean shortTrue){ this.shortPreferences = shortTrue; }
+    public void setShortPreferences(boolean shortTrue) { shortPreferences = shortTrue; }
 
     public boolean getShortPreferences(){
         return shortPreferences;
+    }
+
+    public void setFirstAppLaunch(boolean firstLaunch)  {firstAppLaunch = firstLaunch; }
+
+    public boolean getFirstAppLaunch() {
+        return firstAppLaunch;
+    }
+
+    public void setFirstPresentationLaunch(boolean firstLaunch) {firstPresentationLaunch = firstLaunch; }
+
+    public boolean getFirstPresentationLaunch() {
+        return firstPresentationLaunch;
     }
 }

@@ -32,6 +32,9 @@ public class UserInfoPrivateTest {
         map.put("chefRating", (double) 0);
         map.put("numRecipes", (long) 0);
         map.put("about", "");
+        map.put("shortPreferences", true);
+        map.put("firstAppLaunch", true);
+        map.put("firstPresentationLaunch", true);
 
         privacy.put("display_username", true);
         privacy.put("display_about_me", true);
@@ -85,12 +88,18 @@ public class UserInfoPrivateTest {
         testInfo.setNumRecipes(360);
         testInfo.setImageURL("NewImageURL.com");
         testInfo.setDisplayName("newName");
+        testInfo.setShortPreferences(false);
+        testInfo.setFirstAppLaunch(false);
+        testInfo.setFirstPresentationLaunch(false);
 
         assertEquals(testInfo.getAbout(), "newAbout");
         assertEquals(testInfo.getChefRating(), 3.60);
         assertEquals(testInfo.getNumRecipes(), 360);
         assertEquals(testInfo.getImageURL(), "NewImageURL.com");
         assertEquals(testInfo.getDisplayName(), "newName");
+        assertFalse(testInfo.getFirstAppLaunch());
+        assertFalse(testInfo.getFirstPresentationLaunch());
+        assertFalse(testInfo.getShortPreferences());
     }
 
     //  Test all allegerns can be set from a basic preferences constructor for the 6 main allegerns.
