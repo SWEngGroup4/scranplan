@@ -143,26 +143,33 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
     @Override
     public void onBackPressed() {
 
-        //  Send back with intent and update the MainActivity's UserInfoPrivate class.
+        //  Send back with intent and update the MainActivity's UserInfoPrivate class with the new User Info.
         Intent returnIntent = new Intent(this, MainActivity.class);
         returnIntent.putExtra("user", mUserProfile);
         setResult(Activity.RESULT_OK, returnIntent);
         startActivity(returnIntent);
     }
 
+    /** Initiated on a 'Delete Profile' button press.
+     *  Creates an alert dialog box that checks a users old password through re-authentication
+     *  and then deletes a users profile if a valid Firebase and local profile is found.
+     * @param v - Button View.
+     */
     public void deleteProfile(View v){
-        AlertDialog.Builder builder = new AlertDialog.Builder(ProfileSettings.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(ProfileSettings.this); //Create an alert.
 
+        //  Create a new linear layout which fits the proportions of the screen and descends vertically.
         LinearLayout layout = new LinearLayout(this);
-        LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setLayoutParams(parms);
+        layout.setLayoutParams(params);
 
+        //  Add a text input password confirm box
         final EditText passwordConfirm = new EditText(this);
         passwordConfirm.setHint("Enter password");
         passwordConfirm.setPadding(40, 40, 40, 40);
-        passwordConfirm.setGravity(Gravity.CENTER);
-        passwordConfirm.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        passwordConfirm.setGravity(Gravity.CENTER); //Center the box.
+        passwordConfirm.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD); //Set the input type to 'password' (hidden).
 
         layout.addView(passwordConfirm);
         builder.setView(layout);
@@ -174,13 +181,13 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 final String passwordString = passwordConfirm.getText().toString();
-                                deleteAccount(passwordString);
-                                finish();
+                                deleteAccount(passwordString);  //Delete our account
+                                finish(); //Destroy this activity preventing any information being sent back.
                             }
                         });
         builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
                             @Override
-                            public void onClick(DialogInterface dialog, int which) {
+                            public void onClick(DialogInterface dialog, int which) { //Allow the user to cancel the operation.
                                 dialog.cancel();
                             }
                         });
@@ -192,7 +199,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
      * deleteAccount
      * called when user wants to delete their account, needs users password to be re-entered
      * FireBase Auth is deleted along with all local data and their personal account in the database
-     * @param rePassword
+     * @param rePassword - Existing password the user must enter to confirm account deletion.
      */
     private void deleteAccount(String rePassword){
         mApp = FirebaseApp.getInstance();
@@ -200,14 +207,12 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
 
         final String password = rePassword;
 
-        Log.e(TAG, "INPUTTED PASSWORD IS: " + password);
-
-        mDatabase.collection("users").document(mAuth.getUid()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+        mDatabase.collection("users").document(requireNonNull(mAuth.getUid())).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
 
                 AuthCredential credential = EmailAuthProvider
-                        .getCredential(mUserProfile.getEmail(), password);
+                        .getCredential(mUserProfile.getEmail(), password); //Obtain a users credentials and therefore equivalent password.
                 // Prompt the user to re-provide their sign-in credentials
                     mAuth.getCurrentUser().reauthenticate(credential)
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -220,6 +225,8 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
                                                 public void onComplete(@NonNull Task<Void> task) {
                                                     if (task.isSuccessful()) {
                                                         Log.d(TAG, "User account deleted.");
+
+                                                        //  Verify the account has been deleted.
                                                         Toast.makeText(getApplicationContext(),"Account deleted.",Toast.LENGTH_SHORT).show();
                                                     }
                                                 }
@@ -230,6 +237,11 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         });
     }
 
+    /** Initiated on a 'Change Password' button press.
+     *  Creates an alert dialog box that checks a users old password through re-authentication
+     *  and then asks for a new password.
+     * @param v - Change Password button view.
+     */
     public void changePassword(View v){
         AlertDialog.Builder builder = new AlertDialog.Builder(ProfileSettings.this);
 
@@ -238,6 +250,11 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setLayoutParams(parms);
 
+        /* Creates 3 unique input boxes:
+            - New password
+            - Repeated new password
+            - Old password
+         */
         final EditText newPassword = new EditText(this);
         newPassword.setHint("Enter new password");
         newPassword.setPadding(40, 40, 40, 40);
@@ -259,7 +276,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         layout.addView(newPassword2);
         builder.setView(layout);
 
-//        builder.setMessage("Are you sure you want to delete?");
         builder.setTitle("Change Password");
         builder.setCancelable(true);
         builder.setPositiveButton("Change password", new DialogInterface.OnClickListener() {
@@ -268,8 +284,9 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
                 final String passwordString = passwordConfirm.getText().toString();
                 final String newPasswordString = newPassword.getText().toString();
                 final String newPassword2String = newPassword2.getText().toString();
-                if(newPasswordString.equals(newPassword2String)){
-                    resetPassword(passwordString, newPasswordString);
+
+                if(newPasswordString.equals(newPassword2String)){ //Check that both of the new password inputs are equal.
+                    resetPassword(passwordString, newPasswordString); //Attempt to reset a users password.
                 }else{
                     Toast.makeText(getApplicationContext(),"Passwords do not match. Please try again...",Toast.LENGTH_LONG).show();
                 }
@@ -286,17 +303,14 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         alertDialog.show();
     }
 
-    /**
-     * resetPassword
-     * taked both the old password and the new password and resets the users password to the new one
-     * @param rePassword
-     * @param newPassword
+    /** Takes both the old password and the new password and resets the users password to the new one.
+     * @param rePassword - Previous password
+     * @param newPassword - New password
      */
     private void resetPassword(final String rePassword, final String newPassword){
         mApp = FirebaseApp.getInstance();
         mAuth = FirebaseAuth.getInstance(mApp);
-        AuthCredential credential = EmailAuthProvider
-                .getCredential(mUserProfile.getEmail(), rePassword);
+        AuthCredential credential = EmailAuthProvider.getCredential(mUserProfile.getEmail(), rePassword);
 
         // Prompt the user to re-provide their sign-in credentials
         mAuth.getCurrentUser().reauthenticate(credential)
@@ -317,7 +331,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
                             public void onFailure(@NonNull Exception e) {
                                 Log.e(TAG,"Password update failed.");
                                 Toast.makeText(getApplicationContext(),"Password update failed, please try again.",Toast.LENGTH_SHORT).show();
-                                return;
                             }
                         });
                     }
@@ -579,6 +592,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
             map.put("chefRating", mUserProfile.getChefRating());
             map.put("numRecipes", mUserProfile.getNumRecipes());
             map.put("about", mUserProfile.getAbout());
+            map.put("shortPreferences", mUserProfile.getShortPreferences());
 
             Preferences preferences = mUserProfile.getPreferences();
 
@@ -589,28 +603,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
             prefMap.put("allergy_shellfish", preferences.isAllergy_shellfish());
             prefMap.put("allergy_soya", preferences.isAllergy_soya());
 
-            //  TODO Finish all other preferences. Currently just set to false by default.
-            prefMap.put("allergy_celery", false);
-            prefMap.put("allergy_crustacean", false);
-            prefMap.put("allergy_fish", false);
-            prefMap.put("allergy_mustard", false);
-            prefMap.put("allergy_peanuts", false);
-            prefMap.put("allergy_sesame", false);
-            prefMap.put("allergy_sulphide", false);
-            prefMap.put("diabetic", false);
-            prefMap.put("halal", false);
-            prefMap.put("high_protein", false);
-            prefMap.put("kosher", false);
-            prefMap.put("lactose_free", false);
-            prefMap.put("lactovegetarian", false);
-            prefMap.put("low_carb", false);
-            prefMap.put("low_sodium", false);
-            prefMap.put("no_alcohol", false);
-            prefMap.put("no_pork", false);
-            prefMap.put("ovovegetarian", false);
-            prefMap.put("pescatarian", false);
-            prefMap.put("vegan", false);
-            prefMap.put("vegetarian", false);
+            //  TODO Finish all other preferences.
 
             map.put("preferences", prefMap);
 

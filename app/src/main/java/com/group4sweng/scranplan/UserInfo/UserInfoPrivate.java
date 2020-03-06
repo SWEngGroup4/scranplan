@@ -18,6 +18,7 @@ public class UserInfoPrivate implements Serializable{
     private String imageURL;
     private String about;
     private String email;
+    private boolean shortPreferences = true;
 
     //  HashMap privacy values are Boolean values of: 'display_username', 'display_about_me', 'display_recipes' & 'display_profile_image'.
     private HashMap<String, Object> privacy;
@@ -44,20 +45,29 @@ public class UserInfoPrivate implements Serializable{
         this.chefRating = (double) map.get("chefRating");
         this.numRecipes =  (long) map.get("numRecipes");
         this.about = (String) map.get("about");
-        this.preferences = new Preferences( (boolean) prefs.get("allergy_celery"),
-                (boolean) prefs.get("allergy_crustacean"), (boolean) prefs.get("allergy_eggs"),
-                (boolean) prefs.get("allergy_fish"), (boolean) prefs.get("allergy_gluten"),
-                (boolean) prefs.get("allergy_milk"), (boolean) prefs.get("allergy_mustard"),
-                (boolean) prefs.get("allergy_nuts"), (boolean) prefs.get("allergy_peanuts"),
-                (boolean) prefs.get("allergy_sesame"), (boolean) prefs.get("allergy_shellfish"),
-                (boolean) prefs.get("allergy_soya"), (boolean) prefs.get("allergy_sulphide"),
-                (boolean) prefs.get("diabetic"), (boolean) prefs.get("halal"),
-                (boolean) prefs.get("high_protein"), (boolean) prefs.get("kosher"),
-                (boolean) prefs.get("lactose_free"), (boolean) prefs.get("lactovegetarian"),
-                (boolean) prefs.get("low_carb"), (boolean) prefs.get("low_sodium"),
-                (boolean) prefs.get("no_alcohol"), (boolean) prefs.get("no_pork"),
-                (boolean) prefs.get("ovovegetarian"), (boolean) prefs.get("pescatarian"),
-                (boolean) prefs.get("vegan"), (boolean) prefs.get("vegetarian"));
+        this.shortPreferences = (boolean) map.get("shortPreferences");
+
+        if(shortPreferences){
+            this.preferences = new Preferences((boolean) prefs.get("allergy_nuts"),
+                    (boolean) prefs.get("allergy_eggs"), (boolean) prefs.get("allergy_milk"),
+                    (boolean) prefs.get("allergy_shellfish"), (boolean)prefs.get("allergy_soya"),
+                    (boolean) prefs.get("allergy_gluten"));
+        } else {
+            this.preferences = new Preferences((boolean) prefs.get("allergy_celery"),
+                    (boolean) prefs.get("allergy_crustacean"), (boolean) prefs.get("allergy_eggs"),
+                    (boolean) prefs.get("allergy_fish"), (boolean) prefs.get("allergy_gluten"),
+                    (boolean) prefs.get("allergy_milk"), (boolean) prefs.get("allergy_mustard"),
+                    (boolean) prefs.get("allergy_nuts"), (boolean) prefs.get("allergy_peanuts"),
+                    (boolean) prefs.get("allergy_sesame"), (boolean) prefs.get("allergy_shellfish"),
+                    (boolean) prefs.get("allergy_soya"), (boolean) prefs.get("allergy_sulphide"),
+                    (boolean) prefs.get("diabetic"), (boolean) prefs.get("halal"),
+                    (boolean) prefs.get("high_protein"), (boolean) prefs.get("kosher"),
+                    (boolean) prefs.get("lactose_free"), (boolean) prefs.get("lactovegetarian"),
+                    (boolean) prefs.get("low_carb"), (boolean) prefs.get("low_sodium"),
+                    (boolean) prefs.get("no_alcohol"), (boolean) prefs.get("no_pork"),
+                    (boolean) prefs.get("ovovegetarian"), (boolean) prefs.get("pescatarian"),
+                    (boolean) prefs.get("vegan"), (boolean) prefs.get("vegetarian"));
+        }
         this.privacy = privacy;
     }
 
@@ -170,5 +180,11 @@ public class UserInfoPrivate implements Serializable{
         } else {
             throw new RuntimeException("Tried to set privacy settings with invalid or incomplete inputs");
         }
+    }
+
+    public void setShortPreferences(boolean shortTrue){ this.shortPreferences = shortTrue; }
+
+    public boolean getShortPreferences(){
+        return shortPreferences;
     }
 }

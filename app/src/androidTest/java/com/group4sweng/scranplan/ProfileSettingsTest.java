@@ -387,6 +387,13 @@ public class ProfileSettingsTest{
         assertNotEquals(aboutMe, "newAboutMe");
     }
 
+    @Test
+    public void testBlankFieldInputFailsForDeleteAccount() {
+        onView(withId(R.id.settings_delete_profile3))
+                .perform(click());
+
+
+    }
 
     /**
      * TODO - ADD A PROPER WAY OF CHECKING THE INVALIDUSEREXCEPTION.
