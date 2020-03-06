@@ -83,6 +83,17 @@ public class InitialUserCustomisation extends AppCompatActivity {
     }
 
     public void initCheckBoxes(){
+
+        preferences.setPescatarian(preferences.isPescatarian());
+        preferences.setVegetarian(preferences.isVegetarian());
+        preferences.setVegan(preferences.isVegan());
+        preferences.setAllergy_soya(preferences.isAllergy_soya());
+        preferences.setAllergy_gluten(preferences.isAllergy_gluten());
+        preferences.setAllergy_eggs(preferences.isAllergy_eggs());
+        preferences.setAllergy_nuts(preferences.isAllergy_nuts());
+        preferences.setAllergy_shellfish(preferences.isAllergy_shellfish());
+        preferences.setAllergy_milk(preferences.isAllergy_milk());
+
         mVegetarianBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -147,35 +158,12 @@ public class InitialUserCustomisation extends AppCompatActivity {
         preferences.setAllergy_milk(mMilkBox.isChecked());
         preferences.setAllergy_nuts(mNutsBox.isChecked());
         preferences.setAllergy_shellfish(mShellfishBox.isChecked());
-       
+        preferences.setAllergy_gluten(mWheatBox.isChecked());
+        preferences.setAllergy_soya(mSoyBox.isChecked());
 
-
-//        if (mShellfishBox.isChecked()) {
-//            preferences.setAllergy_shellfish(mShellfishBox.isChecked());
-//
-//        }
-//        if (mSoyBox.isChecked()) {
-//            userDetails.getPreferences().setAllergy_soya(true);
-//        }
-//
-//        if (mWheatBox.isChecked()) {
-//            userDetails.getPreferences().setAllergy_gluten(true);
-//        }
-//
-//        if (mPescatarianBox.isChecked()) {
-//            userDetails.getPreferences().setPescatarian(true);
-//
-//        }
-//        if (mVeganBox.isChecked()) {
-//            userDetails.getPreferences().setVegan(true);
-//            mPescatarianBox.setChecked(false);
-//            mVegetarianBox.setChecked(false);
-//        }
-//        if (mVegetarianBox.isChecked()) {
-//            userDetails.getPreferences().setVegetarian(true);
-//            mVeganBox.setChecked(false);
-//            mPescatarianBox.setChecked(false);
-//        }
+        preferences.setPescatarian(mPescatarianBox.isChecked());
+        preferences.setVegan(mVeganBox.isChecked());
+        preferences.setVegetarian(mVegetarianBox.isChecked());
 
         userDetails.setPreferences(preferences);
 
