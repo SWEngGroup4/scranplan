@@ -115,4 +115,6 @@ public class PublicProfileTest {
         onView(withId(R.id.public_profile_allergens))
                 .check(matches(isDisplayed()));
     }
+
+
 }
