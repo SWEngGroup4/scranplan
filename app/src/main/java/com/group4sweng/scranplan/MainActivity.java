@@ -64,7 +64,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Drawer setup and and synchronising the states
         mSideMenu = new SideMenu();
-        mSideMenu.setmUser(mUser);
         mSideMenu.mMenuToolbar = findViewById(R.id.toolbar);
         mSideMenu.mMenuDrawer = findViewById(R.id.drawer_layout);
         mSideMenu.mNavigationView = findViewById(R.id.side_menu);
