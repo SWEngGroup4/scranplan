@@ -103,7 +103,7 @@ public class ProfileSettingsTest{
     //  Check a username input field exists.
     @Test
     public void testUsernameLoads() {
-        onView(withId(R.id.public_profile_username))
+        onView(withId(R.id.profile_username))
                 .check(matches(isDisplayed()));
     }
 
@@ -114,7 +114,7 @@ public class ProfileSettingsTest{
         onView(withId(R.id.settings_privacy))
                 .check(matches(isDisplayed()));
 
-        onView(withId(R.id.settings_allergens))
+        onView(withId(R.id.profile_allegerns))
                 .check(matches(isDisplayed()));
     }
 
@@ -137,17 +137,17 @@ public class ProfileSettingsTest{
     @Test
     public void testFullProfileLoads(){
 
-        onView(withId(R.id.public_profile_username))
+        onView(withId(R.id.profile_username))
                 .check(matches(isDisplayed()));
 
-        onView(withId(R.id.settings_about_me))
+        onView(withId(R.id.profile_about_me))
                 .check(matches(isDisplayed()));
 
-        onView(withId(R.id.settings_allergens))
+        onView(withId(R.id.profile_allegerns))
                 .check(matches(isDisplayed()));
 
         //Testing a single allegern checkbox. All checkboxes are the same
-        onView(withId(R.id.settings_allergy_eggs))
+        onView(withId(R.id.allergy_eggs))
                 .check(matches(isDisplayed()));
 
         onView(withId(R.id.settings_reset_password))
@@ -205,7 +205,7 @@ public class ProfileSettingsTest{
         onView(withId(R.id.settings_input_about_me))
                 .check(matches(withText(testUser.getAbout())));
 
-        onView(withId(R.id.public_profile_recipes))
+        onView(withId(R.id.profile_recipes))
                 .check(matches(withText(String.valueOf(testUser.getNumRecipes()))));
 
     }
@@ -284,17 +284,17 @@ public class ProfileSettingsTest{
         initialPrivacy.put("profile_image", mActivityTestRule.getActivity().mDisplay_profile_image.isChecked());
 
         //  Change every switch and Checkboxes value.
-        onView(withId(R.id.settings_allergy_soy))
+        onView(withId(R.id.allergy_soy))
                 .perform(click());
-        onView(withId(R.id.settings_allergy_nuts))
+        onView(withId(R.id.allergy_nuts))
                 .perform(click());
-        onView(withId(R.id.settings_allergy_shellfish))
+        onView(withId(R.id.allergy_shellfish))
                 .perform(click());
-        onView(withId(R.id.settings_allergy_wheat))
+        onView(withId(R.id.allergy_wheat))
                 .perform(click());
-        onView(withId(R.id.settings_allergy_eggs))
+        onView(withId(R.id.allergy_eggs))
                 .perform(click());
-        onView(withId(R.id.settings_allergy_milk))
+        onView(withId(R.id.allergy_milk))
                 .perform(click());
 
         onView(withId(R.id.settings_privacy_about_me))

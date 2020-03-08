@@ -84,6 +84,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
     Switch mDisplay_about_me;
     Switch mDisplay_recipes;
     Switch mDisplay_profile_image;
+    Switch mDisplay_filters;
 
     //  Input fields (Delete profile & Change password)
     EditText mPasswordConfirm;
@@ -413,7 +414,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
             //  Set all info not set in other proprietary methods.
             mUserProfile.setAbout(mAboutMe.getText().toString());
             mUserProfile.setDisplayName(mUsername.getText().toString());
-            mUserProfile.setNumRecipes(Long.parseLong(mNumRecipes.getText().toString()));
+            //mUserProfile.setNumRecipes(Long.parseLong(mNumRecipes.getText().toString()));
 
             //  Update the server relative to the client or throw an exception if a valid user isn't found.
             try {
@@ -456,6 +457,11 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
                     privacy.put("display_profile_image", true);
                 else
                     privacy.put("display_profile_image", false);
+            case R.id.settings_privacy_filters:
+                if(switched)
+                    privacy.put("display_filters", true);
+                else
+                    privacy.put("display_filters", false);
         }
     }
 
@@ -473,37 +479,37 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
             case ALLERGENS:
                 // Check which checkbox was clicked.
                 switch(v.getId()) {
-                    case R.id.settings_allergy_nuts:
+                    case R.id.allergy_nuts:
                         if (checked)
                             preferences.setAllergy_nuts(true);
                         else
                             preferences.setAllergy_nuts(false);
                         break;
-                    case R.id.settings_allergy_eggs:
+                    case R.id.allergy_eggs:
                         if (checked)
                             preferences.setAllergy_eggs(true);
                         else
                             preferences.setAllergy_eggs(false);
                         break;
-                    case R.id.settings_allergy_milk:
+                    case R.id.allergy_milk:
                         if (checked)
                             preferences.setAllergy_milk(true);
                         else
                             preferences.setAllergy_milk(false);
                         break;
-                    case R.id.settings_allergy_shellfish:
+                    case R.id.allergy_shellfish:
                         if (checked)
                             preferences.setAllergy_shellfish(true);
                         else
                             preferences.setAllergy_shellfish(false);
                         break;
-                    case R.id.settings_allergy_soy:
+                    case R.id.allergy_soy:
                         if (checked)
                             preferences.setAllergy_soya(true);
                         else
                             preferences.setAllergy_soya(false);
                         break;
-                    case R.id.settings_allergy_wheat:
+                    case R.id.allergy_wheat:
                         if (checked)
                             preferences.setAllergy_gluten(true);
                         else
@@ -539,28 +545,30 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         //  Basic user info.
         mUsername = findViewById(R.id.settings_input_username);
         mAboutMe = findViewById(R.id.settings_input_about_me);
-        mNumRecipes = findViewById(R.id.public_profile_recipes);
+        mNumRecipes = findViewById(R.id.profile_recipes);
 
         //  Allergens
-        mAllergy_eggs = findViewById(R.id.settings_allergy_eggs);
-        mAllergy_gluten = findViewById(R.id.settings_allergy_wheat);
-        mAllergy_milk = findViewById(R.id.settings_allergy_milk);
-        mAllergy_nuts = findViewById(R.id.settings_allergy_nuts);
-        mAllergy_shellfish = findViewById(R.id.settings_allergy_shellfish);
-        mAllergy_soy = findViewById(R.id.settings_allergy_soy);
+        mAllergy_eggs = findViewById(R.id.allergy_eggs);
+        mAllergy_gluten = findViewById(R.id.allergy_wheat);
+        mAllergy_milk = findViewById(R.id.allergy_milk);
+        mAllergy_nuts = findViewById(R.id.allergy_nuts);
+        mAllergy_shellfish = findViewById(R.id.allergy_shellfish);
+        mAllergy_soy = findViewById(R.id.allergy_soy);
 
         //  Privacy
         mDisplay_about_me = findViewById(R.id.settings_privacy_about_me);
         mDisplay_profile_image = findViewById(R.id.settings_privacy_profile_image);
         mDisplay_recipes = findViewById(R.id.settings_privacy_recipes);
         mDisplay_username = findViewById(R.id.settings_privacy_username);
+        mDisplay_filters = findViewById(R.id.settings_privacy_filters);
 
     }
 
     private void loadProfileData(){
         mUsername.setText(mUserProfile.getDisplayName());
         mAboutMe.setText(mUserProfile.getAbout());
-        mNumRecipes.setText(String.valueOf(mUserProfile.getNumRecipes()));
+        String numOfRecipesString = "Recipes: " +  mUserProfile.getNumRecipes();
+        mNumRecipes.setText(numOfRecipesString);
 
         //  Load allergen checkBoxes.
         setFilters(currentFilterType);
@@ -598,6 +606,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         mDisplay_about_me.setChecked( (boolean) privacy.get("display_about_me"));
         mDisplay_profile_image.setChecked( (boolean) privacy.get("display_profile_image"));
         mDisplay_recipes.setChecked( (boolean) privacy.get("display_recipes"));
+        mDisplay_filters.setChecked( (boolean) privacy.get("display_filters"));
     }
 
     /** Update the server relative to the client on a valid 'Save Settings' button press
@@ -666,6 +675,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
             privacy.put("display_about_me", privacyMap.get("display_about_me"));
             privacy.put("display_recipes", privacyMap.get("display_recipes"));
             privacy.put("display_profile_image", privacyMap.get("display_profile_image"));
+            privacy.put("display_filters", privacyMap.get("display_filters"));
 
             map.put("privacy", privacy);
 

@@ -291,6 +291,7 @@ public class Login extends AppCompatActivity{
                     privacy.put("display_about_me", true);
                     privacy.put("display_recipes", false);
                     privacy.put("display_profile_image", true);
+                    privacy.put("display_filters", false);
 
                     // Default user food preferences
                     preferences.put("allergy_celery", false);

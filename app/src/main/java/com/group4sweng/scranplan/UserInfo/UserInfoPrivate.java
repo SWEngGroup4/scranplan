@@ -180,7 +180,7 @@ public class UserInfoPrivate implements Serializable{
 
     public void setPrivacy(HashMap<String, Object> privacy) {
         //  Check the HashMap has been properly initialized with all valid privacy parameters., otherwise return a runtime exception.
-        if (privacy.containsKey("display_username") && privacy.containsKey("display_profile_image") && privacy.containsKey("display_about_me") && privacy.containsKey("display_recipes")) {
+        if (privacy.containsKey("display_username") && privacy.containsKey("display_profile_image") && privacy.containsKey("display_about_me") && privacy.containsKey("display_recipes") && privacy.containsKey("display_filters")) {
             this.privacy = privacy;
         } else {
             throw new RuntimeException("Tried to set privacy settings with invalid or incomplete inputs");
