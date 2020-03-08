@@ -20,7 +20,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.HashMap;
 
@@ -34,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
     Context mContext = this;
     final static String TAG = "ROOT";
     final FirebaseFirestore database = FirebaseFirestore.getInstance();
-    final static int PROFILE_SETTINGS_REQUEST_CODE = 1;
 
     // User info and preferences variable
     UserInfoPrivate mUser;
@@ -124,13 +122,11 @@ public class MainActivity extends AppCompatActivity {
                                     map.put("firstPresentationLaunch", document.get("firstPresentationLaunch"));
 
 
-                                    @SuppressWarnings("unchecked")
-                                    HashMap<String, Object> preferences = (HashMap<String, Object>) document.get("preferences");
-
-                                    @SuppressWarnings("unchecked")
-                                    HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacy");
-
-                                    mUser = new UserInfoPrivate(map, preferences, privacy);
+                                    try {
+                                        mUser = new UserInfoPrivate(map, (HashMap<String, Object>) document.get("preferences"));
+                                    } catch (Exception e){
+                                        e.printStackTrace();
+                                    }
 
                                     Log.i(TAG, "Successfully logged back in");
                                     if(mUser.getFirstAppLaunch()){
