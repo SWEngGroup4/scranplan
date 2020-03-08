@@ -27,6 +27,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
+
 import java.util.HashMap;
 
 import static java.util.Objects.requireNonNull;
@@ -85,6 +86,7 @@ public class Login extends AppCompatActivity{
         initPageListeners();
 
         initFirebase();
+
     }
 
     /**
@@ -324,6 +326,7 @@ public class Login extends AppCompatActivity{
                     map.put("preferences", preferences);
                     map.put("privacy", privacy);
                     // Saving default profile locally to user
+                    //user = new UserInfo(map, preferences);
 
                     // Saving default user to Firebase Firestore database
                     DocumentReference usersRef = ref.document(mAuth.getCurrentUser().getUid());
@@ -410,6 +413,13 @@ public class Login extends AppCompatActivity{
                                             HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacy");
 
                                             mUser = new UserInfoPrivate(map, preferences, privacy);
+                                            map.put("about", document.get("about"));
+
+                                            try {
+                                               mUser = new UserInfoPrivate(map, (HashMap<String, Object>) document.get("preferences"));
+                                            } catch (Exception e){
+                                                e.printStackTrace();
+                                            }
 
                                             Log.i(TAG, "SignIn : Valid current user : UID [" + mUser.getUID() + "]");
                                             mLoginInProgress = false;
@@ -470,8 +480,6 @@ public class Login extends AppCompatActivity{
         Intent returningIntent = new Intent(Login.this, MainActivity.class);
 
         returningIntent.putExtra("user", mUser);
-
-        mUser = null;
         startActivity(returningIntent);
 
         finish();

@@ -35,9 +35,12 @@ public class MainActivity extends AppCompatActivity {
 
     Context mContext = this;
 
-    final static String TAG = "FirebaseTest";
+
+    final String TAG = "FirebaseTest";
     final FirebaseFirestore database = FirebaseFirestore.getInstance();
     final static int PROFILE_SETTINGS_REQUEST_CODE = 1;
+
+    UserInfoPrivate mUser;
 
     UserInfoPrivate mUser;
 
@@ -70,7 +73,6 @@ public class MainActivity extends AppCompatActivity {
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-
         initFirebase();
         initPageItems();
         initPageListeners();
@@ -84,8 +86,6 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
     }
-
-
 
 
     private void initFirebase(){
@@ -168,6 +168,12 @@ public class MainActivity extends AppCompatActivity {
         tabLayout = findViewById(R.id.tabLayout);
         frameLayout = findViewById(R.id.frameLayout);
 
+        Fragment fragment = new RecipeFragment();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.frameLayout, fragment);
+        fragmentTransaction.commit();
+
         tabLayout.addTab(tabLayout.newTab().setText("Recipes"));
         tabLayout.addTab(tabLayout.newTab().setText("Meal Planner"));
         tabLayout.addTab(tabLayout.newTab().setText("Timeline"));
@@ -219,6 +225,23 @@ public class MainActivity extends AppCompatActivity {
       /*TODO Clean up temporary profile settings & public profile page listener*/
         final Button tempProfileSettings = findViewById(R.id.profile_settings_button);
         tempProfileSettings.setOnClickListener(new View.OnClickListener() {
+//        FloatingActionButton fab = findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
+    }
+
+
+    private void initFirebase(){
+        mApp = FirebaseApp.getInstance();
+        mAuth = FirebaseAuth.getInstance();
+
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+
             @Override
             public void onClick(View view)  {
                 tempOpenProfileSettings();
@@ -248,6 +271,59 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(TAG, "I am not returning anything. Should return new profile settings from Profile Settings Activity.");
         }
     }
+                if(user != null){
+                    if(mAuth.getCurrentUser().isEmailVerified()){
+
+                        DocumentReference usersRef = database.collection("users").document(mAuth.getCurrentUser().getUid());
+                        usersRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    if (task.getResult() == null) Log.d(TAG, "getResult is null");
+                                    Log.d(TAG, "getResult: " + task.getResult());
+                                    DocumentSnapshot document = task.getResult();
+                                    HashMap<String, Object> map = new HashMap<>();
+
+                                    map.put("UID", document.get("UID"));
+                                    map.put("email", document.get("email"));
+                                    map.put("displayName", document.get("displayName"));
+                                    map.put("imageURL", document.get("imageURL"));
+                                    map.put("chefRating", document.get("chefRating"));
+                                    map.put("numRecipes", document.get("numRecipes"));
+                                    map.put("preferences", document.get("preferences"));
+                                    map.put("about", document.get("about"));
+
+                                    try {
+                                        mUser = new UserInfoPrivate(map, (HashMap<String, Object>) document.get("preferences"));
+                                    } catch (Exception e){
+                                        e.printStackTrace();
+                                    }
+
+                                    Log.i(TAG, "Successfully logged back in");
+                                }else {
+                                    Log.e(TAG, "User details retrieval : Unable to retrieve user document in Firestore ");
+                                    Toast.makeText(getApplicationContext(),"Unable to retrieve current user details, please sign in again.",Toast.LENGTH_SHORT).show();
+                                    mAuth.signOut();
+                                }
+                            }
+                        });
+                    }else{
+                        mAuth.getCurrentUser().sendEmailVerification();
+                        Log.e(TAG, "SignIn : Email authentication sent for user trying to log in with unverified email, user logged out.");
+                        Toast.makeText(getApplicationContext(),"Email is not yet verified, a new verification email has been sent, please verify email and try again.",Toast.LENGTH_LONG).show();
+                        mAuth.signOut();
+                    }
+                }else{
+                    Log.e(TAG,"AUTHENTICATION STATE UPDATE : No Valid current user logged in");
+                    mDisplayName = "No Valid User";
+                    mAuth.removeAuthStateListener(mAuthListener);
+                    Intent signIn = new Intent(getApplicationContext(), Login.class);
+                    startActivity(signIn);
+                    mUser = (UserInfoPrivate) getIntent().getSerializableExtra("user");
+                }
+            }
+        };
+        mAuth.addAuthStateListener(mAuthListener);
 
     public void tempOpenPublicProfile() {
         Intent intentProfile = new Intent(this, PublicProfile.class);
@@ -264,7 +340,21 @@ public class MainActivity extends AppCompatActivity {
         setResult(RESULT_OK, intentProfile);
         startActivityForResult(intentProfile, PROFILE_SETTINGS_REQUEST_CODE);
 
+
+    private void initPageItems(){
+        //Defining all relevant members of signin & register page
+        mLogoutButton = (Button) findViewById(R.id.logoutButton);
     }
 
+    private void initPageListeners() {
+        mLogoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG, "Logout button has been pressed and user has been logged out.");
+                mUser = null;
+                mAuth.signOut();
+            }
+        });
+    }
 
 }
