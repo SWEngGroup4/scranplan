@@ -22,6 +22,7 @@ android {
     }
     testOptions {
         unitTests {
+            includeAndroidResources = true
             returnDefaultValues = true
         }
     }
@@ -35,6 +36,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage:16.0.4'
 
     testImplementation 'junit:junit:4.12'
+    testImplementation 'org.robolectric:robolectric:4.3'
     testImplementation 'org.mockito:mockito-core:2.7.22'
     androidTestImplementation 'org.mockito:mockito-android:2.7.22'
     androidTestImplementation 'androidx.test:rules:1.1.1'
@@ -46,7 +48,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:19.2.0'
     implementation 'com.google.android.gms:play-services-auth:17.0.0'
     implementation 'com.google.android.gms:play-services-gcm:17.0.0'
-
+    implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'com.google.firebase:firebase-firestore:21.0.0'
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
@@ -56,5 +58,6 @@ dependencies {
 // this dependency is not required if you are already using your own
 // slf4j implementation
     implementation 'org.slf4j:slf4j-nop:1.7.25'
+  //  implementation 'org.jetbrains:annotations-java5:15.0'
 
 }

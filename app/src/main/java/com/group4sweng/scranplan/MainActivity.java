@@ -4,16 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -47,9 +42,9 @@ public class MainActivity extends AppCompatActivity {
     FirebaseAuth.AuthStateListener mAuthListener;
     String mDisplayName;
 
-    Button mLogoutButton;
     TabLayout tabLayout;
     FrameLayout frameLayout;
+    SideMenu mSideMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,15 +55,17 @@ public class MainActivity extends AppCompatActivity {
             mUser = (UserInfoPrivate) getIntent().getSerializableExtra("user");
         }
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+//        Toolbar toolbar = findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
 
 
         // Drawer setup and and synchronising the states
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.nav_drawer_open, R.string.nav_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
+        mSideMenu = new SideMenu();
+        mSideMenu.mMenuToolbar = findViewById(R.id.toolbar);
+        mSideMenu.mMenuDrawer = findViewById(R.id.drawer_layout);
+        mSideMenu.mNavigationView = findViewById(R.id.side_menu);
+        setSupportActionBar(mSideMenu.mMenuToolbar);
+        mSideMenu.init(this, this);
 
 
         initFirebase();
@@ -84,7 +81,6 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
     }
-
 
 
 
@@ -164,7 +160,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void initPageItems(){
         //Defining all relevant members of signin & register page
-        mLogoutButton = (Button) findViewById(R.id.logoutButton);
         tabLayout = findViewById(R.id.tabLayout);
         frameLayout = findViewById(R.id.frameLayout);
 
@@ -175,14 +170,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initPageListeners() {
-        mLogoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.e(TAG, "Logout button has been pressed and user has been logged out.");
-                mUser = null;
-                mAuth.signOut();
-            }
-        });
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -216,22 +203,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-      /*TODO Clean up temporary profile settings & public profile page listener*/
-        final Button tempProfileSettings = findViewById(R.id.profile_settings_button);
-        tempProfileSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view)  {
-                tempOpenProfileSettings();
-            }
-        });
-
-        final Button tempPublicProfile = findViewById(R.id.public_profile_button);
-        tempPublicProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view)  {
-                tempOpenPublicProfile();
-            }
-        });
     }
 
     @Override
@@ -249,21 +220,36 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void tempOpenPublicProfile() {
+    /**
+     * Method to change Intent when profile is clicked in the side menu
+     */
+    public void onPublicProfileClick() {
         Intent intentProfile = new Intent(this, PublicProfile.class);
 
         intentProfile.putExtra("user", mUser);
-        //setResult(RESULT_OK, intentProfile);
+        setResult(RESULT_OK, intentProfile);
         startActivity(intentProfile);
     }
 
-    public void tempOpenProfileSettings() {
+    /**
+     * Method to change Intent when profile edit is clicked in the side menu
+     */
+    public void onProfileEditClick() {
+
         Intent intentProfile = new Intent(this, ProfileSettings.class);
         intentProfile.putExtra("user", mUser);
 
         setResult(RESULT_OK, intentProfile);
         startActivityForResult(intentProfile, PROFILE_SETTINGS_REQUEST_CODE);
 
+    }
+
+    /**
+     * Method to change logout when it's clicked in the side menu
+     */
+    public void onLogoutMenuClick(){
+        mUser = null;
+        mAuth.signOut();
     }
 
 

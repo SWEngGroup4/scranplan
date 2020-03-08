@@ -283,9 +283,11 @@ public class Login extends AppCompatActivity{
                     map.put("chefRating", (double) 0);
                     map.put("numRecipes", (long) 0);
                     map.put("about", "");
+
                     map.put("shortPreferences", true);
                     map.put("firstAppLaunch", true);
                     map.put("firstPresentationLaunch", true);
+
 
                     privacy.put("display_username", true);
                     privacy.put("display_about_me", true);

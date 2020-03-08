@@ -21,6 +21,7 @@
         <activity android:name=".ProfileSettings"
             android:configChanges="orientation"
             android:screenOrientation="portrait"/>
+
         <activity android:name=".Root" />
         <activity android:name=".Login" />
 
