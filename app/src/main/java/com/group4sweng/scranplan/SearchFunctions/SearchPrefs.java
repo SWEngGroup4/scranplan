@@ -42,7 +42,7 @@ public class SearchPrefs {
 
     }
 
-    SearchPrefs(UserInfoPrivate user){
+    public SearchPrefs(UserInfoPrivate user){
         mpescatarianPref = user.getPreferences().isPescatarian();
         mVegetarianPref = user.getPreferences().isVegetarian();
         mVeganPref = user.getPreferences().isVegan();

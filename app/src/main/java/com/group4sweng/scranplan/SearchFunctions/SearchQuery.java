@@ -39,7 +39,7 @@ public class SearchQuery {
 
 
     public SearchQuery(String sentSearch, SearchPrefs preference){
-         mPescatarianBox = preference.mpescatarianPref;
+        mPescatarianBox = preference.mpescatarianPref;
         mVegetarianBox = preference.mVegetarianPref;
         mVeganBox = preference.mVeganPref;
         mNutsBox = preference.mNutsPref;

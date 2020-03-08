@@ -48,7 +48,9 @@ import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.HashMap;
 
-
+/**
+ * 
+ */
 public class Home extends AppCompatActivity {
 
     Context mContext = this;
@@ -61,6 +63,9 @@ public class Home extends AppCompatActivity {
 
     FirebaseAuth mAuth;
     FirebaseApp mApp;
+
+    FirebaseAuth.AuthStateListener mAuthListener;
+    String mDisplayName;
 
     FragmentManager fragmentManager = getSupportFragmentManager();
     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -97,9 +102,9 @@ public class Home extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-
         if(getIntent().getSerializableExtra("user") != null){
             mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) getIntent().getSerializableExtra("user");
+            prefs = new SearchPrefs(mUser);
         }
 
 
@@ -122,10 +127,13 @@ public class Home extends AppCompatActivity {
 
 
     }
-    
 
 
-
+    /**
+     *
+     * @param menu
+     * @return
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         MenuInflater inflater = getMenuInflater();
@@ -156,6 +164,12 @@ public class Home extends AppCompatActivity {
     }
 
     //Handle action bar button press
+
+    /**
+     *
+     * @param item
+     * @return
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -166,13 +180,18 @@ public class Home extends AppCompatActivity {
     }
 
 
-
-
+    /**
+     *
+     */
     private void initFirebase(){
         mApp = FirebaseApp.getInstance();
         mAuth = FirebaseAuth.getInstance();
+
     }
 
+    /**
+     *
+     */
     private void initPageItems(){
         //Defining all relevant members of signin & register page
         mLogoutButton = (Button) findViewById(R.id.logoutButton);
@@ -188,6 +207,9 @@ public class Home extends AppCompatActivity {
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
     }
 
+    /**
+     *
+     */
     private void initPageListeners() {
         mLogoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -208,6 +230,9 @@ public class Home extends AppCompatActivity {
                 Fragment fragment = null;
                 switch (tab.getPosition()) {
                     case 0:
+//                        RecipeFragment send = new RecipeFragment();
+//                        send.setValue(mUser);
+//                        fragment = send;
                         fragment = new RecipeFragment(mUser);
                         break;
                     case 1:
@@ -252,6 +277,12 @@ public class Home extends AppCompatActivity {
         });
     }
 
+    /**
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -284,6 +315,9 @@ public class Home extends AppCompatActivity {
 
     }
 
+    /**
+     *
+     */
     public void initMenuCheckBoxes(){
         mScoreBox.setChecked(true);
         mIngredientsBox.setChecked(true);
@@ -398,6 +432,9 @@ public class Home extends AppCompatActivity {
         });
     }
 
+    /**
+     *
+     */
     public void initSearchMenu(){
         LayoutInflater inflater = (LayoutInflater)
                 getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
