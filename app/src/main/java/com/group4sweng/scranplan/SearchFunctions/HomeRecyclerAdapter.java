@@ -4,6 +4,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -16,22 +17,18 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class SearchRecyclerAdapter extends RecyclerView.Adapter<SearchRecyclerAdapter.ViewHolder> {
+public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapter.ViewHolder> {
 
-    private SearchListFragment mSearchListFragment;
-    private List<SearchRecipePreviewData> mDataset;
+    private RecipeFragment mRecipeFragment;
+    private List<HomeRecipePreviewData> mDataset;
 
-    public static class SearchRecipePreviewData {
+    public static class HomeRecipePreviewData {
 
         private String recipeID;
-        private String title;
-        private String description;
         private String imageURL;
 
-        public SearchRecipePreviewData(String recipeID, String title, String description, String imageURL) {
+        public HomeRecipePreviewData(String recipeID, String imageURL) {
             this.recipeID = recipeID;
-            this.title = title;
-            this.description = description;
             this.imageURL = imageURL;
         }
     }
@@ -40,41 +37,36 @@ public class SearchRecyclerAdapter extends RecyclerView.Adapter<SearchRecyclerAd
 
         private CardView cardView;
         private ImageView imageView;
-        private TextView title;
-        private  TextView description;
 
         private ViewHolder(View v) {
             super(v);
             cardView = v.findViewById(R.id.recipeListCardView);
             imageView = v.findViewById(R.id.recipeListImageView);
-            title = v.findViewById(R.id.recipeListTitle);
-            description = v.findViewById(R.id.recipeListDescription);
         }
     }
 
-    public SearchRecyclerAdapter (SearchListFragment searchListFragment, List<SearchRecipePreviewData> dataset) {
-        mSearchListFragment = searchListFragment;
+    public HomeRecyclerAdapter (RecipeFragment recipeFragment, List<HomeRecipePreviewData> dataset) {
+        mRecipeFragment = recipeFragment;
         mDataset = dataset;
     }
 
 
-    public SearchRecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+    public HomeRecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.recyler, parent, false);
+                .inflate(R.layout.home_image_recycler, parent, false);
         return new ViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.title.setText(mDataset.get(position).title);
-        holder.description.setText(mDataset.get(position).description);
         Picasso.get().load(mDataset.get(position).imageURL).into(holder.imageView);
 
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mSearchListFragment != null){
-                    mSearchListFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).recipeID);
+                if (mRecipeFragment != null){
+                    mRecipeFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).recipeID);
                 }else{
                     Log.e("SEARCH RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
                 }

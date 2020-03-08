@@ -62,9 +62,6 @@ public class Home extends AppCompatActivity {
     FirebaseAuth mAuth;
     FirebaseApp mApp;
 
-    FirebaseAuth.AuthStateListener mAuthListener;
-    String mDisplayName;
-
     FragmentManager fragmentManager = getSupportFragmentManager();
     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
@@ -100,9 +97,12 @@ public class Home extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        if(mUser != null){
+
+        if(getIntent().getSerializableExtra("user") != null){
             mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) getIntent().getSerializableExtra("user");
         }
+
+
 
         Toolbar toolbar = findViewById(R.id.toolbar);
 
@@ -120,16 +120,11 @@ public class Home extends AppCompatActivity {
         initPageListeners();
         initSearchMenu();
 
-//        FloatingActionButton fab = findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
 
     }
+    
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
@@ -145,8 +140,8 @@ public class Home extends AppCompatActivity {
                 query = new SearchQuery( s, prefs);
                 SearchListFragment searchListFragment = new SearchListFragment();
                 searchListFragment.setValue(query);
-                Log.e(TAG, "I'm pressing it boss");
-                searchListFragment.show(fragmentManager, "test");
+                Log.e(TAG, "User opening search");
+                searchListFragment.show(fragmentManager, "search");
                 return false;
             }
 
@@ -176,71 +171,6 @@ public class Home extends AppCompatActivity {
     private void initFirebase(){
         mApp = FirebaseApp.getInstance();
         mAuth = FirebaseAuth.getInstance();
-
-//        mAuthListener = new FirebaseAuth.AuthStateListener() {
-//            @Override
-//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-//
-//                FirebaseUser user = mAuth.getCurrentUser();
-//
-//                if(user != null){
-//                    if(mAuth.getCurrentUser().isEmailVerified()){
-//
-//                        DocumentReference usersRef = database.collection("users").document(mAuth.getCurrentUser().getUid());
-//                        usersRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//                            @Override
-//                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                                if (task.isSuccessful()) {
-//                                    if (task.getResult() == null) Log.d(TAG, "getResult is null");
-//                                    Log.d(TAG, "getResult: " + task.getResult());
-//                                    DocumentSnapshot document = task.getResult();
-//                                    HashMap<String, Object> map = new HashMap<>();
-//
-//                                    map.put("UID", document.get("UID"));
-//                                    map.put("email", document.get("email"));
-//                                    map.put("displayName", document.get("displayName"));
-//                                    map.put("imageURL", document.get("imageURL"));
-//                                    map.put("chefRating", document.get("chefRating"));
-//                                    map.put("numRecipes", document.get("numRecipes"));
-//                                    map.put("preferences", document.get("preferences"));
-//                                    map.put("about", document.get("about"));
-//
-//                                    @SuppressWarnings("unchecked")
-//                                    HashMap<String, Object> preferences = (HashMap<String, Object>) document.get("preferences");
-//
-//                                    @SuppressWarnings("unchecked")
-//                                    HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacy");
-//
-//                                    mUser = new com.group4sweng.scranplan.UserInfo.UserInfoPrivate(map, preferences, privacy);
-//
-//                                    Log.i(TAG, "Successfully logged back in");
-//                                }else {
-//                                    Log.e(TAG, "User details retrieval : Unable to retrieve user document in Firestore ");
-//                                    Toast.makeText(getApplicationContext(),"Unable to retrieve current user details, please sign in again.",Toast.LENGTH_SHORT).show();
-//                                    mAuth.signOut();
-//                                }
-//                            }
-//                        });
-//                    }else{
-//                        mAuth.getCurrentUser().sendEmailVerification();
-//                        Log.e(TAG, "SignIn : Email authentication sent for user trying to log in with unverified email, user logged out.");
-//                        Toast.makeText(getApplicationContext(),"Email is not yet verified, a new verification email has been sent, please verify email and try again.",Toast.LENGTH_LONG).show();
-//                        mAuth.signOut();
-//                    }
-//                }else{
-//                    Log.e(TAG,"AUTHENTICATION STATE UPDATE : No Valid current user logged in");
-//                    mDisplayName = "No Valid User";
-//                    mAuth.removeAuthStateListener(mAuthListener);
-//                    Intent signIn = new Intent(getApplicationContext(), Login.class);
-//                    startActivity(signIn);
-//                    mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) getIntent().getSerializableExtra("user");
-//                }
-//            }
-//        };
-//
-//
-//        mAuth.addAuthStateListener(mAuthListener);
-
     }
 
     private void initPageItems(){
@@ -248,10 +178,9 @@ public class Home extends AppCompatActivity {
         mLogoutButton = (Button) findViewById(R.id.logoutButton);
         tabLayout = findViewById(R.id.tabLayout);
         frameLayout = findViewById(R.id.frameLayout);
-
-        Fragment fragment = new RecipeFragment();
+        Fragment fragment = new RecipeFragment(mUser);
         fragmentTransaction.replace(R.id.frameLayout, fragment);
-        fragmentTransaction.commit();
+        fragmentTransaction.commit ();
 
         tabLayout.addTab(tabLayout.newTab().setText("Recipes"));
         tabLayout.addTab(tabLayout.newTab().setText("Meal Planner"));
@@ -266,6 +195,10 @@ public class Home extends AppCompatActivity {
                 Log.e(TAG, "Logout button has been pressed and user has been logged out.");
                 mUser = null;
                 mAuth.signOut();
+                Intent returningIntent = new Intent(Home.this, MainActivity.class);
+                startActivity(returningIntent);
+
+                finish();
             }
         });
 
@@ -275,7 +208,7 @@ public class Home extends AppCompatActivity {
                 Fragment fragment = null;
                 switch (tab.getPosition()) {
                     case 0:
-                        fragment = new RecipeFragment();
+                        fragment = new RecipeFragment(mUser);
                         break;
                     case 1:
                         fragment = new PlannerFragment();

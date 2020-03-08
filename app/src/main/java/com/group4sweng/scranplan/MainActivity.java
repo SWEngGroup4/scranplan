@@ -102,9 +102,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.e(TAG,"??????????????????????????????????????????????????????????? here");
 
-        if(mUser != null){
-            mUser = (UserInfoPrivate) getIntent().getSerializableExtra("user");
+//        if(mUser != null){
+//            mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) getIntent().getSerializableExtra("user");
+//        }
+        if(getIntent().getSerializableExtra("user") != null){
+            mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) getIntent().getSerializableExtra("user");
         }
 
 //        Toolbar toolbar = findViewById(R.id.toolbar);
