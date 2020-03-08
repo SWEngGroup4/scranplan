@@ -40,7 +40,7 @@ android:
     # Codecov
     - extra-android-m2repository
     - $ANDROID_TARGET
-    - android-22
+    - android-24
     - sys-img-${ANDROID_ABI}-${ANDROID_TARGET}
     - sys-img-${ANDROID_ABI}-android-22
 
