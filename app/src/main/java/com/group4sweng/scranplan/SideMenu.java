@@ -40,9 +40,7 @@ public class SideMenu extends Activity implements NavigationView.OnNavigationIte
         mDrawerToggle = new ActionBarDrawerToggle(mActivity, mMenuDrawer, mMenuToolbar, R.string.nav_drawer_open, R.string.nav_drawer_close);
         mMenuDrawer.addDrawerListener(mDrawerToggle);
         mDrawerToggle.syncState();
-
         mNavigationView.setNavigationItemSelectedListener(this);
-
     }
 
 

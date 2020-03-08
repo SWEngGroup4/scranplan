@@ -225,6 +225,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Method to change Intent when profile is clicked in the side menu
+     */
     public void onPublicProfileClick() {
         Intent intentProfile = new Intent(this, PublicProfile.class);
 
@@ -233,7 +236,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intentProfile);
     }
 
+    /**
+     * Method to change Intent when profile edit is clicked in the side menu
+     */
     public void onProfileEditClick() {
+
         Intent intentProfile = new Intent(this, ProfileSettings.class);
         intentProfile.putExtra("user", mUser);
 
@@ -242,6 +249,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Method to change logout when it's clicked in the side menu
+     */
     public void onLogoutMenuClick(){
         mUser = null;
         mAuth.signOut();
