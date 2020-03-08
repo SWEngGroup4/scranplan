@@ -103,7 +103,7 @@ public class ProfileSettingsTest{
     //  Check a username input field exists.
     @Test
     public void testUsernameLoads() {
-        onView(withId(R.id.settings_username))
+        onView(withId(R.id.public_profile_username))
                 .check(matches(isDisplayed()));
     }
 
@@ -137,7 +137,7 @@ public class ProfileSettingsTest{
     @Test
     public void testFullProfileLoads(){
 
-        onView(withId(R.id.settings_username))
+        onView(withId(R.id.public_profile_username))
                 .check(matches(isDisplayed()));
 
         onView(withId(R.id.settings_about_me))
