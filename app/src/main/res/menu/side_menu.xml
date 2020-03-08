@@ -4,8 +4,11 @@
     tools:showIn="navigation_view">
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_profile"
-            android:title="@string/navProfile" />
+            android:id="@+id/nav_publicProfile"
+            android:title="@string/navPublicProfile" />
+        <item
+            android:id="@+id/nav_editProfile"
+            android:title="@string/navEditProfile" />
         <item
             android:id="@+id/nav_my_recipes"
             android:title="@string/navMyRecipes" />

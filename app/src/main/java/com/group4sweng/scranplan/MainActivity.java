@@ -58,12 +58,13 @@ public class MainActivity extends AppCompatActivity {
             mUser = (UserInfoPrivate) getIntent().getSerializableExtra("user");
         }
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+//        Toolbar toolbar = findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
 
 
         // Drawer setup and and synchronising the states
         mSideMenu = new SideMenu();
+        mSideMenu.setmUser(mUser);
         mSideMenu.mMenuToolbar = findViewById(R.id.toolbar);
         mSideMenu.mMenuDrawer = findViewById(R.id.drawer_layout);
         mSideMenu.mNavigationView = findViewById(R.id.side_menu);
@@ -218,23 +219,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-      /*TODO Clean up temporary profile settings & public profile page listener*/
-        final Button tempProfileSettings = findViewById(R.id.profile_settings_button);
-        tempProfileSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view)  {
-                tempOpenProfileSettings();
-            }
-        });
-
-        final Button tempPublicProfile = findViewById(R.id.public_profile_button);
-        tempPublicProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view)  {
-                tempOpenPublicProfile();
-            }
-        });
     }
+
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -251,15 +238,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void tempOpenPublicProfile() {
+    public void onPublicProfileClick() {
         Intent intentProfile = new Intent(this, PublicProfile.class);
 
         intentProfile.putExtra("user", mUser);
-        //setResult(RESULT_OK, intentProfile);
+        setResult(RESULT_OK, intentProfile);
         startActivity(intentProfile);
     }
 
-    public void tempOpenProfileSettings() {
+    public void onProfileEditClick() {
         Intent intentProfile = new Intent(this, ProfileSettings.class);
         intentProfile.putExtra("user", mUser);
 

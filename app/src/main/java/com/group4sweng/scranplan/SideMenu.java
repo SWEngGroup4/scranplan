@@ -22,8 +22,8 @@ public class SideMenu extends Activity implements NavigationView.OnNavigationIte
     private Context mContext;
 
     public void init(Activity activity, Context context){
-        mActivity = activity;
-        mContext = context;
+        this.mActivity = activity;
+        this.mContext = context;
         startMenu();
     }
 
@@ -54,19 +54,21 @@ public class SideMenu extends Activity implements NavigationView.OnNavigationIte
      */
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-//        Fragment mFragment = null;
-//        switch (item.getItemId()){
-//            case R.id.nav_profile:
-//                // insert nav fragment here
-//                // mFragment = new ProfileFragment();
-//                break;
-//        }
-//        FragmentManager mFragmentManager = ((FragmentActivity)mContext).getSupportFragmentManager();
-//        FragmentTransaction mFragmentTransaction = mFragmentManager.beginTransaction();
-//        mFragmentTransaction.replace(R.id.frameLayout, mFragment);
-//        mFragmentTransaction.commit();
+        switch (item.getItemId()){
+            case R.id.nav_publicProfile:
+                if (mContext instanceof MainActivity){
+                    ((MainActivity)mContext).onPublicProfileClick();
+                }
+                break;
+            case R.id.nav_editProfile:
+                if (mContext instanceof MainActivity){
+                    ((MainActivity)mContext).onProfileEditClick();
+                }
+                break;
+        }
      return false;
     }
+
 }
 
 
