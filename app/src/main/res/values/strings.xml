@@ -10,4 +10,5 @@
     <string name="navMyRecipes">My Recipes</string>
     <string name="navRecipes">Recipes</string>
     <string name="navSavedRecipes">Saved Recipes</string>
+    <string name="navLogout">Log Out</string>
 </resources>

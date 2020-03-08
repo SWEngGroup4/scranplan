@@ -55,6 +55,7 @@ public class SideMenu extends Activity implements NavigationView.OnNavigationIte
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
+            //TODO implement other pages as they get added to the application
             case R.id.nav_publicProfile:
                 if (mContext instanceof MainActivity){
                     ((MainActivity)mContext).onPublicProfileClick();
@@ -63,6 +64,11 @@ public class SideMenu extends Activity implements NavigationView.OnNavigationIte
             case R.id.nav_editProfile:
                 if (mContext instanceof MainActivity){
                     ((MainActivity)mContext).onProfileEditClick();
+                }
+                break;
+            case R.id.nav_logout:
+                if(mContext instanceof MainActivity) {
+                    ((MainActivity) mContext).onLogoutMenuClick();
                 }
                 break;
         }

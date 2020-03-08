@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
@@ -44,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
     FirebaseAuth.AuthStateListener mAuthListener;
     String mDisplayName;
 
-    Button mLogoutButton;
     TabLayout tabLayout;
     FrameLayout frameLayout;
     SideMenu mSideMenu;
@@ -160,7 +157,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void initPageItems(){
         //Defining all relevant members of signin & register page
-        mLogoutButton = (Button) findViewById(R.id.logoutButton);
         tabLayout = findViewById(R.id.tabLayout);
         frameLayout = findViewById(R.id.frameLayout);
 
@@ -177,14 +173,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initPageListeners() {
-        mLogoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.e(TAG, "Logout button has been pressed and user has been logged out.");
-                mUser = null;
-                mAuth.signOut();
-            }
-        });
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -252,6 +240,11 @@ public class MainActivity extends AppCompatActivity {
         setResult(RESULT_OK, intentProfile);
         startActivityForResult(intentProfile, PROFILE_SETTINGS_REQUEST_CODE);
 
+    }
+
+    public void onLogoutMenuClick(){
+        mUser = null;
+        mAuth.signOut();
     }
 
 }
