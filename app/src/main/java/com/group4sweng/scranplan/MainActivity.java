@@ -10,10 +10,7 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -50,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     Button mLogoutButton;
     TabLayout tabLayout;
     FrameLayout frameLayout;
+    SideMenu mSideMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,10 +63,12 @@ public class MainActivity extends AppCompatActivity {
 
 
         // Drawer setup and and synchronising the states
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.nav_drawer_open, R.string.nav_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
+        mSideMenu = new SideMenu();
+        mSideMenu.mMenuToolbar = findViewById(R.id.toolbar);
+        mSideMenu.mMenuDrawer = findViewById(R.id.drawer_layout);
+        mSideMenu.mNavigationView = findViewById(R.id.side_menu);
+        setSupportActionBar(mSideMenu.mMenuToolbar);
+        mSideMenu.init(this, this);
 
         initFirebase();
         initPageItems();
