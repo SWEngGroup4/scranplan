@@ -47,6 +47,7 @@ public class RecipeFragment extends Fragment {
         // Procedurally fills topLayout with imageButton content
         LinearLayout topLayout = view.findViewById(R.id.topLayout);
 
+
         for (int i = 0; i < 10; i++) {
 
             // Placeholder text TODO - change to query type
