@@ -1,14 +1,8 @@
 package com.group4sweng.scranplan;
 
-import android.content.Context;
-
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.Espresso;
 import androidx.test.rule.ActivityTestRule;
-
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.auth.FirebaseAuth;
-import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -20,36 +14,25 @@ import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.Matchers.allOf;
 
-public class PublicProfileTest {
-    private PublicProfile mActivity = null;
-
-    FirebaseApp testApp;
-    FirebaseAuth testAuth;
-    UserInfoPrivate testUser;
-
-    Context mContext;
+/** Profile test class for testing if all elements are visible to the user.
+ *
+ * =====MANUAL TESTS=====
+ * Tests for if data is able to be properly retrieved for multiple users and tests that this information is not shown if
+ * the users privacy settings don't permit it have been completed manually due to Firebase only access.*/
+public class ProfileTest extends RecordedEspressoHelper{
 
     //  Default test values.
     private static final String TEST_EMAIL = "jb2200@york.ac.uk";
     private static String TEST_PASSWORD = "password";
-    private static final int THREAD_SLEEP_TIME = 4000;
-
-    PublicProfile mPublicProfile;
-
-    /* TODO
-        Most of this class. Follow 'ProfileSettingsTest' for an example.
-     */
+    private static final int THREAD_SLEEP_TIME = 4000; //How long Espresso should wait for Firebase data to update.
 
     @Rule
     public ActivityTestRule<PublicProfile> mActivityTestRule = new ActivityTestRule<PublicProfile>(PublicProfile.class);
 
+    //  Login with the associated test credentials before testing, wait for Firebase to update and enter profile settings.
     @Before
     public void setUp() throws InterruptedException {
-
-        System.out.println("Happens before stuff!");
 
         ActivityScenario.launch(Login.class);
 
@@ -66,12 +49,15 @@ public class PublicProfileTest {
                 .perform(click());
 
         Thread.sleep(THREAD_SLEEP_TIME);
+
+        openSideBar(SideBarElement.PROFILE);
+
+        Thread.sleep(THREAD_SLEEP_TIME/4);
     }
 
+    //  Check the username field exists.
     @Test
-    public void testUsernameAndAboutMeRetrieved() {
-        onView(allOf(withId(R.id.public_profile_button), withText("public profile")))
-                .perform(click());
+    public void testUsernameAndAboutMeIsVisible() {
 
         onView(withId(R.id.profile_username))
                 .check(matches(isDisplayed()));
@@ -80,43 +66,31 @@ public class PublicProfileTest {
                 .check(matches(isDisplayed()));
     }
 
+    //  Check the number of recipes is visible.
     @Test
-    public void testRecipesRetrieved(){
-        onView(allOf(withId(R.id.public_profile_button), withText("public profile")))
-                .perform(click());
-
+    public void testNumberOfRecipesIsVisible(){
         onView(withId(R.id.profile_recipes))
                 .check(matches(isDisplayed()));
     }
 
-    /* REDO
+    //  Check filters are visible.
     @Test
-    public void testAllergensRetrieved(){
-        onView(allOf(withId(R.id.public_profile_button), withText("public profile")))
-                .perform(click());
-
-        onView(withId(R.id.public_profile_allergens_list))
-                .check(matches(isDisplayed()));
-    }*/
-
-    /* REDO
-    @Test
-    public void testFullProfileLoad(){
-        onView(allOf(withId(R.id.public_profile_button), withText("public profile")))
-                .perform(click());
-
-        onView(withId(R.id.profile_username))
+    public void testFiltersAreVisible(){
+        onView(withId(R.id.profile_filters))
                 .check(matches(isDisplayed()));
 
-        onView(withId(R.id.public_profile_about_me_desc))
+        onView(withId(R.id.allergy_wheat))
                 .check(matches(isDisplayed()));
-
-        onView(withId(R.id.profile_recipes))
+        onView(withId(R.id.allergy_soy))
                 .check(matches(isDisplayed()));
-
-        onView(withId(R.id.public_profile_allergens_list))
+        onView(withId(R.id.allergy_nuts))
+                .check(matches(isDisplayed()));
+        onView(withId(R.id.allergy_shellfish))
+                .check(matches(isDisplayed()));
+        onView(withId(R.id.allergy_milk))
+                .check(matches(isDisplayed()));
+        onView(withId(R.id.allergy_eggs))
                 .check(matches(isDisplayed()));
     }
-    */
 
 }

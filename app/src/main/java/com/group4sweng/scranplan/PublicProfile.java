@@ -1,5 +1,6 @@
 package com.group4sweng.scranplan;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.CheckBox;
@@ -21,11 +22,18 @@ import com.group4sweng.scranplan.UserInfo.FilterType;
 
 import java.util.HashMap;
 
+/** Class retrieves and displays public profile data on a given user based on a valid UID input string.
+ *  from Firebase.
+ *  Privacy checks are made within 'loadInPrivacySettings' to make sure we adhere to what the user wants to display.
+ *  Privacy is always checked first before displaying any content.
+ */
 public class PublicProfile extends AppCompatActivity implements FilterType{
 
     // TAG for Profile Settings
     final String TAG = "PublicProfile";
-    private String UID = "EUEmeOMdqFevJYKXqjgCsgl6sz42";
+
+    //  UID for the user in which we want to retrieve data from.
+    private String UID;
 
     //  Default filter type enumeration. Types shown in 'FilterType' interface.
     FilterType.filterType currentFilterType = FilterType.filterType.ALLERGENS;
@@ -68,14 +76,16 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     protected void onStart() {
         super.onStart();
 
-        /* TODO - Add intents
-            UID = getIntent().getStringExtra("UID");
-         */
-        if(UID != null){
+        //  Gets extra string UID attached when an intent is sent.
+        UID = getIntent().getStringExtra("UID");
+
+        if(UID != null) {
+            Log.e(TAG, "UID IS: " + UID);
             loadFirebase();
         } else {
-            Log.e(TAG, "Unable to retrieve extra UID intent string.");
+            Log.e(TAG, "Unable to retrieve extra UID intent string. Cannot initialize profile.");
         }
+
     }
 
     private void initPageItems(){
@@ -95,14 +105,12 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
     @Override
     public void onBackPressed() {
-
-        //  TODO - Returning intent
-        //Intent returnIntent = new Intent(this, MainActivity.class);
-        //setResult(Activity.RESULT_OK, returnIntent);
-        //startActivity(returnIntent);
-        finish();
+        Intent returnIntent = new Intent(this, MainActivity.class);
+        startActivity(returnIntent);
+        finish(); //    We don't need to send anything back but do need to destroy the current activity.
     }
 
+    //  Checks for if a user wants specific data to be retrieved based on there privacy settings.
     private void loadInPrivacySettings(HashMap<String, Object> privacy){
         if(privacy != null){
             retrieveAboutMe = (boolean) privacy.get("display_about_me");
@@ -113,15 +121,15 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         }
     }
 
+    //  Load all the data grabbed from the Firebase document snapshot.
     private void loadProfile(DocumentSnapshot profile) {
-        if(retrieveAboutMe){ mAboutMe.setText((String) profile.get("about")); }
-        /* TODO- Implement this later
+        if(retrieveAboutMe){ mAboutMe.setText((String) profile.get("about")); } //  If we are allowed to retrieve this data. do so.
+        /* TODO- Implement Image retrieval later,
         if(retrieveImages){ }
         */
-        String numOfRecipesString = "Recipes: " + ((long) profile.get("numRecipes"));
-        if(retrieveRecipes){ mNumRecipes.setText(numOfRecipesString);} else {
-            Log.e(TAG, "Not retrieving recipes");
-        }
+        String numOfRecipesString = "Recipes: " + ((long) profile.get("numRecipes")); //  Convert 'long' value to something we can use.
+        if(retrieveRecipes){ mNumRecipes.setText(numOfRecipesString);}
+
         if(retrieveUsername){ mUsername.setText((String) profile.get("displayName")); }
 
         if(retrieveFilters){
@@ -153,20 +161,23 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         }
     }
 
+    //  Load in all associated public profile data for a given UID. (defined at Activity Start).
     private void loadFirebase() {
 
+        //  Grab the 'users' collection corresponding to the correct document UID.
         DocumentReference usersRef = mDatabase.collection("users").document(UID);
         usersRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.isSuccessful()){
+                if(task.isSuccessful()){ // Check a document can be accessed.
                     DocumentSnapshot document = task.getResult();
 
-                    if(document.exists()){
+                    if(document.exists()){ // Check a document exists.
                         @SuppressWarnings("unchecked")
                         HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacy");
-                        loadInPrivacySettings(privacy);
-                        loadProfile(document);
+                        loadInPrivacySettings(privacy); // Load in privacy settings first (always)
+                        loadProfile(document); // Then we load the public users profile.
+                        Log.i(TAG, "Successfully loaded the users profile");
                     } else {
                         Log.e(TAG, "No such document, " + document.toString() + " exists");
                     }

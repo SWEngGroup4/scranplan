@@ -226,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
     public void onPublicProfileClick() {
         Intent intentProfile = new Intent(this, PublicProfile.class);
 
-        intentProfile.putExtra("user", mUser);
+        intentProfile.putExtra("UID", mUser.getUID()); //For the profile we use the local users UID.
         setResult(RESULT_OK, intentProfile);
         startActivity(intentProfile);
     }

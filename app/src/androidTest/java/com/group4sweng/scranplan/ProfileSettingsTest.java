@@ -22,6 +22,7 @@ import java.util.HashMap;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.withDecorView;
@@ -30,7 +31,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withHint;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -41,7 +41,7 @@ import static org.junit.Assert.assertNotEquals;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class ProfileSettingsTest{
+public class ProfileSettingsTest extends RecordedEspressoHelper {
 
     //  Android Log tag.
     String TAG = "profileSettingsTest";
@@ -80,8 +80,10 @@ public class ProfileSettingsTest{
 
         Thread.sleep(THREAD_SLEEP_TIME);
 
-        onView(allOf(withId(R.id.profile_settings_button), withText("profile settings")))
-                .perform(click());
+
+        openSideBar(SideBarElement.EDIT_PROFILE);
+
+        Thread.sleep(THREAD_SLEEP_TIME/4);
     }
 
     //  Used to make sure information is reset before changing it again.
@@ -97,6 +99,7 @@ public class ProfileSettingsTest{
         Espresso.closeSoftKeyboard();
 
         onView(withId(R.id.settings_save_settings))
+                .perform(ViewActions.scrollTo())
                 .perform(click());
     }
 
@@ -200,13 +203,17 @@ public class ProfileSettingsTest{
     @Test
     public void testAboutMeAndNumRecipesRetrieved() {
 
+
+
         testUser = (UserInfoPrivate) mActivityTestRule.getActivity().getIntent().getSerializableExtra("user");
 
         onView(withId(R.id.settings_input_about_me))
                 .check(matches(withText(testUser.getAbout())));
 
+        String recipesString = "Recipes: " + testUser.getNumRecipes();
+
         onView(withId(R.id.profile_recipes))
-                .check(matches(withText(String.valueOf(testUser.getNumRecipes()))));
+                .check(matches(withText(recipesString)));
 
     }
 
@@ -221,13 +228,14 @@ public class ProfileSettingsTest{
         Espresso.closeSoftKeyboard();
 
         onView(withId(R.id.settings_save_settings))
+                .perform(ViewActions.scrollTo())
                 .perform(click());
 
         Espresso.pressBack();
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        onView(withId(R.id.logoutButton))
-                .perform(click());
+        onView(withId(R.id.side_menu))
+                .perform();
 
         setUp();
 
@@ -245,17 +253,19 @@ public class ProfileSettingsTest{
         Espresso.closeSoftKeyboard();
 
         onView(withId(R.id.settings_save_settings))
+                .perform(ViewActions.scrollTo())
                 .perform(click());
 
         Espresso.pressBack();
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        onView(withId(R.id.logoutButton))
-                .perform(click());
+
+        openSideBar(SideBarElement.LOGOUT);
 
         setUp();
 
         onView(withId(R.id.settings_input_about_me))
+                .perform(ViewActions.scrollTo())
                 .check(matches(withText("uniqueAboutMe")));
     }
 
@@ -282,6 +292,10 @@ public class ProfileSettingsTest{
         initialPrivacy.put("about_me", mActivityTestRule.getActivity().mDisplay_about_me.isChecked());
         initialPrivacy.put("recipes", mActivityTestRule.getActivity().mDisplay_recipes.isChecked());
         initialPrivacy.put("profile_image", mActivityTestRule.getActivity().mDisplay_profile_image.isChecked());
+        initialPrivacy.put("filters", mActivityTestRule.getActivity().mDisplay_filters.isChecked());
+
+        onView(withId(R.id.profile_about_me))
+                .perform(scrollTo());
 
         //  Change every switch and Checkboxes value.
         onView(withId(R.id.allergy_soy))
@@ -305,19 +319,24 @@ public class ProfileSettingsTest{
                 .perform(click());
         onView(withId(R.id.settings_privacy_recipes))
                 .perform(click());
+        onView(withId(R.id.settings_privacy_filters))
+                .perform(click());
 
         onView(withId(R.id.settings_save_settings))
+                .perform(scrollTo())
                 .perform(click());
 
         Espresso.pressBack();
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        onView(withId(R.id.logoutButton))
-                .perform(click());
+        openSideBar(SideBarElement.LOGOUT);
 
         setUp(); // Relaunch the login screen.
 
         //ProfileSettings newTestRule = mActivityTestRule.getActivity(); // Initiate a new test rule based on the current activity state.
+
+        onView(withId(R.id.profile_about_me))
+                .perform(scrollTo());
 
         //  Check the new 'checked' boolean value has changed.
         assertNotEquals(initialAllergies.get("eggs"), mActivityTestRule.getActivity().mAllergy_eggs.isChecked());
@@ -331,6 +350,9 @@ public class ProfileSettingsTest{
         assertNotEquals(initialPrivacy.get("recipes"), mActivityTestRule.getActivity().mDisplay_recipes.isChecked());
         assertNotEquals(initialPrivacy.get("username"), mActivityTestRule.getActivity().mDisplay_username.isChecked());
         assertNotEquals(initialPrivacy.get("profile_image"), mActivityTestRule.getActivity().mDisplay_profile_image.isChecked());
+        assertNotEquals(initialPrivacy.get("filters"), mActivityTestRule.getActivity().mDisplay_filters.isChecked());
+
+        Thread.sleep(1000);
 
     }
 
@@ -349,6 +371,7 @@ public class ProfileSettingsTest{
         Espresso.closeSoftKeyboard();
 
         onView(withId(R.id.settings_save_settings))
+                .perform(scrollTo())
                 .perform(click());
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
@@ -357,8 +380,7 @@ public class ProfileSettingsTest{
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        onView(allOf(withId(R.id.profile_settings_button), withText("profile settings")))
-                .perform(click());
+        openSideBar(SideBarElement.EDIT_PROFILE);
 
         String username =  mActivityTestRule.getActivity().mUsername.getText().toString();
         String aboutMe = mActivityTestRule.getActivity().mAboutMe.getText().toString();

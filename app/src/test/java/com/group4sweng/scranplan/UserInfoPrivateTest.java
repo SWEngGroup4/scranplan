@@ -40,6 +40,7 @@ public class UserInfoPrivateTest {
         privacy.put("display_about_me", true);
         privacy.put("display_recipes", false);
         privacy.put("display_profile_image", true);
+        privacy.put("display_filters", false);
 
         // Default user food preferences
         preferences.put("allergy_celery", false);
@@ -142,6 +143,7 @@ public class UserInfoPrivateTest {
         privacy.put("display_about_me", false);
         privacy.put("display_recipes", true);
         privacy.put("display_profile_image", false);
+        privacy.put("display_filters", false);
 
         try {
             testInfo.setPrivacy(privacy);
