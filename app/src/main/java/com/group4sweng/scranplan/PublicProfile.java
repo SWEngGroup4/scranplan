@@ -28,7 +28,7 @@ import java.util.HashMap;
 
 import static com.group4sweng.scranplan.UserInfo.FilterType.filterType.ALLERGENS;
 
-/** Class retrieves and displays public profile data on a given user based on a valid UID input string.
+/** Class retrieves and displays public profile data on a given user based on a valid UID input string or UserInfoPrivate object.
  *  from Firebase or from local data.
  *
  *  For firebase pass an extra string via intent with ID = "UID"
@@ -89,6 +89,8 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
         //  Gets extra string UID attached when an intent is sent.
         UID = getIntent().getStringExtra("UID");
+
+        //  Gets extra UserProfilePrivate object if one is sent.
         mUserProfile = (UserInfoPrivate) getIntent().getSerializableExtra("user");
 
         if(mUserProfile != null){ // Check if local data is available to reference. Don't have to grab from firebase.
