@@ -76,6 +76,8 @@ public class ProfileTest extends RecordedEspressoHelper{
     //  Check filters are visible.
     @Test
     public void testFiltersAreVisible(){
+
+
         onView(withId(R.id.profile_filters))
                 .check(matches(isDisplayed()));
 

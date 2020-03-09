@@ -1,6 +1,9 @@
 package com.group4sweng.scranplan;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.CheckBox;
@@ -22,6 +25,8 @@ import com.group4sweng.scranplan.UserInfo.FilterType;
 
 import java.util.HashMap;
 
+import static com.group4sweng.scranplan.UserInfo.FilterType.filterType.ALLERGENS;
+
 /** Class retrieves and displays public profile data on a given user based on a valid UID input string.
  *  from Firebase.
  *  Privacy checks are made within 'loadInPrivacySettings' to make sure we adhere to what the user wants to display.
@@ -36,7 +41,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     private String UID;
 
     //  Default filter type enumeration. Types shown in 'FilterType' interface.
-    FilterType.filterType currentFilterType = FilterType.filterType.ALLERGENS;
+    FilterType.filterType currentFilterType = ALLERGENS;
 
     // Firebase user variables.
     FirebaseApp mApp;
@@ -128,15 +133,48 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         if(retrieveImages){ }
         */
         String numOfRecipesString = "Recipes: " + ((long) profile.get("numRecipes")); //  Convert 'long' value to something we can use.
-        if(retrieveRecipes){ mNumRecipes.setText(numOfRecipesString);}
+        if(retrieveRecipes){ mNumRecipes.setText(numOfRecipesString);} else {
+            mNumRecipes.setText(""); // Set number of recipes to nothing if hidden.
+        }
 
         if(retrieveUsername){ mUsername.setText((String) profile.get("displayName")); }
 
         if(retrieveFilters){
             @SuppressWarnings("unchecked")
             HashMap<String, Object> filters = (HashMap<String, Object>) profile.get("preferences");
-
             setFilters(currentFilterType, filters);
+        } else { // Remove all checkboxes if filters are hidden.
+            switch(currentFilterType){
+                case ALLERGENS:
+                    Drawable transparentDrawable = new ColorDrawable(Color.TRANSPARENT); // Create a transparent drawable background.
+
+                    //  Remove checkboxes by setting a transparent background.
+                    mAllergy_gluten.setButtonDrawable(transparentDrawable);
+                    mAllergy_milk.setButtonDrawable(transparentDrawable);
+                    mAllergy_soy.setButtonDrawable(transparentDrawable);
+                    mAllergy_shellfish.setButtonDrawable(transparentDrawable);
+                    mAllergy_eggs.setButtonDrawable(transparentDrawable);
+                    mAllergy_nuts.setButtonDrawable(transparentDrawable);
+
+                    //  Set top-left element (nuts) to a new 'hidden info' string and remove text from all other filters.
+                    mAllergy_nuts.setText((String) "Filter information has been hidden");
+                    mAllergy_gluten.setText("");
+                    mAllergy_soy.setText("");
+                    mAllergy_shellfish.setText("");
+                    mAllergy_eggs.setText("");
+                    mAllergy_milk.setText("");
+                case RELIGIOUS:
+                    //TODO
+                    Log.i(TAG, "Religious");
+                case DIETARY:
+                    //TODO
+                    Log.i(TAG, "Religious");
+                case HEALTH:
+                    //TODO
+                    Log.i(TAG, "Religious");
+            }
+
+
         }
     }
 

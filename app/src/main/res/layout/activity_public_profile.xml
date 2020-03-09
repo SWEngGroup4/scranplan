@@ -40,7 +40,7 @@
         android:layout_height="0dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="16dp"
-        android:text="Recipes:"
+        android:text="Recipes: "
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         app:layout_constraintBottom_toTopOf="@+id/guideline6"
         app:layout_constraintEnd_toEndOf="parent"
