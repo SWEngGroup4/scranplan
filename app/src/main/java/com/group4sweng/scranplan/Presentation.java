@@ -8,17 +8,24 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.core.provider.FontRequest;
 import androidx.core.provider.FontsContractCompat;
+import androidx.core.view.MotionEventCompat;
 
 import com.squareup.picasso.Picasso;
 
@@ -31,8 +38,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class Presentation extends AppCompatActivity {
 
@@ -61,8 +66,9 @@ public class Presentation extends AppCompatActivity {
     private void presentation (Map<String, Object> xml) {
         documentInfo = (XmlParser.DocumentInfo) xml.get("documentInfo");
         final List<RelativeLayout> slideLayouts = new ArrayList<>();
-        List<XmlParser.Slide> xmlSlides = (List<XmlParser.Slide>) xml.get("slides");
-        RelativeLayout presentationContainer = findViewById(R.id.presentationContainer);
+        List<String> dropdownItems = new ArrayList<>();
+        final List<XmlParser.Slide> xmlSlides = (List<XmlParser.Slide>) xml.get("slides");
+        CardView presentationContainer = findViewById(R.id.presentationContainer);
 
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
@@ -74,10 +80,11 @@ public class Presentation extends AppCompatActivity {
         Integer slideWidth = defaults.slideWidth;
 
         if (slideHeight == -1) {
-            slideHeight = displayMetrics.heightPixels;
+            slideHeight = Math.round(displayMetrics.heightPixels * 0.8f);
+            Log.d("Test", String.valueOf(slideHeight));
         }
         if (slideWidth == -1) {
-            slideWidth = displayMetrics.widthPixels;
+            slideWidth = Math.round(displayMetrics.widthPixels * 0.8f);
         }
 
         FontRequest request = new FontRequest("com.google.android.gms.fonts",
@@ -100,28 +107,7 @@ public class Presentation extends AppCompatActivity {
 
             XmlParser.Text id = new XmlParser.Text(slide.id, defaults);
             slideLayout.addView(addText(id, defaults, defaultTypeFace[0], slideWidth, slideHeight));
-
-            if (slide.duration != -1) {
-                Thread thread = new Thread(){
-                    @Override
-                    public void run() {
-                        try {
-                            synchronized (this) {
-                                wait (slide.duration);
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        newSlide(slideLayouts, currentSlide[0], "next");
-                                    }
-                                });
-                            }
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                };
-                thread.start();
-            }
+            dropdownItems.add(id.text);
 
             if (slide.text != null) {
                 slideLayout.addView(addText(slide.text, defaults, defaultTypeFace[0], slideWidth, slideHeight));
@@ -148,20 +134,38 @@ public class Presentation extends AppCompatActivity {
                 slideLayout.addView(addTimer(slide.timer));
             }
 
+            Spinner dropdown = findViewById(R.id.presentationSpinner);
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, dropdownItems);
+            dropdown.setAdapter(adapter);
+
+            dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    currentSlide[0] = toSlide(slideLayouts, currentSlide[0], position);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                }
+            });
+
             Button prevSlide = findViewById(R.id.prevButton);
+            prevSlide.setVisibility(View.VISIBLE);
             Button nextSlide = findViewById(R.id.nextButton);
+            nextSlide.setVisibility(View.VISIBLE);
 
             nextSlide.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    currentSlide[0] = newSlide(slideLayouts, currentSlide[0], "next");
+                    currentSlide[0] = toSlide(slideLayouts, currentSlide[0], currentSlide[0] + 1);
                 }
             });
 
             prevSlide.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    currentSlide[0] =  newSlide(slideLayouts, currentSlide[0], "prev");
+                    currentSlide[0] = toSlide(slideLayouts, currentSlide[0], currentSlide[0] - 1);
                 }
             });
 
@@ -346,29 +350,14 @@ public class Presentation extends AppCompatActivity {
         return timerView;
     }
 
-    private Integer newSlide(List<RelativeLayout> slides, Integer currentSlide, String direction) {
-        try {
-            switch (direction) {
-                case "next":
-                    if (currentSlide < documentInfo.totalSlides - 1) {
-                        slides.get(currentSlide + 1).setVisibility(View.VISIBLE);
-                        slides.get(currentSlide).setVisibility(View.GONE);
-                        currentSlide += 1;
-                        Log.d("Test", "" + currentSlide);
-                    }
-                    break;
-                case "prev":
-                    if (currentSlide > 0) {
-                        slides.get(currentSlide - 1).setVisibility(View.VISIBLE);
-                        slides.get(currentSlide).setVisibility(View.GONE);
-                        currentSlide -= 1;
-                    }
-                    break;
-            }
-        } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
+    private Integer toSlide(List<RelativeLayout> slides, Integer currentSlide, Integer slideNumber) {
+        if (slideNumber > documentInfo.totalSlides - 1 || slideNumber < 0) {
+            Toast.makeText(getApplicationContext(), "Slide " + slideNumber + " does not exist", Toast.LENGTH_LONG).show();
+        } else {
+            slides.get(slideNumber).setVisibility(View.VISIBLE);
+            slides.get(currentSlide).setVisibility(View.GONE);
+            currentSlide = slideNumber;
         }
-
         return currentSlide;
     }
 

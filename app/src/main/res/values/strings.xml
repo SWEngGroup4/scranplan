@@ -7,4 +7,6 @@
     <string name="planner_breakfast">Breakfast</string>
     <string name="planner_lunch">Lunch</string>
     <string name="planner_dinner">Dinner</string>
+    <string name="prevButton"><![CDATA[<-]]></string>
+    <string name="nextButton"><![CDATA[->]]></string>
 </resources>
