@@ -226,7 +226,8 @@ public class MainActivity extends AppCompatActivity {
     public void onPublicProfileClick() {
         Intent intentProfile = new Intent(this, PublicProfile.class);
 
-        intentProfile.putExtra("UID", mUser.getUID()); //For the profile we use the local users UID.
+        //intentProfile.putExtra("UID", mUser.getUID()); // For the profile we use the local users UID.
+        intentProfile.putExtra("user", mUser); // Not required but used for efficiency. Means we aren't loading from Firebase each time.
         setResult(RESULT_OK, intentProfile);
         startActivity(intentProfile);
     }

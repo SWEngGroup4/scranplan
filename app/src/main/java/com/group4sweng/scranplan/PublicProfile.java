@@ -22,13 +22,18 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.UserInfo.FilterType;
+import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.HashMap;
 
 import static com.group4sweng.scranplan.UserInfo.FilterType.filterType.ALLERGENS;
 
 /** Class retrieves and displays public profile data on a given user based on a valid UID input string.
- *  from Firebase.
+ *  from Firebase or from local data.
+ *
+ *  For firebase pass an extra string via intent with ID = "UID"
+ *  For local data pass a UserInfoPrivate object via intent with ID = "user"
+ *
  *  Privacy checks are made within 'loadInPrivacySettings' to make sure we adhere to what the user wants to display.
  *  Privacy is always checked first before displaying any content.
  */
@@ -39,6 +44,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
     //  UID for the user in which we want to retrieve data from.
     private String UID;
+    private UserInfoPrivate mUserProfile;
 
     //  Default filter type enumeration. Types shown in 'FilterType' interface.
     FilterType.filterType currentFilterType = ALLERGENS;
@@ -83,9 +89,14 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
         //  Gets extra string UID attached when an intent is sent.
         UID = getIntent().getStringExtra("UID");
+        mUserProfile = (UserInfoPrivate) getIntent().getSerializableExtra("user");
 
-        if(UID != null) {
-            Log.e(TAG, "UID IS: " + UID);
+        if(mUserProfile != null){ // Check if local data is available to reference. Don't have to grab from firebase.
+            Log.i(TAG, "Loading local user data");
+            loadInPrivacySettings(mUserProfile.getPrivacy());
+            loadLocalProfile();
+        } else if(UID != null){ // If not instead search for the profile via the associated UID and reference Firebase.
+            Log.i(TAG, "Loading data from Firebase");
             loadFirebase();
         } else {
             Log.e(TAG, "Unable to retrieve extra UID intent string. Cannot initialize profile.");
@@ -144,38 +155,41 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
             HashMap<String, Object> filters = (HashMap<String, Object>) profile.get("preferences");
             setFilters(currentFilterType, filters);
         } else { // Remove all checkboxes if filters are hidden.
-            switch(currentFilterType){
-                case ALLERGENS:
-                    Drawable transparentDrawable = new ColorDrawable(Color.TRANSPARENT); // Create a transparent drawable background.
-
-                    //  Remove checkboxes by setting a transparent background.
-                    mAllergy_gluten.setButtonDrawable(transparentDrawable);
-                    mAllergy_milk.setButtonDrawable(transparentDrawable);
-                    mAllergy_soy.setButtonDrawable(transparentDrawable);
-                    mAllergy_shellfish.setButtonDrawable(transparentDrawable);
-                    mAllergy_eggs.setButtonDrawable(transparentDrawable);
-                    mAllergy_nuts.setButtonDrawable(transparentDrawable);
-
-                    //  Set top-left element (nuts) to a new 'hidden info' string and remove text from all other filters.
-                    mAllergy_nuts.setText((String) "Filter information has been hidden");
-                    mAllergy_gluten.setText("");
-                    mAllergy_soy.setText("");
-                    mAllergy_shellfish.setText("");
-                    mAllergy_eggs.setText("");
-                    mAllergy_milk.setText("");
-                case RELIGIOUS:
-                    //TODO
-                    Log.i(TAG, "Religious");
-                case DIETARY:
-                    //TODO
-                    Log.i(TAG, "Religious");
-                case HEALTH:
-                    //TODO
-                    Log.i(TAG, "Religious");
-            }
-
-
+            makeFiltersInvisible();
         }
+    }
+
+    private void makeFiltersInvisible(){
+        switch(currentFilterType){
+            case ALLERGENS:
+                Drawable transparentDrawable = new ColorDrawable(Color.TRANSPARENT); // Create a transparent drawable background.
+
+                //  Remove checkboxes by setting a transparent background.
+                mAllergy_gluten.setButtonDrawable(transparentDrawable);
+                mAllergy_milk.setButtonDrawable(transparentDrawable);
+                mAllergy_soy.setButtonDrawable(transparentDrawable);
+                mAllergy_shellfish.setButtonDrawable(transparentDrawable);
+                mAllergy_eggs.setButtonDrawable(transparentDrawable);
+                mAllergy_nuts.setButtonDrawable(transparentDrawable);
+
+                //  Set top-left element (nuts) to a new 'hidden info' string and remove text from all other filters.
+                mAllergy_nuts.setText((String) "Filter information has been hidden");
+                mAllergy_gluten.setText("");
+                mAllergy_soy.setText("");
+                mAllergy_shellfish.setText("");
+                mAllergy_eggs.setText("");
+                mAllergy_milk.setText("");
+            case RELIGIOUS:
+                //TODO
+                Log.i(TAG, "Religious");
+            case DIETARY:
+                //TODO
+                Log.i(TAG, "Religious");
+            case HEALTH:
+                //TODO
+                Log.i(TAG, "Religious");
+        }
+
     }
 
     /** Set which filter checkboxes should be selected
@@ -224,6 +238,36 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                 }
             }
         });
+    }
+
+    private void loadLocalProfile() {
+        if(retrieveAboutMe){ mAboutMe.setText(mUserProfile.getAbout()); } //  If we are allowed to retrieve this data. do so.
+        /* TODO- Implement Image retrieval later,
+        if(retrieveImages){ }
+        */
+        String numOfRecipesString = "Recipes: " + (mUserProfile.getNumRecipes()); //  Convert 'long' value to something we can use.
+        if(retrieveRecipes){ mNumRecipes.setText(numOfRecipesString);} else {
+            mNumRecipes.setText(""); // Set number of recipes to nothing if hidden.
+        }
+
+        if(retrieveUsername){ mUsername.setText(mUserProfile.getDisplayName()); }
+
+        if(retrieveFilters){
+            HashMap<String, Object> filters = new HashMap<>();
+
+            //  Store all filters in a HashMap for convenience.
+            filters.put("allergy_nuts", mUserProfile.getPreferences().isAllergy_nuts());
+            filters.put("allergy_soya", mUserProfile.getPreferences().isAllergy_soya());
+            filters.put("allergy_milk", mUserProfile.getPreferences().isAllergy_milk());
+            filters.put("allergy_shellfish", mUserProfile.getPreferences().isAllergy_shellfish());
+            filters.put("allergy_gluten", mUserProfile.getPreferences().isAllergy_gluten());
+            filters.put("allergy_eggs", mUserProfile.getPreferences().isAllergy_eggs());
+
+            setFilters(currentFilterType, filters);
+
+        } else { // Remove all checkboxes if filters are hidden.
+            makeFiltersInvisible();
+        }
     }
 
     
