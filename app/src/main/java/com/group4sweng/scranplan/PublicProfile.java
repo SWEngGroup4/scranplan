@@ -242,6 +242,8 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         });
     }
 
+    //  Load the information from the local UserInfoPrivate object if the profile corresponds to that of the user using the app/
+    //  Reduces amount of Firebase Queries overall.
     private void loadLocalProfile() {
         if(retrieveAboutMe){ mAboutMe.setText(mUserProfile.getAbout()); } //  If we are allowed to retrieve this data. do so.
         /* TODO- Implement Image retrieval later,
