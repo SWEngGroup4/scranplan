@@ -49,18 +49,23 @@ public class InitialUserCustomisation extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //sets the page to the initial filer page
         setContentView(R.layout.activity_initial_user_customisation);
         userDetails = (UserInfoPrivate) getIntent().getSerializableExtra("user");
-        preferences = userDetails.getPreferences();
+
+        if (userDetails != null) { //only if user details are retrieved
+            preferences = userDetails.getPreferences();
+            initPageItems();
+            initCheckBoxes();
+            getResources().getColor(R.color.colorBackground);
+            initPageListeners();
+            initFirebase();
+        }
 
         getSupportActionBar().hide();
         Log.e(TAG, "Starting initial user customisation activity");
 
-        initPageItems();
-        initCheckBoxes();
-        getResources().getColor(R.color.colorBackground);
-        initPageListeners();
-        initFirebase();
+
 
     }
 
@@ -70,7 +75,7 @@ public class InitialUserCustomisation extends AppCompatActivity {
     }
 
     private void initPageItems() {
-        //Defining all relevant members of signin & register page
+        //Defining all buttons and check boxes on the page
         mSkipButton = findViewById(R.id.skipButton);
         mSubmitButton = findViewById(R.id.submitButton);
         mVegetarianBox = findViewById(R.id.VegCheckBox);
@@ -86,7 +91,7 @@ public class InitialUserCustomisation extends AppCompatActivity {
     }
 
     public void initCheckBoxes(){
-
+    //initialise all check boxes
         preferences.setPescatarian(preferences.isPescatarian());
         preferences.setVegetarian(preferences.isVegetarian());
         preferences.setVegan(preferences.isVegan());
@@ -97,6 +102,7 @@ public class InitialUserCustomisation extends AppCompatActivity {
         preferences.setAllergy_shellfish(preferences.isAllergy_shellfish());
         preferences.setAllergy_milk(preferences.isAllergy_milk());
 
+        //setting so only one box can be ticked out of vegetarian, vegan and pescatarian
         mVegetarianBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -131,6 +137,7 @@ public class InitialUserCustomisation extends AppCompatActivity {
         mSkipButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //skip button takes user directly to the main page
                 Log.e(TAG, "Initial user returning to main activity");
 
                 Intent returningIntent = new Intent();
@@ -142,6 +149,7 @@ public class InitialUserCustomisation extends AppCompatActivity {
 
         mSubmitButton.setOnClickListener(new View.OnClickListener() {
              public void onClick(View view) {
+                 //submit button saves the users preferences before
                  savePref();
                  finishActivity();
              }
@@ -151,8 +159,9 @@ public class InitialUserCustomisation extends AppCompatActivity {
 
     //make function to add info to firestore
     private void savePref() {
+
         CollectionReference colRef = database.collection("users");
-        DocumentReference usersRef = colRef.document(mAuth.getCurrentUser().getUid());
+        DocumentReference usersRef = colRef.document(mAuth.getCurrentUser().getUid()); //gets the current user ID
 
         preferences.setAllergy_eggs(mEggsBox.isChecked());
         preferences.setAllergy_milk(mMilkBox.isChecked());
@@ -168,7 +177,7 @@ public class InitialUserCustomisation extends AppCompatActivity {
         userDetails.setPreferences(preferences);
 
         HashMap<String, Object> updatedPrefs = new HashMap<>();
-
+        //maps the updated preferences by checking if they are ticked, if they are the allergy is set to true
         updatedPrefs.put("allergy_nuts", userDetails.getPreferences().isAllergy_nuts());
         updatedPrefs.put("allergy_milk", userDetails.getPreferences().isAllergy_milk());
         updatedPrefs.put("allergy_soya", userDetails.getPreferences().isAllergy_soya());
@@ -177,9 +186,9 @@ public class InitialUserCustomisation extends AppCompatActivity {
         updatedPrefs.put("allergy_eggs", userDetails.getPreferences().isAllergy_eggs());
 
 
-        usersRef.update("preferences", updatedPrefs);
-        usersRef.update("firstAppLaunch", false);
-        Log.e(TAG, "test to level");
+        usersRef.update("preferences", updatedPrefs); //preferences updated
+        usersRef.update("firstAppLaunch", false); //first time login set to false so page wont show again
+
 
     }
 
