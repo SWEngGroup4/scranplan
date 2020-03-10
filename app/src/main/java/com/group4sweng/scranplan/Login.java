@@ -416,6 +416,14 @@ public class Login extends AppCompatActivity{
 
                                             mUser = new UserInfoPrivate(map, preferences, privacy);
 
+                                            if(mUser.getFirstAppLaunch()){
+                                                Log.e(TAG,"Sending user to initial preference setup page");
+                                                Intent initialCustom = new Intent(getApplicationContext(), InitialUserCustomisation.class);
+                                                initialCustom.putExtra("user", mUser);
+                                                startActivity(initialCustom);
+                                            }
+
+
                                             Log.i(TAG, "SignIn : Valid current user : UID [" + mUser.getUID() + "]");
                                             mLoginInProgress = false;
                                             mRegisterInProgress = false;

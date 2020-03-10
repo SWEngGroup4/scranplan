@@ -17,6 +17,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.UserInfo.Preferences;
+import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.HashMap;
 
@@ -142,7 +144,7 @@ public class InitialUserCustomisation extends AppCompatActivity {
         mSubmitButton.setOnClickListener(new View.OnClickListener() {
              public void onClick(View view) {
                  savePref();
-                 userDetails.setmFirstTimeLogin(false);
+                 userDetails.setFirstAppLaunch(false);
                  finishActivity();
              }
         });
@@ -167,10 +169,18 @@ public class InitialUserCustomisation extends AppCompatActivity {
 
         userDetails.setPreferences(preferences);
 
-        HashMap<String, Object> updatedPrefs = userDetails.getPreferences().returnPrefMap();
+        HashMap<String, Object> updatedPrefs = new HashMap<>();
+
+        updatedPrefs.put("allergy_nuts", userDetails.getPreferences().isAllergy_nuts());
+        updatedPrefs.put("allergy_milk", userDetails.getPreferences().isAllergy_milk());
+        updatedPrefs.put("allergy_soya", userDetails.getPreferences().isAllergy_soya());
+        updatedPrefs.put("allergy_shellfish", userDetails.getPreferences().isAllergy_shellfish());
+        updatedPrefs.put("allergy_gluten", userDetails.getPreferences().isAllergy_gluten());
+        updatedPrefs.put("allergy_eggs", userDetails.getPreferences().isAllergy_eggs());
+
 
         usersRef.update("preferences", updatedPrefs);
-        usersRef.update("firstTimeLogin", false);
+        usersRef.update("firstAppLaunch", false);
 
     }
 
