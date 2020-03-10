@@ -14,10 +14,9 @@ public class GraphicsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.graphics);
 
-        mCustomView = (CustomView) findViewById(R.id.customView);
-
+        mCustomView = findViewById(R.id.customView);
 
         findViewById(R.id.btn_add_circle).setOnClickListener(new View.OnClickListener()
         {

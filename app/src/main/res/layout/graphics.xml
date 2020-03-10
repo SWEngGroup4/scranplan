@@ -6,10 +6,10 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <com.example.sweng_graphics.views.CustomView
+    <com.group4sweng.scranplan.views.CustomView
         android:id="@+id/customView"
         android:layout_width="match_parent"
-        app:square_color="@color/squareColor"
+        app:square_color="@color/square_color"
         app:square_size="@dimen/square_size"
         android:layout_height="500dp" />
 
