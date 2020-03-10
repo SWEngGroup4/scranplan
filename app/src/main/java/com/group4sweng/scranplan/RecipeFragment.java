@@ -1,5 +1,6 @@
 package com.group4sweng.scranplan;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -75,7 +76,9 @@ public class RecipeFragment extends Fragment {
                 imageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        openRecipeDialog();
+//                        openRecipeDialog();
+                    Intent intent = new Intent(getContext(), GraphicsActivity.class);
+                    startActivity(intent);
                     }
                 });
 
