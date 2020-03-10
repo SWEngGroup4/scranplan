@@ -422,8 +422,7 @@ public class Login extends AppCompatActivity{
                                                 initialCustom.putExtra("user", mUser);
                                                 startActivity(initialCustom);
                                             }
-
-
+                                            else{Log.i(TAG, "test one");}
                                             Log.i(TAG, "SignIn : Valid current user : UID [" + mUser.getUID() + "]");
                                             mLoginInProgress = false;
                                             mRegisterInProgress = false;

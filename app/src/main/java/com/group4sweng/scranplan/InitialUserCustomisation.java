@@ -58,9 +58,10 @@ public class InitialUserCustomisation extends AppCompatActivity {
 
         initPageItems();
         initCheckBoxes();
-        getResources().getColor(R.color.colorPrimary);
+        getResources().getColor(R.color.colorBackground);
         initPageListeners();
         initFirebase();
+
     }
 
     private void initFirebase() {
@@ -139,12 +140,9 @@ public class InitialUserCustomisation extends AppCompatActivity {
             }
         });
 
-
-
         mSubmitButton.setOnClickListener(new View.OnClickListener() {
              public void onClick(View view) {
                  savePref();
-                 userDetails.setFirstAppLaunch(false);
                  finishActivity();
              }
         });
@@ -181,6 +179,7 @@ public class InitialUserCustomisation extends AppCompatActivity {
 
         usersRef.update("preferences", updatedPrefs);
         usersRef.update("firstAppLaunch", false);
+        Log.e(TAG, "test to level");
 
     }
 

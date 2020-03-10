@@ -131,11 +131,8 @@ public class MainActivity extends AppCompatActivity {
                                     Log.i(TAG, "Successfully logged back in");
                                     if(mUser.getFirstAppLaunch()){
                                         Log.e(TAG,"Sending user to initial preference setup page");
-
                                         Intent initialCustom = new Intent(getApplicationContext(), InitialUserCustomisation.class);
-
                                         initialCustom.putExtra("user", mUser);
-
                                         startActivity(initialCustom);
                                     }
 
