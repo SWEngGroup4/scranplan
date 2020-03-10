@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="LockedOrientationActivity"
     package="com.group4sweng.scranplan" >
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -16,6 +18,12 @@
         <activity android:name=".Root" />
         <activity android:name=".Login" />
         <activity android:name=".InitialUserCustomisation" />
+        <activity android:name=".PublicProfile"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait" />
+        <activity android:name=".ProfileSettings"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
 
         <activity
             android:name=".MainActivity"

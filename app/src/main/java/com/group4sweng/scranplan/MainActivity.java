@@ -4,16 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -27,6 +22,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.HashMap;
 
@@ -34,8 +30,9 @@ public class MainActivity extends AppCompatActivity {
 
     Context mContext = this;
 
-    final String TAG = "FirebaseTest";
+    final static String TAG = "FirebaseTest";
     final FirebaseFirestore database = FirebaseFirestore.getInstance();
+    final static int PROFILE_SETTINGS_REQUEST_CODE = 1;
 
     UserInfoPrivate mUser;
 
@@ -45,9 +42,9 @@ public class MainActivity extends AppCompatActivity {
     FirebaseAuth.AuthStateListener mAuthListener;
     String mDisplayName;
 
-    Button mLogoutButton;
     TabLayout tabLayout;
     FrameLayout frameLayout;
+    SideMenu mSideMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,15 +55,17 @@ public class MainActivity extends AppCompatActivity {
             mUser = (UserInfoPrivate) getIntent().getSerializableExtra("user");
         }
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+//        Toolbar toolbar = findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
 
 
         // Drawer setup and and synchronising the states
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.nav_drawer_open, R.string.nav_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
+        mSideMenu = new SideMenu();
+        mSideMenu.mMenuToolbar = findViewById(R.id.toolbar);
+        mSideMenu.mMenuDrawer = findViewById(R.id.drawer_layout);
+        mSideMenu.mNavigationView = findViewById(R.id.side_menu);
+        setSupportActionBar(mSideMenu.mMenuToolbar);
+        mSideMenu.init(this, this);
 
 
         initFirebase();
@@ -82,7 +81,6 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
     }
-
 
 
 
@@ -117,13 +115,18 @@ public class MainActivity extends AppCompatActivity {
                                     map.put("numRecipes", document.get("numRecipes"));
                                     map.put("preferences", document.get("preferences"));
                                     map.put("about", document.get("about"));
-                                    map.put("firstTimeLogin", document.get("firstTimeLogin"));
 
-                                    try {
-                                        mUser = new UserInfoPrivate(map, (HashMap<String, Object>) document.get("preferences"));
-                                    } catch (Exception e){
-                                        e.printStackTrace();
-                                    }
+                                    map.put("shortPreferences", document.get("shortPreferences"));
+                                    map.put("firstAppLaunch", document.get("firstAppLaunch"));
+                                    map.put("firstPresentationLaunch", document.get("firstPresentationLaunch"));
+
+                                    @SuppressWarnings("unchecked")
+                                    HashMap<String, Object> preferences = (HashMap<String, Object>) document.get("preferences");
+
+                                    @SuppressWarnings("unchecked")
+                                    HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacy");
+
+                                    mUser = new UserInfoPrivate(map, preferences, privacy);
 
                                     Log.i(TAG, "Successfully logged back in");
                                     if(mUser.ismFirstTimeLogin()){
@@ -170,7 +173,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void initPageItems(){
         //Defining all relevant members of signin & register page
-        mLogoutButton = (Button) findViewById(R.id.logoutButton);
         tabLayout = findViewById(R.id.tabLayout);
         frameLayout = findViewById(R.id.frameLayout);
 
@@ -181,14 +183,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initPageListeners() {
-        mLogoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.e(TAG, "Logout button has been pressed and user has been logged out.");
-                mUser = null;
-                mAuth.signOut();
-            }
-        });
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -223,5 +217,54 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch(requestCode) {
+            case (PROFILE_SETTINGS_REQUEST_CODE):
+                if (resultCode == RESULT_OK) {
+                    mUser = (UserInfoPrivate) getIntent().getSerializableExtra("user");
+                }
+                break;
+            default:
+                Log.e(TAG, "I am not returning anything. Should return new profile settings from Profile Settings Activity.");
+        }
+    }
+
+    /**
+     * Method to change Intent when profile is clicked in the side menu
+     */
+    public void onPublicProfileClick() {
+        Intent intentProfile = new Intent(this, PublicProfile.class);
+
+        //intentProfile.putExtra("UID", mUser.getUID()); // For the profile we use the local users UID.
+        intentProfile.putExtra("user", mUser); // Not required but used for efficiency. Means we aren't loading from Firebase each time.
+        setResult(RESULT_OK, intentProfile);
+        startActivity(intentProfile);
+    }
+
+    /**
+     * Method to change Intent when profile edit is clicked in the side menu
+     */
+    public void onProfileEditClick() {
+
+        Intent intentProfile = new Intent(this, ProfileSettings.class);
+        intentProfile.putExtra("user", mUser);
+
+        setResult(RESULT_OK, intentProfile);
+        startActivityForResult(intentProfile, PROFILE_SETTINGS_REQUEST_CODE);
+
+    }
+
+    /**
+     * Method to change logout when it's clicked in the side menu
+     */
+    public void onLogoutMenuClick(){
+        mUser = null;
+        mAuth.signOut();
+    }
+
 
 }
