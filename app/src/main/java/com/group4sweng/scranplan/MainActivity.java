@@ -1,12 +1,27 @@
 package com.group4sweng.scranplan;
 
+import android.animation.ObjectAnimator;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.SearchView;
+import android.widget.TabHost;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -27,108 +42,69 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
+import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
+import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
+import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.HashMap;
 
+/**
+ * Root page for the application offering notification to the user that the page is loading
+ */
 public class MainActivity extends AppCompatActivity {
-
     Context mContext = this;
-
-    final String TAG = "FirebaseTest";
+    final static String TAG = "ROOT";
     final FirebaseFirestore database = FirebaseFirestore.getInstance();
+    final static int PROFILE_SETTINGS_REQUEST_CODE = 1;
 
+    // User info and preferences variable
     UserInfoPrivate mUser;
 
+    // Firebase variables
     FirebaseAuth mAuth;
     FirebaseApp mApp;
-
     FirebaseAuth.AuthStateListener mAuthListener;
     String mDisplayName;
 
-    Button mLogoutButton;
-    TabLayout tabLayout;
-    FrameLayout frameLayout;
+    // LOGO that rotates on screen to show user that page is loading
+    ImageView mLogoHomeImage;
 
+    // Sets the page up on create
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.e(TAG,"At root page - logging in user or sending to login page");
 
-        if(mUser != null){
-            mUser = (UserInfoPrivate) getIntent().getSerializableExtra("user");
+        if(getIntent().getSerializableExtra("user") != null){
+            mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) getIntent().getSerializableExtra("user");
         }
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-
-        // Drawer setup and and synchronising the states
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.nav_drawer_open, R.string.nav_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-
-        initFirebase();
         initPageItems();
-        initPageListeners();
+        // Rotates the logo clockwise
+        rotateImageClockwise(mLogoHomeImage);
+        initFirebase();
 
-        tabLayout = findViewById(R.id.tabLayout);
-        frameLayout = findViewById(R.id.frameLayout);
+    }
 
-        Fragment fragment = new RecipeFragment();
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.frameLayout, fragment);
-        fragmentTransaction.commit();
+    public void initPageItems(){
+        mLogoHomeImage = findViewById(R.id.logoHomeImage);
+    }
 
-        tabLayout.addTab(tabLayout.newTab().setText("Recipes"));
-        tabLayout.addTab(tabLayout.newTab().setText("Meal Planner"));
-        tabLayout.addTab(tabLayout.newTab().setText("Timeline"));
-        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
-
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                Fragment fragment = null;
-                switch (tab.getPosition()) {
-                    case 0:
-                        fragment = new RecipeFragment();
-                        break;
-                    case 1:
-                        fragment = new PlannerFragment();
-                        break;
-                    case 2:
-                        fragment = new TimelinePlanner();
-                        break;
-                }
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.frameLayout, fragment);
-                fragmentTransaction.commit();
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-        });
-
-//        FloatingActionButton fab = findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
+    // Rotating method
+    public void rotateImageClockwise(View view) {
+        ObjectAnimator rotate = ObjectAnimator.ofFloat(view, "rotation", 360f, 0f);
+        rotate.setRepeatCount(999);
+        rotate.setDuration(1000);
+        rotate.start();
     }
 
 
+    /**
+     * setting up the firebase and sets the user authentication listener,
+     * checking if the user is ever logged out that the user is taken back to the login screen.
+     */
     private void initFirebase(){
         mApp = FirebaseApp.getInstance();
         mAuth = FirebaseAuth.getInstance();
@@ -144,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
 
                         DocumentReference usersRef = database.collection("users").document(mAuth.getCurrentUser().getUid());
                         usersRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            // If user logged in then all user preferences are downloaded from the Firestore
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                 if (task.isSuccessful()) {
@@ -161,13 +138,23 @@ public class MainActivity extends AppCompatActivity {
                                     map.put("preferences", document.get("preferences"));
                                     map.put("about", document.get("about"));
 
-                                    try {
-                                        mUser = new UserInfoPrivate(map, (HashMap<String, Object>) document.get("preferences"));
-                                    } catch (Exception e){
-                                        e.printStackTrace();
-                                    }
+                                    @SuppressWarnings("unchecked")
+                                    HashMap<String, Object> preferences = (HashMap<String, Object>) document.get("preferences");
+
+                                    @SuppressWarnings("unchecked")
+                                    HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacy");
+
+                                    // user info and preferences saved to the user variables and passed through the application
+                                    mUser = new UserInfoPrivate(map, preferences, privacy);
 
                                     Log.i(TAG, "Successfully logged back in");
+                                    Intent returningIntent = new Intent(MainActivity.this, Home.class);
+
+                                    returningIntent.putExtra("user", mUser);
+
+                                    startActivity(returningIntent);
+
+                                    // Else if no user was retrieved, user told and returned to login
                                 }else {
                                     Log.e(TAG, "User details retrieval : Unable to retrieve user document in Firestore ");
                                     Toast.makeText(getApplicationContext(),"Unable to retrieve current user details, please sign in again.",Toast.LENGTH_SHORT).show();
@@ -191,28 +178,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
-
-
         mAuth.addAuthStateListener(mAuthListener);
-
-
     }
 
-
-    private void initPageItems(){
-        //Defining all relevant members of signin & register page
-        mLogoutButton = (Button) findViewById(R.id.logoutButton);
-    }
-
-    private void initPageListeners() {
-        mLogoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.e(TAG, "Logout button has been pressed and user has been logged out.");
-                mUser = null;
-                mAuth.signOut();
-            }
-        });
+    // Disable user from pressing back button on main activity page
+    @Override
+    public void onBackPressed() {
+        //Do nothing
     }
 
 }

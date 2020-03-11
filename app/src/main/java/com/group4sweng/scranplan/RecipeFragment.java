@@ -1,33 +1,92 @@
 package com.group4sweng.scranplan;
 
-import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.*;
+import com.group4sweng.scranplan.SearchFunctions.HomeQueries;
+import com.group4sweng.scranplan.SearchFunctions.HomeRecyclerAdapter;
+import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
+import com.group4sweng.scranplan.SearchFunctions.SearchRecyclerAdapter;
+import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
 import javax.annotation.Nullable;
 
-
+/**
+ * This class builds the horizontal scrolls of custom preference recipe selection for the user on the
+ * home screen. Each of these scrolls is infinite in length, loading 5 recipes at a time to minimise
+ * reads from the Firestore yet still giving the user an infinite and responsive experience with
+ * scroll listeners to check where the user is interacting with these scrolls.
+ */
 public class RecipeFragment extends Fragment {
+
+    final String TAG = "Home horizontal queries";
+    // User preferences passed into scroll views via constructor
+    UserInfoPrivate user;
+    public RecipeFragment(UserInfoPrivate userSent){
+        user = userSent;
+    }
+
+    // Width size of each scroll view, dictating size of images on home screen
+    final int scrollViewSize = 5;
+
+    //Score scroll info
+    List<HomeRecyclerAdapter.HomeRecipePreviewData> dataScore;
+    private DocumentSnapshot lastVisibleScore;
+    private boolean isScrollingScore = false;
+    private boolean isLastItemReachedScore = false;
+
+
+    //Votes scroll info
+    List<HomeRecyclerAdapter.HomeRecipePreviewData> dataVotes;
+    private DocumentSnapshot lastVisibleVotes;
+    private boolean isScrollingVotes = false;
+    private boolean isLastItemReachedVotes = false;
+
+    //Timestamp scroll info
+    List<HomeRecyclerAdapter.HomeRecipePreviewData> dataTime;
+    private DocumentSnapshot lastVisibleTime;
+    private boolean isScrollingTime = false;
+    private boolean isLastItemReachedTime = false;
+
+    //Favourites scroll info
+    List<HomeRecyclerAdapter.HomeRecipePreviewData> dataFave;
+    private DocumentSnapshot lastVisibleFave;
+    private boolean isScrollingFave = false;
+    private boolean isLastItemReachedFave = false;
+
 
     // Database objects for accessing recipes
     private FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
     private CollectionReference mColRef = mDatabase.collection("recipes");
+
+
+
+
 
     // Auto-generated super method
     @Override
@@ -46,80 +105,433 @@ public class RecipeFragment extends Fragment {
 
         // Procedurally fills topLayout with imageButton content
         LinearLayout topLayout = view.findViewById(R.id.topLayout);
-        for (int i = 0; i < 10; i++) {
 
-            // Placeholder text TODO - change to query type
-            TextView textView = new TextView(view.getContext());
-            String testString = "Test" + i;
-            textView.setText(testString);
+        // Checks users details have been provided
+        if(user != null){
+            // Build the first horizontal scroll built around organising the recipes via highest rated
+            HomeQueries horizontalScrollQueriesScore = new HomeQueries(user);
+            final RecyclerView recyclerViewScore = new RecyclerView(view.getContext());
+            // Set out the layout of this horizontal view
+            RecyclerView.LayoutManager rManagerScore = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+            recyclerViewScore.setLayoutManager(rManagerScore);
+            recyclerViewScore.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels / scrollViewSize));
+            // Array to score downloaded data
+            dataScore = new ArrayList<>();
+            final RecyclerView.Adapter rAdapterScore = new HomeRecyclerAdapter(RecipeFragment.this, dataScore);
+            recyclerViewScore.setAdapter(rAdapterScore);
+            final Query queryScore = (Query) horizontalScrollQueriesScore.getQueries().get("score");
+            // Ensure query exists and builds view with query
+            if (queryScore != null) {
+                Log.e(TAG, "User is searching the following query: " + queryScore.toString());
+                // Give the view a title
+                TextView textView = new TextView(view.getContext());
+                String testString = "Top picks";
+                textView.setTextSize(25);
+                textView.setPadding(20, 5, 5, 5);
+                textView.setTextColor(Color.WHITE);
+                textView.setShadowLayer(4, 0, 0, Color.BLACK);
+                textView.setText(testString);
+                // Query listener to add data to view
+                queryScore
+                        .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (DocumentSnapshot document : task.getResult()) {
+                                dataScore.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
+                                        document,
+                                        document.getId(),
+                                        document.get("imageURL").toString()
+                                ));
+                            }
+                            rAdapterScore.notifyDataSetChanged();
+                            if(task.getResult().size() != 0){
+                                lastVisibleScore = task.getResult().getDocuments().get(task.getResult().size() - 1);
+                            }else{
+                                isLastItemReachedScore = true;
+                            }
+                            // Track users location to check if new data download is required
+                            RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+                                @Override
+                                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                                    super.onScrollStateChanged(recyclerView, newState);
+                                    if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                                        isScrollingScore = true;
+                                    }
+                                }
+                                // If scrolled to end then download new data and check if we are out of data
+                                @Override
+                                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                                    super.onScrolled(recyclerView, dx, dy);
 
-            // Generates single horizontal scroll view for query
-            HorizontalScrollView horizontalScrollView = new HorizontalScrollView(view.getContext());
+                                    LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
+                                    int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+                                    int visibleItemCount = linearLayoutManager.getChildCount();
+                                    int totalItemCount = linearLayoutManager.getItemCount();
 
-            // Generates linear layout for holding content with % size according to screen
-            LinearLayout linearLayout = new LinearLayout(view.getContext());
-            linearLayout.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels / 5));
+                                    if (isScrollingScore && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReachedScore) {
+                                        isScrollingScore = false;
+                                        Query nextQuery = queryScore.startAfter(lastVisibleScore);
+                                        nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> t) {
+                                                if (t.isSuccessful()) {
+                                                    for (DocumentSnapshot d : t.getResult()) {
+                                                        dataScore.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
+                                                                d,
+                                                                d.getId(),
+                                                                d.get("imageURL").toString()
+                                                        ));
+                                                    }
+                                                    if(isLastItemReachedScore){
+                                                        // Add end here
+                                                    }
+                                                    rAdapterScore.notifyDataSetChanged();
+                                                    if (t.getResult().size() != 0) {
+                                                        lastVisibleScore = t.getResult().getDocuments().get(t.getResult().size() - 1);
+                                                    }
 
-            for (int j =0; j < 10; j++) {
+                                                    if (t.getResult().size() < 5) {
+                                                        isLastItemReachedScore = true;
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    }
+                                }
+                            };
+                            recyclerViewScore.addOnScrollListener(onScrollListener);
+                        }
+                    }
+                });
+                // Add view to page
+                topLayout.addView(textView);
+                topLayout.addView(recyclerViewScore);
+                Log.e(TAG, "Score horizontal row added");
+            }
+            /* Adding the save view as score but with highest votes as a new query
+            /  This has been done in the same manner but as there are too many variables to track
+            /  this is not workable in any kind of loop. */
+            HomeQueries horizontalScrollQueriesVotes = new HomeQueries(user);
+            final RecyclerView recyclerViewVotes = new RecyclerView(view.getContext());
+            RecyclerView.LayoutManager rManagerVotes = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+            recyclerViewVotes.setLayoutManager(rManagerVotes);
+            recyclerViewVotes.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels / scrollViewSize));
+            dataVotes = new ArrayList<>();
+            final RecyclerView.Adapter rAdapterVotes = new HomeRecyclerAdapter(RecipeFragment.this, dataVotes);
+            recyclerViewVotes.setAdapter(rAdapterVotes);
+            final Query queryVotes = (Query) horizontalScrollQueriesVotes.getQueries().get("votes");
+            if (queryVotes != null) {
+                Log.e(TAG, "User is searching the following query: " + queryVotes.toString());
 
-                // Generates imageButton, adds padding and sizes accordingly
-                ImageButton imageButton = new ImageButton(view.getContext());
-                imageButton.setAdjustViewBounds(true);
-                imageButton.setPadding(10,10,10,10);
-                imageButton.setBackground(null);
-                imageButton.setScaleType(ImageButton.ScaleType.FIT_XY);
+                TextView textView = new TextView(view.getContext());
+                String testString = "Trending";
+                textView.setTextSize(25);
+                textView.setPadding(20, 5, 5, 5);
+                textView.setTextColor(Color.WHITE);
+                textView.setShadowLayer(4, 0, 0, Color.BLACK);
+                textView.setText(testString);
 
-                // Function to add image to button from database
-                loadImage(imageButton);
+                queryVotes
+                        .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (DocumentSnapshot document : task.getResult()) {
+                                dataVotes.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
+                                        document,
+                                        document.getId(),
+                                        document.get("imageURL").toString()
+                                ));
+                            }
+                            rAdapterVotes.notifyDataSetChanged();
+                            if(task.getResult().size() != 0){
+                                lastVisibleVotes = task.getResult().getDocuments().get(task.getResult().size() - 1);
+                            }else{
+                                isLastItemReachedVotes = true;
+                            }
 
-                // Button functionality
+                            RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+                                @Override
+                                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                                    super.onScrollStateChanged(recyclerView, newState);
+                                    if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                                        isScrollingVotes = true;
+                                    }
+                                }
 
+                                @Override
+                                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                                    super.onScrolled(recyclerView, dx, dy);
 
-                linearLayout.addView(imageButton);
+                                    LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
+                                    int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+                                    int visibleItemCount = linearLayoutManager.getChildCount();
+                                    int totalItemCount = linearLayoutManager.getItemCount();
+
+                                    if (isScrollingVotes && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReachedVotes) {
+                                        isScrollingVotes = false;
+                                        Query nextQuery = queryVotes.startAfter(lastVisibleVotes);
+                                        nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> t) {
+                                                if (t.isSuccessful()) {
+                                                    for (DocumentSnapshot d : t.getResult()) {
+                                                        dataVotes.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
+                                                                d,
+                                                                d.getId(),
+                                                                d.get("imageURL").toString()
+                                                        ));
+                                                    }
+                                                    if(isLastItemReachedVotes){
+                                                        // Add end here
+                                                    }
+                                                    rAdapterVotes.notifyDataSetChanged();
+                                                    if (t.getResult().size() != 0) {
+                                                        lastVisibleVotes = t.getResult().getDocuments().get(t.getResult().size() - 1);
+                                                    }
+
+                                                    if (t.getResult().size() < 5) {
+                                                        isLastItemReachedVotes = true;
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    }
+                                }
+                            };
+                            recyclerViewVotes.addOnScrollListener(onScrollListener);
+                        }
+                    }
+                });
+                topLayout.addView(textView);
+                topLayout.addView(recyclerViewVotes);
+                Log.e(TAG, "Votes horizontal view added");
             }
 
-            // Adds generated content to appropriate views
-            horizontalScrollView.addView(linearLayout);
-            topLayout.addView(textView);
-            topLayout.addView(horizontalScrollView);
+
+            /* Adding the save view as score but with newest recipes added as a new query
+            /  This has been done in the same manner but as there are too many variables to track
+            /  this is not workable in any kind of loop. */
+            HomeQueries horizontalScrollQueriesTime = new HomeQueries(user);
+            final RecyclerView recyclerViewTime = new RecyclerView(view.getContext());
+            RecyclerView.LayoutManager rManagerTime = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+            recyclerViewTime.setLayoutManager(rManagerTime);
+            recyclerViewTime.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels / scrollViewSize));
+            dataTime = new ArrayList<>();
+            final RecyclerView.Adapter rAdapterTime = new HomeRecyclerAdapter(RecipeFragment.this, dataTime);
+            recyclerViewTime.setAdapter(rAdapterTime);
+            final Query queryTime = (Query) horizontalScrollQueriesTime.getQueries().get("timestamp");
+            if (queryTime != null) {
+                Log.e(TAG, "User is searching the following query: " + queryTime.toString());
+
+                TextView textView = new TextView(view.getContext());
+                String testString = "New tastes";
+                textView.setTextSize(25);
+                textView.setPadding(20, 5, 5, 5);
+                textView.setTextColor(Color.WHITE);
+                textView.setShadowLayer(4, 0, 0, Color.BLACK);
+                textView.setText(testString);
+
+                queryTime
+                        .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (DocumentSnapshot document : task.getResult()) {
+                                dataTime.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
+                                        document,
+                                        document.getId(),
+                                        document.get("imageURL").toString()
+                                ));
+                            }
+                            rAdapterTime.notifyDataSetChanged();
+                            if(task.getResult().size() != 0){
+                                lastVisibleTime = task.getResult().getDocuments().get(task.getResult().size() - 1);
+                            }else{
+                                isLastItemReachedTime = true;
+                            }
+
+                            RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+                                @Override
+                                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                                    super.onScrollStateChanged(recyclerView, newState);
+                                    if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                                        isScrollingTime = true;
+                                    }
+                                }
+
+                                @Override
+                                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                                    super.onScrolled(recyclerView, dx, dy);
+
+                                    LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
+                                    int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+                                    int visibleItemCount = linearLayoutManager.getChildCount();
+                                    int totalItemCount = linearLayoutManager.getItemCount();
+
+                                    if (isScrollingTime && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReachedTime) {
+                                        isScrollingTime = false;
+                                        Query nextQuery = queryTime.startAfter(lastVisibleTime);
+                                        nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> t) {
+                                                if (t.isSuccessful()) {
+                                                    for (DocumentSnapshot d : t.getResult()) {
+                                                        dataTime.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
+                                                                d,
+                                                                d.getId(),
+                                                                d.get("imageURL").toString()
+                                                        ));
+                                                    }
+                                                    if(isLastItemReachedTime){
+                                                        // Add end here
+                                                    }
+                                                    rAdapterTime.notifyDataSetChanged();
+                                                    if (t.getResult().size() != 0) {
+                                                        lastVisibleTime = t.getResult().getDocuments().get(t.getResult().size() - 1);
+                                                    }
+
+                                                    if (t.getResult().size() < 5) {
+                                                        isLastItemReachedTime = true;
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    }
+                                }
+                            };
+                            recyclerViewTime.addOnScrollListener(onScrollListener);
+                        }
+                    }
+                });
+                topLayout.addView(textView);
+                topLayout.addView(recyclerViewTime);
+                Log.e(TAG, "Time horizontal view added");
+            }
+
+            /* Adding the save view as score but with user favourited recipes as a new query
+            /  This has been done in the same manner but as there are too many variables to track
+            /  this is not workable in any kind of loop. */
+            HomeQueries horizontalScrollQueriesFave = new HomeQueries(user);
+            final RecyclerView recyclerViewFave = new RecyclerView(view.getContext());
+            RecyclerView.LayoutManager rManagerFave = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+            recyclerViewFave.setLayoutManager(rManagerFave);
+            recyclerViewFave.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels / scrollViewSize));
+            dataFave = new ArrayList<>();
+            final RecyclerView.Adapter rAdapterFave = new HomeRecyclerAdapter(RecipeFragment.this, dataFave);
+            recyclerViewFave.setAdapter(rAdapterFave);
+            final Query queryFave = (Query) horizontalScrollQueriesFave.getQueries().get("favourite");
+            if (queryFave != null) {
+                Log.e(TAG, "User is searching the following query: " + queryFave.toString());
+
+                TextView textView = new TextView(view.getContext());
+                String testString = "My favourites";
+                textView.setTextSize(25);
+                textView.setPadding(20, 5, 5, 5);
+                textView.setTextColor(Color.WHITE);
+                textView.setShadowLayer(4, 0, 0, Color.BLACK);
+                textView.setText(testString);
+
+                queryFave
+                        .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (DocumentSnapshot document : task.getResult()) {
+                                dataScore.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
+                                        document,
+                                        document.getId(),
+                                        document.get("imageURL").toString()
+                                ));
+                            }
+                            rAdapterFave.notifyDataSetChanged();
+                            if(task.getResult().size() != 0){
+                                lastVisibleFave = task.getResult().getDocuments().get(task.getResult().size() - 1);
+                            }else{
+                                isLastItemReachedFave = true;
+                            }
+
+                            RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+                                @Override
+                                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                                    super.onScrollStateChanged(recyclerView, newState);
+                                    if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                                        isScrollingFave = true;
+                                    }
+                                }
+
+                                @Override
+                                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                                    super.onScrolled(recyclerView, dx, dy);
+
+                                    LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
+                                    int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+                                    int visibleItemCount = linearLayoutManager.getChildCount();
+                                    int totalItemCount = linearLayoutManager.getItemCount();
+
+                                    if (isScrollingFave && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReachedFave) {
+                                        isScrollingFave = false;
+                                        Query nextQuery = queryFave.startAfter(lastVisibleFave);
+                                        nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> t) {
+                                                if (t.isSuccessful()) {
+                                                    for (DocumentSnapshot d : t.getResult()) {
+                                                        dataFave.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
+                                                                d,
+                                                                d.getId(),
+                                                                d.get("imageURL").toString()
+                                                        ));
+                                                    }
+                                                    if(isLastItemReachedFave){
+                                                        // Add end here
+                                                    }
+                                                    rAdapterFave.notifyDataSetChanged();
+                                                    if (t.getResult().size() != 0) {
+                                                        lastVisibleFave = t.getResult().getDocuments().get(t.getResult().size() - 1);
+                                                    }
+
+                                                    if (t.getResult().size() < 5) {
+                                                        isLastItemReachedFave = true;
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    }
+                                }
+                            };
+                            recyclerViewFave.addOnScrollListener(onScrollListener);
+                        }
+                    }
+                });
+                topLayout.addView(textView);
+                topLayout.addView(recyclerViewFave);
+                Log.e(TAG, "Time horizontal view added");
+            }
+
+        }else{
+            // If scroll views fail due to no user, this error is reported
+            Log.e(TAG, "ERROR: Loading scroll views - We were unable to find user.");
         }
         return view;
     }
 
-    // Private function to get random image from database and load it into an imageButton
-    // TODO - Change to structured query search instead of random selection
-    // TODO - Edit function so that we don't have to call the entire collection for each image?
-    private void loadImage(final ImageButton imageButton) {
-        final Random random = new Random();
+    // Open recipe info fragment
+    public void openRecipeDialog(){
 
-        /* Adds onSuccessListener - will not run until query is reported successful
-           Stops async task from throwing errors */
-        mColRef.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot querySnapshot) {
-                // Not necessary but worth checking
-                if (!querySnapshot.isEmpty()) {
-                    final List<DocumentSnapshot> docs = querySnapshot.getDocuments(); // Get documents from queried collection
-                    final int n = random.nextInt(docs.size() - 1); // Random number generated
-
-                    Picasso.get().load(docs.get(n).get("imageURL").toString()).into(imageButton); //Loads image using picasso library TODO - NullPointerException check
-                    imageButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            openRecipeDialog(docs.get(n).getId());
-                        }
-                    });
-                }
-            }
-        });
-    }
-
-    public void openRecipeDialog(String recipeID){
-        Bundle bundle = new Bundle();
-        bundle.putString("recipeID", recipeID);
         RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
-        recipeDialogFragment.setArguments(bundle);
         recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");
 
+    }
+
+    /**
+     * On click of a recipe a new recipe info fragment is opened and the document is sent through
+     * This saves on downloading the data again from the database
+      */
+    public void recipeSelected(DocumentSnapshot document) {
+        // TODO take DocumentSnapshot as a variable through to RecipeInfoFragment
+        RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
+        recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");
     }
 }
