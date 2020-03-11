@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ProfileSettings">
+
+    <EditText
+        android:id="@+id/settings_input_username"
+        style="@style/Widget.AppCompat.EditText"
+        android:layout_width="235dp"
+        android:layout_height="33dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="10dp"
+        android:background="@drawable/rounded_corners"
+        android:ems="10"
+        android:padding="5.5dp"
+        android:text="Input Field"
+        android:singleLine="true"
+        android:textColor="#353236"
+        android:textSize="17sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/settings_profile_image"
+        app:layout_constraintTop_toBottomOf="@+id/settings_username" />
+
+    <Button
+        android:id="@+id/settings_delete_profile"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="143dp"
+        android:layout_height="38dp"
+        android:layout_marginStart="33dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="17dp"
+        android:background="@color/colorDangerRed"
+        android:text="delete profile"
+        android:textColor="#C8FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.81"
+        app:layout_constraintStart_toEndOf="@+id/settings_save_settings" />
+
+    <ImageView
+        android:id="@+id/settings_profile_image"
+        android:layout_width="142dp"
+        android:layout_height="128dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/temp_settings_profile_image"
+        tools:srcCompat="@drawable/temp_settings_profile_image" />
+
+    <TextView
+        android:id="@+id/public_profile_recipes"
+        android:layout_width="65dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="16dp"
+        android:text="0"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintStart_toEndOf="@+id/settings_recipes"
+        app:layout_constraintTop_toBottomOf="@+id/settings_input_username" />
+
+    <TextView
+        android:id="@+id/settings_username"
+        android:layout_width="97dp"
+        android:layout_height="23dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="15dp"
+        android:text="Username:"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintStart_toEndOf="@+id/settings_profile_image"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/settings_recipes"
+        android:layout_width="82dp"
+        android:layout_height="29dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="56dp"
+        android:text="Recipes:"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintStart_toEndOf="@+id/settings_profile_image"
+        app:layout_constraintTop_toBottomOf="@+id/settings_username" />
+
+    <TextView
+        android:id="@+id/settings_allergens"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="5dp"
+        android:text="Allergens"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/settings_filters" />
+
+    <TextView
+        android:id="@+id/settings_visibility"
+        android:layout_width="180dp"
+        android:layout_height="22dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="5dp"
+        android:text="Profile Visibility:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/settings_privacy" />
+
+    <TextView
+        android:id="@+id/settings_privacy"
+        android:layout_width="99dp"
+        android:layout_height="26dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="5dp"
+        android:text="Privacy"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/settings_checkbox_table" />
+
+    <TableLayout
+        android:id="@+id/settings_checkbox_table"
+        android:layout_width="383dp"
+        android:layout_height="78dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="16dp"
+        android:background="#cecce0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/settings_allergens">
+
+        <TableRow
+            android:layout_height="wrap_content"
+            android:padding="3dp">
+
+            <CheckBox
+                android:id="@+id/settings_allergy_nuts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="onCheckboxClicked"
+            android:text="Nuts" />
+
+            <CheckBox
+                android:id="@+id/settings_allergy_milk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="onCheckboxClicked"
+                android:text="Milk" />
+
+            <CheckBox
+                android:id="@+id/settings_allergy_eggs"
+                android:layout_width="113dp"
+                android:layout_height="38dp"
+                android:layout_weight="1"
+                android:onClick="onCheckboxClicked"
+                android:text="Eggs" />
+        </TableRow>
+
+        <TableRow android:padding="3dp">
+
+            <CheckBox
+                android:id="@+id/settings_allergy_shellfish"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="onCheckboxClicked"
+                android:text="Shellfish"/>
+
+            <CheckBox
+                android:id="@+id/settings_allergy_soy"
+                android:layout_width="120dp"
+                android:layout_height="30dp"
+                android:layout_weight="1"
+                android:onClick="onCheckboxClicked"
+                android:text="Soy"/>
+
+            <CheckBox
+                android:id="@+id/settings_allergy_wheat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="onCheckboxClicked"
+                android:text="Wheat"/>
+        </TableRow>
+
+
+    </TableLayout>
+
+    <TextView
+        android:id="@+id/settings_about_me"
+        android:layout_width="88dp"
+        android:layout_height="21dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="5dp"
+        android:text="About Me"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/settings_profile_image" />
+
+    <TextView
+        android:id="@+id/settings_filters"
+        android:layout_width="99dp"
+        android:layout_height="26dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:text="Filters"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/settings_input_about_me" />
+
+    <Button
+        android:id="@+id/settings_save_settings"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="212dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginBottom="10dp"
+        android:text="save settings"
+        android:textColor="#C8FFFFFF"
+        android:onClick="saveSettings"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <EditText
+        android:id="@+id/settings_input_about_me"
+        style="@style/Widget.AppCompat.EditText"
+        android:layout_width="383dp"
+        android:layout_height="71dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/rounded_corners"
+        android:ems="10"
+        android:padding="5.5dp"
+        android:text="Input Field"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:textColor="#353236"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/settings_about_me" />
+
+    <TableLayout
+        android:id="@+id/settings_privacy_table"
+        android:layout_width="396dp"
+        android:layout_height="97dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="16dp"
+        android:showDividers="middle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.52"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/settings_visibility">
+
+        <TableRow android:padding="1dp">
+
+            <Switch
+                android:id="@+id/settings_privacy_username"
+                android:layout_width="10dp"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:background="#36675B7A"
+                android:checked="false"
+                android:padding="6dp"
+                android:text="Username"
+                android:textSize="16sp"
+                android:onClick="onSwitchClicked"
+                tools:checked="true" />
+
+            <Switch
+                android:id="@+id/settings_privacy_about_me"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:background="#36675B7A"
+                android:checked="false"
+                android:padding="6dp"
+                android:text="About Me"
+                android:textSize="16sp"
+                android:onClick="onSwitchClicked"
+                tools:checked="true" />
+
+
+        </TableRow>
+
+        <TableRow>
+
+            <Switch
+                android:id="@+id/settings_privacy_recipes"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:background="#36675B7A"
+                android:checked="false"
+                android:padding="6dp"
+                android:text="Recipes"
+                android:textSize="16sp"
+                android:onClick="onSwitchClicked"
+                tools:checked="true" />
+
+            <Switch
+                android:id="@+id/settings_privacy_profile_image"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:background="#36675B7A"
+                android:checked="false"
+                android:padding="6dp"
+                android:text="Profile Image"
+                android:textSize="16sp"
+                android:onClick="onSwitchClicked"
+                tools:checked="false" />
+
+
+        </TableRow>
+
+        <TableRow></TableRow>
+
+    </TableLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

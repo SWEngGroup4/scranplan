@@ -1,45 +1,48 @@
-package com.group4sweng.scranplan;
-
-import android.app.Application;
+package com.group4sweng.scranplan.UserInfo;
 
 import java.io.Serializable;
 import java.util.HashMap;
 
 /**
- * UserInfo class
- * Used to save current user vital variables that will be used throughout the app for customisation
+ * UserInfoPrivate class
+ * Used to save the current users attributes locally on the device that will be used throughout the app for customisation.
  */
-public class UserInfoPrivate extends Application implements Serializable {
+public class UserInfoPrivate implements Serializable{
 
+    //  Unique Log TAG ID.
     final static String TAG = "UserInfo";
 
     //  User information
-    private String mUID;
-    private String mDisplayName;
-    private String mImageURL;
-    private String mAbout;
-    private double mChefRating;
-    private long mNumRecipes;
+    private String UID;
+    private String displayName;
+    private String imageURL;
+    private String about;
+
+    //  HashMap privacy values are Boolean values of: 'display_username', 'display_about_me', 'display_recipes' & 'display_profile_image'.
+    private HashMap<String, Object> privacy;
+    private double chefRating;
+    private long numRecipes;
 
     /*TODO
         Add saved recipes here. Check UML profile diagram and Recipe diagram for more information.
      */
 
     // User preferences
-    private Preferences mPreferences;
+    private Preferences preferences;
 
-
-    public UserInfoPrivate(HashMap<String, Object> map, HashMap<String, Object> prefs){
-
-        this.mUID = (String) map.get("UID");
-        System.out.println("UID is" + this.mUID);
-
-        this.mDisplayName = (String) map.get("displayName");
-        this.mImageURL = (String) map.get("imageURL");
-        this.mChefRating = (double) map.get("chefRating");
-        this.mNumRecipes =  (long) map.get("numRecipes");
-        this.mAbout = (String) map.get("about");
-        this.mPreferences = new Preferences((boolean) prefs.get("allergy_celery"),
+    /** Initiate a users private profile.
+     * @param map - Basic user information. E.g. UID, display name. (HashMap, String) pair
+     * @param prefs - The users preferences found within the 'Preferences' class. (HashMap, Boolean) pair
+     * @param privacy - A HashMap of the users privacy settings. (HashMap, Boolean) pair.
+     */
+    public UserInfoPrivate(HashMap<String, Object> map, HashMap<String, Object> prefs, HashMap<String, Object> privacy) {
+        this.UID = (String) map.get("UID");
+        this.displayName = (String) map.get("displayName");
+        this.imageURL = (String) map.get("imageURL");
+        this.chefRating = (double) map.get("chefRating");
+        this.numRecipes =  (long) map.get("numRecipes");
+        this.about = (String) map.get("about");
+        this.preferences = new Preferences( (boolean) prefs.get("allergy_celery"),
                 (boolean) prefs.get("allergy_crustacean"), (boolean) prefs.get("allergy_eggs"),
                 (boolean) prefs.get("allergy_fish"), (boolean) prefs.get("allergy_gluten"),
                 (boolean) prefs.get("allergy_milk"), (boolean) prefs.get("allergy_mustard"),
@@ -53,11 +56,12 @@ public class UserInfoPrivate extends Application implements Serializable {
                 (boolean) prefs.get("no_alcohol"), (boolean) prefs.get("no_pork"),
                 (boolean) prefs.get("ovovegetarian"), (boolean) prefs.get("pescatarian"),
                 (boolean) prefs.get("vegan"), (boolean) prefs.get("vegetarian"));
-
+        this.privacy = privacy;
     }
 
     /*TODO
-        Instead of implementing shared preferences for user profile. Use instead for Saved Recipes.
+        Instead of implementing shared preferences for user profile. Use instead for Saved Recipes and any other locally stored info.
+        Likely to come in iteration 2/3.
      */
     /*
     private void loadSharedPreferences(){
@@ -95,61 +99,66 @@ public class UserInfoPrivate extends Application implements Serializable {
     }
     */
 
-
     public String getUID() {
-        return mUID;
+        return UID;
     }
 
-    public void setUID(String UID )  {
-        mUID = UID;
+    public void setUID(String UID) {
+        this.UID = UID;
     }
 
     public String getDisplayName() {
-        return mDisplayName;
+        return displayName;
     }
 
-    public void setDisplayName(String displayName ){
-        mDisplayName = displayName;
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     public String getImageURL() {
-        return mImageURL;
+        return imageURL;
     }
 
     public void setImageURL(String imageURL)  {
-        mImageURL = imageURL;
+        this.imageURL = imageURL;
     }
 
     public double getChefRating() {
-        return mChefRating;
+        return chefRating;
     }
 
-    public void setChefRating(double chefRating)  {
-        mChefRating = chefRating;
-    }
+    public void setChefRating(double chefRating )  { this.chefRating = chefRating; }
 
     public long getNumRecipes() {
-        return mNumRecipes;
+        return numRecipes;
     }
 
-    public void setNumRecipes(int numRecipes)  {
-        mNumRecipes = numRecipes;
+    public void setNumRecipes(long numRecipes )   {
+        this.numRecipes = numRecipes;
     }
 
     public String getAbout() {
-        return mAbout;
+        return about;
     }
 
-    public void setAbout(String about)  {
-        mAbout = about;
-    }
+    public void setAbout(String about)   { this.about = about; }
 
     public Preferences getPreferences() {
-        return mPreferences;
+        return preferences;
     }
 
-    public void setPreferences(Preferences preferences)  {
-        mPreferences = preferences;
+    public void setPreferences(Preferences preferences)   {
+        this.preferences = preferences;
     }
 
+    public HashMap<String, Object> getPrivacy() { return privacy; }
+
+    public void setPrivacy(HashMap<String, Object> privacy) {
+        //  Check the HashMap has been properly initialized with all valid privacy parameters., otherwise return a runtime exception.
+        if (privacy.containsKey("display_username") && privacy.containsKey("display_profile_image") && privacy.containsKey("display_about_me") && privacy.containsKey("display_recipes")) {
+            this.privacy = privacy;
+        } else {
+            throw new RuntimeException("Tried to set privacy settings with invalid or incomplete inputs");
+        }
+    }
 }
