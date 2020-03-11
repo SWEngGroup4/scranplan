@@ -1,8 +1,12 @@
 package com.group4sweng.scranplan.SearchFunctions;
 
-import com.group4sweng.scranplan.UserInfo.UserInfoPublic;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
+/**
+ * This class holds user search preferences which are saved whenever the user opens the new search
+ * options and selects new filters and method of sorting/searching
+ * This is initialised to the user preferences with default searching parameters
+ */
 public class SearchPrefs {
     Boolean mpescatarianPref;
     Boolean mVegetarianPref;
@@ -20,6 +24,7 @@ public class SearchPrefs {
     Boolean mNamePref;
     Boolean mChefPref;
 
+    // Building a new search preferences following user input
     public SearchPrefs(Boolean pes, Boolean vegi, Boolean vega, Boolean nut,
                        Boolean milk, Boolean egg, Boolean wheat, Boolean shell,
                        Boolean soy, Boolean score, Boolean vote, Boolean time,
@@ -42,6 +47,7 @@ public class SearchPrefs {
 
     }
 
+    // Default user preference search without user input
     public SearchPrefs(UserInfoPrivate user){
         mpescatarianPref = user.getPreferences().isPescatarian();
         mVegetarianPref = user.getPreferences().isVegetarian();

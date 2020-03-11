@@ -7,8 +7,13 @@ import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.HashMap;
 
+/**
+ * This builds up the queries, taken from user preferences and feeds them into the infinate
+ * horizontal scroll views on the home page
+ */
 public class HomeQueries {
 
+    // Returns the hashmap of all the home screen queries
     public HashMap getQueries() {
         return queries;
     }
@@ -22,6 +27,7 @@ public class HomeQueries {
     CollectionReference ref = database.collection("recipes");
 
 
+    // Constructor to build all queries in the home page
     public HomeQueries(UserInfoPrivate user){
         queries = new HashMap();
         queries.put("score", buildQuery(user).orderBy("score", Query.Direction.DESCENDING));
@@ -39,7 +45,8 @@ public class HomeQueries {
         }
     }
 
-
+    // Function to build all queries to be saved in the constructor, taking user preferences and
+    // adding them to the query
     private Query buildQuery(UserInfoPrivate user){
         Query query = ref;
         if(user.getPreferences().isPescatarian()){

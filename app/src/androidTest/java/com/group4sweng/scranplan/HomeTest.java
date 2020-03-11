@@ -75,6 +75,7 @@ public class HomeTest{
 
         ActivityScenario.launch(Login.class); //Launch the login screen
 
+
         onView(withId(R.id.loginButton))
                 .perform(click());
 
@@ -214,6 +215,89 @@ public class HomeTest{
         assertNotEquals(initialSettings.get("ingred"),  mActivityTestRule.getActivity().mIngredientsBox.isChecked());
         assertEquals(initialSettings.get("name"),  mActivityTestRule.getActivity().mNameBox.isChecked());
         assertNotEquals(initialSettings.get("chef"),  mActivityTestRule.getActivity().mChefBox.isChecked());
+
+    }
+
+
+    // Check search vegetarian search for bacon returns nothing.
+    @Test
+    public void testSearchForVegetarianBacon() throws InterruptedException {
+        // Open up filter menu
+        onView(withId(R.id.menuSortButton)).perform(click());
+
+
+        // Change tab
+        onView(withText("Diet")).perform(click());
+
+        onView(withId(R.id.menuVegCheckBox))
+                .perform(click());
+
+        // Change tab
+        onView(withText("Sort")).perform(click());
+
+        onView(withId(R.id.voteCheckBox))
+                .perform(click());
+
+        // Close filter box
+        onView(withText("OK")).perform(click());
+
+
+        Thread.sleep(THREAD_SLEEP_TIME/4);
+
+
+        onView(withId(R.id.menuSearch)).perform(click());
+        onView(isAssignableFrom(SearchView.class))
+                .perform(typeSearchViewText("bacon"))
+                .perform(pressKey(KeyEvent.KEYCODE_ENTER));
+
+
+        Thread.sleep(THREAD_SLEEP_TIME/4);
+
+        onView(withText("No more results"))
+                .check(matches(isDisplayed()));
+
+        Espresso.pressBack();
+
+    }
+
+    // Check search Gluten allergy search for bacon returns nothing.
+    @Test
+    public void testSearchForGlutenFreeBacon() throws InterruptedException {
+        // Open up filter menu
+        onView(withId(R.id.menuSortButton)).perform(click());
+
+
+        // Change tab
+        onView(withText("Diet")).perform(click());
+
+        onView(withId(R.id.menuWheatCheckBox))
+                .perform(click());
+
+        // Change tab
+        onView(withText("Sort")).perform(click());
+
+        onView(withId(R.id.voteCheckBox))
+                .perform(click());
+
+        // Close filter box
+        onView(withText("OK")).perform(click());
+
+
+        Thread.sleep(THREAD_SLEEP_TIME/4);
+
+
+        onView(withId(R.id.menuSearch)).perform(click());
+        onView(isAssignableFrom(SearchView.class))
+                .perform(typeSearchViewText("bacon"))
+                .perform(pressKey(KeyEvent.KEYCODE_ENTER));
+
+
+        Thread.sleep(THREAD_SLEEP_TIME/4);
+
+        onView(withText("No more results"))
+                .check(matches(isDisplayed()));
+
+        Espresso.pressBack();
 
     }
 

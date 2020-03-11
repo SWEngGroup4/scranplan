@@ -5,8 +5,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.Query.Direction;
 
-//import static com.google.firestore.v1.StructuredQuery.*;
-
+/**
+ * Builds up a search query from the preferences selected by the user.
+ */
 public class SearchQuery {
 
     final FirebaseFirestore database = FirebaseFirestore.getInstance();
@@ -15,10 +16,9 @@ public class SearchQuery {
     public Query getQuery() {
         return query;
     }
-
-    //    DocumentReference usersRef = ref.document(mAuth.getCurrentUser().getUid());
     com.google.firebase.firestore.Query query;
 
+    // All variables that the user is able to manipulate
     Boolean mPescatarianBox;
     Boolean mVegetarianBox;
     Boolean mVeganBox;
@@ -38,6 +38,7 @@ public class SearchQuery {
     String mSearch;
 
 
+    // Constructor building the query from these parameters
     public SearchQuery(String sentSearch, SearchPrefs preference){
         mPescatarianBox = preference.mpescatarianPref;
         mVegetarianBox = preference.mVegetarianPref;
@@ -58,6 +59,7 @@ public class SearchQuery {
 
         query = ref;
 
+        // User diet preferences
         if(mPescatarianBox){
             query = query.whereEqualTo("pescatarian", true);
         }else if(mVegetarianBox){
@@ -90,8 +92,7 @@ public class SearchQuery {
             query = query.whereEqualTo("noSoy", true);
         }
 
-
-
+        // Only allowing the user to search for a single item
         if(mIngredientsBox){
             query = query.whereArrayContains("listIngredients", mSearch.toLowerCase());
         }else if(mNameBox){
@@ -100,6 +101,7 @@ public class SearchQuery {
             query = query.whereEqualTo("chef", mSearch.toLowerCase());
         }
 
+        // Only enabling a single search order
         if(mScoreBox){
             query = query.orderBy("score", Direction.DESCENDING);
         }else if(mVoteBox){
@@ -108,6 +110,7 @@ public class SearchQuery {
             query = query.orderBy("timestamp", Direction.DESCENDING);
         }
 
+        // Limiting the search to sets of 5 items until the user scrolls to bottom
         query = query.limit(5);
 
 

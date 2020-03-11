@@ -28,51 +28,63 @@ import com.group4sweng.scranplan.SearchFunctions.SearchRecyclerAdapter.SearchRec
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  This class takes a Firestore query and returns a fragment consisting of an infinite list,
+ *  that goes of for as long as there is data delivered to the user in blocks of 5 items.
+ *  Each item will be presented as just an image, title and description, users can click these images
+ *  to get further information about a recipe
+ */
 public class SearchListFragment extends AppCompatDialogFragment {
 
     final String TAG = "SearchScreen";
 
     private FirebaseFirestore mDatabase;
-
-    protected SearchQuery query;
+    protected Query query;
     private RecyclerView recyclerView;
     private DocumentSnapshot lastVisible;
     List<SearchRecipePreviewData> data;
     private boolean isScrolling = false;
     private boolean isLastItemReached = false;
 
-
+    /**
+     * On the create of this view, the alert dialogue is build over the current page within the application
+     * This will happen over the home page. This is then filled with the query results.
+     * @param inflater
+     * @param container
+     * @param savedInstanceState
+     * @return
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // Building the list from XML page
         View view = inflater.inflate(R.layout.fragment_recipe_list, null);
-
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(view);
         mDatabase = FirebaseFirestore.getInstance();
         data = new ArrayList<>();
 
+        // Creating a list of the data and building all variables to add to recycler view
         final RecyclerView recyclerView = view.findViewById(R.id.recipeList);
         recyclerView.setHasFixedSize(true);
-
         RecyclerView.LayoutManager rManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(rManager);
-
-
         final RecyclerView.Adapter rAdapter = new SearchRecyclerAdapter(SearchListFragment.this, data);
         recyclerView.setAdapter(rAdapter);
 
-        if (query.getQuery() != null) {
+        // Check if query is found
+        if (query != null) {
             Log.e(TAG, "User is searching the following query: " + query.toString());
 
-            query.getQuery()
-//            mDatabase.collection("recipes").whereArrayContains("listIngredients", "bacon").orderBy("score", Query.Direction.DESCENDING).limit(5)
-                    .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            // Once the data has been returned, dataset populated and components build
+            query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     if (task.isSuccessful()) {
+                        // For each document a new recipe preview view is generated
                         for (DocumentSnapshot document : task.getResult()) {
                             data.add(new SearchRecipePreviewData(
+                                    document,
                                     document.getId(),
                                     document.get("Name").toString(),
                                     document.get("Description").toString(),
@@ -80,18 +92,21 @@ public class SearchListFragment extends AppCompatDialogFragment {
                             ));
                         }
                         rAdapter.notifyDataSetChanged();
+                        // Set the last document as last user can see
                         if(task.getResult().size() != 0){
                             lastVisible = task.getResult().getDocuments().get(task.getResult().size() - 1);
                         }else{
+                            // If no data returned, user notified
                             isLastItemReached = true;
                             data.add(new SearchRecipePreviewData(
+                                    null,
                                     null,
                                     "No more results",
                                     "We have checked all over and there is nothing more to be found!",
                                     null
                             ));
                         }
-
+                        // check if user has scrolled through the view
                         RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
                             @Override
                             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -100,25 +115,26 @@ public class SearchListFragment extends AppCompatDialogFragment {
                                     isScrolling = true;
                                 }
                             }
-
+                            // If user is scrolling and has reached the end, more data is loaded
                             @Override
                             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                                 super.onScrolled(recyclerView, dx, dy);
-
+                                // Checking if user is at the end
                                 LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
                                 int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
                                 int visibleItemCount = linearLayoutManager.getChildCount();
                                 int totalItemCount = linearLayoutManager.getItemCount();
-
+                                // If found to have reached end, more data is requested from the server in the same manner
                                 if (isScrolling && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReached) {
                                     isScrolling = false;
-                                    Query nextQuery = query.getQuery().startAfter(lastVisible);
+                                    Query nextQuery = query.startAfter(lastVisible);
                                     nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                         @Override
                                         public void onComplete(@NonNull Task<QuerySnapshot> t) {
                                             if (t.isSuccessful()) {
                                                 for (DocumentSnapshot d : t.getResult()) {
                                                     data.add(new SearchRecipePreviewData(
+                                                            d,
                                                             d.getId(),
                                                             d.get("Name").toString(),
                                                             d.get("Description").toString(),
@@ -127,6 +143,7 @@ public class SearchListFragment extends AppCompatDialogFragment {
                                                 }
                                                 if(isLastItemReached){
                                                     data.add(new SearchRecipePreviewData(
+                                                            null,
                                                             null,
                                                             "No more results",
                                                             "We have checked all over and there is nothing more to be found!",
@@ -154,11 +171,11 @@ public class SearchListFragment extends AppCompatDialogFragment {
         }
         return view;
     }
-
-    public void setValue(SearchQuery sentQuery) {
+    // Setting the query value
+    public void setValue(Query sentQuery) {
         this.query = sentQuery;
     }
-
+    // Set the layout of the new window
     public void onResume() {
         super.onResume();
         ViewGroup.LayoutParams params = getDialog().getWindow().getAttributes();
@@ -168,7 +185,7 @@ public class SearchListFragment extends AppCompatDialogFragment {
     }
 
 
-
+    // If user clicks on recipe within view, user taken to new fragment with more details about that recipe
     public void recipeSelected(String recipeID) {
         RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
         recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");

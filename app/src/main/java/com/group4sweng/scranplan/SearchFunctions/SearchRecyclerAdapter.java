@@ -10,14 +10,21 @@ import android.widget.TextView;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeFragment;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
-
+/**
+ *  Class holding the recycler adapter for the search functionality, each card will represent the view
+ *  of one recipe. All recipe info is stored in this card.
+ *  Creating a card view that hold the picture and the document which, the picture will be displayed
+ *  in a button and the button will pass the document though for the recipe to be read
+ */
 public class SearchRecyclerAdapter extends RecyclerView.Adapter<SearchRecyclerAdapter.ViewHolder> {
 
+    // Variables for database and fragment to be displayed in
     private SearchListFragment mSearchListFragment;
     private List<SearchRecipePreviewData> mDataset;
 
@@ -27,8 +34,13 @@ public class SearchRecyclerAdapter extends RecyclerView.Adapter<SearchRecyclerAd
         private String title;
         private String description;
         private String imageURL;
+        private DocumentSnapshot document;
 
-        public SearchRecipePreviewData(String recipeID, String title, String description, String imageURL) {
+        /**
+         * The holder for the card with variables required
+         */
+        public SearchRecipePreviewData(DocumentSnapshot doc, String recipeID, String title, String description, String imageURL) {
+            this.document = doc;
             this.recipeID = recipeID;
             this.title = title;
             this.description = description;
@@ -36,12 +48,16 @@ public class SearchRecyclerAdapter extends RecyclerView.Adapter<SearchRecyclerAd
         }
     }
 
+    /**
+     * Building the card and image view
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         private CardView cardView;
         private ImageView imageView;
         private TextView title;
         private  TextView description;
+
 
         private ViewHolder(View v) {
             super(v);
@@ -52,18 +68,33 @@ public class SearchRecyclerAdapter extends RecyclerView.Adapter<SearchRecyclerAd
         }
     }
 
+    /**
+     * Constructor to add all variables
+     * @param searchListFragment
+     * @param dataset
+     */
     public SearchRecyclerAdapter (SearchListFragment searchListFragment, List<SearchRecipePreviewData> dataset) {
         mSearchListFragment = searchListFragment;
         mDataset = dataset;
     }
 
-
+    /**
+     * Building and inflating the view within its parent
+     * @param parent
+     * @param viewType
+     * @return
+     */
     public SearchRecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recyler, parent, false);
         return new ViewHolder(v);
     }
 
+    /**
+     * Getting the image with picasso and adding the on click functionality
+     * @param holder
+     * @param position
+     */
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.title.setText(mDataset.get(position).title);
@@ -83,6 +114,7 @@ public class SearchRecyclerAdapter extends RecyclerView.Adapter<SearchRecyclerAd
         });
     }
 
+    // Getting dataset size
     @Override
     public int getItemCount() {
         return mDataset.size();

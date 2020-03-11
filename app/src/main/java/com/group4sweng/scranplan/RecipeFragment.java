@@ -36,16 +36,22 @@ import java.util.Random;
 
 import javax.annotation.Nullable;
 
-
+/**
+ * This class builds the horizontal scrolls of custom preference recipe selection for the user on the
+ * home screen. Each of these scrolls is infinite in length, loading 5 recipes at a time to minimise
+ * reads from the Firestore yet still giving the user an infinite and responsive experience with
+ * scroll listeners to check where the user is interacting with these scrolls.
+ */
 public class RecipeFragment extends Fragment {
 
     final String TAG = "Home horizontal queries";
-
+    // User preferences passed into scroll views via constructor
     UserInfoPrivate user;
     public RecipeFragment(UserInfoPrivate userSent){
         user = userSent;
     }
 
+    // Width size of each scroll view, dictating size of images on home screen
     final int scrollViewSize = 5;
 
     //Score scroll info
@@ -100,27 +106,24 @@ public class RecipeFragment extends Fragment {
         // Procedurally fills topLayout with imageButton content
         LinearLayout topLayout = view.findViewById(R.id.topLayout);
 
+        // Checks users details have been provided
         if(user != null){
+            // Build the first horizontal scroll built around organising the recipes via highest rated
             HomeQueries horizontalScrollQueriesScore = new HomeQueries(user);
-
             final RecyclerView recyclerViewScore = new RecyclerView(view.getContext());
-
+            // Set out the layout of this horizontal view
             RecyclerView.LayoutManager rManagerScore = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
-
             recyclerViewScore.setLayoutManager(rManagerScore);
-
             recyclerViewScore.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels / scrollViewSize));
+            // Array to score downloaded data
             dataScore = new ArrayList<>();
-
             final RecyclerView.Adapter rAdapterScore = new HomeRecyclerAdapter(RecipeFragment.this, dataScore);
             recyclerViewScore.setAdapter(rAdapterScore);
-
             final Query queryScore = (Query) horizontalScrollQueriesScore.getQueries().get("score");
-
-
+            // Ensure query exists and builds view with query
             if (queryScore != null) {
                 Log.e(TAG, "User is searching the following query: " + queryScore.toString());
-
+                // Give the view a title
                 TextView textView = new TextView(view.getContext());
                 String testString = "Top picks";
                 textView.setTextSize(25);
@@ -128,7 +131,7 @@ public class RecipeFragment extends Fragment {
                 textView.setTextColor(Color.WHITE);
                 textView.setShadowLayer(4, 0, 0, Color.BLACK);
                 textView.setText(testString);
-
+                // Query listener to add data to view
                 queryScore
                         .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -136,6 +139,7 @@ public class RecipeFragment extends Fragment {
                         if (task.isSuccessful()) {
                             for (DocumentSnapshot document : task.getResult()) {
                                 dataScore.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
+                                        document,
                                         document.getId(),
                                         document.get("imageURL").toString()
                                 ));
@@ -146,7 +150,7 @@ public class RecipeFragment extends Fragment {
                             }else{
                                 isLastItemReachedScore = true;
                             }
-
+                            // Track users location to check if new data download is required
                             RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
                                 @Override
                                 public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -155,7 +159,7 @@ public class RecipeFragment extends Fragment {
                                         isScrollingScore = true;
                                     }
                                 }
-
+                                // If scrolled to end then download new data and check if we are out of data
                                 @Override
                                 public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                                     super.onScrolled(recyclerView, dx, dy);
@@ -174,6 +178,7 @@ public class RecipeFragment extends Fragment {
                                                 if (t.isSuccessful()) {
                                                     for (DocumentSnapshot d : t.getResult()) {
                                                         dataScore.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
+                                                                d,
                                                                 d.getId(),
                                                                 d.get("imageURL").toString()
                                                         ));
@@ -199,28 +204,23 @@ public class RecipeFragment extends Fragment {
                         }
                     }
                 });
+                // Add view to page
                 topLayout.addView(textView);
                 topLayout.addView(recyclerViewScore);
                 Log.e(TAG, "Score horizontal row added");
             }
-
+            /* Adding the save view as score but with highest votes as a new query
+            /  This has been done in the same manner but as there are too many variables to track
+            /  this is not workable in any kind of loop. */
             HomeQueries horizontalScrollQueriesVotes = new HomeQueries(user);
-
             final RecyclerView recyclerViewVotes = new RecyclerView(view.getContext());
-
             RecyclerView.LayoutManager rManagerVotes = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
-
             recyclerViewVotes.setLayoutManager(rManagerVotes);
-
             recyclerViewVotes.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels / scrollViewSize));
             dataVotes = new ArrayList<>();
-
             final RecyclerView.Adapter rAdapterVotes = new HomeRecyclerAdapter(RecipeFragment.this, dataVotes);
             recyclerViewVotes.setAdapter(rAdapterVotes);
-
             final Query queryVotes = (Query) horizontalScrollQueriesVotes.getQueries().get("votes");
-
-
             if (queryVotes != null) {
                 Log.e(TAG, "User is searching the following query: " + queryVotes.toString());
 
@@ -239,6 +239,7 @@ public class RecipeFragment extends Fragment {
                         if (task.isSuccessful()) {
                             for (DocumentSnapshot document : task.getResult()) {
                                 dataVotes.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
+                                        document,
                                         document.getId(),
                                         document.get("imageURL").toString()
                                 ));
@@ -277,6 +278,7 @@ public class RecipeFragment extends Fragment {
                                                 if (t.isSuccessful()) {
                                                     for (DocumentSnapshot d : t.getResult()) {
                                                         dataVotes.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
+                                                                d,
                                                                 d.getId(),
                                                                 d.get("imageURL").toString()
                                                         ));
@@ -308,24 +310,18 @@ public class RecipeFragment extends Fragment {
             }
 
 
-
+            /* Adding the save view as score but with newest recipes added as a new query
+            /  This has been done in the same manner but as there are too many variables to track
+            /  this is not workable in any kind of loop. */
             HomeQueries horizontalScrollQueriesTime = new HomeQueries(user);
-
             final RecyclerView recyclerViewTime = new RecyclerView(view.getContext());
-
             RecyclerView.LayoutManager rManagerTime = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
-
             recyclerViewTime.setLayoutManager(rManagerTime);
-
             recyclerViewTime.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels / scrollViewSize));
             dataTime = new ArrayList<>();
-
             final RecyclerView.Adapter rAdapterTime = new HomeRecyclerAdapter(RecipeFragment.this, dataTime);
             recyclerViewTime.setAdapter(rAdapterTime);
-
             final Query queryTime = (Query) horizontalScrollQueriesTime.getQueries().get("timestamp");
-
-
             if (queryTime != null) {
                 Log.e(TAG, "User is searching the following query: " + queryTime.toString());
 
@@ -344,6 +340,7 @@ public class RecipeFragment extends Fragment {
                         if (task.isSuccessful()) {
                             for (DocumentSnapshot document : task.getResult()) {
                                 dataTime.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
+                                        document,
                                         document.getId(),
                                         document.get("imageURL").toString()
                                 ));
@@ -382,6 +379,7 @@ public class RecipeFragment extends Fragment {
                                                 if (t.isSuccessful()) {
                                                     for (DocumentSnapshot d : t.getResult()) {
                                                         dataTime.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
+                                                                d,
                                                                 d.getId(),
                                                                 d.get("imageURL").toString()
                                                         ));
@@ -412,23 +410,18 @@ public class RecipeFragment extends Fragment {
                 Log.e(TAG, "Time horizontal view added");
             }
 
+            /* Adding the save view as score but with user favourited recipes as a new query
+            /  This has been done in the same manner but as there are too many variables to track
+            /  this is not workable in any kind of loop. */
             HomeQueries horizontalScrollQueriesFave = new HomeQueries(user);
-
             final RecyclerView recyclerViewFave = new RecyclerView(view.getContext());
-
             RecyclerView.LayoutManager rManagerFave = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
-
             recyclerViewFave.setLayoutManager(rManagerFave);
-
             recyclerViewFave.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels / scrollViewSize));
             dataFave = new ArrayList<>();
-
             final RecyclerView.Adapter rAdapterFave = new HomeRecyclerAdapter(RecipeFragment.this, dataFave);
             recyclerViewFave.setAdapter(rAdapterFave);
-
             final Query queryFave = (Query) horizontalScrollQueriesFave.getQueries().get("favourite");
-
-
             if (queryFave != null) {
                 Log.e(TAG, "User is searching the following query: " + queryFave.toString());
 
@@ -447,6 +440,7 @@ public class RecipeFragment extends Fragment {
                         if (task.isSuccessful()) {
                             for (DocumentSnapshot document : task.getResult()) {
                                 dataScore.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
+                                        document,
                                         document.getId(),
                                         document.get("imageURL").toString()
                                 ));
@@ -485,6 +479,7 @@ public class RecipeFragment extends Fragment {
                                                 if (t.isSuccessful()) {
                                                     for (DocumentSnapshot d : t.getResult()) {
                                                         dataFave.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
+                                                                d,
                                                                 d.getId(),
                                                                 d.get("imageURL").toString()
                                                         ));
@@ -515,83 +510,14 @@ public class RecipeFragment extends Fragment {
                 Log.e(TAG, "Time horizontal view added");
             }
 
-
-
         }else{
+            // If scroll views fail due to no user, this error is reported
             Log.e(TAG, "ERROR: Loading scroll views - We were unable to find user.");
         }
-
-
-
-
-
-//        for (int i = 0; i < 10; i++) {
-//
-//            // Placeholder text TODO - change to query type
-//            TextView textView = new TextView(view.getContext());
-//            String testString = "Test" + i;
-//            textView.setText(testString);
-//
-//            // Generates single horizontal scroll view for query
-//            HorizontalScrollView horizontalScrollView = new HorizontalScrollView(view.getContext());
-//
-//            // Generates linear layout for holding content with % size according to screen
-//            LinearLayout linearLayout = new LinearLayout(view.getContext());
-//            linearLayout.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels / 5));
-//
-//            for (int j =0; j < 10; j++) {
-//
-//                // Generates imageButton, adds padding and sizes accordingly
-//                ImageButton imageButton = new ImageButton(view.getContext());
-//                imageButton.setAdjustViewBounds(true);
-//                imageButton.setPadding(10,10,10,10);
-//                imageButton.setBackground(null);
-//                imageButton.setScaleType(ImageButton.ScaleType.FIT_XY);
-//
-//                // Function to add image to button from database
-//                loadImage(imageButton);
-//
-//                // Button functionality
-//                imageButton.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        openRecipeDialog();
-//                    }
-//                });
-//
-//                linearLayout.addView(imageButton);
-//            }
-//
-//            // Adds generated content to appropriate views
-//            horizontalScrollView.addView(linearLayout);
-//            topLayout.addView(textView);
-//            topLayout.addView(horizontalScrollView);
-//        }
         return view;
     }
 
-//    // Private function to get random image from database and load it into an imageButton
-//    // TODO - Change to structured query search instead of random selection
-//    // TODO - Edit function so that we don't have to call the entire collection for each image?
-//    private void loadImage(final ImageButton imageButton) {
-//        final Random random = new Random();
-//
-//        /* Adds onSuccessListener - will not run until query is reported successful
-//           Stops async task from throwing errors */
-//        mColRef.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-//            @Override
-//            public void onSuccess(QuerySnapshot querySnapshot) {
-//                // Not necessary but worth checking
-//                if (!querySnapshot.isEmpty()) {
-//                    List<DocumentSnapshot> docs = querySnapshot.getDocuments(); // Get documents from queried collection
-//                    int n = random.nextInt(docs.size() - 1); // Random number generated
-//                    Picasso.get().load(docs.get(n).get("imageURL").toString()).into(imageButton); //Loads image using picasso library TODO - NullPointerException check
-//
-//                }
-//            }
-//        });
-//    }
-
+    // Open recipe info fragment
     public void openRecipeDialog(){
 
         RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
@@ -599,7 +525,12 @@ public class RecipeFragment extends Fragment {
 
     }
 
-    public void recipeSelected(String recipeID) {
+    /**
+     * On click of a recipe a new recipe info fragment is opened and the document is sent through
+     * This saves on downloading the data again from the database
+      */
+    public void recipeSelected(DocumentSnapshot document) {
+        // TODO take DocumentSnapshot as a variable through to RecipeInfoFragment
         RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
         recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");
     }

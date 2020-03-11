@@ -20,6 +20,15 @@
             android:title="Saved Recipes" />
     </group>
 
+    <group android:title="Settings">
+        <item
+            android:id="@+id/nav_settings"
+            android:title="Settings" />
+        <item
+            android:id="@+id/nav_logout"
+            android:title="Logout" />
+    </group>
+
 
 </menu>
 

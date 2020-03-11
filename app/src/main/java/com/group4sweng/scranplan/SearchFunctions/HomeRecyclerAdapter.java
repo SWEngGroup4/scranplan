@@ -11,28 +11,44 @@ import android.widget.TextView;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeFragment;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+/**
+ *  Class holding the recycler adapter for the home page, each card will represent the view
+ *  of one recipe. All recipe info is stored in this card.
+ *  Creating a card view that hold the picture and the document which, the picture will be displayed
+ *  in a button and the button will pass the document though for the recipe to be read
+ */
 public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapter.ViewHolder> {
 
+    // Variables for database and fragment to be displayed in
     private RecipeFragment mRecipeFragment;
     private List<HomeRecipePreviewData> mDataset;
 
+    /**
+     * The holder for the card with variables required
+     */
     public static class HomeRecipePreviewData {
 
         private String recipeID;
         private String imageURL;
+        private DocumentSnapshot document;
 
-        public HomeRecipePreviewData(String recipeID, String imageURL) {
+        public HomeRecipePreviewData(DocumentSnapshot doc, String recipeID, String imageURL) {
+            this.document = doc;
             this.recipeID = recipeID;
             this.imageURL = imageURL;
         }
     }
 
+    /**
+     * Building the card and image view
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         private CardView cardView;
@@ -45,19 +61,34 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
         }
     }
 
+    /**
+     * Constructor to add all variables
+     * @param recipeFragment
+     * @param dataset
+     */
     public HomeRecyclerAdapter (RecipeFragment recipeFragment, List<HomeRecipePreviewData> dataset) {
         mRecipeFragment = recipeFragment;
         mDataset = dataset;
     }
 
 
-
+    /**
+     * Building and inflating the view within its parent
+     * @param parent
+     * @param viewType
+     * @return
+     */
     public HomeRecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.home_image_recycler, parent, false);
         return new ViewHolder(v);
     }
 
+    /**
+     * Getting the image with picasso and adding the on click functionality
+     * @param holder
+     * @param position
+     */
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         Picasso.get().load(mDataset.get(position).imageURL).into(holder.imageView);
@@ -66,7 +97,7 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
             @Override
             public void onClick(View v) {
                 if (mRecipeFragment != null){
-                    mRecipeFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).recipeID);
+                    mRecipeFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
                 }else{
                     Log.e("SEARCH RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
                 }
@@ -75,6 +106,7 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
         });
     }
 
+    // Getting dataset size
     @Override
     public int getItemCount() {
         return mDataset.size();
