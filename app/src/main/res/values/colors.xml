@@ -11,6 +11,7 @@
     <color name="colorDivider">#8D8D8D</color>
     <color name="colorAccent">#7C4DFF</color>
     <color name="colorWindow">#bdb5c7</color>
+    <color name="colorBackgroundPrimary">#bed1c3</color>
     <color name="colorBackground">#bed1c3</color>
     <color name="colorBlueButton">#2d4fad</color>
     <color name="colorPurpleDark">#36675B7A</color>
