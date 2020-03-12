@@ -403,6 +403,9 @@ public class Login extends AppCompatActivity{
                                             map.put("preferences", document.get("preferences"));
                                             map.put("privacy", document.get("privacy"));
                                             map.put("about", document.get("about"));
+                                            map.put("shortPreferences", document.get("shortPreferences"));
+                                            map.put("firstAppLaunch", document.get("firstAppLaunch"));
+                                            map.put("firstPresentationLaunch", document.get("firstPresentationLaunch"));
 
                                             map.put("shortPreferences", document.get("shortPreferences"));
                                             map.put("firstAppLaunch", document.get("firstAppLaunch"));
