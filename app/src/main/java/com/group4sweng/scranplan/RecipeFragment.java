@@ -539,6 +539,7 @@ public class RecipeFragment extends Fragment {
         bundle.putStringArrayList("ingredientList", ingredientArray);
         bundle.putString("recipeID", document.getId());
         bundle.putString("recipeTitle", document.get("Name").toString());
+        bundle.putString("rating", document.get("score").toString());
         bundle.putString("imageURL", document.get("imageURL").toString());
         bundle.putString("recipeDescription", document.get("Description").toString());
         bundle.putString("chefName", document.get("Chef").toString());

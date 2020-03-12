@@ -39,6 +39,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
     private TextView mTitle;
     private TextView mChefName;
     private TextView mDescription;
+    private TextView mRating;
     private ImageView mRecipeImage;
 
     //Variables to hold the data being passed through into the fragment
@@ -47,6 +48,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
     private String recipeImage;
     private String recipeDescription;
     private String chefName;
+    private String recipeRating;
     private ArrayList<String> ingredientArray;
 
     private FirebaseFirestore mDatabase;
@@ -83,6 +85,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         recipeDescription = getArguments().getString("recipeDescription");
         chefName = getArguments().getString("chefName");
         ingredientArray = getArguments().getStringArrayList("ingredientList");
+        recipeRating = getArguments().getString("rating");
 
         builder.setView(layout);
 
@@ -183,8 +186,10 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         mChefName = layout.findViewById(R.id.chefName);
         mDescription = layout.findViewById(R.id.description);
         mRecipeImage = layout.findViewById(R.id.recipeImage);
+        mRating = layout.findViewById(R.id.Rating);
         mTitle.setText(recipeName);
         mDescription.setText(recipeDescription);
+        mRating.setText("Rating: " + recipeRating);
         Picasso.get().load(recipeImage).into(mRecipeImage);
 
 
