@@ -31,7 +31,9 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import javax.annotation.Nullable;
@@ -517,21 +519,36 @@ public class RecipeFragment extends Fragment {
         return view;
     }
 
-    // Open recipe info fragment
-    public void openRecipeDialog(){
-
-        RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
-        recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");
-
-    }
-
     /**
      * On click of a recipe a new recipe info fragment is opened and the document is sent through
      * This saves on downloading the data again from the database
       */
     public void recipeSelected(DocumentSnapshot document) {
-        // TODO take DocumentSnapshot as a variable through to RecipeInfoFragment
+
+        //Takes ingredient array from snap shot and reformats before being passed through to fragment
+        ArrayList<String> ingredientArray = new ArrayList<>();
+
+        Map<String, Map<String, Object>> test = (Map) document.getData().get("Ingredients");
+        Iterator hmIterator = test.entrySet().iterator();
+
+        while (hmIterator.hasNext()) {
+            Map.Entry mapElement = (Map.Entry) hmIterator.next();
+            String string = mapElement.getKey().toString() + ": " + mapElement.getValue().toString();
+            ingredientArray.add(string);
+        }
+
+        //Creating a bundle so all data needed from firestore query snapshot can be passed through into fragment class
+        Bundle bundle = new Bundle();
+        bundle.putStringArrayList("ingredientList", ingredientArray);
+        bundle.putString("recipeID", document.getId());
+        bundle.putString("recipeTitle", document.get("Name").toString());
+        bundle.putString("imageURL", document.get("imageURL").toString());
+        bundle.putString("recipeDescription", document.get("Description").toString());
+        bundle.putString("chefName", document.get("Chef").toString());
+
+
         RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
+        recipeDialogFragment.setArguments(bundle);
         recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");
     }
 }

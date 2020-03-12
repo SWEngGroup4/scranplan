@@ -185,9 +185,22 @@ public class SearchListFragment extends AppCompatDialogFragment {
     }
 
 
-    // If user clicks on recipe within view, user taken to new fragment with more details about that recipe
-    public void recipeSelected(String recipeID) {
+    /**
+     * On click of a recipe a new recipe info fragment is opened and the document is sent through
+     * This saves on downloading the data again from the database
+     */
+    public void recipeSelected(DocumentSnapshot document) {
+
+        Bundle bundle = new Bundle();
+        bundle.putString("recipeID", document.getId());
+        bundle.putString("recipeTitle", document.get("Name").toString());
+        bundle.putString("imageURL", document.get("imageURL").toString());
+        bundle.putString("recipeDescription", document.get("Description").toString());
+        bundle.putString("chefName", document.get("Chef").toString());
+
+
         RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
+        recipeDialogFragment.setArguments(bundle);
         recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");
     }
 }
