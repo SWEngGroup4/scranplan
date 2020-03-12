@@ -111,7 +111,7 @@ public class RecipeFragment extends Fragment {
         // Checks users details have been provided
         if(user != null){
             // Build the first horizontal scroll built around organising the recipes via highest rated
-            HomeQueries horizontalScrollQueriesScore = new HomeQueries(user);
+            HomeQueries horizontalScrollQueries = new HomeQueries(user);
             final RecyclerView recyclerViewScore = new RecyclerView(view.getContext());
             // Set out the layout of this horizontal view
             RecyclerView.LayoutManager rManagerScore = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
@@ -121,7 +121,7 @@ public class RecipeFragment extends Fragment {
             dataScore = new ArrayList<>();
             final RecyclerView.Adapter rAdapterScore = new HomeRecyclerAdapter(RecipeFragment.this, dataScore);
             recyclerViewScore.setAdapter(rAdapterScore);
-            final Query queryScore = (Query) horizontalScrollQueriesScore.getQueries().get("score");
+            final Query queryScore = (Query) horizontalScrollQueries.getQueries().get("score");
             // Ensure query exists and builds view with query
             if (queryScore != null) {
                 Log.e(TAG, "User is searching the following query: " + queryScore.toString());
@@ -214,7 +214,6 @@ public class RecipeFragment extends Fragment {
             /* Adding the save view as score but with highest votes as a new query
             /  This has been done in the same manner but as there are too many variables to track
             /  this is not workable in any kind of loop. */
-            HomeQueries horizontalScrollQueriesVotes = new HomeQueries(user);
             final RecyclerView recyclerViewVotes = new RecyclerView(view.getContext());
             RecyclerView.LayoutManager rManagerVotes = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
             recyclerViewVotes.setLayoutManager(rManagerVotes);
@@ -222,7 +221,7 @@ public class RecipeFragment extends Fragment {
             dataVotes = new ArrayList<>();
             final RecyclerView.Adapter rAdapterVotes = new HomeRecyclerAdapter(RecipeFragment.this, dataVotes);
             recyclerViewVotes.setAdapter(rAdapterVotes);
-            final Query queryVotes = (Query) horizontalScrollQueriesVotes.getQueries().get("votes");
+            final Query queryVotes = (Query) horizontalScrollQueries.getQueries().get("votes");
             if (queryVotes != null) {
                 Log.e(TAG, "User is searching the following query: " + queryVotes.toString());
 
@@ -315,7 +314,6 @@ public class RecipeFragment extends Fragment {
             /* Adding the save view as score but with newest recipes added as a new query
             /  This has been done in the same manner but as there are too many variables to track
             /  this is not workable in any kind of loop. */
-            HomeQueries horizontalScrollQueriesTime = new HomeQueries(user);
             final RecyclerView recyclerViewTime = new RecyclerView(view.getContext());
             RecyclerView.LayoutManager rManagerTime = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
             recyclerViewTime.setLayoutManager(rManagerTime);
@@ -323,7 +321,7 @@ public class RecipeFragment extends Fragment {
             dataTime = new ArrayList<>();
             final RecyclerView.Adapter rAdapterTime = new HomeRecyclerAdapter(RecipeFragment.this, dataTime);
             recyclerViewTime.setAdapter(rAdapterTime);
-            final Query queryTime = (Query) horizontalScrollQueriesTime.getQueries().get("timestamp");
+            final Query queryTime = (Query) horizontalScrollQueries.getQueries().get("timestamp");
             if (queryTime != null) {
                 Log.e(TAG, "User is searching the following query: " + queryTime.toString());
 
@@ -415,7 +413,6 @@ public class RecipeFragment extends Fragment {
             /* Adding the save view as score but with user favourited recipes as a new query
             /  This has been done in the same manner but as there are too many variables to track
             /  this is not workable in any kind of loop. */
-            HomeQueries horizontalScrollQueriesFave = new HomeQueries(user);
             final RecyclerView recyclerViewFave = new RecyclerView(view.getContext());
             RecyclerView.LayoutManager rManagerFave = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
             recyclerViewFave.setLayoutManager(rManagerFave);
@@ -423,7 +420,7 @@ public class RecipeFragment extends Fragment {
             dataFave = new ArrayList<>();
             final RecyclerView.Adapter rAdapterFave = new HomeRecyclerAdapter(RecipeFragment.this, dataFave);
             recyclerViewFave.setAdapter(rAdapterFave);
-            final Query queryFave = (Query) horizontalScrollQueriesFave.getQueries().get("favourite");
+            final Query queryFave = (Query) horizontalScrollQueries.getQueries().get("favourite");
             if (queryFave != null) {
                 Log.e(TAG, "User is searching the following query: " + queryFave.toString());
 
@@ -441,7 +438,7 @@ public class RecipeFragment extends Fragment {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (DocumentSnapshot document : task.getResult()) {
-                                dataScore.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
+                                dataFave.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                         document,
                                         document.getId(),
                                         document.get("imageURL").toString()

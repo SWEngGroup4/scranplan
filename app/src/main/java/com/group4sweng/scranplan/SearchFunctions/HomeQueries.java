@@ -80,6 +80,6 @@ public class HomeQueries {
         if(user.getPreferences().isAllergy_soya()){
             query = query.whereEqualTo("noSoy", true);
         }
-        return query;
+        return query.limit(5);
     }
 }
