@@ -26,7 +26,9 @@ import com.group4sweng.scranplan.RecipeInfoFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchRecyclerAdapter.SearchRecipePreviewData;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  *  This class takes a Firestore query and returns a fragment consisting of an infinite list,
@@ -191,7 +193,21 @@ public class SearchListFragment extends AppCompatDialogFragment {
      */
     public void recipeSelected(DocumentSnapshot document) {
 
+        //Takes ingredient array from snap shot and reformats before being passed through to fragment
+        ArrayList<String> ingredientArray = new ArrayList<>();
+
+        Map<String, Map<String, Object>> test = (Map) document.getData().get("Ingredients");
+        Iterator hmIterator = test.entrySet().iterator();
+
+        while (hmIterator.hasNext()) {
+            Map.Entry mapElement = (Map.Entry) hmIterator.next();
+            String string = mapElement.getKey().toString() + ": " + mapElement.getValue().toString();
+            ingredientArray.add(string);
+        }
+
+        //Creating a bundle so all data needed from firestore query snapshot can be passed through into fragment class
         Bundle bundle = new Bundle();
+        bundle.putStringArrayList("ingredientList", ingredientArray);
         bundle.putString("recipeID", document.getId());
         bundle.putString("recipeTitle", document.get("Name").toString());
         bundle.putString("imageURL", document.get("imageURL").toString());
