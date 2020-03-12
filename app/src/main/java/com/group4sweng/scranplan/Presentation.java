@@ -106,11 +106,11 @@ public class Presentation extends AppCompatActivity {
             slideLayout.setBackgroundColor(Color.parseColor(defaults.backgroundColor));
 
             XmlParser.Text id = new XmlParser.Text(slide.id, defaults);
-            slideLayout.addView(addText(id, defaults, defaultTypeFace[0], slideWidth, slideHeight));
+            slideLayout.addView(addText(id, slideWidth, slideHeight));
             dropdownItems.add(id.text);
 
             if (slide.text != null) {
-                slideLayout.addView(addText(slide.text, defaults, defaultTypeFace[0], slideWidth, slideHeight));
+                slideLayout.addView(addText(slide.text, slideWidth, slideHeight));
             }
             if (slide.line != null) {
                 //TODO - Generate line graphic
@@ -122,6 +122,7 @@ public class Presentation extends AppCompatActivity {
                 //TODO - Generate audio
             }
             if (slide.image != null) {
+                Log.e("Test", "Text element added");
                 slideLayout.addView(addImage(slide.image, defaults, slideWidth, slideHeight));
             }
             if (slide.video != null) {
@@ -179,76 +180,21 @@ public class Presentation extends AppCompatActivity {
         spinner.setVisibility(View.GONE);
     }
 
-    private TextView addText(final XmlParser.Text text, XmlParser.Defaults defaults, Typeface defaultTypeFace,
-                             Integer slideWidth, Integer slideHeight) {
-        final TextView textView = new TextView(getApplicationContext());
+    private PresentationTextView addText(final XmlParser.Text text, Integer slideWidth, Integer slideHeight) {
 
-        RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        textParams.setMargins(Math.round(slideWidth* (text.xPos /  100)),
-                Math.round(slideHeight * (text.yPos / 100)), 0, 0);
-        textView.setLayoutParams(textParams);
-
+        PresentationTextView textView = new PresentationTextView(getApplicationContext(), slideHeight, slideWidth);
+        textView.setDims(text.width, text.height);
+        textView.setBackgroundColor(getResources().getColor(R.color.colorAccent));
         textView.setText(text.text);
-        if (!text.font.equals(defaults.font)) {
-            FontRequest request = new FontRequest("com.google.android.gms.fonts",
-                    "com.google.android.gms",
-                    defaults.font,
-                    R.array.com_google_android_gms_fonts_certs);
-            FontsContractCompat.FontRequestCallback callback = new FontsContractCompat.FontRequestCallback() {
-                @Override
-                public void onTypefaceRetrieved(Typeface typeface) {
-                    textView.setTypeface(typeface);
-                }
-            };
-        } else {
-            textView.setTypeface(defaultTypeFace);
-        }
+        textView.setFont(text.font, text.fontWeight);
         textView.setTextSize(text.fontSize);
-        textView.setTextColor(Color.parseColor(text.fontColor));
-
+        textView.setTextColour(text.fontColor);
+        textView.setPos(text.xPos, text.yPos);
         if (text.startTime > 0) {
-            textView.setVisibility(View.GONE);
-            Thread thread = new Thread(){
-                @Override
-                public void run() {
-                    try {
-                        synchronized (this) {
-                            wait (text.startTime);
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    textView.setVisibility(View.VISIBLE);
-                                }
-                            });
-                        }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            };
-            thread.start();
+            textView.setStartTime(this, text.startTime);
         }
         if (text.endTime > text.startTime) {
-            Thread thread = new Thread(){
-                @Override
-                public void run() {
-                    try {
-                        synchronized (this) {
-                            wait (text.endTime);
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    textView.setVisibility(View.GONE);
-                                }
-                            });
-                        }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            };
-            thread.start();
+            textView.setEndTime(this, text.endTime);
         }
         return textView;
     }
@@ -323,7 +269,7 @@ public class Presentation extends AppCompatActivity {
         int prevCommentId = 0;
         for (XmlParser.Comment comment : comments) {
             comment.text.text = comment.userID + ": " + comment.text.text;
-            TextView commentText = addText(comment.text, defaults, defaultTypeFace, slideWidth, slideHeight);
+            PresentationTextView commentText = addText(comment.text, slideWidth, slideHeight);
 
             commentText.setId(prevCommentId + 1);
             RelativeLayout.LayoutParams commentParams = new RelativeLayout.LayoutParams(
@@ -352,7 +298,7 @@ public class Presentation extends AppCompatActivity {
 
     private Integer toSlide(List<RelativeLayout> slides, Integer currentSlide, Integer slideNumber) {
         if (slideNumber > documentInfo.totalSlides - 1 || slideNumber < 0) {
-            Toast.makeText(getApplicationContext(), "Slide " + slideNumber + " does not exist", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Slide " + slideNumber + " does not exist", Toast.LENGTH_SHORT).show();
         } else {
             slides.get(slideNumber).setVisibility(View.VISIBLE);
             slides.get(currentSlide).setVisibility(View.GONE);

@@ -211,8 +211,11 @@ class XmlParser {
         String font = defaults.font;
         Integer fontSize = defaults.fontSize;
         String fontColor = defaults.fontColor;
+        Integer fontWeight = 300;
         Float xPos = 0f;
         Float yPos = 0f;
+        Float height = -1f;
+        Float width = 1f;
         Integer startTime = 0;
         Integer endTime = 0;
         String b = "";
@@ -224,11 +227,23 @@ class XmlParser {
         if (parser.getAttributeValue(null, "fontsize") != null) {
             fontSize = Integer.valueOf(parser.getAttributeValue(null, "fontsize"));
         }
+        if (parser.getAttributeValue(null, "fontcolor") != null) {
+            font = parser.getAttributeValue(null, "fontcolor");
+        }
+        if (parser.getAttributeValue(null, "fontweight") != null) {
+            fontWeight = Integer.valueOf(parser.getAttributeValue(null, "fontweight"));
+        }
         if (parser.getAttributeValue(null, "xpos") != null) {
             xPos = Float.valueOf(parser.getAttributeValue(null, "xpos"));
         }
         if (parser.getAttributeValue(null, "ypos") != null) {
             yPos = Float.valueOf(parser.getAttributeValue(null, "ypos"));
+        }
+        if (parser.getAttributeValue(null, "height") != null) {
+            height = Float.valueOf(parser.getAttributeValue(null, "height"));
+        }
+        if (parser.getAttributeValue(null, "width") != null) {
+            width = Float.valueOf(parser.getAttributeValue(null, "width"));
         }
         if (parser.getAttributeValue(null, "starttime") != null) {
             startTime = Integer.valueOf(parser.getAttributeValue(null, "starttime"));
@@ -246,7 +261,7 @@ class XmlParser {
         String text = readString(parser);
         parser.require(XmlPullParser.END_TAG, null, "text");
 
-        return new Text(text, font, fontSize, fontColor, xPos, yPos, startTime, endTime, b, i);
+        return new Text(text, font, fontSize, fontColor, fontWeight, xPos, yPos, height, width,startTime, endTime, b, i);
     }
 
     private Line readLine(XmlPullParser parser) throws IOException, XmlPullParserException {
@@ -504,34 +519,43 @@ class XmlParser {
         final String font;
         final Integer fontSize;
         final String fontColor;
+        final Integer fontWeight;
         final Float xPos;
         final Float yPos;
+        final Float height;
+        final Float width;
         final Integer startTime;
         final Integer endTime;
         final String b;
         final String i;
 
-        public Text(String text, Defaults defaults) {
+        Text(String text, Defaults defaults) {
             this.text = text;
             this.font = defaults.font;
             this.fontSize = defaults.fontSize;
             this.fontColor = defaults.fontColor;
+            this.fontWeight = 300;
             this.xPos = 0f;
             this.yPos = 0f;
+            this.height = -1f;
+            this.width = -1f;
             this.startTime = 0;
             this.endTime = 0;
             this.b = "";
             this.i = "";
         }
 
-        private Text(String text, String font, Integer fontSize, String fontColor, Float xPos,
-                     Float yPos, Integer startTime, Integer endTime, String b, String i) {
+        private Text(String text, String font, Integer fontSize, String fontColor, Integer fontWeight, Float xPos,
+                     Float yPos, Float height, Float width, Integer startTime, Integer endTime, String b, String i) {
             this.text = text;
             this.font = font;
             this.fontSize = fontSize;
             this.fontColor = fontColor;
+            this.fontWeight = fontWeight;
             this.xPos = xPos;
             this.yPos = yPos;
+            this.height = height;
+            this.width = width;
             this.startTime = startTime;
             this.endTime = endTime;
             this.b = b;
