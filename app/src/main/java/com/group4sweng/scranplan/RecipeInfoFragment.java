@@ -34,6 +34,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
 
     // Variables for the xml layout so data from firebase can be properly assigned
     private Button mReturnButton;
+    private Button mLetsCook;
     private TabLayout mTabLayout2;
     private FrameLayout mRecipeFrameLayout;
     private TextView mTitle;
@@ -49,6 +50,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
     private String recipeDescription;
     private String chefName;
     private String recipeRating;
+    private String xmlPresentation;
     private ArrayList<String> ingredientArray;
 
     private FirebaseFirestore mDatabase;
@@ -86,6 +88,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         chefName = getArguments().getString("chefName");
         ingredientArray = getArguments().getStringArrayList("ingredientList");
         recipeRating = getArguments().getString("rating");
+        xmlPresentation = getArguments().getString("xmlURL");
 
         builder.setView(layout);
 
@@ -117,13 +120,18 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
     private void initPageListeners(View layout){
 
         mReturnButton = layout.findViewById(R.id.ReturnButton);
-
         mReturnButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 dismiss();
+            }
+        });
 
+        mLetsCook = layout.findViewById(R.id.LetsCook);
+        mLetsCook.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                
             }
         });
     }
