@@ -6,7 +6,7 @@
  *
  * */
 
-package com.example.soundhandler;
+package com.group4sweng.scranplan.soundhandler;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;

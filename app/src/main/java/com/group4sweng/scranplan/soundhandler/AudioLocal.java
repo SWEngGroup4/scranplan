@@ -6,7 +6,7 @@
 *
 * */
 
-package com.example.soundhandler;
+package com.group4sweng.scranplan.soundhandler;
 
 import android.content.Context;
 import android.media.MediaPlayer;
@@ -90,7 +90,7 @@ public class AudioLocal extends AppCompatActivity
                 Creates a MediaPlayer for a given local file only when needed to free the resources.
 
             */
-            player_Local = MediaPlayer.create(context, R.raw.song);
+//            player_Local = MediaPlayer.create(context, R.raw.song);
             /*
                 Ensures that the media player is released once the audio has stopped.
                 Saves system resources.
