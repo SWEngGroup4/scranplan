@@ -25,11 +25,8 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.HashMap;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Login class
@@ -85,6 +82,7 @@ public class Login extends AppCompatActivity{
         initPageListeners();
 
         initFirebase();
+
     }
 
     /**
@@ -274,26 +272,13 @@ public class Login extends AppCompatActivity{
                     // Setting up default user profileView on database with email and display name
                     HashMap<String, Object> map = new HashMap<>();
                     HashMap<String, Object> preferences = new HashMap<>();
-                    HashMap<String, Object> privacy = new HashMap<>();
-
-                    map.put("UID", requireNonNull(mAuth.getCurrentUser()).getUid());
+                    map.put("UID", mAuth.getCurrentUser().getUid());
                     map.put("email", mAuth.getCurrentUser().getEmail());
                     map.put("displayName", mDisplayName);
                     map.put("imageURL", "");
                     map.put("chefRating", (double) 0);
                     map.put("numRecipes", (long) 0);
                     map.put("about", "");
-
-                    map.put("shortPreferences", true);
-                    map.put("firstAppLaunch", true);
-                    map.put("firstPresentationLaunch", true);
-
-
-                    privacy.put("display_username", true);
-                    privacy.put("display_about_me", true);
-                    privacy.put("display_recipes", false);
-                    privacy.put("display_profile_image", true);
-                    privacy.put("display_filters", false);
 
                     // Default user food preferences
                     preferences.put("allergy_celery", false);
@@ -325,9 +310,8 @@ public class Login extends AppCompatActivity{
                     preferences.put("vegetarian", false);
 
                     map.put("preferences", preferences);
-                    map.put("privacy", privacy);
                     // Saving default profile locally to user
-
+                    //user = new UserInfo(map, preferences);
                     // Saving default user to Firebase Firestore database
                     DocumentReference usersRef = ref.document(mAuth.getCurrentUser().getUid());
                     mAuth.getCurrentUser().sendEmailVerification();
@@ -400,19 +384,13 @@ public class Login extends AppCompatActivity{
                                             map.put("chefRating", document.get("chefRating"));
                                             map.put("numRecipes", document.get("numRecipes"));
                                             map.put("preferences", document.get("preferences"));
-                                            map.put("privacy", document.get("privacy"));
                                             map.put("about", document.get("about"));
-                                            map.put("shortPreferences", document.get("shortPreferences"));
-                                            map.put("firstAppLaunch", document.get("firstAppLaunch"));
-                                            map.put("firstPresentationLaunch", document.get("firstPresentationLaunch"));
 
-                                            @SuppressWarnings("unchecked")
-                                            HashMap<String, Object> preferences = (HashMap<String, Object>) document.get("preferences");
-
-                                            @SuppressWarnings("unchecked")
-                                            HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacy");
-
-                                            mUser = new UserInfoPrivate(map, preferences, privacy);
+                                            try {
+                                               mUser = new UserInfoPrivate(map, (HashMap<String, Object>) document.get("preferences"));
+                                            } catch (Exception e){
+                                                e.printStackTrace();
+                                            }
 
                                             Log.i(TAG, "SignIn : Valid current user : UID [" + mUser.getUID() + "]");
                                             mLoginInProgress = false;
@@ -473,8 +451,6 @@ public class Login extends AppCompatActivity{
         Intent returningIntent = new Intent(Login.this, MainActivity.class);
 
         returningIntent.putExtra("user", mUser);
-
-        mUser = null;
         startActivity(returningIntent);
 
         finish();
