@@ -152,7 +152,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
     public void onBackPressed() {
 
         //  Send back with intent and update the MainActivity's UserInfoPrivate class with the new User Info.
-        Intent returnIntent = new Intent(this, MainActivity.class);
+        Intent returnIntent = new Intent(this, Home.class);
         returnIntent.putExtra("user", mUserProfile);
         setResult(Activity.RESULT_OK, returnIntent);
         startActivity(returnIntent);

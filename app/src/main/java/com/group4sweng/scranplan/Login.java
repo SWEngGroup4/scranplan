@@ -85,7 +85,6 @@ public class Login extends AppCompatActivity{
         initPageListeners();
 
         initFirebase();
-
     }
 
     /**
@@ -288,10 +287,12 @@ public class Login extends AppCompatActivity{
                     map.put("firstAppLaunch", true);
                     map.put("firstPresentationLaunch", true);
 
+
                     privacy.put("display_username", true);
                     privacy.put("display_about_me", true);
                     privacy.put("display_recipes", false);
                     privacy.put("display_profile_image", true);
+                    privacy.put("display_filters", false);
 
                     // Default user food preferences
                     preferences.put("allergy_celery", false);
@@ -331,17 +332,17 @@ public class Login extends AppCompatActivity{
                     mAuth.getCurrentUser().sendEmailVerification();
                     Log.e(TAG, "SignIn : Email authentication sent for new user and logged out.");
                     Toast.makeText(getApplicationContext(),"Email authentication sent to email, please verify email and log in with your new account.",Toast.LENGTH_LONG).show();
-                    mLoginInProgress = false;
-                    mRegisterInProgress = false;
                     usersRef.set(map).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             mAuth.signOut();
                         }
                     });
+                    mRegisterInProgress = false;
                     mDisplayNameText.getText().clear();
                     mPasswordEditText.getText().clear();
                     mConfirmPasswordEditText.getText().clear();
+                    mLoginInProgress = true;
                 }else{
                     // Log and alert user if unsuccessful
                     Log.e(TAG, "SignIn : User registration response, but failed ");
@@ -400,9 +401,9 @@ public class Login extends AppCompatActivity{
                                             map.put("preferences", document.get("preferences"));
                                             map.put("privacy", document.get("privacy"));
                                             map.put("about", document.get("about"));
-                                            map.put("shortPreferences", true);
-                                            map.put("firstAppLaunch", true);
-                                            map.put("firstPresentationLaunch", true);
+                                            map.put("shortPreferences", document.get("shortPreferences"));
+                                            map.put("firstAppLaunch", document.get("firstAppLaunch"));
+                                            map.put("firstPresentationLaunch", document.get("firstPresentationLaunch"));
 
                                             @SuppressWarnings("unchecked")
                                             HashMap<String, Object> preferences = (HashMap<String, Object>) document.get("preferences");
@@ -412,6 +413,13 @@ public class Login extends AppCompatActivity{
 
                                             mUser = new UserInfoPrivate(map, preferences, privacy);
 
+                                            if(mUser.getFirstAppLaunch()){
+                                                Log.e(TAG,"Sending user to initial preference setup page");
+                                                Intent initialCustom = new Intent(getApplicationContext(), InitialUserCustomisation.class);
+                                                initialCustom.putExtra("user", mUser);
+                                                startActivity(initialCustom);
+                                            }
+                                            else{Log.i(TAG, "test one");}
                                             Log.i(TAG, "SignIn : Valid current user : UID [" + mUser.getUID() + "]");
                                             mLoginInProgress = false;
                                             mRegisterInProgress = false;
@@ -472,7 +480,7 @@ public class Login extends AppCompatActivity{
 
         returningIntent.putExtra("user", mUser);
 
-//        mUser = null;
+        mUser = null;
         startActivity(returningIntent);
 
         finish();
