@@ -56,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
             mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) getIntent().getSerializableExtra("user");
         }
 
+
+
         initPageItems();
         // Rotates the logo clockwise
         rotateImageClockwise(mLogoHomeImage);
@@ -131,6 +133,13 @@ public class MainActivity extends AppCompatActivity {
                                         initialCustom.putExtra("user", mUser);
                                         startActivity(initialCustom);
                                     }
+
+                                    Log.i(TAG, "Successfully logged back in");
+                                    Intent returningIntent = new Intent(MainActivity.this, Home.class);
+
+                                    returningIntent.putExtra("user", mUser);
+
+                                    startActivity(returningIntent);
 
                                 }else {
                                     Log.e(TAG, "User details retrieval : Unable to retrieve user document in Firestore ");
