@@ -35,13 +35,13 @@ public class MainActivityTest {
     public void onOptionsItemSelected() {
     }
 
-//    @Test
-//    public void testLaunch(){
-//        //Checking that the page is displaying the XML associated with the Login page
-//        Button button = mActivity.findViewById(R.id.logoutButton);
-//
-//        assertNotNull(button);
-//    }
+    @Test
+    public void testLaunch(){
+        //Checking that the page is displaying the XML associated with the Login page
+        Button button = mActivity.findViewById(R.id.logoutButton);
+
+        assertNotNull(button);
+    }
 
     @After
     public void tearDown() throws Exception {

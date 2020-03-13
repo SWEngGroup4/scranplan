@@ -1,13 +1,14 @@
 package com.group4sweng.scranplan;
 
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
 
-public class PublicProfile extends AppCompatActivity {
+public class Root extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_public_profile);
+        setContentView(R.layout.activity_root);
     }
 }
