@@ -200,11 +200,18 @@ public class InitialUserCustomisation extends AppCompatActivity {
         Log.e(TAG, "Initial User Customisation returning to main activity");
 
         // User data returned to main menu
-        Intent returningIntent = new Intent(InitialUserCustomisation.this, MainActivity.class);
+        Intent returningIntent = new Intent(InitialUserCustomisation.this, Home.class);
         returningIntent.putExtra("user", userDetails);
-        setResult(RESULT_OK, returningIntent);
+        startActivity(returningIntent);
+//        setResult(RESULT_OK, returningIntent);
 
         finish();
+    }
+
+    // Disable user from pressing back button on main activity page
+    @Override
+    public void onBackPressed() {
+        //Do nothing
     }
 
 }
