@@ -223,17 +223,21 @@ public class Home extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.nav_publicProfile:
+                        Log.e(TAG,"Clicked public profile!");
+
                         Intent intentProfile = new Intent(mContext, PublicProfile.class);
 
                         intentProfile.putExtra("user", mUser);
                         //setResult(RESULT_OK, intentProfile);
                         startActivity(intentProfile);
+                        break;
                     case R.id.nav_editProfile:
                         Intent intentSettings = new Intent(mContext, ProfileSettings.class);
                         intentSettings.putExtra("user", mUser);
 
                         setResult(RESULT_OK, intentSettings);
                         startActivityForResult(intentSettings, PROFILE_SETTINGS_REQUEST_CODE);
+                        break;
                     case R.id.nav_logout:
                         Log.e(TAG, "Logout button has been pressed and user has been logged out.");
                         mUser = null;
