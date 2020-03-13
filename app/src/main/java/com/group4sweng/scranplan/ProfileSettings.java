@@ -1,14 +1,20 @@
 package com.group4sweng.scranplan;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.text.InputType;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -16,9 +22,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -74,6 +84,13 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
     Switch mDisplay_about_me;
     Switch mDisplay_recipes;
     Switch mDisplay_profile_image;
+    Switch mDisplay_filters;
+
+    //  Input fields (Delete profile & Change password)
+    EditText mPasswordConfirm;
+    EditText mPasswordNew1;
+    EditText mPasswordNew2;
+    EditText mPasswordOld;
 
     //  Timer in milliseconds for minimum interval between 'Save Settings' button presses..
     private final int COUNTDOWN_TIMER_MILLIS = 10000;
@@ -86,6 +103,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
 
     CheckAndroidServices androidServices;
     boolean connectionEstablished;
+    boolean isTesting = false; //Used to check if the activity is currently being tested. If so, do not delete the users account.
 
     //  Initialize 'Save Settings minimum interval countdown timer.
     CountDownTimer saveCountdown = new CountDownTimer(COUNTDOWN_TIMER_MILLIS, COUNTDOWN_INTERVAL_MILLIS) {
@@ -133,12 +151,252 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
     @Override
     public void onBackPressed() {
 
-        //  Send back with intent and update the MainActivity's UserInfoPrivate class.
+        //  Send back with intent and update the MainActivity's UserInfoPrivate class with the new User Info.
         Intent returnIntent = new Intent(this, MainActivity.class);
         returnIntent.putExtra("user", mUserProfile);
         setResult(Activity.RESULT_OK, returnIntent);
         startActivity(returnIntent);
     }
+
+    /** Initiated on a 'Delete Profile' button press.
+     *  Creates an alert dialog box that checks a users old password through re-authentication
+     *  and then deletes a users profile if a valid Firebase and local profile is found.
+     * @param v - Button View.
+     */
+    public void deleteProfile(View v){
+        AlertDialog.Builder builder = new AlertDialog.Builder(ProfileSettings.this); //Create an alert.
+
+        //  Create a new linear layout which fits the proportions of the screen and descends vertically.
+        LinearLayout layout = new LinearLayout(this);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setLayoutParams(params);
+
+        //  Add a text input password confirm box
+        mPasswordConfirm = new EditText(this);
+        mPasswordConfirm.setHint("Enter password");
+        mPasswordConfirm.setPadding(40, 40, 40, 40);
+        mPasswordConfirm.setGravity(Gravity.CENTER); //Center the box.
+        mPasswordConfirm.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD); //Set the input type to 'password' (hidden).
+
+        layout.addView(mPasswordConfirm);
+        builder.setView(layout);
+
+        builder.setMessage("Are you sure you want to delete?");
+        builder.setTitle("Delete Profile");
+        builder.setCancelable(true);
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                final String passwordString = mPasswordConfirm.getText().toString();
+
+                                if(passwordString.equals("")){
+                                    Log.e(TAG, "Password cannot be set to an empty field");
+                                    Toast.makeText(getApplicationContext(), "Cannot enter a blank password. Please try again.", Toast.LENGTH_SHORT).show();
+                                } else if(passwordString.length() <= 6){
+                                    Log.e(TAG, "Password must be greater than 6 characters in length");
+                                    Toast.makeText(getApplicationContext(),"Password must be greater than 6 characters in length", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    deleteAccount(passwordString);  //Delete our account
+                                }
+                            }
+                        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) { //Allow the user to cancel the operation.
+                                dialog.cancel();
+                            }
+                        });
+        AlertDialog alertDialog = builder.create();
+
+        alertDialog.show();
+    }
+
+    /**
+     * deleteAccount
+     * called when user wants to delete their account, needs users password to be re-entered
+     * FireBase Auth is deleted along with all local data and their personal account in the database
+     * @param rePassword - Existing password the user must enter to confirm account deletion.
+     */
+    private void deleteAccount(String rePassword){
+        mApp = FirebaseApp.getInstance();
+        mAuth = FirebaseAuth.getInstance(mApp);
+
+        final String password = rePassword;
+
+        if(isTesting){ //  Checks if we are testing so we don't actually delete a users account.
+            Log.e(TAG, "Currently in testing phase, haven't deleted Firebase or local profile");
+            return;
+        }
+
+        AuthCredential credential = EmailAuthProvider.getCredential(mUserProfile.getEmail(), password); //Obtain a users credentials and therefore equivalent password.
+
+        if(mAuth.getCurrentUser() != null){
+
+            mAuth.getCurrentUser().reauthenticate(credential).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    mDatabase.collection("users").document(mAuth.getCurrentUser().getUid()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            mUserProfile = null;
+                            mAuth.getCurrentUser().delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        Log.d(TAG, "User account deleted.");
+
+                                        //  Verify the account has been deleted.
+                                        Toast.makeText(getApplicationContext(), "Account deleted.", Toast.LENGTH_SHORT).show();
+                                        finish();
+                                    }
+                                }
+                            });
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e(TAG, "Deleted associated collection 'users'. Couldn't delete all users data. User has been asked for this to be removed manually.");
+                            Toast.makeText(getApplicationContext(), "Failed to delete all associated user info. Please contact Scranplan with your email address to have your data manually removed.", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e(TAG, "Failed to re-authenticate. May have entered the wrong password");
+                    Toast.makeText(getApplicationContext(),"Could not delete data. Make sure you are connected to the internet and have inputted a correct previous password.", Toast.LENGTH_LONG).show();
+                }
+            });
+        } else {
+            Log.e(TAG, "Unable to get current user details");
+            Toast.makeText(getApplicationContext(), "Unable to get current user details. Make sure you are connected to the internet", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /** Initiated on a 'Change Password' button press.
+     *  Creates an alert dialog box that checks a users old password through re-authentication
+     *  and then asks for a new password.
+     * @param v - Change Password button view.
+     */
+    public void changePassword(View v)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(ProfileSettings.this);
+
+        LinearLayout layout = new LinearLayout(this);
+        LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setLayoutParams(parms);
+
+        /* Creates 3 unique input boxes:
+            - New password
+            - Repeated new password
+            - Old password
+         */
+        mPasswordNew1 = new EditText(this);
+        mPasswordNew1.setHint("Enter new password");
+        mPasswordNew1.setPadding(40, 40, 40, 40);
+        mPasswordNew1.setGravity(Gravity.CENTER);
+        mPasswordNew1.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+        mPasswordNew2 = new EditText(this);
+        mPasswordNew2.setHint("Re-enter new password");
+        mPasswordNew2.setPadding(40, 40, 40, 40);
+        mPasswordNew2.setGravity(Gravity.CENTER);
+        mPasswordNew2.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+        mPasswordOld = new EditText(this);
+        mPasswordOld.setHint("Enter old password");
+        mPasswordOld.setPadding(40, 40, 40, 40);
+        mPasswordOld.setGravity(Gravity.CENTER);
+        mPasswordOld.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+        layout.addView(mPasswordOld);
+        layout.addView(mPasswordNew1);
+        layout.addView(mPasswordNew2);
+        builder.setView(layout);
+
+        builder.setTitle("Change Password");
+        builder.setCancelable(true);
+        builder.setPositiveButton("Change password", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                final String passwordString = mPasswordOld.getText().toString();
+                final String newPasswordString = mPasswordNew1.getText().toString();
+                final String passwordNew2String = mPasswordNew2.getText().toString();
+
+                if(passwordString.equals("") || newPasswordString.equals("") || passwordNew2String.equals("")){
+                    Toast.makeText(getApplicationContext(), "Cannot enter a blank password. Please try again.", Toast.LENGTH_SHORT).show();
+                } else if (passwordNew2String.length() <= 6 || newPasswordString.length() <= 6){
+                    Toast.makeText(getApplicationContext(), "Password must be greater than 6 characters in length", Toast.LENGTH_SHORT).show();
+                } else if(newPasswordString.equals(passwordNew2String)){ //Check that both of the new password inputs are equal.
+                    resetPassword(passwordString, newPasswordString); //Attempt to reset a users password.
+                } else {
+                    Toast.makeText(getApplicationContext(),"Passwords do not match. Please try again...",Toast.LENGTH_LONG).show();
+                }
+
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    /** Takes both the old password and the new password and resets the users password to the new one.
+     * @param rePassword - Previous password
+     * @param newPassword - New password
+     */
+    private void resetPassword(final String rePassword, final String newPassword){
+        mApp = FirebaseApp.getInstance();
+        mAuth = FirebaseAuth.getInstance(mApp);
+
+        if(isTesting){ //  Checks if we are testing so we don't actually reset a users password.
+            Log.e(TAG, "Currently in testing phase, haven't reset the users password.");
+            return;
+        }
+
+        AuthCredential credential = EmailAuthProvider.getCredential(mUserProfile.getEmail(), rePassword);
+
+        if(mAuth.getCurrentUser() != null){
+            // Prompt the user to re-provide their sign-in credentials
+            mAuth.getCurrentUser().reauthenticate(credential).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    mAuth.getCurrentUser().updatePassword(newPassword).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                Log.d(TAG, "Password updated.");
+                                Toast.makeText(getApplicationContext(),"Password updated.",Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }).addOnFailureListener( new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e(TAG,"Password update failed.");
+                            Toast.makeText(getApplicationContext(),"Password update failed, please try again.",Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e(TAG,"Failed to re-authenticate.");
+                    Toast.makeText(getApplicationContext(),"Failed to reset password. Make sure you are connected to the internet and have inputted a correct previous password.",Toast.LENGTH_LONG).show();
+                }
+            });
+        } else {
+            Log.e(TAG, "Unable to get current user details");
+            Toast.makeText(getApplicationContext(), "Unable to get current user details. Make sure you are connected to the internet", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
 
     /** Activated on 'save settings' button press.
      * @param v - Button View.
@@ -156,7 +414,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
             //  Set all info not set in other proprietary methods.
             mUserProfile.setAbout(mAboutMe.getText().toString());
             mUserProfile.setDisplayName(mUsername.getText().toString());
-            mUserProfile.setNumRecipes(Long.parseLong(mNumRecipes.getText().toString()));
+            //mUserProfile.setNumRecipes(Long.parseLong(mNumRecipes.getText().toString()));
 
             //  Update the server relative to the client or throw an exception if a valid user isn't found.
             try {
@@ -199,6 +457,11 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
                     privacy.put("display_profile_image", true);
                 else
                     privacy.put("display_profile_image", false);
+            case R.id.settings_privacy_filters:
+                if(switched)
+                    privacy.put("display_filters", true);
+                else
+                    privacy.put("display_filters", false);
         }
     }
 
@@ -216,37 +479,37 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
             case ALLERGENS:
                 // Check which checkbox was clicked.
                 switch(v.getId()) {
-                    case R.id.settings_allergy_nuts:
+                    case R.id.allergy_nuts:
                         if (checked)
                             preferences.setAllergy_nuts(true);
                         else
                             preferences.setAllergy_nuts(false);
                         break;
-                    case R.id.settings_allergy_eggs:
+                    case R.id.allergy_eggs:
                         if (checked)
                             preferences.setAllergy_eggs(true);
                         else
                             preferences.setAllergy_eggs(false);
                         break;
-                    case R.id.settings_allergy_milk:
+                    case R.id.allergy_milk:
                         if (checked)
                             preferences.setAllergy_milk(true);
                         else
                             preferences.setAllergy_milk(false);
                         break;
-                    case R.id.settings_allergy_shellfish:
+                    case R.id.allergy_shellfish:
                         if (checked)
                             preferences.setAllergy_shellfish(true);
                         else
                             preferences.setAllergy_shellfish(false);
                         break;
-                    case R.id.settings_allergy_soy:
+                    case R.id.allergy_soy:
                         if (checked)
                             preferences.setAllergy_soya(true);
                         else
                             preferences.setAllergy_soya(false);
                         break;
-                    case R.id.settings_allergy_wheat:
+                    case R.id.allergy_wheat:
                         if (checked)
                             preferences.setAllergy_gluten(true);
                         else
@@ -282,28 +545,30 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         //  Basic user info.
         mUsername = findViewById(R.id.settings_input_username);
         mAboutMe = findViewById(R.id.settings_input_about_me);
-        mNumRecipes = findViewById(R.id.public_profile_recipes);
+        mNumRecipes = findViewById(R.id.profile_recipes);
 
         //  Allergens
-        mAllergy_eggs = findViewById(R.id.settings_allergy_eggs);
-        mAllergy_gluten = findViewById(R.id.settings_allergy_wheat);
-        mAllergy_milk = findViewById(R.id.settings_allergy_milk);
-        mAllergy_nuts = findViewById(R.id.settings_allergy_nuts);
-        mAllergy_shellfish = findViewById(R.id.settings_allergy_shellfish);
-        mAllergy_soy = findViewById(R.id.settings_allergy_soy);
+        mAllergy_eggs = findViewById(R.id.allergy_eggs);
+        mAllergy_gluten = findViewById(R.id.allergy_wheat);
+        mAllergy_milk = findViewById(R.id.allergy_milk);
+        mAllergy_nuts = findViewById(R.id.allergy_nuts);
+        mAllergy_shellfish = findViewById(R.id.allergy_shellfish);
+        mAllergy_soy = findViewById(R.id.allergy_soy);
 
         //  Privacy
         mDisplay_about_me = findViewById(R.id.settings_privacy_about_me);
         mDisplay_profile_image = findViewById(R.id.settings_privacy_profile_image);
         mDisplay_recipes = findViewById(R.id.settings_privacy_recipes);
         mDisplay_username = findViewById(R.id.settings_privacy_username);
+        mDisplay_filters = findViewById(R.id.settings_privacy_filters);
 
     }
 
     private void loadProfileData(){
         mUsername.setText(mUserProfile.getDisplayName());
         mAboutMe.setText(mUserProfile.getAbout());
-        mNumRecipes.setText(String.valueOf(mUserProfile.getNumRecipes()));
+        String numOfRecipesString = "Recipes: " +  mUserProfile.getNumRecipes();
+        mNumRecipes.setText(numOfRecipesString);
 
         //  Load allergen checkBoxes.
         setFilters(currentFilterType);
@@ -341,6 +606,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         mDisplay_about_me.setChecked( (boolean) privacy.get("display_about_me"));
         mDisplay_profile_image.setChecked( (boolean) privacy.get("display_profile_image"));
         mDisplay_recipes.setChecked( (boolean) privacy.get("display_recipes"));
+        mDisplay_filters.setChecked( (boolean) privacy.get("display_filters"));
     }
 
     /** Update the server relative to the client on a valid 'Save Settings' button press
@@ -386,6 +652,9 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
             map.put("chefRating", mUserProfile.getChefRating());
             map.put("numRecipes", mUserProfile.getNumRecipes());
             map.put("about", mUserProfile.getAbout());
+            map.put("shortPreferences", mUserProfile.getShortPreferences());
+            map.put("firstAppLaunch", mUserProfile.getFirstAppLaunch());
+            map.put("firstPresentationLaunch", mUserProfile.getFirstPresentationLaunch());
 
             Preferences preferences = mUserProfile.getPreferences();
 
@@ -396,28 +665,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
             prefMap.put("allergy_shellfish", preferences.isAllergy_shellfish());
             prefMap.put("allergy_soya", preferences.isAllergy_soya());
 
-            //  TODO Finish all other preferences. Currently just set to false by default.
-            prefMap.put("allergy_celery", false);
-            prefMap.put("allergy_crustacean", false);
-            prefMap.put("allergy_fish", false);
-            prefMap.put("allergy_mustard", false);
-            prefMap.put("allergy_peanuts", false);
-            prefMap.put("allergy_sesame", false);
-            prefMap.put("allergy_sulphide", false);
-            prefMap.put("diabetic", false);
-            prefMap.put("halal", false);
-            prefMap.put("high_protein", false);
-            prefMap.put("kosher", false);
-            prefMap.put("lactose_free", false);
-            prefMap.put("lactovegetarian", false);
-            prefMap.put("low_carb", false);
-            prefMap.put("low_sodium", false);
-            prefMap.put("no_alcohol", false);
-            prefMap.put("no_pork", false);
-            prefMap.put("ovovegetarian", false);
-            prefMap.put("pescatarian", false);
-            prefMap.put("vegan", false);
-            prefMap.put("vegetarian", false);
+            //  TODO Finish all other preferences.
 
             map.put("preferences", prefMap);
 
@@ -427,6 +675,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
             privacy.put("display_about_me", privacyMap.get("display_about_me"));
             privacy.put("display_recipes", privacyMap.get("display_recipes"));
             privacy.put("display_profile_image", privacyMap.get("display_profile_image"));
+            privacy.put("display_filters", privacyMap.get("display_filters"));
 
             map.put("privacy", privacy);
 
@@ -451,6 +700,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
             Toast.makeText(getApplicationContext(),"Invalid user login credentials. Consider logging out and then back in again.",Toast.LENGTH_LONG).show();
             throw new InvalidUserException("Invalid user login credentials. Consider logging out and then back in again.");
         }
+
     }
 
 }

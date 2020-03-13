@@ -17,6 +17,10 @@ public class UserInfoPrivate implements Serializable{
     private String displayName;
     private String imageURL;
     private String about;
+    private String email;
+    private boolean shortPreferences = true;
+    private boolean firstAppLaunch = true;
+    private boolean firstPresentationLaunch = true;
 
     //  HashMap privacy values are Boolean values of: 'display_username', 'display_about_me', 'display_recipes' & 'display_profile_image'.
     private HashMap<String, Object> privacy;
@@ -36,27 +40,40 @@ public class UserInfoPrivate implements Serializable{
      * @param privacy - A HashMap of the users privacy settings. (HashMap, Boolean) pair.
      */
     public UserInfoPrivate(HashMap<String, Object> map, HashMap<String, Object> prefs, HashMap<String, Object> privacy) {
+        this.email = (String) map.get("email");
         this.UID = (String) map.get("UID");
         this.displayName = (String) map.get("displayName");
         this.imageURL = (String) map.get("imageURL");
         this.chefRating = (double) map.get("chefRating");
         this.numRecipes =  (long) map.get("numRecipes");
         this.about = (String) map.get("about");
-        this.preferences = new Preferences( (boolean) prefs.get("allergy_celery"),
-                (boolean) prefs.get("allergy_crustacean"), (boolean) prefs.get("allergy_eggs"),
-                (boolean) prefs.get("allergy_fish"), (boolean) prefs.get("allergy_gluten"),
-                (boolean) prefs.get("allergy_milk"), (boolean) prefs.get("allergy_mustard"),
-                (boolean) prefs.get("allergy_nuts"), (boolean) prefs.get("allergy_peanuts"),
-                (boolean) prefs.get("allergy_sesame"), (boolean) prefs.get("allergy_shellfish"),
-                (boolean) prefs.get("allergy_soya"), (boolean) prefs.get("allergy_sulphide"),
-                (boolean) prefs.get("diabetic"), (boolean) prefs.get("halal"),
-                (boolean) prefs.get("high_protein"), (boolean) prefs.get("kosher"),
-                (boolean) prefs.get("lactose_free"), (boolean) prefs.get("lactovegetarian"),
-                (boolean) prefs.get("low_carb"), (boolean) prefs.get("low_sodium"),
-                (boolean) prefs.get("no_alcohol"), (boolean) prefs.get("no_pork"),
-                (boolean) prefs.get("ovovegetarian"), (boolean) prefs.get("pescatarian"),
-                (boolean) prefs.get("vegan"), (boolean) prefs.get("vegetarian"));
+        this.shortPreferences = (boolean) map.get("shortPreferences");
+        this.firstAppLaunch = (boolean) map.get("firstAppLaunch");
+        this.firstPresentationLaunch = (boolean) map.get("firstPresentationLaunch");
+
+        if(shortPreferences){
+            this.preferences = new Preferences((boolean) prefs.get("allergy_nuts"),
+                    (boolean) prefs.get("allergy_eggs"), (boolean) prefs.get("allergy_milk"),
+                    (boolean) prefs.get("allergy_shellfish"), (boolean)prefs.get("allergy_soya"),
+                    (boolean) prefs.get("allergy_gluten"));
+        } else {
+            this.preferences = new Preferences((boolean) prefs.get("allergy_celery"),
+                    (boolean) prefs.get("allergy_crustacean"), (boolean) prefs.get("allergy_eggs"),
+                    (boolean) prefs.get("allergy_fish"), (boolean) prefs.get("allergy_gluten"),
+                    (boolean) prefs.get("allergy_milk"), (boolean) prefs.get("allergy_mustard"),
+                    (boolean) prefs.get("allergy_nuts"), (boolean) prefs.get("allergy_peanuts"),
+                    (boolean) prefs.get("allergy_sesame"), (boolean) prefs.get("allergy_shellfish"),
+                    (boolean) prefs.get("allergy_soya"), (boolean) prefs.get("allergy_sulphide"),
+                    (boolean) prefs.get("diabetic"), (boolean) prefs.get("halal"),
+                    (boolean) prefs.get("high_protein"), (boolean) prefs.get("kosher"),
+                    (boolean) prefs.get("lactose_free"), (boolean) prefs.get("lactovegetarian"),
+                    (boolean) prefs.get("low_carb"), (boolean) prefs.get("low_sodium"),
+                    (boolean) prefs.get("no_alcohol"), (boolean) prefs.get("no_pork"),
+                    (boolean) prefs.get("ovovegetarian"), (boolean) prefs.get("pescatarian"),
+                    (boolean) prefs.get("vegan"), (boolean) prefs.get("vegetarian"));
+        }
         this.privacy = privacy;
+
     }
 
     /*TODO
@@ -98,6 +115,14 @@ public class UserInfoPrivate implements Serializable{
         editor.apply();
     }
     */
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     public String getUID() {
         return UID;
@@ -155,10 +180,28 @@ public class UserInfoPrivate implements Serializable{
 
     public void setPrivacy(HashMap<String, Object> privacy) {
         //  Check the HashMap has been properly initialized with all valid privacy parameters., otherwise return a runtime exception.
-        if (privacy.containsKey("display_username") && privacy.containsKey("display_profile_image") && privacy.containsKey("display_about_me") && privacy.containsKey("display_recipes")) {
+        if (privacy.containsKey("display_username") && privacy.containsKey("display_profile_image") && privacy.containsKey("display_about_me") && privacy.containsKey("display_recipes") && privacy.containsKey("display_filters")) {
             this.privacy = privacy;
         } else {
             throw new RuntimeException("Tried to set privacy settings with invalid or incomplete inputs");
         }
+    }
+
+    public void setShortPreferences(boolean shortTrue) { shortPreferences = shortTrue; }
+
+    public boolean getShortPreferences(){
+        return shortPreferences;
+    }
+
+    public void setFirstAppLaunch(boolean firstLaunch)  {firstAppLaunch = firstLaunch; }
+
+    public boolean getFirstAppLaunch() {
+        return firstAppLaunch;
+    }
+
+    public void setFirstPresentationLaunch(boolean firstLaunch) {firstPresentationLaunch = firstLaunch; }
+
+    public boolean getFirstPresentationLaunch() {
+        return firstPresentationLaunch;
     }
 }
