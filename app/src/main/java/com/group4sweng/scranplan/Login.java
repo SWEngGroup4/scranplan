@@ -417,12 +417,20 @@ public class Login extends AppCompatActivity{
                                                 Intent initialCustom = new Intent(getApplicationContext(), InitialUserCustomisation.class);
                                                 initialCustom.putExtra("user", mUser);
                                                 startActivity(initialCustom);
+                                            } else {
+                                                Log.i(TAG, "SignIn : Valid current user : UID [" + mUser.getUID() + "]");
+
+                                                mLoginInProgress = false;
+                                                mRegisterInProgress = false;
+
+                                                Intent returningIntent = new Intent(Login.this, Home.class);
+
+                                                returningIntent.putExtra("user", mUser);
+
+                                                startActivity(returningIntent);
+                                                finishActivity();
                                             }
-                                            else{Log.i(TAG, "test one");}
-                                            Log.i(TAG, "SignIn : Valid current user : UID [" + mUser.getUID() + "]");
-                                            mLoginInProgress = false;
-                                            mRegisterInProgress = false;
-                                            finishActivity();
+
                                         }
                                     }else {
                                         // Log and alert user if unsuccessful with data retrieval
