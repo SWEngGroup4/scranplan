@@ -203,7 +203,6 @@ public class InitialUserCustomisation extends AppCompatActivity {
         Intent returningIntent = new Intent(InitialUserCustomisation.this, Home.class);
         returningIntent.putExtra("user", userDetails);
         startActivity(returningIntent);
-//        setResult(RESULT_OK, returningIntent);
 
         finish();
     }
