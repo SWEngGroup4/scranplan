@@ -95,7 +95,6 @@ public class MainActivity extends AppCompatActivity {
 
                         DocumentReference usersRef = database.collection("users").document(mAuth.getCurrentUser().getUid());
                         usersRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            // If user logged in then all user preferences are downloaded from the Firestore
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                 if (task.isSuccessful()) {
@@ -112,6 +111,10 @@ public class MainActivity extends AppCompatActivity {
                                     map.put("numRecipes", document.get("numRecipes"));
                                     map.put("preferences", document.get("preferences"));
                                     map.put("about", document.get("about"));
+                                    map.put("shortPreferences", document.get("shortPreferences"));
+                                    map.put("firstAppLaunch", document.get("firstAppLaunch"));
+                                    map.put("firstPresentationLaunch", document.get("firstPresentationLaunch"));
+
 
                                     @SuppressWarnings("unchecked")
                                     HashMap<String, Object> preferences = (HashMap<String, Object>) document.get("preferences");
@@ -119,17 +122,16 @@ public class MainActivity extends AppCompatActivity {
                                     @SuppressWarnings("unchecked")
                                     HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacy");
 
-                                    // user info and preferences saved to the user variables and passed through the application
                                     mUser = new UserInfoPrivate(map, preferences, privacy);
 
                                     Log.i(TAG, "Successfully logged back in");
-                                    Intent returningIntent = new Intent(MainActivity.this, Home.class);
+                                    if(mUser.getFirstAppLaunch()){
+                                        Log.e(TAG,"Sending user to initial preference setup page");
+                                        Intent initialCustom = new Intent(getApplicationContext(), InitialUserCustomisation.class);
+                                        initialCustom.putExtra("user", mUser);
+                                        startActivity(initialCustom);
+                                    }
 
-                                    returningIntent.putExtra("user", mUser);
-
-                                    startActivity(returningIntent);
-
-                                    // Else if no user was retrieved, user told and returned to login
                                 }else {
                                     Log.e(TAG, "User details retrieval : Unable to retrieve user document in Firestore ");
                                     Toast.makeText(getApplicationContext(),"Unable to retrieve current user details, please sign in again.",Toast.LENGTH_SHORT).show();
@@ -150,9 +152,12 @@ public class MainActivity extends AppCompatActivity {
                     Intent signIn = new Intent(getApplicationContext(), Login.class);
                     startActivity(signIn);
                     mUser = (UserInfoPrivate) getIntent().getSerializableExtra("user");
+
+
                 }
             }
         };
+
         mAuth.addAuthStateListener(mAuthListener);
     }
 

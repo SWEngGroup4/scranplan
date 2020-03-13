@@ -284,6 +284,9 @@ public class Login extends AppCompatActivity{
                     map.put("chefRating", (double) 0);
                     map.put("numRecipes", (long) 0);
                     map.put("about", "");
+                    map.put("shortPreferences", true);
+                    map.put("firstAppLaunch", true);
+                    map.put("firstPresentationLaunch", true);
 
                     privacy.put("display_username", true);
                     privacy.put("display_about_me", true);
@@ -397,6 +400,9 @@ public class Login extends AppCompatActivity{
                                             map.put("preferences", document.get("preferences"));
                                             map.put("privacy", document.get("privacy"));
                                             map.put("about", document.get("about"));
+                                            map.put("shortPreferences", true);
+                                            map.put("firstAppLaunch", true);
+                                            map.put("firstPresentationLaunch", true);
 
                                             @SuppressWarnings("unchecked")
                                             HashMap<String, Object> preferences = (HashMap<String, Object>) document.get("preferences");
