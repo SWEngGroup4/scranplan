@@ -123,7 +123,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
     @Override
     public void onBackPressed() {
-        Intent returnIntent = new Intent(this, MainActivity.class);
+        Intent returnIntent = new Intent(this, Home.class);
         startActivity(returnIntent);
         finish(); //    We don't need to send anything back but do need to destroy the current activity.
     }
