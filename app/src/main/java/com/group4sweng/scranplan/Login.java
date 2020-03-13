@@ -338,10 +338,14 @@ public class Login extends AppCompatActivity{
                         }
                     });
                     mRegisterInProgress = false;
+                    mLoginInProgress = true;
+                    mEmailEditText.setVisibility(View.VISIBLE);
+                    mPasswordEditText.setVisibility(View.VISIBLE);
+                    mConfirmPasswordEditText.setVisibility(View.GONE);
+                    mDisplayNameText.setVisibility(View.GONE);
                     mDisplayNameText.getText().clear();
                     mPasswordEditText.getText().clear();
                     mConfirmPasswordEditText.getText().clear();
-                    mLoginInProgress = true;
                 }else{
                     // Log and alert user if unsuccessful
                     Log.e(TAG, "SignIn : User registration response, but failed ");
@@ -412,24 +416,17 @@ public class Login extends AppCompatActivity{
 
                                             mUser = new UserInfoPrivate(map, preferences, privacy);
 
-                                            if(mUser.getFirstAppLaunch()){
-                                                Log.e(TAG,"Sending user to initial preference setup page from Login");
-                                                Intent initialCustom = new Intent(getApplicationContext(), InitialUserCustomisation.class);
-                                                initialCustom.putExtra("user", mUser);
-                                                startActivity(initialCustom);
-                                            } else {
-                                                Log.i(TAG, "SignIn : Valid current user : UID [" + mUser.getUID() + "]");
+                                            Log.i(TAG, "SignIn : Valid current user : UID [" + mUser.getUID() + "]");
 
-                                                mLoginInProgress = false;
-                                                mRegisterInProgress = false;
+                                            mLoginInProgress = false;
+                                            mRegisterInProgress = false;
 
-                                                Intent returningIntent = new Intent(Login.this, Home.class);
+                                            Intent returningIntent = new Intent(Login.this, MainActivity.class);
 
-                                                returningIntent.putExtra("user", mUser);
+                                            returningIntent.putExtra("user", mUser);
 
-                                                startActivity(returningIntent);
-                                                finishActivity();
-                                            }
+                                            startActivity(returningIntent);
+                                            finishActivity();
 
                                         }
                                     }else {

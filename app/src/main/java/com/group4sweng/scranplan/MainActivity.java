@@ -52,15 +52,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Log.e(TAG,"At root page - logging in user or sending to login page");
 
+        initPageItems();
+        initFirebase();
         if(getIntent().getSerializableExtra("user") != null){
             mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) getIntent().getSerializableExtra("user");
         }
 
-
-
-        initPageItems();
         // Rotates the logo clockwise
-        initFirebase();
         rotateImageClockwise(mLogoHomeImage);
 
     }
