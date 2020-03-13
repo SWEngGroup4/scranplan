@@ -12,11 +12,17 @@ android {
         versionName "1.0"
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    testOptions {
+        unitTests {
+            returnDefaultValues = true
         }
     }
 }
@@ -29,10 +35,13 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage:16.0.4'
 
     testImplementation 'junit:junit:4.12'
+    testImplementation 'org.mockito:mockito-core:2.7.22'
+    androidTestImplementation 'org.mockito:mockito-android:2.7.22'
     androidTestImplementation 'androidx.test:rules:1.1.1'
     androidTestImplementation 'androidx.test:runner:1.1.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.1.0'
     implementation 'com.google.firebase:firebase-analytics:17.2.0'
     implementation 'com.google.firebase:firebase-auth:19.2.0'
     implementation 'com.google.android.gms:play-services-auth:17.0.0'
@@ -42,9 +51,10 @@ dependencies {
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
 
+    debugImplementation 'androidx.fragment:fragment-testing:1.2.2'
+
 // this dependency is not required if you are already using your own
 // slf4j implementation
     implementation 'org.slf4j:slf4j-nop:1.7.25'
-
 
 }
