@@ -124,6 +124,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     @Override
     public void onBackPressed() {
         Intent returnIntent = new Intent(this, Home.class);
+        returnIntent.putExtra("user", mUserProfile);
         startActivity(returnIntent);
         finish(); //    We don't need to send anything back but do need to destroy the current activity.
     }
