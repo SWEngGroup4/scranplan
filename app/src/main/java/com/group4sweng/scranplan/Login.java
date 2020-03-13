@@ -287,7 +287,6 @@ public class Login extends AppCompatActivity{
                     map.put("firstAppLaunch", true);
                     map.put("firstPresentationLaunch", true);
 
-
                     privacy.put("display_username", true);
                     privacy.put("display_about_me", true);
                     privacy.put("display_recipes", false);
@@ -414,7 +413,7 @@ public class Login extends AppCompatActivity{
                                             mUser = new UserInfoPrivate(map, preferences, privacy);
 
                                             if(mUser.getFirstAppLaunch()){
-                                                Log.e(TAG,"Sending user to initial preference setup page");
+                                                Log.e(TAG,"Sending user to initial preference setup page from Login");
                                                 Intent initialCustom = new Intent(getApplicationContext(), InitialUserCustomisation.class);
                                                 initialCustom.putExtra("user", mUser);
                                                 startActivity(initialCustom);

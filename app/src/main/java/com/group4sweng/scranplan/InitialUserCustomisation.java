@@ -53,6 +53,8 @@ public class InitialUserCustomisation extends AppCompatActivity {
         setContentView(R.layout.activity_initial_user_customisation);
         userDetails = (UserInfoPrivate) getIntent().getSerializableExtra("user");
 
+        Log.e(TAG, "I GET TO THIS POINT");
+
         if (userDetails != null) { //only if user details are retrieved
             preferences = userDetails.getPreferences();
             initPageItems();
@@ -62,7 +64,7 @@ public class InitialUserCustomisation extends AppCompatActivity {
             initFirebase();
         }
 
-        getSupportActionBar().hide();
+        //getSupportActionBar().hide();
         Log.e(TAG, "Starting initial user customisation activity");
 
 
@@ -198,7 +200,7 @@ public class InitialUserCustomisation extends AppCompatActivity {
         Log.e(TAG, "Initial User Customisation returning to main activity");
 
         // User data returned to main menu
-        Intent returningIntent = new Intent(InitialUserCustomisation.this, MainActivity.class);
+        Intent returningIntent = new Intent(InitialUserCustomisation.this, Home.class);
         returningIntent.putExtra("user", userDetails);
         setResult(RESULT_OK, returningIntent);
 

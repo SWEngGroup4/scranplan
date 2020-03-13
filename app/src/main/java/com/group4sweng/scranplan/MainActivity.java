@@ -60,8 +60,8 @@ public class MainActivity extends AppCompatActivity {
 
         initPageItems();
         // Rotates the logo clockwise
-        rotateImageClockwise(mLogoHomeImage);
         initFirebase();
+        rotateImageClockwise(mLogoHomeImage);
 
     }
 
@@ -132,14 +132,14 @@ public class MainActivity extends AppCompatActivity {
                                         Intent initialCustom = new Intent(getApplicationContext(), InitialUserCustomisation.class);
                                         initialCustom.putExtra("user", mUser);
                                         startActivity(initialCustom);
+                                    } else {
+                                        Log.i(TAG, "Successfully logged back in");
+                                        Intent returningIntent = new Intent(MainActivity.this, Home.class);
+
+                                        returningIntent.putExtra("user", mUser);
+
+                                        startActivity(returningIntent);
                                     }
-
-                                    Log.i(TAG, "Successfully logged back in");
-                                    Intent returningIntent = new Intent(MainActivity.this, Home.class);
-
-                                    returningIntent.putExtra("user", mUser);
-
-                                    startActivity(returningIntent);
 
                                 }else {
                                     Log.e(TAG, "User details retrieval : Unable to retrieve user document in Firestore ");
