@@ -83,6 +83,7 @@ lint/tmp/
 
 # Ignore unique IDE run configurations
 .idea
+app/google-services.json
 
 .project
 

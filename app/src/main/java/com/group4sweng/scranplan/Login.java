@@ -1,8 +1,6 @@
 package com.group4sweng.scranplan;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,34 +11,43 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.*;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.HashMap;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Login class
  * Everything necessary for new users to register or existing users to log in before moving into the
  * main section of the application
  */
-public class Login extends AppCompatActivity {
+public class Login extends AppCompatActivity{
 
     // TAG for log info
     final String TAG = "FirebaseTestLogin";
 
-    // Variable to hold user info
-    UserInfo user;
+    Context mContext = this;
+
+    private UserInfoPrivate mUser;
 
     // Firebase variables needed for login/register
     FirebaseApp mApp;
     FirebaseAuth mAuth;
-    FirebaseAuth.AuthStateListener mAuthStateListener;
     final FirebaseFirestore database = FirebaseFirestore.getInstance();
     CollectionReference ref = database.collection("users");
 
@@ -62,7 +69,7 @@ public class Login extends AppCompatActivity {
     Boolean mLoginInProgress = false;
     Boolean mRegisterInProgress = false;
 
-    // Variable to save display name when registering for a new profile
+    // Variable to save display name when registering for a new profileView
     String mDisplayName = "Unknown";
 
     @Override
@@ -162,13 +169,18 @@ public class Login extends AppCompatActivity {
                     String password =mPasswordEditText.getText().toString();
                     String confirmPassword = mConfirmPasswordEditText.getText().toString();
                     String displayName = mDisplayNameText.getText().toString();
-                    Boolean passwordCheck = password.equals(confirmPassword);
-                    // Check both passwords match before registering new user
-                    if(passwordCheck){
-                        registerUser(email, password, displayName);
+                    // Check none of fields are just empty strings
+                    if(!email.equals("") && !password.equals("") && !displayName.equals("") ){
+                        // Check both passwords match before registering new user
+                        if(password.equals(confirmPassword)){
+                            registerUser(email, password, displayName);
+                        }else{
+                            // Display message to user if passwords do not match
+                            Toast.makeText(getApplicationContext(),"Passwords do not match, please try again.",Toast.LENGTH_SHORT).show();
+                        }
                     }else{
                         // Display message to user if passwords do not match
-                        Toast.makeText(getApplicationContext(),"Passwords do not match, please try again.",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(),"One or more of the fields are empty, please fill in all sections of the form.",Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -181,7 +193,19 @@ public class Login extends AppCompatActivity {
         mForgottenPasswordText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO implement password reset via Firebase -> easily done via Tools->FireBase
+                // Checking if email is filled in to be able to send recovery email.
+                if(mEmailEditText.getText() != null && !mEmailEditText.getText().toString().equals("") && mEmailEditText.getVisibility() != View.GONE){
+                    mAuth.sendPasswordResetEmail(mEmailEditText.getText().toString());
+                    Log.e(TAG, "SignIn : Password reset initiated with recovery email.");
+                    Toast.makeText(getApplicationContext(),"Password reset sent to email.",Toast.LENGTH_LONG).show();
+                }else{
+                    Log.e(TAG, "SignIn : Unable to send email to recover password, lack of email.");
+                    Toast.makeText(getApplicationContext(),"Please fill in email for password reset to be sent.",Toast.LENGTH_SHORT).show();
+                }
+                mLoginInProgress = false;
+                mRegisterInProgress = false;
+                mEmailEditText.setVisibility(View.VISIBLE);
+
             }
         });
 
@@ -229,34 +253,16 @@ public class Login extends AppCompatActivity {
         mApp = FirebaseApp.getInstance();
         mAuth = FirebaseAuth.getInstance(mApp);
 
-        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                // Is user is a real authentication
-                if (user != null) {
-                    Log.e(TAG, "SignIn : Valid current user : email [" + user.getEmail() + "]");
-                    mLoginInProgress = false;
-                    mRegisterInProgress = false;
-                    // User sent back to main menu
-                    finishActivity();
-                }
-                else
-                    Log.e(TAG, "SignIn : No Current user");
-            }
-        };
-        mAuth.addAuthStateListener(mAuthStateListener);
     }
 
     /**
-     * Setting up a new user both via Firebase authentication and setting up a user profile
+     * Setting up a new user both via Firebase authentication and setting up a user profileView
      * on the database
      * @param email - users email address, saved as authentication and in database
      * @param password - Users password, saved as authentication
      * @param displayName - users display name, saved in database
      */
-    private void registerUser(String email, String password, final String displayName) {
+    private void registerUser(final String email, String password, final String displayName) {
         mDisplayName = displayName;
         OnCompleteListener<AuthResult> complete = new OnCompleteListener<AuthResult>() {
             @Override
@@ -265,15 +271,27 @@ public class Login extends AppCompatActivity {
                 // if authentication successful
                 if (task.isSuccessful()){
                     Log.e(TAG, "SignIn : User registered ");
-                    // Setting up default user profile on database with email and display name
+                    // Setting up default user profileView on database with email and display name
                     HashMap<String, Object> map = new HashMap<>();
                     HashMap<String, Object> preferences = new HashMap<>();
-                    map.put("UID", mAuth.getCurrentUser().getUid());
+                    HashMap<String, Object> privacy = new HashMap<>();
+
+                    map.put("UID", requireNonNull(mAuth.getCurrentUser()).getUid());
                     map.put("email", mAuth.getCurrentUser().getEmail());
                     map.put("displayName", mDisplayName);
-                    map.put("imageURL", (String) null);
+                    map.put("imageURL", "");
                     map.put("chefRating", (double) 0);
                     map.put("numRecipes", (long) 0);
+                    map.put("about", "");
+                    map.put("shortPreferences", true);
+                    map.put("firstAppLaunch", true);
+                    map.put("firstPresentationLaunch", true);
+
+                    privacy.put("display_username", true);
+                    privacy.put("display_about_me", true);
+                    privacy.put("display_recipes", false);
+                    privacy.put("display_profile_image", true);
+                    privacy.put("display_filters", false);
 
                     // Default user food preferences
                     preferences.put("allergy_celery", false);
@@ -305,12 +323,29 @@ public class Login extends AppCompatActivity {
                     preferences.put("vegetarian", false);
 
                     map.put("preferences", preferences);
+                    map.put("privacy", privacy);
                     // Saving default profile locally to user
-                    user = new UserInfo(map, preferences);
+
                     // Saving default user to Firebase Firestore database
                     DocumentReference usersRef = ref.document(mAuth.getCurrentUser().getUid());
-                    usersRef.set(map);
-
+                    mAuth.getCurrentUser().sendEmailVerification();
+                    Log.e(TAG, "SignIn : Email authentication sent for new user and logged out.");
+                    Toast.makeText(getApplicationContext(),"Email authentication sent to email, please verify email and log in with your new account.",Toast.LENGTH_LONG).show();
+                    usersRef.set(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            mAuth.signOut();
+                        }
+                    });
+                    mRegisterInProgress = false;
+                    mLoginInProgress = true;
+                    mEmailEditText.setVisibility(View.VISIBLE);
+                    mPasswordEditText.setVisibility(View.VISIBLE);
+                    mConfirmPasswordEditText.setVisibility(View.GONE);
+                    mDisplayNameText.setVisibility(View.GONE);
+                    mDisplayNameText.getText().clear();
+                    mPasswordEditText.getText().clear();
+                    mConfirmPasswordEditText.getText().clear();
                 }else{
                     // Log and alert user if unsuccessful
                     Log.e(TAG, "SignIn : User registration response, but failed ");
@@ -328,14 +363,12 @@ public class Login extends AppCompatActivity {
             }
         };
 
-        // Logging user log in
-        Log.e(TAG, "SignIn : Registering : eMail [" + email + "] password [" + password + "] Display Name [" + displayName + "]");
         // Creating new authentication account
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(complete).addOnFailureListener(failure);
     }
 
     /**
-     * Log in know user both via Firebase authentication and downloading user profile from Firestore
+     * Log in know user both via Firebase authentication and downloading user profileView from Firestore
      * @param email - users email address, to log into authentication
      * @param password - Users password, to log into authentication
      */
@@ -347,35 +380,71 @@ public class Login extends AppCompatActivity {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 try{
                     if (task.isSuccessful()){
-                        Log.e(TAG, "SignIn : User logged on ");
-                        // If successful, log complete and attempt to download user data
-                        DocumentReference usersRef = ref.document(mAuth.getCurrentUser().getUid());
-                        usersRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    if (task.getResult() == null) Log.d(TAG, "getResult is null");
-                                    // If download successful, data is saved to local variable
-                                    Log.d(TAG, "getResult: " + task.getResult());
-                                    DocumentSnapshot document = task.getResult();
-                                    HashMap<String, Object> map = new HashMap<>();
-                                    map.put("UID", document.get("UID"));
-                                    map.put("email", document.get("email"));
-                                    map.put("displayName", document.get("displayName"));
-                                    map.put("imageURL", document.get("imageURL"));
-                                    map.put("chefRating", document.get("chefRating"));
-                                    map.put("numRecipes", document.get("numRecipes"));
-                                    map.put("preferences", document.get("preferences"));
-                                    user = new UserInfo(map, (HashMap<String, Object>) document.get("preferences"));
-                                }else {
-                                    // Log and alert user if unsuccessful with data retrieval
-                                    Log.e(TAG, "SignIn : Unable to retrieve user document in Firestore ");
-                                    Toast.makeText(getApplicationContext(),"Sign in failed, unable to retrieve user details, please try again.",Toast.LENGTH_SHORT).show();
-                                    // Log user back out as they have no user profile in database
-                                    mAuth.signOut();
+                        if(mAuth.getCurrentUser().isEmailVerified()){
+                            Log.e(TAG, "SignIn : User logged on ");
+                            // If successful, log complete and attempt to download user data
+                            DocumentReference usersRef = ref.document(mAuth.getCurrentUser().getUid());
+                            usersRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        if (task.getResult() == null){
+                                            Log.d(TAG, "getResult is null, setting up new user.");
+                                        }else{
+                                            // If download successful, data is saved to local variable
+                                            Log.d(TAG, "getResult: " + task.getResult());
+                                            DocumentSnapshot document = task.getResult();
+                                            HashMap<String, Object> map = new HashMap<>();
+                                            map.put("UID", mAuth.getCurrentUser().getUid());
+                                            map.put("email", document.get("email"));
+                                            map.put("displayName", document.get("displayName"));
+                                            map.put("imageURL", document.get("imageURL"));
+                                            map.put("chefRating", document.get("chefRating"));
+                                            map.put("numRecipes", document.get("numRecipes"));
+                                            map.put("preferences", document.get("preferences"));
+                                            map.put("privacy", document.get("privacy"));
+                                            map.put("about", document.get("about"));
+                                            map.put("shortPreferences", document.get("shortPreferences"));
+                                            map.put("firstAppLaunch", document.get("firstAppLaunch"));
+                                            map.put("firstPresentationLaunch", document.get("firstPresentationLaunch"));
+
+                                            @SuppressWarnings("unchecked")
+                                            HashMap<String, Object> preferences = (HashMap<String, Object>) document.get("preferences");
+
+                                            @SuppressWarnings("unchecked")
+                                            HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacy");
+
+                                            mUser = new UserInfoPrivate(map, preferences, privacy);
+
+                                            Log.i(TAG, "SignIn : Valid current user : UID [" + mUser.getUID() + "]");
+
+                                            mLoginInProgress = false;
+                                            mRegisterInProgress = false;
+
+                                            Intent returningIntent = new Intent(Login.this, MainActivity.class);
+
+                                            returningIntent.putExtra("user", mUser);
+
+                                            startActivity(returningIntent);
+                                            finishActivity();
+
+                                        }
+                                    }else {
+                                        // Log and alert user if unsuccessful with data retrieval
+                                        Log.e(TAG, "SignIn : Unable to retrieve user document in Firestore ");
+                                        Toast.makeText(getApplicationContext(),"Sign in failed, unable to retrieve user details, please try again.",Toast.LENGTH_SHORT).show();
+                                        // Log user back out as they have no user profile in database
+                                        mAuth.signOut();
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }else{
+                            mAuth.getCurrentUser().sendEmailVerification();
+                            Log.e(TAG, "SignIn : Email authentication sent for user trying to log in with unverified email, user logged out.");
+                            Toast.makeText(getApplicationContext(),"Email is not yet verified, a new verification email has been sent, please verify email and try again.",Toast.LENGTH_LONG).show();
+                            mAuth.signOut();
+                        }
+
                     }
                     else {
                         // Log and alert user if unsuccessful with sign in
@@ -399,8 +468,6 @@ public class Login extends AppCompatActivity {
             }
         };
 
-        // Attempt to log user in with given credentials
-        Log.e(TAG, "SignIn : Logging in : eMail [" + email + "] password [" + password + "]");
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(complete).addOnFailureListener(failure);
     }
 
@@ -412,12 +479,13 @@ public class Login extends AppCompatActivity {
     private void finishActivity() {
 
         Log.e(TAG,"SignIn Returning to main activity");
-        mAuth.removeAuthStateListener(mAuthStateListener);
 
-        // User data returned to main menu
-        Intent returningIntent = new Intent();
-        returningIntent.putExtra("user", user);
-        setResult(RESULT_OK, returningIntent);
+        Intent returningIntent = new Intent(Login.this, MainActivity.class);
+
+        returningIntent.putExtra("user", mUser);
+
+        mUser = null;
+        startActivity(returningIntent);
 
         finish();
     }
@@ -427,4 +495,6 @@ public class Login extends AppCompatActivity {
     public void onBackPressed() {
         //Do nothing
     }
+
+
 }

@@ -53,9 +53,9 @@ public class SideMenuTest {
 
     @Test
     public void openToolBarTest() throws InterruptedException {
- //       openContextualActionModeOverflowMenu();
-       // openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getInstrumentation().getContext());
-    //    onView(withId(R.id.nav_profile)).perform(click());
+        //       openContextualActionModeOverflowMenu();
+        // openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getInstrumentation().getContext());
+        //    onView(withId(R.id.nav_profile)).perform(click());
     }
 
 

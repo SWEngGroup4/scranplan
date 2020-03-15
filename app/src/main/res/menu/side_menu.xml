@@ -4,21 +4,29 @@
     tools:showIn="navigation_view">
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_profile"
-            android:title="@string/navProfile" />
+            android:id="@+id/nav_publicProfile"
+            android:title="Public Profile"
+            />
         <item
-            android:id="@+id/nav_my_recipes"
-            android:title="@string/navMyRecipes" />
+            android:id="@+id/nav_editProfile"
+            android:title="Edit Profile"
+            />
+<!--        <item-->
+<!--            android:id="@+id/nav_my_recipes"-->
+<!--            android:title="@string/navMyRecipes" />-->
     </group>
-
-    <group android:title="@string/navRecipes">
-        <item
-            android:id="@+id/nav_recipes"
-            android:title="@string/navRecipes" />
-        <item
-            android:id="@+id/nav_saved_recipes"
-            android:title="@string/navSavedRecipes" />
-    </group>
+<!--    <group android:title="@string/navRecipes">-->
+<!--        <item-->
+<!--            android:id="@+id/nav_recipes"-->
+<!--            android:title="@string/navRecipes" />-->
+<!--        <item-->
+<!--            android:id="@+id/nav_saved_recipes"-->
+<!--            android:title="@string/navSavedRecipes" />-->
+<!--    </group>-->
+    <item
+        android:id="@+id/nav_logout"
+        android:title="Logout"
+        />
 
 
 </menu>

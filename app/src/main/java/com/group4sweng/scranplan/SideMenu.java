@@ -22,8 +22,8 @@ public class SideMenu extends Activity implements NavigationView.OnNavigationIte
     private Context mContext;
 
     public void init(Activity activity, Context context){
-        mActivity = activity;
-        mContext = context;
+        this.mActivity = activity;
+        this.mContext = context;
         startMenu();
     }
 
@@ -34,15 +34,11 @@ public class SideMenu extends Activity implements NavigationView.OnNavigationIte
         return true;
     }
 
-
-
     private void startMenu() {
         mDrawerToggle = new ActionBarDrawerToggle(mActivity, mMenuDrawer, mMenuToolbar, R.string.nav_drawer_open, R.string.nav_drawer_close);
         mMenuDrawer.addDrawerListener(mDrawerToggle);
         mDrawerToggle.syncState();
-
         mNavigationView.setNavigationItemSelectedListener(this);
-
     }
 
 
@@ -54,19 +50,27 @@ public class SideMenu extends Activity implements NavigationView.OnNavigationIte
      */
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-//        Fragment mFragment = null;
-//        switch (item.getItemId()){
-//            case R.id.nav_profile:
-//                // insert nav fragment here
-//                // mFragment = new ProfileFragment();
-//                break;
-//        }
-//        FragmentManager mFragmentManager = ((FragmentActivity)mContext).getSupportFragmentManager();
-//        FragmentTransaction mFragmentTransaction = mFragmentManager.beginTransaction();
-//        mFragmentTransaction.replace(R.id.frameLayout, mFragment);
-//        mFragmentTransaction.commit();
+        switch (item.getItemId()){
+            //TODO implement other pages as they get added to the application
+            case R.id.nav_publicProfile:
+                if (mContext instanceof Home){
+                    ((Home)mContext).onPublicProfileClick();
+                }
+                break;
+            case R.id.nav_editProfile:
+                if (mContext instanceof Home){
+                    ((Home)mContext).onProfileEditClick();
+                }
+                break;
+            case R.id.nav_logout:
+                if(mContext instanceof Home) {
+                    ((Home) mContext).onLogoutMenuClick();
+                }
+                break;
+        }
      return false;
     }
+
 }
 
 

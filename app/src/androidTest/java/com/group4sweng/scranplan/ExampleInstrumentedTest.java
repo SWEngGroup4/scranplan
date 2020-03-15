@@ -4,7 +4,9 @@ import android.content.Context;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.rule.ActivityTestRule;
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -17,6 +19,13 @@ import static org.junit.Assert.*;
  */
 @RunWith(AndroidJUnit4.class)
 public class ExampleInstrumentedTest {
+
+    @Rule
+    public ActivityTestRule<Login> mActivityTestRule = new ActivityTestRule<Login>(Login.class);
+
+    private Login mActivity = null;
+
+
     @Test
     public void useAppContext() {
         // Context of the app under test.
