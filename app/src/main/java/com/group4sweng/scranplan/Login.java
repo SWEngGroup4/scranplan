@@ -85,7 +85,6 @@ public class Login extends AppCompatActivity{
         initPageListeners();
 
         initFirebase();
-
     }
 
     /**
@@ -284,11 +283,15 @@ public class Login extends AppCompatActivity{
                     map.put("chefRating", (double) 0);
                     map.put("numRecipes", (long) 0);
                     map.put("about", "");
+                    map.put("shortPreferences", true);
+                    map.put("firstAppLaunch", true);
+                    map.put("firstPresentationLaunch", true);
 
                     privacy.put("display_username", true);
                     privacy.put("display_about_me", true);
                     privacy.put("display_recipes", false);
                     privacy.put("display_profile_image", true);
+                    privacy.put("display_filters", false);
 
                     // Default user food preferences
                     preferences.put("allergy_celery", false);
@@ -328,14 +331,18 @@ public class Login extends AppCompatActivity{
                     mAuth.getCurrentUser().sendEmailVerification();
                     Log.e(TAG, "SignIn : Email authentication sent for new user and logged out.");
                     Toast.makeText(getApplicationContext(),"Email authentication sent to email, please verify email and log in with your new account.",Toast.LENGTH_LONG).show();
-                    mLoginInProgress = false;
-                    mRegisterInProgress = false;
                     usersRef.set(map).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             mAuth.signOut();
                         }
                     });
+                    mRegisterInProgress = false;
+                    mLoginInProgress = true;
+                    mEmailEditText.setVisibility(View.VISIBLE);
+                    mPasswordEditText.setVisibility(View.VISIBLE);
+                    mConfirmPasswordEditText.setVisibility(View.GONE);
+                    mDisplayNameText.setVisibility(View.GONE);
                     mDisplayNameText.getText().clear();
                     mPasswordEditText.getText().clear();
                     mConfirmPasswordEditText.getText().clear();
@@ -397,6 +404,9 @@ public class Login extends AppCompatActivity{
                                             map.put("preferences", document.get("preferences"));
                                             map.put("privacy", document.get("privacy"));
                                             map.put("about", document.get("about"));
+                                            map.put("shortPreferences", document.get("shortPreferences"));
+                                            map.put("firstAppLaunch", document.get("firstAppLaunch"));
+                                            map.put("firstPresentationLaunch", document.get("firstPresentationLaunch"));
 
                                             @SuppressWarnings("unchecked")
                                             HashMap<String, Object> preferences = (HashMap<String, Object>) document.get("preferences");
@@ -407,9 +417,17 @@ public class Login extends AppCompatActivity{
                                             mUser = new UserInfoPrivate(map, preferences, privacy);
 
                                             Log.i(TAG, "SignIn : Valid current user : UID [" + mUser.getUID() + "]");
+
                                             mLoginInProgress = false;
                                             mRegisterInProgress = false;
+
+                                            Intent returningIntent = new Intent(Login.this, MainActivity.class);
+
+                                            returningIntent.putExtra("user", mUser);
+
+                                            startActivity(returningIntent);
                                             finishActivity();
+
                                         }
                                     }else {
                                         // Log and alert user if unsuccessful with data retrieval
@@ -466,7 +484,7 @@ public class Login extends AppCompatActivity{
 
         returningIntent.putExtra("user", mUser);
 
-//        mUser = null;
+        mUser = null;
         startActivity(returningIntent);
 
         finish();

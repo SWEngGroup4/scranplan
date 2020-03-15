@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center">
+
+    <ProgressBar
+        android:id="@+id/presentationLoad"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true" />
+
+    <Spinner
+        android:id="@+id/presentationSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:background="@android:drawable/btn_dropdown"
+        android:visibility="invisible"
+        android:layout_alignParentTop="true"/>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/presentationContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"/>
+
+    <Button
+        android:id="@+id/prevButton"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:visibility="invisible"
+        android:text="@string/prevButton" />
+
+    <Button
+        android:id="@+id/nextButton"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:visibility="invisible"
+        android:text="@string/nextButton" />
+
+</RelativeLayout>

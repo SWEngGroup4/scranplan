@@ -14,42 +14,28 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.SearchView;
 import android.widget.TabHost;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
-
-import java.util.HashMap;
 
 /**
  *  Scran plan home page, giving the user easy navigation around the application and database
@@ -97,6 +83,7 @@ public class Home extends AppCompatActivity {
     CheckBox mIngredientsBox;
     CheckBox mNameBox;
     CheckBox mChefBox;
+    SideMenu mSideMenu;
 
     // Side menu variable
     NavigationView navigationView;
@@ -114,6 +101,7 @@ public class Home extends AppCompatActivity {
             mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) getIntent().getSerializableExtra("user");
             prefs = new SearchPrefs(mUser);
         }
+        /*
         // Setting up the action and tab bars
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -122,7 +110,15 @@ public class Home extends AppCompatActivity {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.nav_drawer_open, R.string.nav_drawer_close);
         drawer.addDrawerListener(toggle);
-        toggle.syncState();
+        toggle.syncState();*/
+
+        // Drawer setup and and synchronising the states
+        mSideMenu = new SideMenu();
+        mSideMenu.mMenuToolbar = findViewById(R.id.toolbar);
+        mSideMenu.mMenuDrawer = findViewById(R.id.drawer_layout);
+        mSideMenu.mNavigationView = findViewById(R.id.side_menu);
+        setSupportActionBar(mSideMenu.mMenuToolbar);
+        mSideMenu.init(this, this);
 
         // Page initialises
         initFirebase();
@@ -221,37 +217,39 @@ public class Home extends AppCompatActivity {
         // TODO this code has been added in another story by NATHAN, following merge, please delete this version
         // TODO all that is done here is the side menu is used to give the buttons that were on the main screen functionality
         // TODO this includes logout, profile and settings
-//        // Setting up the side menu
-//        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-//            @Override
-//            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-//                switch (item.getItemId()) {
-//                    case R.id.nav_my_recipes:
-//                    case R.id.nav_profile:
-//                        Intent intentProfile = new Intent(mContext, PublicProfile.class);
-//
-//                        intentProfile.putExtra("user", mUser);
-//                        //setResult(RESULT_OK, intentProfile);
-//                        startActivity(intentProfile);
-//                    case R.id.nav_recipes:
-//                    case R.id.nav_settings:
-//                        Intent intentSettings = new Intent(mContext, ProfileSettings.class);
-//                        intentSettings.putExtra("user", mUser);
-//
-//                        setResult(RESULT_OK, intentSettings);
-//                        startActivityForResult(intentSettings, PROFILE_SETTINGS_REQUEST_CODE);
-//                    case R.id.nav_logout:
-//                        Log.e(TAG, "Logout button has been pressed and user has been logged out.");
-//                        mUser = null;
-//                        mAuth.signOut();
-//                        Intent returningIntent = new Intent(Home.this, MainActivity.class);
-//                        startActivity(returningIntent);
-//
-//                        finish();
-//                }
-//                return false;
-//            }
-//        });
+        // Setting up the side menu
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.nav_publicProfile:
+                        Log.e(TAG,"Clicked public profile!");
+
+                        Intent intentProfile = new Intent(mContext, PublicProfile.class);
+
+                        intentProfile.putExtra("user", mUser);
+                        //setResult(RESULT_OK, intentProfile);
+                        startActivity(intentProfile);
+                        break;
+                    case R.id.nav_editProfile:
+                        Intent intentSettings = new Intent(mContext, ProfileSettings.class);
+                        intentSettings.putExtra("user", mUser);
+
+                        setResult(RESULT_OK, intentSettings);
+                        startActivityForResult(intentSettings, PROFILE_SETTINGS_REQUEST_CODE);
+                        break;
+                    case R.id.nav_logout:
+                        Log.e(TAG, "Logout button has been pressed and user has been logged out.");
+                        mUser = null;
+                        mAuth.signOut();
+                        Intent returningIntent = new Intent(Home.this, MainActivity.class);
+                        startActivity(returningIntent);
+
+                        finish();
+                }
+                return false;
+            }
+        });
 
 
         // Listener for layout tab selection
@@ -524,6 +522,39 @@ public class Home extends AppCompatActivity {
         tv.setTextColor(Color.GRAY);
         tv = (TextView)tabs.getTabWidget().getChildAt(2).findViewById(android.R.id.title);
         tv.setTextColor(Color.GRAY);
+    }
+
+    /**
+     * Method to change Intent when profile is clicked in the side menu
+     */
+    public void onPublicProfileClick() {
+        Intent intentProfile = new Intent(this, PublicProfile.class);
+
+        //intentProfile.putExtra("UID", mUser.getUID()); // For the profile we use the local users UID.
+        intentProfile.putExtra("user", mUser); // Not required but used for efficiency. Means we aren't loading from Firebase each time.
+        setResult(RESULT_OK, intentProfile);
+        startActivity(intentProfile);
+    }
+
+    /**
+     * Method to change Intent when profile edit is clicked in the side menu
+     */
+    public void onProfileEditClick() {
+
+        Intent intentProfile = new Intent(this, ProfileSettings.class);
+        intentProfile.putExtra("user", mUser);
+
+        setResult(RESULT_OK, intentProfile);
+        startActivityForResult(intentProfile, PROFILE_SETTINGS_REQUEST_CODE);
+
+    }
+
+    /**
+     * Method to change logout when it's clicked in the side menu
+     */
+    public void onLogoutMenuClick(){
+        mUser = null;
+        mAuth.signOut();
     }
 
     // Disable user from pressing back button on home page

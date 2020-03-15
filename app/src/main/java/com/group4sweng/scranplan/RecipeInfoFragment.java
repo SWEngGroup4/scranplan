@@ -1,7 +1,9 @@
 package com.group4sweng.scranplan;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -131,7 +133,9 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         mLetsCook.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                
+                Intent presentation = new Intent(getActivity(), Presentation.class);
+                presentation.putExtra("xml_URL", xmlPresentation);
+                startActivity(presentation);
             }
         });
     }

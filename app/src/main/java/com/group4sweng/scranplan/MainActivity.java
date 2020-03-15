@@ -1,50 +1,25 @@
 package com.group4sweng.scranplan;
 
 import android.animation.ObjectAnimator;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.SearchView;
-import android.widget.TabHost;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
-import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
-import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.HashMap;
@@ -77,14 +52,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Log.e(TAG,"At root page - logging in user or sending to login page");
 
+        initPageItems();
+        initFirebase();
         if(getIntent().getSerializableExtra("user") != null){
             mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) getIntent().getSerializableExtra("user");
         }
 
-        initPageItems();
         // Rotates the logo clockwise
         rotateImageClockwise(mLogoHomeImage);
-        initFirebase();
 
     }
 
@@ -120,7 +95,6 @@ public class MainActivity extends AppCompatActivity {
 
                         DocumentReference usersRef = database.collection("users").document(mAuth.getCurrentUser().getUid());
                         usersRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            // If user logged in then all user preferences are downloaded from the Firestore
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                 if (task.isSuccessful()) {
@@ -137,6 +111,10 @@ public class MainActivity extends AppCompatActivity {
                                     map.put("numRecipes", document.get("numRecipes"));
                                     map.put("preferences", document.get("preferences"));
                                     map.put("about", document.get("about"));
+                                    map.put("shortPreferences", document.get("shortPreferences"));
+                                    map.put("firstAppLaunch", document.get("firstAppLaunch"));
+                                    map.put("firstPresentationLaunch", document.get("firstPresentationLaunch"));
+
 
                                     @SuppressWarnings("unchecked")
                                     HashMap<String, Object> preferences = (HashMap<String, Object>) document.get("preferences");
@@ -144,17 +122,23 @@ public class MainActivity extends AppCompatActivity {
                                     @SuppressWarnings("unchecked")
                                     HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacy");
 
-                                    // user info and preferences saved to the user variables and passed through the application
                                     mUser = new UserInfoPrivate(map, preferences, privacy);
 
                                     Log.i(TAG, "Successfully logged back in");
-                                    Intent returningIntent = new Intent(MainActivity.this, Home.class);
+                                    if(mUser.getFirstAppLaunch()){
+                                        Log.e(TAG,"Sending user to initial preference setup page");
+                                        Intent initialCustom = new Intent(getApplicationContext(), InitialUserCustomisation.class);
+                                        initialCustom.putExtra("user", mUser);
+                                        startActivity(initialCustom);
+                                    } else {
+                                        Log.i(TAG, "Successfully logged back in");
+                                        Intent returningIntent = new Intent(MainActivity.this, Home.class);
 
-                                    returningIntent.putExtra("user", mUser);
+                                        returningIntent.putExtra("user", mUser);
 
-                                    startActivity(returningIntent);
+                                        startActivity(returningIntent);
+                                    }
 
-                                    // Else if no user was retrieved, user told and returned to login
                                 }else {
                                     Log.e(TAG, "User details retrieval : Unable to retrieve user document in Firestore ");
                                     Toast.makeText(getApplicationContext(),"Unable to retrieve current user details, please sign in again.",Toast.LENGTH_SHORT).show();
@@ -175,9 +159,12 @@ public class MainActivity extends AppCompatActivity {
                     Intent signIn = new Intent(getApplicationContext(), Login.class);
                     startActivity(signIn);
                     mUser = (UserInfoPrivate) getIntent().getSerializableExtra("user");
+
+
                 }
             }
         };
+
         mAuth.addAuthStateListener(mAuthListener);
     }
 

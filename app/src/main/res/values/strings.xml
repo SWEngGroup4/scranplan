@@ -5,4 +5,6 @@
     <string name="nav_drawer_open">Open Nav Drawer</string>
     <string name="nav_drawer_close">Close Nav Drawer</string>
     <string name="profile_settings_button_string">profile settings</string>
+    <string name="prevButton"><![CDATA[<-]]></string>
+    <string name="nextButton"><![CDATA[->]]></string>
 </resources>
