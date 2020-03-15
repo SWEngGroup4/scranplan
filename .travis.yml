@@ -5,12 +5,7 @@ env:
     global:
       - ANDROID_TARGET=android-29
       - ANDROID_ABI=armeabi-v7a
-    matrix:
-      - COMPONENT=unit
-      - COMPONENT=instrumentation-provider
-      - COMPONENT=instrumentation-sdk
-      - COMPONENT=sample
-      - COMPONENT=build
+
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
@@ -67,8 +62,8 @@ script:
 #  - emulator -avd test -no-audio -no-window &
 #  - android-wait-for-emulator
 #  - adb shell input keyevent 82 &
+#  - ./gradlew connectedCheck
   - ./gradlew test
-  - ./gradlew connectedCheck
   - ./gradlew build check
   - ./gradlew build jacocoTestReport assembleAndroidTest
 
