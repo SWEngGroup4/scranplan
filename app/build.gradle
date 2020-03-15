@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
-apply plugin: 'jacoco-android'
 
 android {
     compileSdkVersion 29
@@ -29,18 +28,15 @@ android {
             testCoverageEnabled true
     }
     }
+    
     testOptions {
         unitTests {
             includeAndroidResources = true
             returnDefaultValues = true
         }
     }
-    testOptions {
-        unitTests {
-            returnDefaultValues = true
-        }
-    }
 }
+
 
 
 dependencies {
@@ -76,7 +72,3 @@ dependencies {
     implementation 'org.slf4j:slf4j-nop:1.7.25'
     // implementation 'org.jetbrains:annotations-java5:15.0'
 }
-
-
-check.dependsOn jacocoTestReport
-
