@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.group4sweng.scranplan" >
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <uses-sdk
+        tools:overrideLibrary="io.sentry.android"/>
 
     <application
         android:allowBackup="true"
@@ -31,6 +36,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".SideMenu" />
+        <meta-data android:name="io.sentry.debug" android:value="true" />
+        <meta-data android:name="io.sentry.dsn" android:value="https://e6648ff9c7d346bc98a8fd6aabb5738a@sentry.io/2102064" />
     </application>
 
 </manifest>
