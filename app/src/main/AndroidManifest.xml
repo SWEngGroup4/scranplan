@@ -21,7 +21,7 @@
         <activity android:name=".PublicProfile" >
         </activity>
         <activity android:name=".ProfileSettings" />
-        <activity android:name=".Presentation" />
+        <activity android:name=".Presentation.Presentation" />
         <activity android:name=".Login" />
         <activity android:name=".InitialUserCustomisation" />
         <activity

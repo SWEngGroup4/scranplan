@@ -1,6 +1,7 @@
-package com.group4sweng.scranplan;
+package com.group4sweng.scranplan.Presentation;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -8,12 +9,13 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -21,14 +23,29 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.provider.FontRequest;
 import androidx.core.provider.FontsContractCompat;
-import androidx.core.view.MotionEventCompat;
+import androidx.core.view.ViewCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.aakira.expandablelayout.ExpandableLayoutListener;
 import com.github.aakira.expandablelayout.ExpandableRelativeLayout;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.group4sweng.scranplan.R;
+import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
+import com.group4sweng.scranplan.SearchFunctions.SearchRecyclerAdapter;
+import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -38,19 +55,31 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static androidx.test.InstrumentationRegistry.getContext;
+
 public class Presentation extends AppCompatActivity {
 
+    FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
     private ProgressBar spinner;
     private XmlParser.DocumentInfo documentInfo;
     private DisplayMetrics displayMetrics = new DisplayMetrics();
     ExpandableRelativeLayout expandableLayout;
+    private boolean isScrolling = false;
+    private boolean isLastItemReached = false;
+    private DocumentSnapshot lastVisible;
+    private String recipeID;
+    private Query query;
+    com.group4sweng.scranplan.UserInfo.UserInfoPrivate mUser;
+    Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = getApplicationContext();
         setContentView(R.layout.presentation);
         expandableLayout = (ExpandableRelativeLayout) findViewById(R.id.expandableLayout);
 
@@ -63,6 +92,8 @@ public class Presentation extends AppCompatActivity {
 
         Intent intent = getIntent();
         String xml_URL = intent.getStringExtra("xml_URL");
+        recipeID = intent.getStringExtra("recipeID");
+        mUser = (UserInfoPrivate) intent.getSerializableExtra("user");
         Log.d("Test", xml_URL);
         DownloadXmlTask xmlTask = new DownloadXmlTask(this);
 
@@ -95,7 +126,8 @@ public class Presentation extends AppCompatActivity {
             slideWidth = Math.round(displayMetrics.widthPixels * 0.8f);
         }
 
-        FontRequest request = new FontRequest("com.google.android.gms.fonts",
+        FontRequest request = new FontRequest(
+                "com.google.android.gms.fonts",
                 "com.google.android.gms",
                 defaults.font,
                 R.array.com_google_android_gms_fonts_certs);
@@ -152,6 +184,7 @@ public class Presentation extends AppCompatActivity {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     Log.d("Test", String.valueOf(position));
+                    expandableLayout.collapse();
                     currentSlide[0] = toSlide(slideLayouts, currentSlide[0], position);
                 }
 
@@ -164,24 +197,10 @@ public class Presentation extends AppCompatActivity {
             prevSlide.setVisibility(View.VISIBLE);
             Button nextSlide = findViewById(R.id.nextButton);
             nextSlide.setVisibility(View.VISIBLE);
-            Button comments = findViewById(R.id.comments);
-            comments.setVisibility(View.VISIBLE);
-//            expandableLayout.bringToFront();
-
-            comments.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // toggle expand, collapse
-//                    expandableLayout.bringToFront();
-//                    expandableLayout.bringChildToFront(findViewById(R.id.textviewexpand));
-                    expandableLayout.toggle();
-
-                }
-            });
-
             nextSlide.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    expandableLayout.collapse();
                     currentSlide[0] = toSlide(slideLayouts, currentSlide[0], currentSlide[0] + 1);
                 }
             });
@@ -189,6 +208,7 @@ public class Presentation extends AppCompatActivity {
             prevSlide.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    expandableLayout.collapse();
                     currentSlide[0] = toSlide(slideLayouts, currentSlide[0], currentSlide[0] - 1);
                 }
             });
@@ -201,7 +221,69 @@ public class Presentation extends AppCompatActivity {
 
         slideLayouts.get(currentSlide[0]).setVisibility(View.VISIBLE);
         spinner.setVisibility(View.GONE);
-        expandableLayout.bringToFront();
+        Button comments = findViewById(R.id.comments);
+        comments.setVisibility(View.VISIBLE);
+        ViewCompat.setTranslationZ(expandableLayout, 20);
+        expandableLayout.setVisibility(View.VISIBLE);
+
+        comments.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                expandableLayout.toggle();
+
+            }
+        });
+
+        expandableLayout.setListener(new ExpandableLayoutListener() {
+            @Override
+            public void onAnimationStart() {
+            }
+            @Override
+            public void onAnimationEnd() {
+            }
+            @Override
+            public void onPreOpen() {
+            }
+            @Override
+            public void onPreClose() {
+            }
+            @Override
+            public void onOpened() {
+                addFirestoreComments(currentSlide[0]);
+            }
+            @Override
+            public void onClosed() {
+                isScrolling = false;
+                isLastItemReached = false;
+                lastVisible = null;
+                query  = null;
+            }
+        });
+
+        //mDatabase.collection("recipes").document(recipeID).collection("slide" + currentSlide)
+        Button mPostComment = findViewById(R.id.sendCommentButton);
+        EditText mInputComment = findViewById(R.id.addCommentEditText);
+
+        mPostComment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String content = mInputComment.getText().toString();
+                mInputComment.getText().clear();
+
+                CollectionReference ref = mDatabase.collection("recipes").document(recipeID).collection("slide" + currentSlide);
+//                Log.e(TAG, "Added new doc ");
+                // Saving the comment as a new document
+                HashMap<String, Object> map = new HashMap<>();
+                map.put("authorID", mUser.getUID());
+                map.put("author", mUser.getDisplayName());
+                map.put("comment", content);
+                map.put("timestamp", FieldValue.serverTimestamp());
+                // Saving default user to Firebase Firestore database
+                ref.add(map);
+
+
+            }
+        });
     }
 
     private PresentationTextView addText(final XmlParser.Text text, Integer slideWidth, Integer slideHeight) {
@@ -375,51 +457,165 @@ public class Presentation extends AppCompatActivity {
         }
     }
 
-    private void addFirestoreComments(){
-        ExpandableRelativeLayout expandableLayout
-                = (ExpandableRelativeLayout) findViewById(R.id.expandableLayout);
+    private void addFirestoreComments(int currentSlide){
 
-        // toggle expand, collapse
-        expandableLayout.toggle();
-        // expand
-        expandableLayout.expand();
-        // collapse
-        expandableLayout.collapse();
+        List<CommentRecyclerAdapter.CommentData> data;
+        data = new ArrayList<>();
 
-        // move position of child view
-        expandableLayout.moveChild(0);
-        // move optional position
-        expandableLayout.move(500);
+        // Creating a list of the data and building all variables to add to recycler view
+        final RecyclerView recyclerView = findViewById(R.id.commentList);
+        recyclerView.setHasFixedSize(true);
+        RecyclerView.LayoutManager rManager = new LinearLayoutManager(context);
+        recyclerView.setLayoutManager(rManager);
+        final RecyclerView.Adapter rAdapter = new CommentRecyclerAdapter(Presentation.this, data);
+        recyclerView.setAdapter(rAdapter);
+        query = mDatabase.collection("recipes").document(recipeID).collection("slide" + currentSlide).limit(5);
 
-        // set base position which is close position
-        expandableLayout.setClosePosition(500);
-
-        expandableLayout.setListener(new ExpandableLayoutListener() {
+        // Once the data has been returned, dataset populated and components build
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
-            public void onAnimationStart() {
-            }
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    // For each document a new recipe preview view is generated
+                    for (DocumentSnapshot document : task.getResult()) {
+                        data.add(new CommentRecyclerAdapter.CommentData(
+                                document,
+                                document.get("authorID").toString(),
+                                document.get("author").toString(),
+                                document.get("comment").toString()
+                        ));
+                    }
+                    rAdapter.notifyDataSetChanged();
+                    // Set the last document as last user can see
+                    if(task.getResult().size() != 0){
+                        lastVisible = task.getResult().getDocuments().get(task.getResult().size() - 1);
+                    }else{
+                        // If no data returned, user notified
+                        isLastItemReached = true;
+                        data.add(new CommentRecyclerAdapter.CommentData(
+                                null,
+                                null,
+                                "No more results",
+                                "No comments yet for this step, be the first!"
+                        ));
+                    }
+                    // check if user has scrolled through the view
+                    RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+                        @Override
+                        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                            super.onScrollStateChanged(recyclerView, newState);
+                            if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                                isScrolling = true;
+                            }
+                        }
+                        // If user is scrolling and has reached the end, more data is loaded
+                        @Override
+                        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                            super.onScrolled(recyclerView, dx, dy);
+                            // Checking if user is at the end
+                            LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
+                            int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+                            int visibleItemCount = linearLayoutManager.getChildCount();
+                            int totalItemCount = linearLayoutManager.getItemCount();
+                            // If found to have reached end, more data is requested from the server in the same manner
+                            if (isScrolling && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReached) {
+                                isScrolling = false;
+                                Query nextQuery = query.startAfter(lastVisible);
+                                nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<QuerySnapshot> t) {
+                                        if (t.isSuccessful()) {
+                                            for (DocumentSnapshot d : t.getResult()) {
+                                                data.add(new CommentRecyclerAdapter.CommentData(
+                                                        d,
+                                                        d.get("authorID").toString(),
+                                                        d.get("author").toString(),
+                                                        d.get("comment").toString()
+                                                ));
+                                            }
+                                            if(isLastItemReached){
+                                                // No more comments //todo remove this or add something at end
+//                                                data.add(new CommentRecyclerAdapter.CommentData(
+//                                                        null,
+//                                                        null,
+//                                                        "No more results",
+//                                                        "No comments yet for this step, be the first!"
+//                                                ));
+                                            }
+                                            rAdapter.notifyDataSetChanged();
+                                            if (t.getResult().size() != 0) {
+                                                lastVisible = t.getResult().getDocuments().get(t.getResult().size() - 1);
+                                            }
 
-            @Override
-            public void onAnimationEnd() {
-            }
-
-            // You can get notification that your expandable layout is going to open or close.
-            // So, you can set the animation synchronized with expanding animation.
-            @Override
-            public void onPreOpen() {
-            }
-
-            @Override
-            public void onPreClose() {
-            }
-
-            @Override
-            public void onOpened() {
-            }
-
-            @Override
-            public void onClosed() {
+                                            if (t.getResult().size() < 5) {
+                                                isLastItemReached = true;
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    };
+                    recyclerView.addOnScrollListener(onScrollListener);
+                }
             }
         });
+
+
+
+
+
+
+
+
+
+
+
+
+//        ExpandableRelativeLayout expandableLayout
+//                = (ExpandableRelativeLayout) findViewById(R.id.expandableLayout);
+//
+//        // toggle expand, collapse
+//        expandableLayout.toggle();
+//        // expand
+//        expandableLayout.expand();
+//        // collapse
+//        expandableLayout.collapse();
+//
+//        // move position of child view
+//        expandableLayout.moveChild(0);
+//        // move optional position
+//        expandableLayout.move(500);
+//
+//        // set base position which is close position
+//        expandableLayout.setClosePosition(500);
+//
+//        expandableLayout.setListener(new ExpandableLayoutListener() {
+//            @Override
+//            public void onAnimationStart() {
+//            }
+//
+//            @Override
+//            public void onAnimationEnd() {
+//            }
+//
+//            // You can get notification that your expandable layout is going to open or close.
+//            // So, you can set the animation synchronized with expanding animation.
+//            @Override
+//            public void onPreOpen() {
+//            }
+//
+//            @Override
+//            public void onPreClose() {
+//            }
+//
+//            @Override
+//            public void onOpened() {
+//            }
+//
+//            @Override
+//            public void onClosed() {
+//            }
+//        });
     }
 }
