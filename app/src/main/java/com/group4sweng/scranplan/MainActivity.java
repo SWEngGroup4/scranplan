@@ -111,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
                                     map.put("numRecipes", document.get("numRecipes"));
                                     map.put("preferences", document.get("preferences"));
                                     map.put("about", document.get("about"));
+                                    map.put("mealPlan", document.get("mealPlan"));
                                     map.put("shortPreferences", document.get("shortPreferences"));
                                     map.put("firstAppLaunch", document.get("firstAppLaunch"));
                                     map.put("firstPresentationLaunch", document.get("firstPresentationLaunch"));

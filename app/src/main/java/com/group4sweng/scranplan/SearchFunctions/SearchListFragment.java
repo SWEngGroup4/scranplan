@@ -216,9 +216,13 @@ public class SearchListFragment extends AppCompatDialogFragment {
         bundle.putString("recipeDescription", document.get("Description").toString());
         bundle.putString("chefName", document.get("Chef").toString());
 
+        openRecipeInfo(bundle);
+    }
 
-        RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
-        recipeDialogFragment.setArguments(bundle);
-        recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");
+    protected void openRecipeInfo(Bundle bundle) {
+        bundle.putBoolean("planner", false);
+        RecipeInfoFragment recipeInfoFragment = new RecipeInfoFragment();
+        recipeInfoFragment.setArguments(bundle);
+        recipeInfoFragment.show(getFragmentManager(), "Show recipe dialog fragment");
     }
 }

@@ -1,5 +1,6 @@
 package com.group4sweng.scranplan;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -54,6 +55,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
     private String recipeRating;
     private String xmlPresentation;
     private ArrayList<String> ingredientArray;
+    private Boolean planner;
 
     private FirebaseFirestore mDatabase;
     private CollectionReference mDataRef;
@@ -91,6 +93,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         ingredientArray = getArguments().getStringArrayList("ingredientList");
         recipeRating = getArguments().getString("rating");
         xmlPresentation = getArguments().getString("xmlURL");
+        planner = getArguments().getBoolean("planner");
 
         builder.setView(layout);
 
@@ -129,15 +132,29 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
             }
         });
 
-        mLetsCook = layout.findViewById(R.id.LetsCook);
-        mLetsCook.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent presentation = new Intent(getActivity(), Presentation.class);
-                presentation.putExtra("xml_URL", xmlPresentation);
-                startActivity(presentation);
-            }
-        });
+        // Handles info received from Meal Planner searches
+        if (planner) {
+            mLetsCook = layout.findViewById(R.id.LetsCook);
+            mLetsCook.setText("Add"); // Changes button text
+            mLetsCook.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Adds recipe to planner
+                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, new Intent());
+                    dismiss();
+                }
+            });
+        } else {
+            mLetsCook = layout.findViewById(R.id.LetsCook);
+            mLetsCook.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent presentation = new Intent(getActivity(), Presentation.class);
+                    presentation.putExtra("xml_URL", xmlPresentation);
+                    startActivity(presentation);
+                }
+            });
+        }
     }
 
     /**
