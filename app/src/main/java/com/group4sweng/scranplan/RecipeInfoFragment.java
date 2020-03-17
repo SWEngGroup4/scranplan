@@ -3,7 +3,6 @@ package com.group4sweng.scranplan;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -84,6 +83,13 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         View layout = inflater.inflate(R.layout.fragment_recipe_info, null);
 
         recipeID = getArguments().getString("recipeID");
+        recipeName = getArguments().getString("recipeTitle");
+        recipeImage = getArguments().getString("imageURL");
+        recipeDescription = getArguments().getString("recipeDescription");
+        chefName = getArguments().getString("chefName");
+        ingredientArray = getArguments().getStringArrayList("ingredientList");
+        recipeRating = getArguments().getString("rating");
+        xmlPresentation = getArguments().getString("xmlURL");
 
         builder.setView(layout);
 
@@ -185,7 +191,6 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         arrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, ingredientList);
         arrayAdapter.addAll(ingredientArray);
         listViewIngredients.setAdapter(arrayAdapter);
-
 
         //Assigning data passed through into the various xml views
         mTitle = layout.findViewById(R.id.Title);

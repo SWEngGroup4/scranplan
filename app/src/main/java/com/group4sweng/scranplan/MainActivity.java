@@ -24,6 +24,9 @@ import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.HashMap;
 
+import io.sentry.core.Sentry;
+import io.sentry.core.protocol.User;
+
 /**
  * Root page for the application offering notification to the user that the page is loading
  */
@@ -49,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         Log.e(TAG,"At root page - logging in user or sending to login page");
 
@@ -56,6 +60,10 @@ public class MainActivity extends AppCompatActivity {
         initFirebase();
         if(getIntent().getSerializableExtra("user") != null){
             mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) getIntent().getSerializableExtra("user");
+            User mSentryUser = new User();
+            mSentryUser.setUsername(mUser.getDisplayName());
+            mSentryUser.setEmail(mUser.getEmail());
+            Sentry.setUser(mSentryUser);
         }
 
         // Rotates the logo clockwise
