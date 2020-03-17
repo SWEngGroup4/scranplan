@@ -513,7 +513,7 @@ public class RecipeFragment extends Fragment {
     /**
      * On click of a recipe a new recipe info fragment is opened and the document is sent through
      * This saves on downloading the data again from the database
-      */
+     */
     public void recipeSelected(DocumentSnapshot document) {
 
         //Takes ingredient array from snap shot and reformats before being passed through to fragment
