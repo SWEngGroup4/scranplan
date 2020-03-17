@@ -1,5 +1,6 @@
 package com.group4sweng.scranplan;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -71,6 +72,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
     private ArrayList<String> favouriteRecipe;
     private UserInfoPrivate mUser;
     private Boolean isFavourite;
+    private Boolean planner;
 
     private FirebaseFirestore mDatabase;
     private CollectionReference mDataRef;
@@ -110,6 +112,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         recipeRating = getArguments().getString("rating");
         xmlPresentation = getArguments().getString("xmlURL");
         mUser = (UserInfoPrivate) getArguments().getSerializable("user");
+        planner = getArguments().getBoolean("planner");
         isFavourite = getArguments().getBoolean("isFav");
 
         builder.setView(layout);
@@ -151,6 +154,19 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
             }
         });
 
+        // Handles info received from Meal Planner searches
+        if (planner) {
+            mLetsCook = layout.findViewById(R.id.LetsCook);
+            mLetsCook.setText("Add"); // Changes button text
+            mLetsCook.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Adds recipe to planner
+                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, new Intent());
+                    dismiss();
+                }
+            });
+        } else {
         mLetsCook = layout.findViewById(R.id.LetsCook);
         mLetsCook.setOnClickListener(new View.OnClickListener() {
             @Override

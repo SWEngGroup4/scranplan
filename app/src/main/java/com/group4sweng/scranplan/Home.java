@@ -32,6 +32,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.MealPlanner.PlannerFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
@@ -67,6 +68,7 @@ public class Home extends AppCompatActivity {
     AlertDialog alertDialog;
 
     // Search variables
+    SearchView searchView;
     SearchQuery query;
     SearchPrefs prefs;
 
@@ -147,7 +149,7 @@ public class Home extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_search, menu);
         MenuItem item = menu.findItem(R.id.menuSearch);
-        SearchView searchView = (SearchView)item.getActionView();
+        searchView = (SearchView)item.getActionView();
 
         // Adding the listener to search for string provided by user
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -277,6 +279,8 @@ public class Home extends AppCompatActivity {
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.frameLayout, fragment);
                 fragmentTransaction.commit();
+                searchView.clearFocus();
+                searchView.onActionViewCollapsed();
             }
 
             @Override
@@ -289,6 +293,16 @@ public class Home extends AppCompatActivity {
 
             }
         });
+    }
+
+    // Quick function for getting the search menu in other fragments
+    public SearchView getSearchView() {
+        return searchView;
+    }
+
+    // Quick function for getting the search prefs in other fragments
+    public SearchPrefs getSearchPrefs() {
+        return prefs;
     }
 
     /**

@@ -1,7 +1,10 @@
 package com.group4sweng.scranplan.UserInfo;
 
+import android.os.Bundle;
+
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * UserInfoPrivate class
@@ -18,6 +21,7 @@ public class UserInfoPrivate implements Serializable{
     private String imageURL;
     private String about;
     private String email;
+    private List<Bundle> mealPlanner;
     private boolean shortPreferences = true;
     private boolean firstAppLaunch = true;
     private boolean firstPresentationLaunch = true;
@@ -47,6 +51,7 @@ public class UserInfoPrivate implements Serializable{
         this.chefRating = (double) map.get("chefRating");
         this.numRecipes =  (long) map.get("numRecipes");
         this.about = (String) map.get("about");
+        this.mealPlanner = (List<Bundle>) map.get("mealPlan");
         this.shortPreferences = (boolean) map.get("shortPreferences");
         this.firstAppLaunch = (boolean) map.get("firstAppLaunch");
         this.firstPresentationLaunch = (boolean) map.get("firstPresentationLaunch");
@@ -123,6 +128,10 @@ public class UserInfoPrivate implements Serializable{
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public List<Bundle> getMealPlanner() { return mealPlanner; }
+
+    public void setMealPlanner(List<Bundle> mealPlanner) { this.mealPlanner = mealPlanner; }
 
     public String getUID() {
         return UID;
