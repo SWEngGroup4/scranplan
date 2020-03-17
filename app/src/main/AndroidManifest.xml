@@ -42,6 +42,9 @@
         <meta-data
             android:name="io.sentry.dsn"
             android:value="https://e6648ff9c7d346bc98a8fd6aabb5738a@sentry.io/2102064" />
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
     </application>
 
 </manifest>
