@@ -305,6 +305,155 @@ public class RecipeFragment extends Fragment {
             }
 
 
+            /* Adding the save view as score but with newest recipes added as a new query
+            /  This has been done in the same manner but as there are too many variables to track
+            /  this is not workable in any kind of loop. */
+            final RecyclerView recyclerViewTime = new RecyclerView(view.getContext());
+            RecyclerView.LayoutManager rManagerTime = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+            recyclerViewTime.setLayoutManager(rManagerTime);
+            recyclerViewTime.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels / scrollViewSize));
+            dataTime = new ArrayList<>();
+            final RecyclerView.Adapter rAdapterTime = new HomeRecyclerAdapter(RecipeFragment.this, dataTime);
+            recyclerViewTime.setAdapter(rAdapterTime);
+            final Query queryTime = (Query) horizontalScrollQueries.getQueries().get("timestamp");
+            if (queryTime != null) {
+                Log.e(TAG, "User is searching the following query: " + queryTime.toString());
+
+                TextView textView = new TextView(view.getContext());
+                String testString = "New tastes";
+                textView.setTextSize(25);
+                textView.setPadding(20, 5, 5, 5);
+                textView.setTextColor(Color.WHITE);
+                textView.setShadowLayer(4, 0, 0, Color.BLACK);
+                textView.setText(testString);
+
+                queryTime
+                        .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (DocumentSnapshot document : task.getResult()) {
+                                dataTime.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
+                                        document,
+                                        document.getId(),
+                                        document.get("imageURL").toString()
+                                ));
+                            }
+                            rAdapterTime.notifyDataSetChanged();
+                            if(task.getResult().size() != 0){
+                                lastVisibleTime = task.getResult().getDocuments().get(task.getResult().size() - 1);
+                            }else{
+                                isLastItemReachedTime = true;
+                            }
+
+                            RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+                                @Override
+                                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                                    super.onScrollStateChanged(recyclerView, newState);
+                                    if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                                        isScrollingTime = true;
+                                    }
+                                }
+
+                                @Override
+                                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                                    super.onScrolled(recyclerView, dx, dy);
+
+                                    LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
+                                    int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+                                    int visibleItemCount = linearLayoutManager.getChildCount();
+                                    int totalItemCount = linearLayoutManager.getItemCount();
+
+                                    if (isScrollingTime && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReachedTime) {
+                                        isScrollingTime = false;
+                                        Query nextQuery = queryTime.startAfter(lastVisibleTime);
+                                        nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> t) {
+                                                if (t.isSuccessful()) {
+                                                    for (DocumentSnapshot d : t.getResult()) {
+                                                        dataTime.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
+                                                                d,
+                                                                d.getId(),
+                                                                d.get("imageURL").toString()
+                                                        ));
+                                                    }
+                                                    if(isLastItemReachedTime){
+                                                        // Add end here
+                                                    }
+                                                    rAdapterTime.notifyDataSetChanged();
+                                                    if (t.getResult().size() != 0) {
+                                                        lastVisibleTime = t.getResult().getDocuments().get(t.getResult().size() - 1);
+                                                    }
+
+                                                    if (t.getResult().size() < 5) {
+                                                        isLastItemReachedTime = true;
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    }
+                                }
+                            };
+                            recyclerViewTime.addOnScrollListener(onScrollListener);
+                        }
+                    }
+                });
+                topLayout.addView(textView);
+                topLayout.addView(recyclerViewTime);
+                Log.e(TAG, "Time horizontal view added");
+            }
+
+            /* Adding the save view as score but with user favourited recipes as a new query
+            /  This has been done in the same manner but as there are too many variables to track
+            /  this is not workable in any kind of loop. */
+            final RecyclerView recyclerViewFave = new RecyclerView(view.getContext());
+            RecyclerView.LayoutManager rManagerFave = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+            recyclerViewFave.setLayoutManager(rManagerFave);
+            recyclerViewFave.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels / scrollViewSize));
+            dataFave = new ArrayList<>();
+            final RecyclerView.Adapter rAdapterFave = new HomeRecyclerAdapter(RecipeFragment.this, dataFave);
+            recyclerViewFave.setAdapter(rAdapterFave);
+            final Query queryFave = (Query) horizontalScrollQueries.getQueries().get("favourite");
+            if (queryFave != null) {
+                Log.e(TAG, "User is searching the following query: " + queryFave.toString());
+
+                TextView textView = new TextView(view.getContext());
+                String testString = "My favourites";
+                textView.setTextSize(25);
+                textView.setPadding(20, 5, 5, 5);
+                textView.setTextColor(Color.WHITE);
+                textView.setShadowLayer(4, 0, 0, Color.BLACK);
+                textView.setText(testString);
+
+                queryFave
+                        .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (DocumentSnapshot document : task.getResult()) {
+                                dataFave.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
+                                        document,
+                                        document.getId(),
+                                        document.get("imageURL").toString()
+                                ));
+                            }
+                            rAdapterFave.notifyDataSetChanged();
+                            if(task.getResult().size() != 0){
+                                lastVisibleFave = task.getResult().getDocuments().get(task.getResult().size() - 1);
+                            }else{
+                                isLastItemReachedFave = true;
+                            }
+
+                            RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+                                @Override
+                                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                                    super.onScrollStateChanged(recyclerView, newState);
+                                    if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                                        isScrollingFave = true;
+                                    }
+                                }
+
                                 @Override
                                 public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                                     super.onScrolled(recyclerView, dx, dy);
@@ -361,11 +510,10 @@ public class RecipeFragment extends Fragment {
         return view;
     }
 
-
     /**
      * On click of a recipe a new recipe info fragment is opened and the document is sent through
      * This saves on downloading the data again from the database
-      */
+     */
     public void recipeSelected(DocumentSnapshot document) {
 
         //Takes ingredient array from snap shot and reformats before being passed through to fragment
