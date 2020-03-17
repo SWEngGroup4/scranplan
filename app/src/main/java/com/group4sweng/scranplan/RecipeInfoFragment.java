@@ -1,6 +1,7 @@
 package com.group4sweng.scranplan;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,24 +30,33 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
 
 
 public class RecipeInfoFragment extends AppCompatDialogFragment {
 
-    Button mReturnButton;
-    TabLayout mTabLayout2;
-    FrameLayout mRecipeFrameLayout;
-    TextView mTitle;
-    TextView mChefName;
-    TextView mDescription;
-    ImageView mRecipeImage;
-    String recipeID;
+    // Variables for the xml layout so data from firebase can be properly assigned
+    private Button mReturnButton;
+    private Button mLetsCook;
+    private TabLayout mTabLayout2;
+    private FrameLayout mRecipeFrameLayout;
+    private TextView mTitle;
+    private TextView mChefName;
+    private TextView mDescription;
+    private TextView mRating;
+    private ImageView mRecipeImage;
+
+    //Variables to hold the data being passed through into the fragment
+    private String recipeID;
+    private String recipeName;
+    private String recipeImage;
+    private String recipeDescription;
+    private String chefName;
+    private String recipeRating;
+    private String xmlPresentation;
+    private ArrayList<String> ingredientArray;
 
     private FirebaseFirestore mDatabase;
     private CollectionReference mDataRef;
-    private CollectionReference mIngredient;
     private CollectionReference mUserRef;
 
     // Define a String ArrayList for the ingredients
@@ -83,8 +93,6 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
 
         tabFragments(layout);
 
-        displayedIngredients(layout);
-
         return layout;
     }
 
@@ -107,13 +115,20 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
     private void initPageListeners(View layout){
 
         mReturnButton = layout.findViewById(R.id.ReturnButton);
-
         mReturnButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 dismiss();
+            }
+        });
 
+        mLetsCook = layout.findViewById(R.id.LetsCook);
+        mLetsCook.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent presentation = new Intent(getActivity(), Presentation.class);
+                presentation.putExtra("xml_URL", xmlPresentation);
+                startActivity(presentation);
             }
         });
     }
@@ -163,54 +178,25 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
 
     }
 
-    /**
-     * TODO - Method that takes all ingredients in the collection and displays them in
-     * TODO - a list view to be displayed in the ingredient fragment
-     */
-    private void displayedIngredients(final View layout){
-
-        listViewIngredients = layout.findViewById(R.id.listViewText);
-        arrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, ingredientList);
-
-        mIngredient = mDatabase.collection("recipes");
-        final DocumentReference ingredients = mIngredient.document(recipeID);
-
-        ingredients.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                if (task.isSuccessful()){
-
-                    DocumentSnapshot document = task.getResult();
-
-                    ArrayList<String> ingredientArray = new ArrayList<>();
-
-                    Map<String, Map<String, Object>> test = (Map) document.getData().get("Ingredients");
-                    Iterator hmIterator = test.entrySet().iterator();
-
-                    while (hmIterator.hasNext()) {
-                        Map.Entry mapElement = (Map.Entry) hmIterator.next();
-                        String string = mapElement.getKey().toString() + ": " + mapElement.getValue().toString();
-                        ingredientArray.add(string);
-
-                    }
-                    arrayAdapter.addAll(ingredientArray);
-                    listViewIngredients.setAdapter(arrayAdapter);
-                }
-
-            }
-        });
-
-
-
-    }
-
     private void displayInfo(View layout){
 
+        //Getting ingredients array and assigning it to the list layout view
+        listViewIngredients = layout.findViewById(R.id.listViewText);
+        arrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, ingredientList);
+        arrayAdapter.addAll(ingredientArray);
+        listViewIngredients.setAdapter(arrayAdapter);
+
+
+        //Assigning data passed through into the various xml views
         mTitle = layout.findViewById(R.id.Title);
         mChefName = layout.findViewById(R.id.chefName);
         mDescription = layout.findViewById(R.id.description);
         mRecipeImage = layout.findViewById(R.id.recipeImage);
+        mRating = layout.findViewById(R.id.Rating);
+        mTitle.setText(recipeName);
+        mDescription.setText(recipeDescription);
+        mRating.setText("Rating: " + recipeRating);
+        Picasso.get().load(recipeImage).into(mRecipeImage);
 
 
         // Database objects for accessing recipes
@@ -230,20 +216,12 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()){
 
-                    //Takes objects from the firestore and assigns them to their relevant variables
-                    DocumentSnapshot document = task.getResult();
-                    Log.d("Recipe Name", ""+ document.getData().get("Name"));
-                    mTitle.setText(document.getData().get("Name").toString());
-                    mDescription.setText(document.getData().get("Description").toString());
-                    Picasso.get().load(document.get("imageURL").toString()).into(mRecipeImage);
-
-
                     /**
                      * Using the UID from the Chef field in recipes, the following takes a snapshot of
                      * all the fields associated with the UID in users and assigns the name to Chef on the xml
                      * since that users UID is associated with creating that recipe
                      */
-                    final DocumentReference userRef = mUserRef.document(document.getData().get("Chef").toString());
+                    final DocumentReference userRef = mUserRef.document(chefName);
                     userRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -252,19 +230,14 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
 
                                 //Takes objects from the firestore and assigns them to their relevant variables
                                 DocumentSnapshot userDocument = task.getResult();
-
                                 mChefName.setText("Chef: " +(userDocument.getData().get("displayName").toString()));
 
-
                             }
-
                         }
                     });
-
                 }
             }
         });
-
     }
 
 }
