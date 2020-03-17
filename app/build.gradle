@@ -65,6 +65,8 @@ dependencies {
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
 
+    implementation 'com.github.aakira:expandable-layout:1.6.0@aar'
+
     debugImplementation 'androidx.fragment:fragment-testing:1.2.2'
 
 // this dependency is not required if you are already using your own

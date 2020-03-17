@@ -1,10 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center">
+
+    <com.github.aakira.expandablelayout.ExpandableRelativeLayout
+        android:id="@+id/expandableLayout"
+        android:layout_width="match_parent"
+        android:layout_height="300sp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="40sp"
+        android:background="#A6AAC9"
+        app:ael_duration="500"
+        app:ael_expanded="false"
+        app:ael_interpolator="bounce"
+        app:ael_orientation="vertical">
+
+        <TextView
+            android:id="@+id/textviewexpand"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="sample here test" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/text"
+            android:text="sample2" />
+    </com.github.aakira.expandablelayout.ExpandableRelativeLayout>
 
     <ProgressBar
         android:id="@+id/presentationLoad"
@@ -45,5 +70,15 @@
         android:layout_centerVertical="true"
         android:visibility="invisible"
         android:text="@string/nextButton" />
+
+    <Button
+        android:id="@+id/comments"
+        android:layout_width="wrap_content"
+        android:layout_height="40sp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:visibility="invisible"
+        android:text="Comments" />
+
 
 </RelativeLayout>

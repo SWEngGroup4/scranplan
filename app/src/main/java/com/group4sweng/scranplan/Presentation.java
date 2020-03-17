@@ -27,6 +27,8 @@ import androidx.core.provider.FontRequest;
 import androidx.core.provider.FontsContractCompat;
 import androidx.core.view.MotionEventCompat;
 
+import com.github.aakira.expandablelayout.ExpandableLayoutListener;
+import com.github.aakira.expandablelayout.ExpandableRelativeLayout;
 import com.squareup.picasso.Picasso;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -44,11 +46,13 @@ public class Presentation extends AppCompatActivity {
     private ProgressBar spinner;
     private XmlParser.DocumentInfo documentInfo;
     private DisplayMetrics displayMetrics = new DisplayMetrics();
+    ExpandableRelativeLayout expandableLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.presentation);
+        expandableLayout = (ExpandableRelativeLayout) findViewById(R.id.expandableLayout);
 
         Log.d("Test", "Presentation launched");
 
@@ -64,6 +68,7 @@ public class Presentation extends AppCompatActivity {
 
         spinner = findViewById(R.id.presentationLoad);
         xmlTask.execute(xml_URL);
+        expandableLayout.bringToFront();
     }
 
     private void presentation (Map<String, Object> xml) {
@@ -159,6 +164,20 @@ public class Presentation extends AppCompatActivity {
             prevSlide.setVisibility(View.VISIBLE);
             Button nextSlide = findViewById(R.id.nextButton);
             nextSlide.setVisibility(View.VISIBLE);
+            Button comments = findViewById(R.id.comments);
+            comments.setVisibility(View.VISIBLE);
+//            expandableLayout.bringToFront();
+
+            comments.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // toggle expand, collapse
+//                    expandableLayout.bringToFront();
+//                    expandableLayout.bringChildToFront(findViewById(R.id.textviewexpand));
+                    expandableLayout.toggle();
+
+                }
+            });
 
             nextSlide.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -177,10 +196,12 @@ public class Presentation extends AppCompatActivity {
             slideLayout.setVisibility(View.GONE);
             presentationContainer.addView(slideLayout);
             slideLayouts.add(slideLayout);
+            expandableLayout.bringToFront();
         }
 
         slideLayouts.get(currentSlide[0]).setVisibility(View.VISIBLE);
         spinner.setVisibility(View.GONE);
+        expandableLayout.bringToFront();
     }
 
     private PresentationTextView addText(final XmlParser.Text text, Integer slideWidth, Integer slideHeight) {
@@ -352,5 +373,53 @@ public class Presentation extends AppCompatActivity {
             urlConnection.connect();
             return urlConnection.getInputStream();
         }
+    }
+
+    private void addFirestoreComments(){
+        ExpandableRelativeLayout expandableLayout
+                = (ExpandableRelativeLayout) findViewById(R.id.expandableLayout);
+
+        // toggle expand, collapse
+        expandableLayout.toggle();
+        // expand
+        expandableLayout.expand();
+        // collapse
+        expandableLayout.collapse();
+
+        // move position of child view
+        expandableLayout.moveChild(0);
+        // move optional position
+        expandableLayout.move(500);
+
+        // set base position which is close position
+        expandableLayout.setClosePosition(500);
+
+        expandableLayout.setListener(new ExpandableLayoutListener() {
+            @Override
+            public void onAnimationStart() {
+            }
+
+            @Override
+            public void onAnimationEnd() {
+            }
+
+            // You can get notification that your expandable layout is going to open or close.
+            // So, you can set the animation synchronized with expanding animation.
+            @Override
+            public void onPreOpen() {
+            }
+
+            @Override
+            public void onPreClose() {
+            }
+
+            @Override
+            public void onOpened() {
+            }
+
+            @Override
+            public void onClosed() {
+            }
+        });
     }
 }
