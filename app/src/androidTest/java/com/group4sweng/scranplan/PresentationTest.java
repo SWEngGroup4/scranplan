@@ -133,6 +133,9 @@ public class PresentationTest {
         onView(withText("Delete"))
                 .perform(click());
 
+        onView(withText("COMMENTS"))
+                .perform(click());
+
 
 
     }
