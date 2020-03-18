@@ -39,6 +39,9 @@ import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
+import io.sentry.core.Sentry;
+import io.sentry.core.protocol.User;
+
 /**
  *  Scran plan home page, giving the user easy navigation around the application and database
  */
@@ -102,6 +105,11 @@ public class Home extends AppCompatActivity {
         if(getIntent().getSerializableExtra("user") != null){
             mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) getIntent().getSerializableExtra("user");
             prefs = new SearchPrefs(mUser);
+
+            User mSentryUser = new User();
+            mSentryUser.setUsername(mUser.getDisplayName());
+            mSentryUser.setEmail(mUser.getEmail());
+            Sentry.setUser(mSentryUser);
         }
         /*
         // Setting up the action and tab bars
