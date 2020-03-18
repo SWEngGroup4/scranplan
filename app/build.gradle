@@ -50,6 +50,7 @@ dependencies {
 
     implementation 'io.sentry:sentry-android:2.0.2'
 
+
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:2.7.22'
     androidTestImplementation 'org.mockito:mockito-android:2.7.22'
@@ -67,6 +68,7 @@ dependencies {
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
 
+    implementation 'com.github.aakira:expandable-layout:1.6.0@aar'
     implementation 'com.google.android.exoplayer:exoplayer-core:2.10.5'
     implementation 'com.google.android.exoplayer:exoplayer-dash:2.10.5'
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.10.5'

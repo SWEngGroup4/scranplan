@@ -1,6 +1,7 @@
 
 package com.group4sweng.scranplan;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,6 +15,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
@@ -157,7 +159,7 @@ public class Home extends AppCompatActivity {
             public boolean onQueryTextSubmit(String s) {
                 // Search function
                 query = new SearchQuery( s, prefs);
-                SearchListFragment searchListFragment = new SearchListFragment();
+                SearchListFragment searchListFragment = new SearchListFragment(mUser);
                 searchListFragment.setValue(query.getQuery());
                 Log.e(TAG, "User opening search");
                 searchListFragment.show(fragmentManager, "search");
@@ -222,9 +224,8 @@ public class Home extends AppCompatActivity {
      *  Setting up page listeners for when buttons are pressed on the home screen
      */
     private void initPageListeners() {
-        // TODO this code has been added in another story by NATHAN, following merge, please delete this version
-        // TODO all that is done here is the side menu is used to give the buttons that were on the main screen functionality
-        // TODO this includes logout, profile and settings
+        // Side menu is used to give the buttons that were on the main screen functionality
+        // this includes logout, profile and settings
         // Setting up the side menu
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -571,4 +572,7 @@ public class Home extends AppCompatActivity {
         //Do nothing
     }
 
+
 }
+
+

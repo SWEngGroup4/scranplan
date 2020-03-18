@@ -24,6 +24,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeInfoFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchRecyclerAdapter.SearchRecipePreviewData;
+import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -39,6 +40,11 @@ import java.util.Map;
 public class SearchListFragment extends AppCompatDialogFragment {
 
     final String TAG = "SearchScreen";
+
+    UserInfoPrivate user;
+    public SearchListFragment(UserInfoPrivate userSent){
+        user = userSent;
+    }
 
     private FirebaseFirestore mDatabase;
     protected Query query;
@@ -215,6 +221,7 @@ public class SearchListFragment extends AppCompatDialogFragment {
         bundle.putString("imageURL", document.get("imageURL").toString());
         bundle.putString("recipeDescription", document.get("Description").toString());
         bundle.putString("chefName", document.get("Chef").toString());
+        bundle.putSerializable("user", user);
 
 
         RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();

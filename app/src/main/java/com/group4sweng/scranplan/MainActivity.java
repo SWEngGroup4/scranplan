@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Rotating method
     public void rotateImageClockwise(View view) {
-        ObjectAnimator rotate = ObjectAnimator.ofFloat(view, "rotation", 360f, 0f);
+        ObjectAnimator rotate = ObjectAnimator.ofFloat(view, "rotation", 0f, 360f);
         rotate.setRepeatCount(999);
         rotate.setDuration(1000);
         rotate.start();

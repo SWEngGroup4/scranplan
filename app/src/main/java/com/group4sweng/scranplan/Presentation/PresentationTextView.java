@@ -1,4 +1,4 @@
-package com.group4sweng.scranplan;
+package com.group4sweng.scranplan.Presentation;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -18,6 +18,8 @@ import android.widget.Toast;
 
 import androidx.core.provider.FontRequest;
 import androidx.core.provider.FontsContractCompat;
+
+import com.group4sweng.scranplan.R;
 
 import java.util.Timer;
 import java.util.TimerTask;

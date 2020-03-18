@@ -26,6 +26,8 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.Presentation.Presentation;
+import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -53,6 +55,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
     private String recipeRating;
     private String xmlPresentation;
     private ArrayList<String> ingredientArray;
+    private UserInfoPrivate mUser;
 
     private FirebaseFirestore mDatabase;
     private CollectionReference mDataRef;
@@ -80,8 +83,8 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
                              Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-        View layout = inflater.inflate(R.layout.fragment_recipe_info, null);
 
+        View layout = inflater.inflate(R.layout.fragment_recipe_info, null);
         recipeID = getArguments().getString("recipeID");
         recipeName = getArguments().getString("recipeTitle");
         recipeImage = getArguments().getString("imageURL");
@@ -90,6 +93,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         ingredientArray = getArguments().getStringArrayList("ingredientList");
         recipeRating = getArguments().getString("rating");
         xmlPresentation = getArguments().getString("xmlURL");
+        mUser = (UserInfoPrivate) getArguments().getSerializable("user");
 
         builder.setView(layout);
 
@@ -134,6 +138,8 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
             public void onClick(View v) {
                 Intent presentation = new Intent(getActivity(), Presentation.class);
                 presentation.putExtra("xml_URL", xmlPresentation);
+                presentation.putExtra("recipeID", recipeID);
+                presentation.putExtra("user", mUser);
                 startActivity(presentation);
             }
         });

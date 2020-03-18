@@ -538,6 +538,7 @@ public class RecipeFragment extends Fragment {
         bundle.putString("imageURL", document.get("imageURL").toString());
         bundle.putString("recipeDescription", document.get("Description").toString());
         bundle.putString("chefName", document.get("Chef").toString());
+        bundle.putSerializable("user", user);
 
 
         RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
