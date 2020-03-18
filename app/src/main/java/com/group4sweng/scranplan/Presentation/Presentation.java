@@ -1,6 +1,7 @@
 package com.group4sweng.scranplan.Presentation;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -9,14 +10,18 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
@@ -37,11 +42,16 @@ import com.github.aakira.expandablelayout.ExpandableRelativeLayout;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.group4sweng.scranplan.Home;
+import com.group4sweng.scranplan.MainActivity;
+import com.group4sweng.scranplan.ProfileSettings;
+import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchRecyclerAdapter;
@@ -61,12 +71,21 @@ import java.util.Map;
 
 import static androidx.test.InstrumentationRegistry.getContext;
 
+/**
+ *  All parts of the presentation, taking the XML document and separating it out into its slide that
+ *  are then conveniently displayed for the user. User can go forward and backwards along with
+ *  navigating to any particular slide. User can also add comments and view existing comments to
+ *  any particular slide.
+ */
 public class Presentation extends AppCompatActivity {
 
     FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
     private ProgressBar spinner;
     private XmlParser.DocumentInfo documentInfo;
     private DisplayMetrics displayMetrics = new DisplayMetrics();
+    final static String TAG = "PRES";
+
+    // Comment additions
     ExpandableRelativeLayout expandableLayout;
     private boolean isScrolling = false;
     private boolean isLastItemReached = false;
@@ -168,9 +187,10 @@ public class Presentation extends AppCompatActivity {
             if (slide.video != null) {
                 //TODO - Generate video
             }
-            if (slide.comments != null) {
-                slideLayout.addView(addComments(slide.comments, defaults, defaultTypeFace[0], slideWidth, slideHeight));
-            }
+            //TODO old comments section where we used XML, for James Crawley to delete where he sees fit
+//            if (slide.comments != null) {
+//                slideLayout.addView(addComments(slide.comments, defaults, defaultTypeFace[0], slideWidth, slideHeight));
+//            }
             if (slide.timer != null) {
                 slideLayout.addView(addTimer(slide.timer));
             }
@@ -221,35 +241,48 @@ public class Presentation extends AppCompatActivity {
 
         slideLayouts.get(currentSlide[0]).setVisibility(View.VISIBLE);
         spinner.setVisibility(View.GONE);
+
+
+        /*
+        The following components add the comment capability to each page of the slide show
+         */
         Button comments = findViewById(R.id.comments);
         comments.setVisibility(View.VISIBLE);
         ViewCompat.setTranslationZ(expandableLayout, 20);
         expandableLayout.setVisibility(View.VISIBLE);
 
+        /**
+         *  Clicking the comments button toggles comments open and closed
+         */
         comments.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 expandableLayout.toggle();
-
             }
         });
 
+        /**
+         *  Setting up the expandable comments listeners to download new comments
+         *  when the view is reopened
+         */
         expandableLayout.setListener(new ExpandableLayoutListener() {
             @Override
             public void onAnimationStart() {
+
             }
             @Override
             public void onAnimationEnd() {
             }
             @Override
             public void onPreOpen() {
+                addFirestoreComments(currentSlide[0].toString());
             }
             @Override
             public void onPreClose() {
             }
             @Override
             public void onOpened() {
-                addFirestoreComments(currentSlide[0]);
+
             }
             @Override
             public void onClosed() {
@@ -259,19 +292,22 @@ public class Presentation extends AppCompatActivity {
                 query  = null;
             }
         });
-
-        //mDatabase.collection("recipes").document(recipeID).collection("slide" + currentSlide)
+        // Adding the functionality for users to add comments
         Button mPostComment = findViewById(R.id.sendCommentButton);
         EditText mInputComment = findViewById(R.id.addCommentEditText);
 
+        /**
+         *  Setting up the post comment listener, removing the text from the box and saving
+         *  it as a new document in the Firestore, the data is also reloaded
+         */
         mPostComment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String content = mInputComment.getText().toString();
                 mInputComment.getText().clear();
 
-                CollectionReference ref = mDatabase.collection("recipes").document(recipeID).collection("slide" + currentSlide);
-//                Log.e(TAG, "Added new doc ");
+                CollectionReference ref = mDatabase.collection("recipes").document(recipeID).collection("slide" + currentSlide[0].toString());
+                Log.e(TAG, "Added new doc ");
                 // Saving the comment as a new document
                 HashMap<String, Object> map = new HashMap<>();
                 map.put("authorID", mUser.getUID());
@@ -280,6 +316,7 @@ public class Presentation extends AppCompatActivity {
                 map.put("timestamp", FieldValue.serverTimestamp());
                 // Saving default user to Firebase Firestore database
                 ref.add(map);
+                addFirestoreComments(currentSlide[0].toString());
 
 
             }
@@ -363,33 +400,34 @@ public class Presentation extends AppCompatActivity {
         return imageView;
     }
 
-    private RelativeLayout addComments(List<XmlParser.Comment> comments,
-                                       XmlParser.Defaults defaults, Typeface defaultTypeFace, Integer slideWidth, Integer slideHeight) {
-        RelativeLayout commentLayout = new RelativeLayout(getApplicationContext());
-        RelativeLayout.LayoutParams commentListParams = new RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT
-        );
-        commentListParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-        commentLayout.setLayoutParams(commentListParams);
-
-        int prevCommentId = 0;
-        for (XmlParser.Comment comment : comments) {
-            comment.text.text = comment.userID + ": " + comment.text.text;
-            PresentationTextView commentText = addText(comment.text, slideWidth, slideHeight);
-
-            commentText.setId(prevCommentId + 1);
-            RelativeLayout.LayoutParams commentParams = new RelativeLayout.LayoutParams(
-                    RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT
-            );
-            commentParams.addRule(RelativeLayout.BELOW, prevCommentId);
-            commentText.setLayoutParams(commentParams);
-
-            prevCommentId += 1;
-            commentLayout.addView(commentText);
-        }
-
-        return commentLayout;
-    }
+    //TODO old comments section where we used XML, for James Crawley to delete where he sees fit
+//    private RelativeLayout addComments(List<XmlParser.Comment> comments,
+//                                       XmlParser.Defaults defaults, Typeface defaultTypeFace, Integer slideWidth, Integer slideHeight) {
+//        RelativeLayout commentLayout = new RelativeLayout(getApplicationContext());
+//        RelativeLayout.LayoutParams commentListParams = new RelativeLayout.LayoutParams(
+//                RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT
+//        );
+//        commentListParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+//        commentLayout.setLayoutParams(commentListParams);
+//
+//        int prevCommentId = 0;
+//        for (XmlParser.Comment comment : comments) {
+//            comment.text.text = comment.userID + ": " + comment.text.text;
+//            PresentationTextView commentText = addText(comment.text, slideWidth, slideHeight);
+//
+//            commentText.setId(prevCommentId + 1);
+//            RelativeLayout.LayoutParams commentParams = new RelativeLayout.LayoutParams(
+//                    RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT
+//            );
+//            commentParams.addRule(RelativeLayout.BELOW, prevCommentId);
+//            commentText.setLayoutParams(commentParams);
+//
+//            prevCommentId += 1;
+//            commentLayout.addView(commentText);
+//        }
+//
+//        return commentLayout;
+//    }
 
     private TextView addTimer(final Float timer) {
         final TextView timerView = new TextView(getApplicationContext());
@@ -457,7 +495,69 @@ public class Presentation extends AppCompatActivity {
         }
     }
 
-    private void addFirestoreComments(int currentSlide){
+    /**
+     * This method checks what comment is selected and opens up a menu to either open up another
+     * users profile or if the comment was made my this user, user can delete the comment.
+     * @param document
+     * @param anchor
+     * @param sentCurrentSlide
+     */
+    public void commentSelected(DocumentSnapshot document, View anchor, String sentCurrentSlide){
+        //Creating the instance of PopupMenu
+        PopupMenu popup = new PopupMenu(context, anchor);
+        //Inflating the Popup using xml file
+        popup.getMenuInflater().inflate(R.menu.menu_comment, popup.getMenu());
+        if(document.get("authorID").toString().equals(mUser.getUID())){
+            popup.getMenu().getItem(0).setVisible(false);
+            popup.getMenu().getItem(1).setVisible(false);
+            popup.getMenu().getItem(2).setVisible(true);
+        }else{
+            popup.getMenu().getItem(0).setVisible(true);
+            popup.getMenu().getItem(1).setVisible(true);
+            popup.getMenu().getItem(2).setVisible(false);
+        }
+
+        //registering popup with OnMenuItemClickListener
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            public boolean onMenuItemClick(
+                    MenuItem item) {
+                // Give each item functionality
+                switch (item.getItemId()) {
+                    case R.id.viewCommentProfile:
+                        Log.e(TAG,"Clicked open profile!");
+                        //TODO add functionality to open users profile in new fragment
+                        break;
+                    case R.id.reportComment:
+                        Log.e(TAG,"Report comment clicked!");
+                        //TODO add functionality to report this comment
+                        break;
+                    case R.id.deleteComment:
+                        Log.e(TAG,"Clicked delete comment!");
+                        document.getReference().delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                addFirestoreComments(sentCurrentSlide);
+                            }
+                        });
+                        break;
+                }
+                return true;
+            }
+        });
+
+        popup.show();//showing popup menu
+    }
+
+
+    /**
+     * Function to set up a new recycler view that takes all comments and downloads them from the server
+     * when there is more than 5 comments, the data is downloaded 5 items at a time and loads new comments
+     * as the user scrolls down through the comments
+     *
+     * Comments downloaded depend on the slide currently open
+     * @param currentSlide
+     */
+    private void addFirestoreComments(String currentSlide){
 
         List<CommentRecyclerAdapter.CommentData> data;
         data = new ArrayList<>();
@@ -467,9 +567,9 @@ public class Presentation extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         RecyclerView.LayoutManager rManager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(rManager);
-        final RecyclerView.Adapter rAdapter = new CommentRecyclerAdapter(Presentation.this, data);
+        final RecyclerView.Adapter rAdapter = new CommentRecyclerAdapter(Presentation.this, data, currentSlide);
         recyclerView.setAdapter(rAdapter);
-        query = mDatabase.collection("recipes").document(recipeID).collection("slide" + currentSlide).limit(5);
+        query = mDatabase.collection("recipes").document(recipeID).collection("slide" + currentSlide).limit(5).orderBy("timestamp");
 
         // Once the data has been returned, dataset populated and components build
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -477,145 +577,85 @@ public class Presentation extends AppCompatActivity {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     // For each document a new recipe preview view is generated
-                    for (DocumentSnapshot document : task.getResult()) {
-                        data.add(new CommentRecyclerAdapter.CommentData(
-                                document,
-                                document.get("authorID").toString(),
-                                document.get("author").toString(),
-                                document.get("comment").toString()
-                        ));
-                    }
-                    rAdapter.notifyDataSetChanged();
-                    // Set the last document as last user can see
-                    if(task.getResult().size() != 0){
-                        lastVisible = task.getResult().getDocuments().get(task.getResult().size() - 1);
-                    }else{
-                        // If no data returned, user notified
-                        isLastItemReached = true;
-                        data.add(new CommentRecyclerAdapter.CommentData(
-                                null,
-                                null,
-                                "No more results",
-                                "No comments yet for this step, be the first!"
-                        ));
-                    }
-                    // check if user has scrolled through the view
-                    RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
-                        @Override
-                        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                            super.onScrollStateChanged(recyclerView, newState);
-                            if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
-                                isScrolling = true;
-                            }
+                    if(task.getResult() != null)
+                    {
+                        for (DocumentSnapshot document : task.getResult()) {
+                            data.add(new CommentRecyclerAdapter.CommentData(
+                                    document,
+                                    document.get("authorID").toString(),
+                                    document.get("author").toString(),
+                                    document.get("comment").toString()
+                            ));
                         }
-                        // If user is scrolling and has reached the end, more data is loaded
-                        @Override
-                        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                            super.onScrolled(recyclerView, dx, dy);
-                            // Checking if user is at the end
-                            LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
-                            int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
-                            int visibleItemCount = linearLayoutManager.getChildCount();
-                            int totalItemCount = linearLayoutManager.getItemCount();
-                            // If found to have reached end, more data is requested from the server in the same manner
-                            if (isScrolling && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReached) {
-                                isScrolling = false;
-                                Query nextQuery = query.startAfter(lastVisible);
-                                nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<QuerySnapshot> t) {
-                                        if (t.isSuccessful()) {
-                                            for (DocumentSnapshot d : t.getResult()) {
-                                                data.add(new CommentRecyclerAdapter.CommentData(
-                                                        d,
-                                                        d.get("authorID").toString(),
-                                                        d.get("author").toString(),
-                                                        d.get("comment").toString()
-                                                ));
-                                            }
-                                            if(isLastItemReached){
-                                                // No more comments //todo remove this or add something at end
-//                                                data.add(new CommentRecyclerAdapter.CommentData(
-//                                                        null,
-//                                                        null,
-//                                                        "No more results",
-//                                                        "No comments yet for this step, be the first!"
-//                                                ));
-                                            }
-                                            rAdapter.notifyDataSetChanged();
-                                            if (t.getResult().size() != 0) {
-                                                lastVisible = t.getResult().getDocuments().get(t.getResult().size() - 1);
-                                            }
+                        rAdapter.notifyDataSetChanged();
+                        // Set the last document as last user can see
+                        if(task.getResult().size() != 0){
+                            lastVisible = task.getResult().getDocuments().get(task.getResult().size() - 1);
+                        }else{
+                            // If no data returned, user notified
+                            isLastItemReached = true;
+                            data.add(new CommentRecyclerAdapter.CommentData(
+                                    null,
+                                    null,
+                                    "No more results",
+                                    "No comments yet for this step, be the first!"
+                            ));
+                        }
+                        // check if user has scrolled through the view
+                        RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+                            @Override
+                            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                                super.onScrollStateChanged(recyclerView, newState);
+                                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                                    isScrolling = true;
+                                }
+                            }
+                            // If user is scrolling and has reached the end, more data is loaded
+                            @Override
+                            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                                super.onScrolled(recyclerView, dx, dy);
+                                // Checking if user is at the end
+                                LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
+                                int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+                                int visibleItemCount = linearLayoutManager.getChildCount();
+                                int totalItemCount = linearLayoutManager.getItemCount();
+                                // If found to have reached end, more data is requested from the server in the same manner
+                                if (isScrolling && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReached) {
+                                    isScrolling = false;
+                                    Query nextQuery = query.startAfter(lastVisible);
+                                    nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<QuerySnapshot> t) {
+                                            if (t.isSuccessful()) {
+                                                for (DocumentSnapshot d : t.getResult()) {
+                                                    data.add(new CommentRecyclerAdapter.CommentData(
+                                                            d,
+                                                            d.get("authorID").toString(),
+                                                            d.get("author").toString(),
+                                                            d.get("comment").toString()
+                                                    ));
+                                                }
+                                                if(isLastItemReached){
+                                                    // Last comment reached
+                                                }
+                                                rAdapter.notifyDataSetChanged();
+                                                if (t.getResult().size() != 0) {
+                                                    lastVisible = t.getResult().getDocuments().get(t.getResult().size() - 1);
+                                                }
 
-                                            if (t.getResult().size() < 5) {
-                                                isLastItemReached = true;
+                                                if (t.getResult().size() < 5) {
+                                                    isLastItemReached = true;
+                                                }
                                             }
                                         }
-                                    }
-                                });
+                                    });
+                                }
                             }
-                        }
-                    };
-                    recyclerView.addOnScrollListener(onScrollListener);
+                        };
+                        recyclerView.addOnScrollListener(onScrollListener);
+                    }
                 }
             }
         });
-
-
-
-
-
-
-
-
-
-
-
-
-//        ExpandableRelativeLayout expandableLayout
-//                = (ExpandableRelativeLayout) findViewById(R.id.expandableLayout);
-//
-//        // toggle expand, collapse
-//        expandableLayout.toggle();
-//        // expand
-//        expandableLayout.expand();
-//        // collapse
-//        expandableLayout.collapse();
-//
-//        // move position of child view
-//        expandableLayout.moveChild(0);
-//        // move optional position
-//        expandableLayout.move(500);
-//
-//        // set base position which is close position
-//        expandableLayout.setClosePosition(500);
-//
-//        expandableLayout.setListener(new ExpandableLayoutListener() {
-//            @Override
-//            public void onAnimationStart() {
-//            }
-//
-//            @Override
-//            public void onAnimationEnd() {
-//            }
-//
-//            // You can get notification that your expandable layout is going to open or close.
-//            // So, you can set the animation synchronized with expanding animation.
-//            @Override
-//            public void onPreOpen() {
-//            }
-//
-//            @Override
-//            public void onPreClose() {
-//            }
-//
-//            @Override
-//            public void onOpened() {
-//            }
-//
-//            @Override
-//            public void onClosed() {
-//            }
-//        });
     }
 }

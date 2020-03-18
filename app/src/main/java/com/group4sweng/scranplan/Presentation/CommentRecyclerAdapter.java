@@ -1,10 +1,14 @@
 package com.group4sweng.scranplan.Presentation;
 
+        import android.content.Context;
         import android.util.Log;
         import android.view.LayoutInflater;
+        import android.view.MenuItem;
         import android.view.View;
         import android.view.ViewGroup;
+        import android.widget.PopupMenu;
         import android.widget.TextView;
+        import android.widget.Toast;
 
         import androidx.cardview.widget.CardView;
         import androidx.recyclerview.widget.RecyclerView;
@@ -24,9 +28,9 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<com.group4sweng
     // Variables for database and fragment to be displayed in
     private Presentation presentation;
     private List<com.group4sweng.scranplan.Presentation.CommentRecyclerAdapter.CommentData> mDataset;
+    private  String currentSlide;
 
     public static class CommentData {
-
         private String docID;
         private String author;
         private String comment;
@@ -40,6 +44,7 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<com.group4sweng
             this.docID = authorID;
             this.author = author;
             this.comment = comment;
+
         }
     }
 
@@ -66,9 +71,10 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<com.group4sweng
      * @param presentation
      * @param dataset
      */
-    public CommentRecyclerAdapter (Presentation presentation, List<com.group4sweng.scranplan.Presentation.CommentRecyclerAdapter.CommentData> dataset) {
+    public CommentRecyclerAdapter (Presentation presentation, List<com.group4sweng.scranplan.Presentation.CommentRecyclerAdapter.CommentData> dataset, String currentSlide) {
         this.presentation = presentation;
         mDataset = dataset;
+        this.currentSlide = currentSlide;
     }
 
     /**
@@ -79,7 +85,7 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<com.group4sweng
      */
     public com.group4sweng.scranplan.Presentation.CommentRecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.recyler, parent, false);
+                .inflate(R.layout.comment, parent, false);
         return new com.group4sweng.scranplan.Presentation.CommentRecyclerAdapter.ViewHolder(v);
     }
 
@@ -97,7 +103,7 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<com.group4sweng
             @Override
             public void onClick(View v) {
                 if(presentation != null){
-//                    presentation.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
+                   presentation.commentSelected(mDataset.get(holder.getAdapterPosition()).document, holder.cardView, currentSlide);
                     Log.e("COMMENT RECYCLER", "Add send to profile on click");
                 }else{
                     Log.e("COMMENT RECYCLER", "Issue with no component in onBindViewHolder");
