@@ -225,6 +225,10 @@ public class SearchListFragment extends AppCompatDialogFragment {
 
         ArrayList faves = (ArrayList) document.get("favourite");
         bundle.putBoolean("isFav", faves.contains(user.getUID()));
+        bundle.putString("fridgeDays", document.get("fridge").toString());
+        bundle.putString("peopleServes", document.get("serves").toString());
+        bundle.putBoolean("canFreeze", document.getBoolean("freezer"));
+
         openRecipeInfo(bundle);
     }
 

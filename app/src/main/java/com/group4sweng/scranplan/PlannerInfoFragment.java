@@ -2,9 +2,11 @@ package com.group4sweng.scranplan;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
@@ -17,6 +19,8 @@ public class PlannerInfoFragment extends RecipeInfoFragment {
     private TextView mServing;
     private TextView mFridge;
     private TextView mFreezer;
+    private TextView mReheatInformation;
+    private ImageButton mReheatInformationButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -24,6 +28,8 @@ public class PlannerInfoFragment extends RecipeInfoFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         View layout = inflater.inflate(R.layout.fragment_recipe_info, null);
         HashMap<String, Object> map = (HashMap<String, Object>) getArguments().getSerializable("hashmap");
+
+
 
         this.recipeID = (String) map.get("recipeID");
         this.recipeName = (String) map.get("recipeTitle");
@@ -35,11 +41,11 @@ public class PlannerInfoFragment extends RecipeInfoFragment {
         this.xmlPresentation = (String) map.get("xmlURL");
         this.planner = (Boolean) map.get("planner");
 
-        this.servingAmount = (String) map.get("serves");
+        this.servingAmount = (String) map.get("peopleServes");
 
         this.fridgeTime =  (String) map.get("fridgeDays");
 
-        this.canFreeze = (Boolean) map.get("freezer");
+        this.canFreeze = (Boolean) map.get("canFreeze");
 
 
         builder.setView(layout);
@@ -53,18 +59,26 @@ public class PlannerInfoFragment extends RecipeInfoFragment {
     @Override
     public void displayInfo(View layout) {
         super.displayInfo(layout);
-//        mServing= layout.findViewById(R.id.serves);
-//        mServing.setText("Serves: " + servingAmount);
+        mServing = layout.findViewById(R.id.serves);
+        mServing.setText("Serves: " + servingAmount);
 
         mFridge = layout.findViewById(R.id.fridge);
         mFridge.setText("Keep in Fridge: " + fridgeTime + " days");
 
-//        mFreezer = layout.findViewById(R.id.freezer);
-//        if (canFreeze == true){
-//            mFreezer = layout.findViewById(R.id.freezer);
-//            mFreezer.setText("Can be frozen");
-//        }
+        mFreezer = layout.findViewById(R.id.freezer);
+        if (canFreeze == true){
+            mFreezer = layout.findViewById(R.id.freezer);
+            mFreezer.setText("Can be frozen");
+        }
+        else{
+            mFreezer.setText("Cannot be frozen");
+        }
 
+        mReheatInformation = layout.findViewById(R.id.reheatInfoText);
+        mReheatInformation.setText("Reheat Information");
+
+        mReheatInformationButton = layout.findViewById(R.id.reheatInfoButton);
+        mReheatInformationButton.setVisibility(View.VISIBLE);
     }
 
 }
