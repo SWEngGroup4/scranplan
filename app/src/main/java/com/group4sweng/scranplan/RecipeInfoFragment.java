@@ -49,7 +49,7 @@ import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 public class RecipeInfoFragment extends AppCompatDialogFragment {
 
     // Variables for the xml layout so data from firebase can be properly assigned
-    private Button mReturnButton;
+    protected Button mReturnButton;
     private Button mLetsCook;
     private TabLayout mTabLayout2;
     private FrameLayout mRecipeFrameLayout;
@@ -144,7 +144,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
      * When back button is clicked within the recipe information dialogFragment,
      * Recipe information dialogFragment is closed and returns to recipe fragment
      */
-    private void initPageListeners(View layout){
+    protected void initPageListeners(View layout){
 
         mReturnButton = layout.findViewById(R.id.ReturnButton);
         mReturnButton.setOnClickListener(new View.OnClickListener() {
@@ -184,7 +184,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
      * Method that controls the tabs within the recipe information dialogFragment
      * to select between the ingredient information and the comments section
      */
-    private void tabFragments(final View layout){
+    protected void tabFragments(final View layout){
 
         mTabLayout2 = layout.findViewById(R.id.tabLayout2);
         mRecipeFrameLayout = layout.findViewById(R.id.RecipeFrameLayout);
@@ -225,7 +225,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
 
     }
 
-    private void displayInfo(View layout){
+    protected void displayInfo(View layout){
 
         //Getting ingredients array and assigning it to the list layout view
         listViewIngredients = layout.findViewById(R.id.listViewText);
