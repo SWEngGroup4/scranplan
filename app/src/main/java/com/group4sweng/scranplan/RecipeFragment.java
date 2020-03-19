@@ -540,6 +540,9 @@ public class RecipeFragment extends Fragment {
         bundle.putString("chefName", document.get("Chef").toString());
         bundle.putSerializable("user", user);
 
+        ArrayList faves = (ArrayList) document.get("favourite");
+        bundle.putBoolean("isFav", faves.contains(user.getUID()));
+
 
         RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
         recipeDialogFragment.setArguments(bundle);

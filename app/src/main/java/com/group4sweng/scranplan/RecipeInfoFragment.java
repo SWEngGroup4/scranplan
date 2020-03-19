@@ -70,12 +70,11 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
     private ArrayList<String> ingredientArray;
     private ArrayList<String> favouriteRecipe;
     private UserInfoPrivate mUser;
+    private Boolean isFavourite;
 
     private FirebaseFirestore mDatabase;
     private CollectionReference mDataRef;
     private CollectionReference mUserRef;
-    private FirebaseAuth mAuth;
-    private FirebaseApp mApp;
 
     // Define a String ArrayList for the ingredients
     private ArrayList<String> ingredientList = new ArrayList<>();
@@ -111,6 +110,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         recipeRating = getArguments().getString("rating");
         xmlPresentation = getArguments().getString("xmlURL");
         mUser = (UserInfoPrivate) getArguments().getSerializable("user");
+        isFavourite = getArguments().getBoolean("isFav");
 
         builder.setView(layout);
 
@@ -274,32 +274,32 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
 
         mFavourite = layout.findViewById(R.id.addFavorite);
         mDataRef = mDatabase.collection("recipes");
-        mApp = FirebaseApp.getInstance();
-        mAuth = FirebaseAuth.getInstance(mApp);
         final DocumentReference docRef = mDataRef.document(recipeID);
-        final String user = mAuth.getCurrentUser().getUid();
+        final String user = mUser.getUID();
 
         mFavourite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ArrayList<String> fav = new ArrayList<>();
-                fav.add(user);
-                docRef.update("favourite", fav, SetOptions.merge())
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Toast.makeText(getApplicationContext(),"Add successfully!",
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                docRef.update("favourite",user, FieldValue.arrayRemove());
-                                Toast.makeText(getApplicationContext(),"Remove successfully!",
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                if(!isFavourite){
+                    isFavourite = true;
+                    docRef.update("favourite", FieldValue.arrayUnion(user)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            Toast.makeText(getContext(),"Added to favourites!",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }else{
+                    isFavourite = false;
+                    docRef.update("favourite", FieldValue.arrayRemove(user)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            Toast.makeText(getContext(),"Removed from favourites!",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+
             }
         });
     }
