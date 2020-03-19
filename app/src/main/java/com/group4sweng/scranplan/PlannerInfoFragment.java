@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 
@@ -12,6 +13,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class PlannerInfoFragment extends RecipeInfoFragment {
+
+    private TextView mServing;
+    private TextView mFridge;
+    private TextView mFreezer;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -30,6 +35,13 @@ public class PlannerInfoFragment extends RecipeInfoFragment {
         this.xmlPresentation = (String) map.get("xmlURL");
         this.planner = (Boolean) map.get("planner");
 
+        this.servingAmount = (String) map.get("serves");
+
+        this.fridgeTime =  (String) map.get("fridgeDays");
+
+        this.canFreeze = (Boolean) map.get("freezer");
+
+
         builder.setView(layout);
         displayInfo(layout);
         initPageListeners(layout);
@@ -37,4 +49,22 @@ public class PlannerInfoFragment extends RecipeInfoFragment {
 
         return layout;
     }
+
+    @Override
+    public void displayInfo(View layout) {
+        super.displayInfo(layout);
+//        mServing= layout.findViewById(R.id.serves);
+//        mServing.setText("Serves: " + servingAmount);
+
+        mFridge = layout.findViewById(R.id.fridge);
+        mFridge.setText("Keep in Fridge: " + fridgeTime + " days");
+
+//        mFreezer = layout.findViewById(R.id.freezer);
+//        if (canFreeze == true){
+//            mFreezer = layout.findViewById(R.id.freezer);
+//            mFreezer.setText("Can be frozen");
+//        }
+
+    }
+
 }

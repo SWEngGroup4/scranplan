@@ -113,11 +113,10 @@
             android:id="@+id/tabLayout2"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_below="@+id/description"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="5dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="500dp"
             android:layout_marginEnd="5dp"
             android:background="@color/colorPurpleDark"
             android:textColor="#ffffff"
@@ -184,11 +183,75 @@
             style="?android:attr/ratingBarStyleIndicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="200dp"
+            android:layout_below="@+id/chefName"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="15dp"
             android:layout_toEndOf="@+id/recipeImage"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/chefName" />
+
+        <TextView
+            android:id="@+id/serves"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ratingBar"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="5dp"
+            android:layout_toEndOf="@+id/recipeImage"
+            android:gravity="left"
+            android:textSize="18sp"/>
+
+        <TextView
+            android:id="@+id/fridge"
+            android:layout_width="131dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/description"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="16dp"
+            android:ems="10"
+            android:gravity="left"
+            android:text="fridge"
+            android:textSize="14dp" />
+
+        <TextView
+            android:id="@+id/freezer"
+            android:layout_width="131dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/description"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="54dp"
+            android:ems="10"
+            android:gravity="left"
+            android:text="freezer"
+            android:textSize="14dp" />
+
+        <TextView
+            android:id="@+id/textView10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/description"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="0dp"
+            android:ems="10"
+            android:gravity="center"
+            android:text="Reheat Instructions"
+            android:textSize="14dp" />
+
+        <ImageButton
+            android:id="@+id/imageButton2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/description"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="42dp"
+            android:layout_marginEnd="69dp"
+            android:background="@color/colorWindow"
+            android:src="@android:drawable/ic_dialog_info" />
 
     </RelativeLayout>
 </androidx.core.widget.NestedScrollView>
