@@ -57,6 +57,7 @@ public class Home extends AppCompatActivity {
     // Main tab variables
     FragmentManager fragmentManager = getSupportFragmentManager();
     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+    Fragment fragment;
     TabLayout tabLayout;
     FrameLayout frameLayout;
 
@@ -103,6 +104,8 @@ public class Home extends AppCompatActivity {
             mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) getIntent().getSerializableExtra("user");
             prefs = new SearchPrefs(mUser);
         }
+
+        fragment = new RecipeFragment(mUser);
         /*
         // Setting up the action and tab bars
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -258,20 +261,24 @@ public class Home extends AppCompatActivity {
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                Fragment fragment = null;
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                Log.d("Test", String.valueOf(fragment));
                 switch (tab.getPosition()) {
                     case 0:
                         fragment = new RecipeFragment(mUser);
+                        fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
                         break;
                     case 1:
+                        if (fragment.getClass() == RecipeFragment.class) fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                        else fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
                         fragment = new PlannerFragment();
                         break;
                     case 2:
                         fragment = new TimelinePlanner();
+                        fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         break;
                 }
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.frameLayout, fragment);
                 fragmentTransaction.commit();
                 searchView.clearFocus();

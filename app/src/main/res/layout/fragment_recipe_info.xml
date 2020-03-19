@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorWindow"
-    tools:context=".RecipeInfoFragment">
+    tools:context=".RecipeInfo.RecipeInfoFragment">
 
 
     <Button

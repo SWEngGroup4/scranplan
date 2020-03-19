@@ -1,4 +1,4 @@
-package com.group4sweng.scranplan;
+package com.group4sweng.scranplan.RecipeInfo;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -28,6 +28,8 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.Presentation;
+import com.group4sweng.scranplan.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -140,6 +142,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
                 @Override
                 public void onClick(View v) {
                     // Adds recipe to planner
+                    Fragment fragment = getTargetFragment();
                     getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, new Intent());
                     dismiss();
                 }
