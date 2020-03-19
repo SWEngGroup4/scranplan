@@ -1,23 +1,25 @@
 package com.group4sweng.scranplan.views;
 
 import android.content.Context;
-import android.content.res.TypedArray;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Point;
 import android.os.CountDownTimer;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.graphics.*;
 
 import androidx.annotation.Nullable;
 
 //Custom View - the class where the main implementation of the features is.
 //This could be used as a template to show how features can be implemented.
 //Or this could be directly included and have sections called from outside.
-// NOT SURE HOW IT IS GOING TO BE USED SO I HAVE LEFT IT AS OPEN AS POSSIBLE.
 public class CustomView extends View
 {
-    private int max_num_shapes = 100;
+    private int MAX_NUM_SHAPES = 100;
+    private int MAX_NUM_LINES = 500;
 
     //old values of X and Y, so that when drawing lines we know when a move has been made.
     private double old_x = 0;
@@ -34,22 +36,22 @@ public class CustomView extends View
     //making the array size less important.
 
     //the shapes also have an array of countdowntimers which are indexed the same as the shapes.
-    private triangle[] triangles = new triangle[max_num_shapes];
-    private CountDownTimer[] triangle_lives = new CountDownTimer[max_num_shapes]; //counter for a correspondingly indexed triangle.
+    private triangle[] triangles = new triangle[MAX_NUM_SHAPES];
+    private CountDownTimer[] triangle_lives = new CountDownTimer[MAX_NUM_SHAPES]; //counter for a correspondingly indexed triangle.
     private int num_triangles = 0;
 
-    private square[] square_array = new square[max_num_shapes];
-    private CountDownTimer[] square_lives = new CountDownTimer[max_num_shapes];
+    private square[] square_array = new square[MAX_NUM_SHAPES];
+    private CountDownTimer[] square_lives = new CountDownTimer[MAX_NUM_SHAPES];
     private int num_squares = 0;
 
-    private circle[] circle_array = new circle[max_num_shapes];
-    private CountDownTimer[] circle_lives = new CountDownTimer[max_num_shapes];
+    private circle[] circle_array = new circle[MAX_NUM_SHAPES];
+    private CountDownTimer[] circle_lives = new CountDownTimer[MAX_NUM_SHAPES];
     private int num_circles = 0;
 
-    //lines are done in a very much the same way except with 500 as its array size - as it is much faster to draw lines.
-    private line[] lines = new line[500];
+    //lines are done in a very much the same way except with '500' by default as its array size - as it is much faster to draw lines.
+    private line[] lines = new line[MAX_NUM_LINES];
     private int num_lines = 0;
-    private CountDownTimer[] line_lives = new CountDownTimer[500];
+    private CountDownTimer[] line_lives = new CountDownTimer[MAX_NUM_LINES];
 
     private boolean draw_line = false;
 
@@ -66,7 +68,6 @@ public class CustomView extends View
         super(context, attrs);
         init(attrs);
     }
-
 
     //Constructor
     public CustomView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
