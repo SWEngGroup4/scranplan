@@ -20,6 +20,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.group4sweng.scranplan.Home;
+import com.group4sweng.scranplan.PlannerInfoFragment;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeInfoFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
@@ -28,14 +29,17 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class PlannerFragment extends Fragment {
 
     private FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
     private CollectionReference mUserRef = mDatabase.collection("users");
 
-    private List<Bundle> plannerList = new ArrayList<Bundle>(21);
+    private List<HashMap<String, Object>> plannerList = new ArrayList<>();
     private List<String> days = Arrays.asList("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
     private ImageButton currentSelection;
 
@@ -109,7 +113,7 @@ public class PlannerFragment extends Fragment {
                 if (plannerList.get(id) == null) {
                     defaultButton(imageButton);
                 } else {
-                    Picasso.get().load(plannerList.get(id).getString("imageURL")).into(imageButton);
+                    Picasso.get().load(plannerList.get(id).get("imageURL").toString()).into(imageButton);
                     imageButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -149,29 +153,41 @@ public class PlannerFragment extends Fragment {
         mUser.setMealPlanner(plannerList);
     }
 
-    private void openRecipeInfo(Bundle bundle) {
-        bundle.putBoolean("planner", false);
-        RecipeInfoFragment recipeInfoFragment = new RecipeInfoFragment();
-        recipeInfoFragment.setArguments(bundle);
-        recipeInfoFragment.show(getFragmentManager(), "Show recipe dialog fragment");
+    private void openRecipeInfo(HashMap<String, Object> map) {
+        ArrayList<Map<String, Object>> list = new ArrayList<>();
+        map.put("planner", false);
+        list.add(map);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("hashmap", map);
+        PlannerInfoFragment plannerInfoFragment = new PlannerInfoFragment();
+        plannerInfoFragment.setArguments(bundle);
+        plannerInfoFragment.show(getFragmentManager(), "Show recipe dialog fragment");
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
-            final Bundle bundle = data.getExtras();
+            Bundle bundle = data.getExtras();
             searchView.clearFocus();
             searchView.onActionViewCollapsed();
+
+            final HashMap<String, Object> map = new HashMap<>();
+            Iterator<String> iterator = bundle.keySet().iterator();
+            while (iterator.hasNext()) {
+                String key = iterator.next();
+                map.put(key, bundle.get(key));
+            }
 
             currentSelection.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    openRecipeInfo(bundle);
+                    openRecipeInfo(map);
                 }
             });
 
             Picasso.get().load(bundle.getString("imageURL")).into(currentSelection);
-            plannerList.set(currentSelection.getId(), bundle);
+
+            plannerList.set(currentSelection.getId(), map);
             mUser.setMealPlanner(plannerList);
         }
     }

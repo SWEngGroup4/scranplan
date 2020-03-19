@@ -652,6 +652,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
             map.put("chefRating", mUserProfile.getChefRating());
             map.put("numRecipes", mUserProfile.getNumRecipes());
             map.put("about", mUserProfile.getAbout());
+            map.put("mealPlan", mUserProfile.getMealPlanner());
             map.put("shortPreferences", mUserProfile.getShortPreferences());
             map.put("firstAppLaunch", mUserProfile.getFirstAppLaunch());
             map.put("firstPresentationLaunch", mUserProfile.getFirstPresentationLaunch());

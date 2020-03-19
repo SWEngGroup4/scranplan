@@ -21,7 +21,6 @@ public class PlannerListFragment extends SearchListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.d("Test", "ON PLANNERLISTFRAGMENT");
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
