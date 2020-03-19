@@ -9,9 +9,11 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDialogFragment;
@@ -20,17 +22,27 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.group4sweng.scranplan.Presentation.Presentation;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 
 
 public class RecipeInfoFragment extends AppCompatDialogFragment {
@@ -45,6 +57,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
     private TextView mDescription;
     private TextView mRating;
     private ImageView mRecipeImage;
+    private ImageButton mFavourite;
 
     //Variables to hold the data being passed through into the fragment
     private String recipeID;
@@ -55,11 +68,14 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
     private String recipeRating;
     private String xmlPresentation;
     private ArrayList<String> ingredientArray;
+    private ArrayList<String> favouriteRecipe;
     private UserInfoPrivate mUser;
 
     private FirebaseFirestore mDatabase;
     private CollectionReference mDataRef;
     private CollectionReference mUserRef;
+    private FirebaseAuth mAuth;
+    private FirebaseApp mApp;
 
     // Define a String ArrayList for the ingredients
     private ArrayList<String> ingredientList = new ArrayList<>();
@@ -91,6 +107,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         recipeDescription = getArguments().getString("recipeDescription");
         chefName = getArguments().getString("chefName");
         ingredientArray = getArguments().getStringArrayList("ingredientList");
+        favouriteRecipe = getArguments().getStringArrayList("favourite");
         recipeRating = getArguments().getString("rating");
         xmlPresentation = getArguments().getString("xmlURL");
         mUser = (UserInfoPrivate) getArguments().getSerializable("user");
@@ -102,6 +119,8 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         initPageListeners(layout);
 
         tabFragments(layout);
+
+        addFavourite(layout);
 
         return layout;
     }
@@ -251,4 +270,37 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         });
     }
 
+    private void addFavourite(View layout){
+
+        mFavourite = layout.findViewById(R.id.addFavorite);
+        mDataRef = mDatabase.collection("recipes");
+        mApp = FirebaseApp.getInstance();
+        mAuth = FirebaseAuth.getInstance(mApp);
+        final DocumentReference docRef = mDataRef.document(recipeID);
+        final String user = mAuth.getCurrentUser().getUid();
+
+        mFavourite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ArrayList<String> fav = new ArrayList<>();
+                fav.add(user);
+                docRef.update("favourite", fav, SetOptions.merge())
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Toast.makeText(getApplicationContext(),"Add successfully!",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                docRef.update("favourite",user, FieldValue.arrayRemove());
+                                Toast.makeText(getApplicationContext(),"Remove successfully!",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            }
+        });
+    }
 }
