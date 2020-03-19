@@ -1,5 +1,7 @@
 package com.group4sweng.scranplan;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -24,7 +26,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.group4sweng.scranplan.MealPlanner.PlannerListFragment;
+import com.group4sweng.scranplan.MealPlanner.PlannerFragment;
+import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import com.group4sweng.scranplan.SearchFunctions.HomeQueries;
 import com.group4sweng.scranplan.SearchFunctions.HomeRecyclerAdapter;
 import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
@@ -88,6 +91,9 @@ public class RecipeFragment extends Fragment {
     private SearchView searchView;
     private SearchPrefs prefs;
 
+    private Bundle mBundle;
+    private Boolean planner;
+
     // Auto-generated super method
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -100,11 +106,18 @@ public class RecipeFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_recipe, container, false);
 
+        if (getArguments() != null)
+            planner = getArguments().getBoolean("planner");
+        else planner = false;
+
         Home home = (Home) getActivity();
         if (home != null) {
             searchView = home.getSearchView();
+            if (searchView != null)
+                searchView.setVisibility(View.VISIBLE);
             prefs = home.getSearchPrefs();
             if (searchView != null && prefs != null) {
+
                 searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                     @Override
                     public boolean onQueryTextSubmit(String s) {
@@ -558,15 +571,16 @@ public class RecipeFragment extends Fragment {
         }
 
         //Creating a bundle so all data needed from firestore query snapshot can be passed through into fragment class
-        Bundle bundle = new Bundle();
-        bundle.putStringArrayList("ingredientList", ingredientArray);
-        bundle.putString("recipeID", document.getId());
-        bundle.putString("xmlURL", document.get("xml_url").toString());
-        bundle.putString("recipeTitle", document.get("Name").toString());
-        bundle.putString("rating", document.get("score").toString());
-        bundle.putString("imageURL", document.get("imageURL").toString());
-        bundle.putString("recipeDescription", document.get("Description").toString());
-        bundle.putString("chefName", document.get("Chef").toString());
+        mBundle = new Bundle();
+        mBundle.putStringArrayList("ingredientList", ingredientArray);
+        mBundle.putString("recipeID", document.getId());
+        mBundle.putString("xmlURL", document.get("xml_url").toString());
+        mBundle.putString("recipeTitle", document.get("Name").toString());
+        mBundle.putString("rating", document.get("score").toString());
+        mBundle.putString("imageURL", document.get("imageURL").toString());
+        mBundle.putString("recipeDescription", document.get("Description").toString());
+        mBundle.putString("chefName", document.get("Chef").toString());
+        mBundle.putBoolean("planner", planner);
         bundle.putSerializable("user", user);
 
         ArrayList faves = (ArrayList) document.get("favourite");
@@ -574,7 +588,17 @@ public class RecipeFragment extends Fragment {
 
 
         RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
-        recipeDialogFragment.setArguments(bundle);
+        recipeDialogFragment.setArguments(mBundle);
+        recipeDialogFragment.setTargetFragment(this, 1);
         recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == Activity.RESULT_OK) {
+            Intent i = new Intent();
+            i.putExtras(mBundle);
+            getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, i);
+        }
     }
 }

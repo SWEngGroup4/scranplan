@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.group4sweng.scranplan.RecipeInfoFragment;
+import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
 
 
@@ -34,7 +34,7 @@ public class PlannerListFragment extends SearchListFragment {
     protected void openRecipeInfo(Bundle bundle) {
         mBundle = bundle;
         bundle.putBoolean("planner", true);
-
+        Log.d("Test", "ON PLANNER FRAGMENT");
         RecipeInfoFragment recipeInfoFragment = new RecipeInfoFragment();
         recipeInfoFragment.setArguments(bundle);
         recipeInfoFragment.setTargetFragment(PlannerListFragment.this, 1);
