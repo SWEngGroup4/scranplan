@@ -39,7 +39,6 @@
         android:background="@color/colorPrimary"
         android:ems="10"
         android:gravity="center"
-        android:inputType="textPersonName"
         android:padding="5sp"
         android:text="Title"
         android:textColor="#CBFFFFFF"
