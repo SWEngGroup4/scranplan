@@ -6,100 +6,64 @@
  *
  * */
 
-package com.group4sweng.scranplan.soundhandler;
+package com.group4sweng.scranplan.SoundHandler;
 
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.os.CountDownTimer;
-import android.util.Log;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import com.group4sweng.scranplan.Exceptions.AudioPlaybackError;
+
 import java.io.IOException;
 
 /**
- *
- * The AudioURL class takes a URL from the server and plays the audio associated with the URL. Please upload the desired
- * mp3 file you require.
- *
+ * The AudioURL class takes an associated file URL with any of the following compressed audio extensions outlined in the 'SupportedFormats' interface.
+ * It loads this URL into a 'MediaPlayer'.
  * */
-public class AudioURL extends AppCompatActivity
+public class AudioURL implements SupportedFormats
 {
-    MediaPlayer player_URL;
-    /*
-        Sets the initial state to be playing no sound.
+    //TODO - Add Shared preferences with an option to disable sounds (optional)
 
-    */
+    //  The Android media player.
+    private MediaPlayer player_URL;
+
+    //  Sets the initial state to be playing no sound.
     private Boolean play_URL = false;
-    /*
-        Timer set to 3 seconds, can change this to whatever length of time required
 
-    */
+    //  Timer set to 3 seconds, can change this to whatever length of time required
     private long timeLeftInMilliSeconds = 3000;
 
     /**
      *  Constructor which initialises the media player. Does not take any parameters.
-     *
-     *  */
+     **/
     public AudioURL()
     {
         player_URL = new MediaPlayer();
     }
 
-    /**
-     * This function creates a timer to be set before the sound file is to be played.
-     *
-     * */
-    public void URLTimer()
-    {
-        new CountDownTimer(timeLeftInMilliSeconds, 1000)
-        {
-
-            /*
-                Method available to at text to screen to show progression of count down timer.
-
-            */
-            @Override
-            public void onTick(long millisUntilFinished)
-            {
-                // left blank so text can be added to the screen that is required
-            }
-
-            /*
-                Once time has completed, sound plays which is called from playURLSound function.
-
-            */
-            @Override
-            public void onFinish()
-            {
-                playURLSound();
-            }
-        }.start();
-
-    }
-
 
     /**
-     * This function allows a sound file from a URL to be played. In this example I use an example url shown below but can use any URL.
-     *
+     * This function allows a sound file from a URL to be played.
+     * @param soundURL - The URL of the sound file.
      * */
-    public void playURLSound()
-    {
-        /*
-            The audio url to play
-        */
-        String soundURL = "https://file-examples.com/wp-content/uploads/2017/11/file_example_MP3_700KB.mp3";
-        /*
-            Try to play music/audio from url. Need to throw exceptions due to setDataSource() causing errors.
-            Include
-                Unsupported audio
-                Poorly interleaved audio
-                Resolution too high
-                Streaming timeout
+    public void playURLSound(String soundURL) throws AudioPlaybackError {
 
-        */
+        int counter = 0;
+
+        //  Cycles through all available formats to check if the extension outlined matches.
+        for(int i = 0; i < Formats.values().length; i++ ){
+            if(!soundURL.contains("." + Formats.values()[i])){
+                counter++; //Counter is log everytime a format isn't found.
+            }
+        }
+
+        if(counter == Formats.values().length){ //If no supported formats are found the counter will equal the length of the formats enumeration.
+            throw new AudioPlaybackError("Tried to use an invalid audio format. Please resort to using the .mp3 format.");
+        }
+
+        /* TODO - Add exceptions due to setDataSource() errors, including
+            Unsupported media, poorly interleaved audio, resolution too high, streaming timeout.
+            */
         try {
             /*
                 void setAudioStreamType(int streamtype)
@@ -107,24 +71,13 @@ public class AudioURL extends AppCompatActivity
 
                 Parameters
                     int streamtype : the type of file that you want to play, in this case, music
-
             */
             player_URL.setAudioStreamType(AudioManager.STREAM_MUSIC);
             if (!play_URL) {
-                /*
-                    void setDataSource (String path)
-                        Sets the data source to use.
-
-                    Parameters
-                        path String : the path of the file, or the http/rtsp URL of the stream you want to play
-
-                */
                 player_URL.setDataSource(soundURL);
-                /*
-                    Ensures that the media player is released once the audio has stopped.
-                    Saves system resources.
 
-                */
+                /*  Ensures that the media player is released once the audio has stopped.
+                    Saves system resources.*/
                 player_URL.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     @Override
                     public void onCompletion(MediaPlayer mp) {
@@ -135,19 +88,16 @@ public class AudioURL extends AppCompatActivity
             /*
                 void prepare ()
                     Prepares the media player for playback, synchronously
-
              */
             player_URL.prepare();
             /*
                 void start ()
                     Starts playing audio from http and restarts again if audio has been stopped.
                     Set outside if statement because we want to start it no matter if created or not.
-
             */
             player_URL.start();
             /*
                 Set play to be true once audio playing
-
             */
             play_URL = true;
         }
@@ -157,18 +107,33 @@ public class AudioURL extends AppCompatActivity
                     if the url can not be read
                 IllegalArgumentException
                     if method has passed an illegal or inappropriate url
-
         */
         catch (IOException | IllegalArgumentException e)
         {
             e.printStackTrace();
+            throw new AudioPlaybackError("Failed to play audio from URL: " + soundURL); //Also throw a playback error for testing purposes.
         }
+    }
+
+    /**
+     * Decide if we should loop the audio file or not.
+     * @param isLooping - true = will loop, false = wont loop.
+     */
+    public void setLooping(boolean isLooping){
+        player_URL.setLooping(isLooping);
+    }
+
+    /**
+     * Find out the current status of the file and if it is looping.
+     * @return - true = is looping, false = isn't looping.
+     */
+    public boolean isLooping(){
+        return player_URL.isLooping();
     }
 
     /**
      * This function stop's the url player to be used in the stopURLSound() function. Also used in the playURLSound function to
      * release the sound once completed. Releases the sound file as well as stop it.
-     *
      * */
     private void stopURLPlayer()
     {
@@ -194,7 +159,6 @@ public class AudioURL extends AppCompatActivity
 
     /**
      * This function uses the stopURLPlayer() function to stop the sound for the URL in this method and other places too.
-     *
      * */
     public void stopURLSound()
     {
@@ -202,14 +166,10 @@ public class AudioURL extends AppCompatActivity
     }
 
     /**
-     * This function overrides the onStop method in the AppCompatActivity class to stop the player once the app has been exited and releases the media player.
-     *
-     * */
-    @Override
-    protected void onStop()
-    {
-        super.onStop();
-        stopURLPlayer();
+     * Returns a player object. Used for more complex media player operations not defined within this class.
+     * @return - player object.
+     */
+    public MediaPlayer getPlayer(){
+        return player_URL;
     }
-
 }

@@ -1,7 +1,6 @@
 package com.group4sweng.scranplan.Presentation;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -13,8 +12,6 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -42,19 +39,12 @@ import com.github.aakira.expandablelayout.ExpandableRelativeLayout;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.group4sweng.scranplan.Home;
-import com.group4sweng.scranplan.MainActivity;
-import com.group4sweng.scranplan.ProfileSettings;
-import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.R;
-import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
-import com.group4sweng.scranplan.SearchFunctions.SearchRecyclerAdapter;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
 
@@ -68,8 +58,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static androidx.test.InstrumentationRegistry.getContext;
 
 /**
  *  All parts of the presentation, taking the XML document and separating it out into its slide that
@@ -254,12 +242,7 @@ public class Presentation extends AppCompatActivity {
         /**
          *  Clicking the comments button toggles comments open and closed
          */
-        comments.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                expandableLayout.toggle();
-            }
-        });
+        comments.setOnClickListener(v -> expandableLayout.toggle());
 
         /**
          *  Setting up the expandable comments listeners to download new comments
@@ -439,6 +422,7 @@ public class Presentation extends AppCompatActivity {
 
         return timerView;
     }
+
 
     private Integer toSlide(List<RelativeLayout> slides, Integer currentSlide, Integer slideNumber) {
         if (slideNumber > slides.size() - 1 || slideNumber < 0) {

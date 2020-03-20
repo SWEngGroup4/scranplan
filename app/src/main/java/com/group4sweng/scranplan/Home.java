@@ -1,7 +1,6 @@
 
 package com.group4sweng.scranplan;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -15,7 +14,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
@@ -135,8 +133,6 @@ public class Home extends AppCompatActivity {
         initPageItems();
         initPageListeners();
         initSearchMenu();
-
-
     }
 
 
