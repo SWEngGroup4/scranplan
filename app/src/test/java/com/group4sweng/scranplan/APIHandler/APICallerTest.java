@@ -51,4 +51,10 @@ public class APICallerTest {
         }
     }
 
+    @Test
+    public void CallWithHeader() throws Exception{
+        int i = new APICaller("http://www.google.com/search?").withHeaders("q:header").send();
+        assertNotNull(i);
+    }
+
 }
