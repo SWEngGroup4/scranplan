@@ -13,7 +13,7 @@
         android:layout_height="fill_parent">
 
 
-        <TextView
+    <TextView
         android:id="@+id/Title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -24,6 +24,7 @@
         android:background="@color/colorPrimary"
         android:ems="10"
         android:gravity="center"
+        android:inputType="textPersonName"
         android:padding="5sp"
         android:text="Title"
         android:textColor="#CBFFFFFF"
@@ -54,7 +55,7 @@
             android:layout_below="@+id/Title"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="5dp"
-            android:layout_marginTop="45dp"
+            android:layout_marginTop="30dp"
             android:layout_marginEnd="5dp"
             android:layout_toEndOf="@+id/recipeImage"
             android:ems="10"
@@ -86,7 +87,7 @@
             android:layout_below="@+id/Title"
             android:layout_alignParentStart="true"
             android:layout_marginStart="5dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="1dp"
             android:layout_marginEnd="5dp"
             android:padding="10sp"
             app:layout_constraintStart_toStartOf="parent"
@@ -97,10 +98,11 @@
             android:id="@+id/tabLayout2"
             android:layout_width="match_parent"
             android:layout_height="50dp"
+            android:layout_below="@+id/description"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="5dp"
-            android:layout_marginTop="500dp"
+            android:layout_marginTop="95dp"
             android:layout_marginEnd="5dp"
             android:background="@color/colorPurpleDark"
             android:textColor="#ffffff"
@@ -149,7 +151,7 @@
             android:layout_below="@+id/recipeImage"
             android:layout_centerHorizontal="true"
             android:layout_marginStart="5dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="40dp"
             android:layout_marginEnd="5dp"
             android:background="@color/colorPurpleLight"
             android:gravity="center"
