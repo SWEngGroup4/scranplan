@@ -1,57 +1,54 @@
 package com.group4sweng.scranplan.APIHandler;
 
-import android.content.Context;
-
-import com.android.volley.Network;
-import com.android.volley.toolbox.BasicNetwork;
-import com.android.volley.toolbox.HurlStack;
-
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(MockitoJUnitRunner.class)
 public class APICallerTest {
-    @Mock
-    Context mContext;
-
-    APICaller mCaller;
 
     @Before public void setUp() throws Exception{
-        mCaller = new APICaller();
         initMocks(this);
     }
 
     @Test
-    public void makeTestCall() throws Exception{
+    public void MakeTestCall() throws Exception{
         // Make a test call and check it returns no exceptions
-        mCaller.setmUrl("http://www.google.com");
-        mCaller.setUpAPICaller(mContext);
+        int i = new APICaller("http://www.google.com").send();
+        
+        // Code 200 = success
+        assertEquals(200, i);
     }
 
     @Test
-    public void testSetContext() throws Exception{
-        mCaller.setmContext(mContext);
-        assertEquals(mContext,mCaller.getmContext());
+    public void SendFakeUrl() throws Exception{
+        // make a non url request
+        int i = new APICaller("notaurl").send();
+        assertEquals(-1, i);
     }
 
     @Test
-    public void testSetNetwork() throws Exception{
-        Network mNetwork = new BasicNetwork(new HurlStack());
-        mCaller.setmNetwork(mNetwork);
-        assertEquals(mNetwork, mCaller.getmNetwork());
+    public void MakeJSONRequest() throws Exception {
+        JSONObject object = new APICaller("http://www.google.com").sendAndReadJSON();
+        assertNotNull(object);
     }
 
     @Test
-    public void testSettingUrl() throws Exception{
-        // Set the URL string and test that it returns the correct string
-        mCaller.setmUrl("TestString");
-        assertEquals("TestString",mCaller.getmUrl());
+    public void CallWithData() throws Exception{
+        int i = new APICaller("http://www.google.com/search?").withData("q=google").send();
+        assertNotNull(i);
+    }
+
+    @Test
+    public void CallWithHeader() throws Exception{
+        int i = new APICaller("http://www.google.com/search?").withHeaders("q:header").send();
+        assertNotNull(i);
     }
 
 }
