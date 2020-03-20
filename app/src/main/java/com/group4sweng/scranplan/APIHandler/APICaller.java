@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -126,10 +127,10 @@ class APICaller {
      * @throws IOException .
      */
     String sendAndReadString() throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(mConnection.getInputStream()));
+        InputStream mInputStream = mConnection.getInputStream();
+        BufferedReader br = new BufferedReader(new InputStreamReader(mInputStream));
         StringBuilder response = new StringBuilder();
         for (String line; (line = br.readLine()) != null; ) response.append(line + "\n");
-        mConnection.disconnect();
         return response.toString();
     }
 

@@ -8,6 +8,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -39,16 +40,28 @@ public class APICallerTest {
         assertNotNull(object);
     }
 
+
+    //TODO Work out why this fails
+    @Test
+    public void MakeJSONRequestWithData() throws Exception {
+        JSONObject object = new APICaller("http://www.google.com").withData("q=google").sendAndReadJSON();
+        assertNotNull(object);
+    }
+
     @Test
     public void CallWithData() throws Exception{
         int i = new APICaller("http://www.google.com/search?").withData("q=google").send();
-        assertNotNull(i);
+        if(i< 100 || i > 511){
+            fail("fail");
+        }
     }
 
     @Test
     public void CallWithHeader() throws Exception{
         int i = new APICaller("http://www.google.com/search?").withHeaders("q:header").send();
-        assertNotNull(i);
+        if(i< 100 || i > 511){
+            fail("fail");
+        }
     }
 
 }
