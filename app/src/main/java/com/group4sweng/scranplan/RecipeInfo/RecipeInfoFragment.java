@@ -41,7 +41,7 @@ import java.util.ArrayList;
 public class RecipeInfoFragment extends AppCompatDialogFragment {
 
     // Variables for the xml layout so data from firebase can be properly assigned
-    protected Button mReturnButton;
+    protected ImageButton mReturnButton;
     private Button mLetsCook;
     private TabLayout mTabLayout2;
     private FrameLayout mRecipeFrameLayout;

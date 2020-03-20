@@ -12,23 +12,8 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 
-        <Button
-            android:id="@+id/ReturnButton"
-            style="@style/Widget.AppCompat.Button"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginTop="10dp"
-            android:text="Back"
-            android:textColor="#000000"
-            android:textSize="13sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
 
-
-    <TextView
+        <TextView
         android:id="@+id/Title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -252,6 +237,22 @@
             android:background="@color/colorWindow"
             android:visibility="invisible"
             android:src="@android:drawable/ic_dialog_info" />
+
+        <ImageButton
+            android:id="@+id/ReturnButton"
+            style="@style/Widget.AppCompat.Button"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="10dp"
+            android:text="Back"
+            android:textColor="#000000"
+            android:textSize="13sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:src="?attr/actionModeCloseDrawable" />
 
     </RelativeLayout>
 </androidx.core.widget.NestedScrollView>
