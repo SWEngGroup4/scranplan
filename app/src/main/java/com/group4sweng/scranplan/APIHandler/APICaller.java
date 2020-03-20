@@ -94,11 +94,10 @@ class APICaller {
      */
     APICaller withData(HashMap<String, String> params) throws IOException {
         StringBuilder result = new StringBuilder();
+        // Appends: key=value (for first param) OR &key=value(second and more)
         for (Map.Entry<String, String> entry : params.entrySet()) {
-            result.append(result.length() > 0 ? "&" : "").append(entry.getKey()).append("=").append(entry.getValue());//appends: key=value (for first param) OR &key=value(second and more)
-//            Log.d("parameters",entry.getKey()+"  ===>  "+ entry.getValue());
+            result.append(result.length() > 0 ? "&" : "").append(entry.getKey()).append("=").append(entry.getValue());
         }
-        System.out.println(result.toString());
         withData(result.toString());
         return this;
     }

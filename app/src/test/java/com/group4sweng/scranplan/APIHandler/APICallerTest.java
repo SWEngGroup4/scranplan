@@ -21,7 +21,7 @@ public class APICallerTest {
     public void MakeTestCall() throws Exception{
         // Make a test call and check it returns no exceptions
         int i = new APICaller("http://www.google.com").send();
-        
+
         // Code 200 = success
         assertEquals(200, i);
     }
