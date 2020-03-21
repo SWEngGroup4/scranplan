@@ -26,6 +26,7 @@ public class AudioURL implements SupportedFormats
 
     //  The Android media player.
     private MediaPlayer player_URL;
+    private String stored_URL = null;
 
     //  Sets the initial state to be playing no sound.
     private Boolean play_URL = false;
@@ -49,6 +50,10 @@ public class AudioURL implements SupportedFormats
     public void playURLSound(String soundURL) throws AudioPlaybackError {
 
         int counter = 0;
+
+        //  Fairly loose audio format check. Fails if .mp3, .ogg etc... is included as a duplicate in the name. For example
+        //  BeepBeepImASheep.mp3Thing.ogg would fail. Condition is 'very' unlikely to fail though.
+        //  Isn't a massive issue since if the input is not readable by Android an AudioPlaybackError will still be thrown later.
 
         //  Cycles through all available formats to check if the extension outlined matches.
         for(int i = 0; i < Formats.values().length; i++ ){
@@ -171,5 +176,13 @@ public class AudioURL implements SupportedFormats
      */
     public MediaPlayer getPlayer(){
         return player_URL;
+    }
+
+    public void storeURL(String URL){
+        this.stored_URL = URL;
+    }
+
+    public String getStoredURL(){
+        return stored_URL;
     }
 }

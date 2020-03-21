@@ -18,6 +18,7 @@ class XmlParser {
     // TODO - Add handlers for optional attributes (starttime, endtime etc.)
 
     private Defaults defaults;
+    final static String TAG = "XmlParser";
 
     Map<String, Object> parse(InputStream in) throws XmlPullParserException, IOException {
 
@@ -181,6 +182,7 @@ class XmlParser {
                     shape = readShape(parser);
                     break;
                 case "audio":
+                    System.out.println("TRIED TO READ AUDIO");
                     audio = readAudio(parser);
                     break;
                 case "image":
@@ -322,7 +324,9 @@ class XmlParser {
         Integer startTime = Integer.valueOf(parser.getAttributeValue(null, "starttime"));
         Boolean loop = Boolean.valueOf(parser.getAttributeValue(null, "loop"));
 
-        parser.require(XmlPullParser.END_TAG, null, "audio");
+
+        //TODO - Check if END_TAG can be ignored.
+        //parser.require(XmlPullParser.END_TAG, null, "audio");
 
         return new Audio(urlName, startTime, loop);
     }

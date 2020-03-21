@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  *
  *      NOTE: When implementing the timer all audio and timer stop methods MUST be called before existing the activity.
  */
-public class PresentationTimer{
+public class PresentationTimer {
     private int interval = 500; //The default interval between timer checks
 
     //Time left on timer displayed in minutes & seconds respectively.
@@ -35,6 +35,7 @@ public class PresentationTimer{
     private AudioURL audio;
     private CountDownTimer timer; //Timer object
     private long millisRemaining; //Amount of time remaining after each tick update.
+    private String millisRemainingPrintable;
 
     /** Basic presentation timer.
      * @param countdownTime - Time in milliseconds to count down from.
@@ -47,13 +48,8 @@ public class PresentationTimer{
             @Override
             public void onTick(long millisUntilFinished) {
                 millisRemaining = millisUntilFinished;
-                Log.e(TAG, "Timer is ticking");
                 minutes = TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished);
                 seconds = TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished);
-                Log.e(TAG, "Timer is ticking");
-
-                String timeLeft = String.format(Locale.ENGLISH, "%02d:%02d", minutes, seconds);
-                //TODO - Add a call to print the output of the timer to the presentation. Can use 'timeLeft'.
             }
 
             @Override
@@ -162,4 +158,5 @@ public class PresentationTimer{
     public String printOutputTime() {
         return String.format(Locale.ENGLISH, "%02d:%02d", minutes, seconds);
     }
+
 }

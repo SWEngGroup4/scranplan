@@ -28,6 +28,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.provider.FontRequest;
 import androidx.core.provider.FontsContractCompat;
 import androidx.core.view.ViewCompat;
@@ -44,7 +45,9 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.group4sweng.scranplan.Exceptions.AudioPlaybackError;
 import com.group4sweng.scranplan.R;
+import com.group4sweng.scranplan.SoundHandler.AudioURL;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
 
@@ -57,7 +60,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  *  All parts of the presentation, taking the XML document and separating it out into its slide that
@@ -72,6 +77,12 @@ public class Presentation extends AppCompatActivity {
     private XmlParser.DocumentInfo documentInfo;
     private DisplayMetrics displayMetrics = new DisplayMetrics();
     final static String TAG = "PRES";
+    final static int MIN_HEIGHT_NAV_HIDE = 1750;
+    int deviceHeight;
+
+    private ArrayList<Float> slideTimers = new ArrayList<>();
+    private ArrayList<AudioURL> slideAudio = new ArrayList<>();
+    private PresentationTimer slideTimer;
 
     // Comment additions
     ExpandableRelativeLayout expandableLayout;
@@ -91,6 +102,12 @@ public class Presentation extends AppCompatActivity {
         expandableLayout = (ExpandableRelativeLayout) findViewById(R.id.expandableLayout);
 
         Log.d("Test", "Presentation launched");
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        deviceHeight = displayMetrics.heightPixels;
+
+        Log.d(TAG, "Device display size: " + deviceHeight);
 
         // Fullscreen the presentation
         getSupportActionBar().hide();
@@ -126,7 +143,12 @@ public class Presentation extends AppCompatActivity {
         Integer slideWidth = defaults.slideWidth;
 
         if (slideHeight == -1) {
-            slideHeight = Math.round(displayMetrics.heightPixels * 0.8f);
+            //Shrink the 'Card' presentation display size based upon the height of the device.
+            if(deviceHeight < MIN_HEIGHT_NAV_HIDE){
+                slideHeight = Math.round(displayMetrics.heightPixels * 0.7f);
+            } else {
+                slideHeight = Math.round(displayMetrics.heightPixels * 0.75f);
+            }
             Log.d("Test", String.valueOf(slideHeight));
         }
         if (slideWidth == -1) {
@@ -144,6 +166,8 @@ public class Presentation extends AppCompatActivity {
                 defaultTypeFace[0] = typeface;
             }
         };
+
+        int slideCount = 0;
 
         for (final XmlParser.Slide slide : xmlSlides) {
             RelativeLayout slideLayout = new RelativeLayout(getApplicationContext());
@@ -166,8 +190,20 @@ public class Presentation extends AppCompatActivity {
                 //TODO - Generate shape graphic
             }
             if (slide.audio != null) {
-                //TODO - Generate audio
+                AudioURL audio = new AudioURL();
+                if(slide.audio.loop){
+                    audio.setLooping(true);
+                } else {
+                    audio.setLooping(false);
+                }
+                audio.storeURL(slide.audio.urlName);
+
+                slideAudio.add(slideCount, audio);
+
+            } else {
+                slideAudio.add(slideCount, null);
             }
+
             if (slide.image != null) {
                 Log.e("Test", "Text element added");
                 slideLayout.addView(addImage(slide.image, defaults, slideWidth, slideHeight));
@@ -180,7 +216,10 @@ public class Presentation extends AppCompatActivity {
 //                slideLayout.addView(addComments(slide.comments, defaults, defaultTypeFace[0], slideWidth, slideHeight));
 //            }
             if (slide.timer != null) {
+                slideTimers.add(slideCount, slide.timer);
                 slideLayout.addView(addTimer(slide.timer));
+            } else {
+                slideTimers.add(slideCount, -1f);
             }
 
             Spinner dropdown = findViewById(R.id.presentationSpinner);
@@ -225,11 +264,31 @@ public class Presentation extends AppCompatActivity {
             presentationContainer.addView(slideLayout);
             slideLayouts.add(slideLayout);
             expandableLayout.bringToFront();
+
+            slideCount++;
         }
 
         slideLayouts.get(currentSlide[0]).setVisibility(View.VISIBLE);
         spinner.setVisibility(View.GONE);
 
+
+        Button playPause = findViewById(R.id.timer_play_pause);
+        playPause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(slideAudio.get(currentSlide[0]).getPlayer().isPlaying()){
+                    playPause.setCompoundDrawablesWithIntrinsicBounds(R.drawable.exo_icon_play, 0, 0, 0);
+                    try {
+                        long timeLeft = slideTimer.forceStopTimer();
+                    } catch (AudioPlaybackError audioPlaybackError) {
+                        audioPlaybackError.printStackTrace();
+                    }
+                } else if(!slideAudio.get(currentSlide[0]).getPlayer().isPlaying()){
+                    playPause.setCompoundDrawablesWithIntrinsicBounds(R.drawable.exo_icon_pause, 0, 0 , 0);
+                    loadTimer(slideTimers.get(currentSlide[0]), slideAudio.get(currentSlide[0]).getStoredURL());
+                }
+            }
+        });
 
         /*
         The following components add the comment capability to each page of the slide show
@@ -278,6 +337,7 @@ public class Presentation extends AppCompatActivity {
         // Adding the functionality for users to add comments
         Button mPostComment = findViewById(R.id.sendCommentButton);
         EditText mInputComment = findViewById(R.id.addCommentEditText);
+
 
         /**
          *  Setting up the post comment listener, removing the text from the box and saving
@@ -423,16 +483,42 @@ public class Presentation extends AppCompatActivity {
         return timerView;
     }
 
-
     private Integer toSlide(List<RelativeLayout> slides, Integer currentSlide, Integer slideNumber) {
         if (slideNumber > slides.size() - 1 || slideNumber < 0) {
             Toast.makeText(getApplicationContext(), "Slide does not exist", Toast.LENGTH_SHORT).show();
         } else {
+            ConstraintLayout timerlayout = findViewById(R.id.timerLayout);
+            if(slideTimers.get(slideNumber) != -1){
+                timerlayout.setVisibility(View.VISIBLE);
+            } else {
+                timerlayout.setVisibility(View.GONE);
+            }
             slides.get(slideNumber).setVisibility(View.VISIBLE);
             slides.get(currentSlide).setVisibility(View.GONE);
             currentSlide = slideNumber;
         }
         return currentSlide;
+    }
+
+    private void loadTimer(float duration, String audioURL) {
+        if(duration != -1 && duration > 0){
+            TextView finalDuration = findViewById(R.id.final_duration_text);
+            int minutes = (int) TimeUnit.MILLISECONDS.toMinutes((long) duration);
+            int seconds = (int) TimeUnit.MILLISECONDS.toSeconds((long) duration);
+
+            finalDuration.setText(String.format(Locale.ENGLISH, "%02d:%02d", minutes, seconds));
+            ConstraintLayout timerlayout = findViewById(R.id.timerLayout);
+            timerlayout.setVisibility(View.VISIBLE);
+
+            if(audioURL == null){
+                slideTimer = new PresentationTimer((int) duration, 250);
+            } else {
+                slideTimer = new PresentationTimer((int) duration, 250, audioURL);
+            }
+        } else {
+            ConstraintLayout timerlayout = findViewById(R.id.timerLayout);
+            timerlayout.setVisibility(View.GONE);
+        }
     }
 
     private static class DownloadXmlTask extends AsyncTask<String, Void, Map<String, Object>> {
