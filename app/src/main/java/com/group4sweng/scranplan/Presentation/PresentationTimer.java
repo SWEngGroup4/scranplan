@@ -124,7 +124,9 @@ abstract class PresentationTimer extends CountDownTimer{
     void stopTimer() throws AudioPlaybackError {
         this.cancel();
 
-        loopingAudio.stopURLSound();
+        if(loopingAudio != null){
+            loopingAudio.stopURLSound();
+        }
 
         if(finishAudio != null){
             finishAudio.playURLSound(finishAudio.getStoredURL());
