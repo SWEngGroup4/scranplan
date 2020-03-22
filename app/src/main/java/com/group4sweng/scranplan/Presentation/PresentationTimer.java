@@ -1,99 +1,86 @@
 package com.group4sweng.scranplan.Presentation;
 
 import android.os.CountDownTimer;
-import android.util.Log;
 
 import com.group4sweng.scranplan.Exceptions.AudioPlaybackError;
 import com.group4sweng.scranplan.SoundHandler.AudioURL;
-import com.group4sweng.scranplan.SoundHandler.StockSounds;
 
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Custom timer class, with additional support for:
+ * Custom abstract timer class, with additional support for:
  *  - Sound URL playback
- *  - Multiple timers which can have associated URL playback files and messages. (useful for long video presentations).
  *  - Returning the time in minutes and seconds.
- *  - Force stopping a timer.
+ *  - Force stopping a timer. (Includes stopping audio playback)
  *
  *      NOTE: When implementing the timer all audio and timer stop methods MUST be called before existing the activity.
+ *            Also, when creating a new presentation timer the onTick and onFinish methods always have to be inherited.
+ *            There is no workaround for this.
  */
-public class PresentationTimer {
-    private int interval = 500; //The default interval between timer checks
+abstract class PresentationTimer extends CountDownTimer{
 
-    //Time left on timer displayed in minutes & seconds respectively.
-    private long minutes;
-    private long seconds;
+    private boolean soundEnabled = false; // Determine if after the timer is finished a sound should be played.
 
-    private String TAG ="PresentationTimer";
+    //  Audio to be played at the end of the timer countdown and audio played during the countdown respectively.
+    private AudioURL finishAudio = null;
+    private AudioURL loopingAudio = null;
 
-    private boolean soundEnabled = false; //Determine if after the timer is finished a sound should be played.
-    private String soundURL = StockSounds.DING.getSoundURL(); //Default microwave ding sound.
-    private String[] soundURLs = {StockSounds.DING.getSoundURL()}; //Collection of sound URLs, used to accompany multiple countdown times.
-    private AudioURL audio;
-    private CountDownTimer timer; //Timer object
-    private long millisRemaining; //Amount of time remaining after each tick update.
-    private String millisRemainingPrintable;
+    //  Remaining time on countdown timer. (Not currently utilized).
+    private long millisRemaining;
 
-    /** Basic presentation timer.
-     * @param countdownTime - Time in milliseconds to count down from.
+    /** Basic presentation timer (No audio included)
+     * @param countdownTime - Time in milliseconds to count down from
+     * @param interval - Interval in milliseconds in which the timer updates.
      */
-    public PresentationTimer(int countdownTime){
-        Log.e(TAG, "Have reached timer creation");
-
-        //  Create our timer.
-        timer = new CountDownTimer(countdownTime, interval) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                millisRemaining = millisUntilFinished;
-                minutes = TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished);
-                seconds = TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished);
-            }
-
-            @Override
-            public void onFinish() {
-                Log.e(TAG, "Timer has finished");
-                if (soundEnabled) { //Only play audio if enabled.
-                    audio = new AudioURL();
-                    try {
-                        Log.e(TAG, "Reached sound playing bit");
-                        audio.playURLSound(soundURL);
-                    } catch (Exception e){
-                        e.printStackTrace();
-                    }
-                }
-                //TODO - Add a call to stop the timer in the presentation
-            }
-        }.start(); //Start the timer.
+    PresentationTimer(long countdownTime, long interval){
+        super(countdownTime, interval);
     }
 
-    /** Timer with interval input
-     * @param countdownTime - Time in milliseconds to count down from.
-     * @param interval - duration in milliseconds between a timer update.
+    /** Presentation timer with audio for finishing but no looping audio during playback.
+     * @param countdownTime - Time in milliseconds to count down from
+     * @param interval - Interval in milliseconds in which the timer updates.
+     * @param finishAudio - Audio played at the end of the timer countdown.
      */
-    public PresentationTimer(int countdownTime, int interval){
-        this(countdownTime);
-        this.interval = interval;
-    }
-
-    /** Timer with interval & soundURL input
-     * @param countdownTime - Time in milliseconds to count down from.
-     * @param interval - duration in milliseconds between a timer update.
-     * @param soundURL - URL of a soundfile to be played at the end of the timer.
-     */
-    public PresentationTimer(int countdownTime, int interval, String soundURL){
+    PresentationTimer(long countdownTime, long interval, AudioURL finishAudio){
         this(countdownTime, interval);
         soundEnabled = true;
-        this.soundURL = soundURL;
+        this.finishAudio = finishAudio;
     }
 
-    /** Timer with support for multiple consecutive timers, interval input & a timer message after each timer has been completed.
-     * @param multipleCountDownTimers - Time in milliseconds to count down from. (multiple).
-     * @param interval - duration in milliseconds between a timer update.
-     * @param countDownTimesMessages - Messages to display to the user after each individual timer is finished.
+    /** Presentation timer with all audio supported.
+     * @param countdownTime - Time in milliseconds to count down from
+     * @param interval - Interval in milliseconds in which the timer updates.
+     * @param finishAudio - Audio played at the end of the timer countdown.
+     * @param loopingAudio - Audio played during duration of timer countdown.
      */
+    PresentationTimer(long countdownTime, long interval, AudioURL finishAudio, AudioURL loopingAudio){
+        this(countdownTime, interval, finishAudio);
+        this.loopingAudio = loopingAudio;
+    }
+
+    //  Start our timer (Custom method that allows us to start audio as well)
+    void startTimer() {
+        this.start(); // Start timer.
+
+        if(soundEnabled && loopingAudio != null){ // If sound is enabled for the timer & we have audio we can loop
+            if(loopingAudio.getStoredURL() != null){ // Also check a URL has been stored prior in the AudioURL object.
+                try{
+                    loopingAudio.playURLSound(loopingAudio.getStoredURL()); // Attempt to play our sound.
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+            } else {
+                //  Cannot reference AudioURL with no URl stored within it.
+                throw new NullPointerException("No associated URL stored in AudioURL object. Will not play.");
+            }
+        }
+
+    }
+
+    // TODO - (optional). See if we can implement a countdown timer with intervals included + messages to be displayed at each interval.
+    //  Useful for long videos or steps that require multiple timers.
+    /*
     public PresentationTimer(int[] multipleCountDownTimers, String[] countDownTimesMessages, int interval){
         Arrays.sort(multipleCountDownTimers); //Make sure intervals are in order from lowest to highest.
 
@@ -121,41 +108,66 @@ public class PresentationTimer {
                 }
             }.start();
         }
-    }
+    }*/
 
-    /** Timer with support for multiple consecutive timers, interval input & a timer message after each timer has been completed.
-     *  Also supports consecutive soundURL inputs.
-     * @param multipleCountDownTimers - Time in milliseconds to count down from. (multiple).
-     * @param interval - duration in milliseconds between a timer update.
-     * @param countDownTimesMessages - Messages to display to the user after each individual timer is finished.
-     * @param soundURLs - Sound URL to play after each consecutive timer has been completed.
-     */
+    // TODO - Replica of above but with more constructor input fields.
+    /*
     public PresentationTimer(int[] multipleCountDownTimers, String[] countDownTimesMessages, int interval, String[] soundURLs){
         this(multipleCountDownTimers, countDownTimesMessages, interval);
         this.soundURLs = soundURLs;
+    }*/
+
+    /** Soft timer stop.
+     *  Stops the timer when the timer playback duration has finished. Doesn't force all audio file playback to stop.
+     * @throws AudioPlaybackError - Error returned if the final audio URL fails to play.
+     */
+    void stopTimer() throws AudioPlaybackError {
+        this.cancel();
+
+        loopingAudio.stopURLSound();
+
+        if(finishAudio != null){
+            finishAudio.playURLSound(finishAudio.getStoredURL());
+        }
+
     }
 
-    /** Stop our timer before the timer has a chance to finish. Must be called when changing activity.
+    /** Hard timer stop
+     * Stop our timer before the timer has a chance to finish. Must be called when changing activity or pressing the top button.
      * @return - Time left (in milliseconds) on the countdown timer. Useful for restarting a timer after a pause.
      * @throws AudioPlaybackError - Error returned when the player doesn't finish playing.
      */
-    public long forceStopTimer() throws AudioPlaybackError {
+    long forceStopTimer() throws AudioPlaybackError {
         //  Stop and remove the timer and stop any audio.
-        timer.cancel();
-        timer = null;
-        audio.stopURLSound();
+        this.cancel();
 
-        if(!audio.getPlayer().isPlaying()){ //Check if the player is currently playing, is so throw an error.
-            throw new AudioPlaybackError("Audio playback failed to stop for file URL: " + soundURL);
+        if(finishAudio != null) { // Check if audio is supported for the timer. Can't remove audio if no reference exists.
+            if(finishAudio.getPlayer().isPlaying()){ // Check if audio was playing initially.
+                finishAudio.stopURLSound();
+                if(finishAudio.getPlayer().isPlaying()){ // Audio should have stopped playing. Throw exception if not
+                    throw new AudioPlaybackError("Audio playback failed to stop for file URL: " + finishAudio.getStoredURL());
+                }
+            }
         }
-        return millisRemaining;
+
+        if(loopingAudio != null) {
+            loopingAudio.stopURLSound();
+            if(loopingAudio.getPlayer().isPlaying()){
+                throw new AudioPlaybackError("Audio playback failed to stop for file URL: " + loopingAudio.getStoredURL());
+            }
+        }
+
+        return millisRemaining; // optional return with time left on the timer. Can be used for a pause function.
     }
 
     /** Helper function in returning the time
      * @return - Returns the time in a printable format for the presentation.
      * format: [MINS]:[SECONDS]
      */
-    public String printOutputTime() {
+    static String printOutputTime(long millisRemaining) {
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(millisRemaining);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(millisRemaining);
+
         return String.format(Locale.ENGLISH, "%02d:%02d", minutes, seconds);
     }
 

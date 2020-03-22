@@ -26,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -60,9 +61,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  *  All parts of the presentation, taking the XML document and separating it out into its slide that
@@ -72,19 +71,41 @@ import java.util.concurrent.TimeUnit;
  */
 public class Presentation extends AppCompatActivity {
 
+    //  enumerations to define if we should change the devices width or height.
+    enum DeviceDisplay {
+        WIDTH,
+        HEIGHT
+    }
+
+    /**  Firebase **/
     FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
-    private ProgressBar spinner;
-    private XmlParser.DocumentInfo documentInfo;
+
+    XmlParser.DocumentInfo documentInfo; //Overall infomation about the current document.
+    final static String TAG = "PRES"; //Log tag.
+
+    /**  Device display metrics **/
     private DisplayMetrics displayMetrics = new DisplayMetrics();
-    final static String TAG = "PRES";
-    final static int MIN_HEIGHT_NAV_HIDE = 1750;
-    int deviceHeight;
+    int deviceHeight; //Devices display height (in pixels).
+    final static int MIN_HEIGHT_NAV_HIDE = 1750; //Minimum size of device before height of presentation view shrinks.
 
+    /** Audio & Timers (objects/parameters & UI). **/
+    private boolean timerIsPlaying = false;
+    final private int COUNTDOWN_INTERVAL = 100; //The default interval between timer checks
+    private PresentationTimer timer; //Modified countdown timer (includes audio)
+    ProgressBar progress; //Current timer progress
+    TextView currentDuration, finalDuration; //Current and final timer duration
+    ConstraintLayout timerLayout;
+    Button playPause;
+
+    /**  Lists containing references to timers (total duration) & audio objects if they exist for each slide by index (corresponding to slide number).
+         If a timer or audio object isn't present for the slide a 'null' value is present. **/
     private ArrayList<Float> slideTimers = new ArrayList<>();
+    private ArrayList<AudioURL> slideAudioLooping = new ArrayList<>();
     private ArrayList<AudioURL> slideAudio = new ArrayList<>();
-    private PresentationTimer slideTimer;
 
-    // Comment additions
+    private ProgressBar spinner;
+
+    /**  Comment additions **/
     ExpandableRelativeLayout expandableLayout;
     private boolean isScrolling = false;
     private boolean isLastItemReached = false;
@@ -124,6 +145,30 @@ public class Presentation extends AppCompatActivity {
         spinner = findViewById(R.id.presentationLoad);
         xmlTask.execute(xml_URL);
         expandableLayout.bringToFront();
+
+        loadTimerUI();
+    }
+
+
+    /** Provides a value (in pixels) for the presentation size in accordance with the devices width or height as a percentage.
+     * @param displayParam - Display parameter to change. (Width/Height)
+     * @return - Value of the new width/height. (in pixels)
+     */
+    private int findNewPresentationSize(DeviceDisplay displayParam) {
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics); //Get the display metrics for the device.
+
+        switch (displayParam) {
+            case WIDTH:
+                return Math.round(displayMetrics.widthPixels * 0.8f); //Floating point represents the display percentage the presentation should take up.
+            case HEIGHT:
+                //Shrink the 'Card' presentation display size based upon the height of the device.
+                if (deviceHeight < MIN_HEIGHT_NAV_HIDE) {
+                    return Math.round(displayMetrics.heightPixels * 0.7f);
+                } else {
+                    return Math.round(displayMetrics.heightPixels * 0.75f);
+                }
+        }
+        return -1;
     }
 
     private void presentation (Map<String, Object> xml) {
@@ -133,8 +178,6 @@ public class Presentation extends AppCompatActivity {
         final List<XmlParser.Slide> xmlSlides = (List<XmlParser.Slide>) xml.get("slides");
         CardView presentationContainer = findViewById(R.id.presentationContainer);
 
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-
         final Integer[] currentSlide = {0};
         final Typeface[] defaultTypeFace = new Typeface[1];
 
@@ -142,17 +185,11 @@ public class Presentation extends AppCompatActivity {
         Integer slideHeight = defaults.slideHeight;
         Integer slideWidth = defaults.slideWidth;
 
-        if (slideHeight == -1) {
-            //Shrink the 'Card' presentation display size based upon the height of the device.
-            if(deviceHeight < MIN_HEIGHT_NAV_HIDE){
-                slideHeight = Math.round(displayMetrics.heightPixels * 0.7f);
-            } else {
-                slideHeight = Math.round(displayMetrics.heightPixels * 0.75f);
-            }
-            Log.d("Test", String.valueOf(slideHeight));
+        if(slideHeight == -1) {
+            slideHeight = findNewPresentationSize(DeviceDisplay.HEIGHT);
         }
-        if (slideWidth == -1) {
-            slideWidth = Math.round(displayMetrics.widthPixels * 0.8f);
+        if(slideWidth == -1){
+            slideWidth = findNewPresentationSize(DeviceDisplay.WIDTH);
         }
 
         FontRequest request = new FontRequest(
@@ -189,19 +226,26 @@ public class Presentation extends AppCompatActivity {
             if (slide.shape != null) {
                 //TODO - Generate shape graphic
             }
-            if (slide.audio != null) {
+
+            //  Checks if the slide contains a 'non-looping' audio file. Played at end of timer countdown, or as a standalone audio file.
+            if (slide.audio != null) { //Check if audio exists within the slide.
                 AudioURL audio = new AudioURL();
-                if(slide.audio.loop){
-                    audio.setLooping(true);
-                } else {
-                    audio.setLooping(false);
-                }
-                audio.storeURL(slide.audio.urlName);
+                audio.storeURL(slide.audio.urlName); //Store our audio for reference.
 
-                slideAudio.add(slideCount, audio);
-
+                slideAudio.add(slideCount, audio); //Add to the index that corresponds to the current slide number.
             } else {
                 slideAudio.add(slideCount, null);
+            }
+
+            //  Checks if the slide contains a 'looping' audio file. Played whilst the timer is running.
+            if (slide.audioLooping != null) {
+                AudioURL audio = new AudioURL();
+                audio.setLooping(true);
+                audio.storeURL(slide.audioLooping.urlName);
+
+                slideAudioLooping.add(slideCount, audio);
+            } else {
+                slideAudioLooping.add(slideCount, null); //If no audio exists simply set any audioURL objects for the given slide to null.
             }
 
             if (slide.image != null) {
@@ -217,7 +261,7 @@ public class Presentation extends AppCompatActivity {
 //            }
             if (slide.timer != null) {
                 slideTimers.add(slideCount, slide.timer);
-                slideLayout.addView(addTimer(slide.timer));
+                slideLayout.addView(addTimer((float) slide.timer));
             } else {
                 slideTimers.add(slideCount, -1f);
             }
@@ -271,24 +315,6 @@ public class Presentation extends AppCompatActivity {
         slideLayouts.get(currentSlide[0]).setVisibility(View.VISIBLE);
         spinner.setVisibility(View.GONE);
 
-
-        Button playPause = findViewById(R.id.timer_play_pause);
-        playPause.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(slideAudio.get(currentSlide[0]).getPlayer().isPlaying()){
-                    playPause.setCompoundDrawablesWithIntrinsicBounds(R.drawable.exo_icon_play, 0, 0, 0);
-                    try {
-                        long timeLeft = slideTimer.forceStopTimer();
-                    } catch (AudioPlaybackError audioPlaybackError) {
-                        audioPlaybackError.printStackTrace();
-                    }
-                } else if(!slideAudio.get(currentSlide[0]).getPlayer().isPlaying()){
-                    playPause.setCompoundDrawablesWithIntrinsicBounds(R.drawable.exo_icon_pause, 0, 0 , 0);
-                    loadTimer(slideTimers.get(currentSlide[0]), slideAudio.get(currentSlide[0]).getStoredURL());
-                }
-            }
-        });
 
         /*
         The following components add the comment capability to each page of the slide show
@@ -362,6 +388,29 @@ public class Presentation extends AppCompatActivity {
                 addFirestoreComments(currentSlide[0].toString());
 
 
+            }
+        });
+
+        /**
+         *   Start timer listener that checks for a play/pause button press.
+         **/
+        playPause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //  Reference the current slides corresponding timer float values and audio objects.
+                AudioURL audio = slideAudio.get(currentSlide[0]);
+                AudioURL audioLooping = slideAudioLooping.get(currentSlide[0]);
+                Float slideTimer = slideTimers.get(currentSlide[0]);
+
+                //  Choose how we handle the timer based on what audio files are retrieved from the XML document and if anything is missing or not.
+                if(audio == null & audioLooping == null){
+                    timerListenerHandler(slideTimer, null, null, false);
+                } else if (audioLooping == null || audio == null){
+                    timerListenerHandler(slideTimer, audio, null, true);
+                } else {
+                    timerListenerHandler(slideTimer, audio, audioLooping, true);
+                }
             }
         });
     }
@@ -487,38 +536,18 @@ public class Presentation extends AppCompatActivity {
         if (slideNumber > slides.size() - 1 || slideNumber < 0) {
             Toast.makeText(getApplicationContext(), "Slide does not exist", Toast.LENGTH_SHORT).show();
         } else {
-            ConstraintLayout timerlayout = findViewById(R.id.timerLayout);
+            timerLayout = findViewById(R.id.timerLayout);
             if(slideTimers.get(slideNumber) != -1){
-                timerlayout.setVisibility(View.VISIBLE);
+                timerLayout.setVisibility(View.VISIBLE);
+                timerSlideTransition(currentSlide, slideNumber);
             } else {
-                timerlayout.setVisibility(View.GONE);
+                timerLayout.setVisibility(View.GONE);
             }
             slides.get(slideNumber).setVisibility(View.VISIBLE);
             slides.get(currentSlide).setVisibility(View.GONE);
             currentSlide = slideNumber;
         }
         return currentSlide;
-    }
-
-    private void loadTimer(float duration, String audioURL) {
-        if(duration != -1 && duration > 0){
-            TextView finalDuration = findViewById(R.id.final_duration_text);
-            int minutes = (int) TimeUnit.MILLISECONDS.toMinutes((long) duration);
-            int seconds = (int) TimeUnit.MILLISECONDS.toSeconds((long) duration);
-
-            finalDuration.setText(String.format(Locale.ENGLISH, "%02d:%02d", minutes, seconds));
-            ConstraintLayout timerlayout = findViewById(R.id.timerLayout);
-            timerlayout.setVisibility(View.VISIBLE);
-
-            if(audioURL == null){
-                slideTimer = new PresentationTimer((int) duration, 250);
-            } else {
-                slideTimer = new PresentationTimer((int) duration, 250, audioURL);
-            }
-        } else {
-            ConstraintLayout timerlayout = findViewById(R.id.timerLayout);
-            timerlayout.setVisibility(View.GONE);
-        }
     }
 
     private static class DownloadXmlTask extends AsyncTask<String, Void, Map<String, Object>> {
@@ -727,5 +756,162 @@ public class Presentation extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    /* ----BEGIN TIMER SECTION---- */
+
+    /** Load associated User interface elements for the timer. */
+    private void loadTimerUI() {
+        progress = findViewById(R.id.timer_progress);
+        currentDuration = findViewById(R.id.current_duration_text);
+        finalDuration = findViewById(R.id.final_duration_text);
+        playPause = findViewById(R.id.timer_play_pause);
+        timerLayout = findViewById(R.id.timerLayout);
+    }
+
+    /** Handles the listener on a play/pause button press from within timer layout.
+     * @param slideTimer - Time required to count down from.
+     * @param audio - Audio that doesn't loop (If XML file contains it). Null otherwise
+     * @param audioLooping - Audio that loops (If XML file contains it). Null otherwise
+     * @param audioEnabled - Determines if the timer supports audio.
+     */
+    private void timerListenerHandler(Float slideTimer, @Nullable AudioURL audio, @Nullable  AudioURL audioLooping, boolean audioEnabled){
+
+        if(timerIsPlaying){
+            playPause.setCompoundDrawablesWithIntrinsicBounds(R.drawable.exo_icon_play, 0, 0, 0); //  Change left-most icon back to a play button.
+            progress.setProgress(0); //Set current duration to 0s.
+            if(audioEnabled){
+                try {
+                    timer.forceStopTimer(); //Attempt to force the timer to stop.
+                } catch (AudioPlaybackError audioPlaybackError) {
+                    audioPlaybackError.printStackTrace();
+                }
+            } else {
+                timer.cancel(); //Attempt to force the timer to stop.
+            }
+            timerIsPlaying = false;
+        } else {
+            playPause.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_stop, 0, 0 , 0); // Change left-most icon to a stop button.
+            long slideTimerLong = (long) Math.abs(slideTimer);
+
+            if(audioEnabled && audioLooping != null){
+                loadTimer(slideTimerLong, audio, audioLooping);
+            } else if (audioEnabled){
+                loadTimer(slideTimerLong, audio, null);
+            } else {
+                loadTimer(slideTimerLong, null, null);
+            }
+            timer.startTimer();
+            timerIsPlaying = true;
+        }
+    }
+
+    /** Handle slide transitions for the timer.
+     * @param slideNumber - Slide numer we are transitioning to.
+     */
+    @SuppressLint("SetTextI18n")
+    private void timerSlideTransition(int currentSlide, int slideNumber) {
+        long slideTimer = (long) Math.abs(slideTimers.get(slideNumber)); //Convert float value to long.
+
+        //  Assign the final & current duration for the given timer in a printable format.
+        finalDuration.setText(PresentationTimer.printOutputTime(slideTimer));
+        playPause.setCompoundDrawablesWithIntrinsicBounds(R.drawable.exo_icon_play, 0, 0, 0); //  Change left-most icon back to a play button.
+        currentDuration.setText("00:00");
+
+        progress.setProgress(0); //Force player-head back to 0s.
+
+        if(timer != null){
+            try {
+                timer.forceStopTimer();
+            } catch (AudioPlaybackError e){
+                e.printStackTrace();
+            }
+            timerIsPlaying = false;
+        }
+    }
+
+
+    /** Common updates for all timers
+     * @param millisUntilFinished - Time until finished. (in milliseconds)
+     * @param duration - Total duration of timer. (in milliseconds)
+     */
+    private void updateOnTick(long millisUntilFinished, long duration) {
+        currentDuration.setText(PresentationTimer.printOutputTime(millisUntilFinished)); //Assign the current duration in the format 'mm:ss'.
+        progress.setProgress((int) (100 - (millisUntilFinished * 100)/ duration)); //Assign progress of horizontal bar based upon a value between 0 - 100.
+    }
+
+
+    /** Common updates for all timers upon finishing.
+     * @param audioEnabled - Determine how we finish based upon if audio is enabled for the timer.
+     */
+    private void updateOnFinish(boolean audioEnabled){
+        if(audioEnabled){
+            try {
+                timer.stopTimer();
+            } catch (AudioPlaybackError audioPlaybackError) {
+                audioPlaybackError.printStackTrace();
+            }
+        }
+        playPause.setCompoundDrawablesWithIntrinsicBounds(R.drawable.exo_icon_play, 0, 0, 0); //
+        progress.setProgress(100); //Set the playerheader to it's max value '100'.
+    }
+
+
+    /** Function to load a custom presentation timer. Presentation timer is based off
+     * the default CountdownTimer but also supports looping and non-looping audio to be played either during the
+     * countdown and(or) at the end.
+     * @param duration - Time in milliseconds to count down from
+     * @param audioURL - (optional) AudioURL object of audio to be played at the end of the timer countdown.
+     *                 or as a standalone file.
+     * @param audioLoopingURL - (optional) - AudioURL object of audio to be played during timer countdown.
+     */
+    private void loadTimer(long duration, @Nullable AudioURL audioURL, @Nullable AudioURL audioLoopingURL) {
+        //  Check for a valid timer duration & therefore if a timer exists for the given slide (= -1 if it dosen't).
+        if(duration > 0){
+            timerLayout.setVisibility(View.VISIBLE); //Make the timer visible to the user.
+
+            if(audioURL == null && audioLoopingURL == null){ //Called when a timer with no audio needs to be created
+                timer = new PresentationTimer(duration, COUNTDOWN_INTERVAL){
+                    @Override
+                    public void onTick(long millisUntilFinished) { //Called when the
+                        updateOnTick(millisUntilFinished,duration);
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        updateOnFinish(false);
+                        timerIsPlaying = false;
+                    }
+                };
+            } else if(audioLoopingURL == null){ //Called when a timer with no looping audio is found
+                timer = new PresentationTimer(duration, COUNTDOWN_INTERVAL, audioURL) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        updateOnTick(millisUntilFinished,duration);
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        updateOnFinish(true);
+                        timerIsPlaying = false;
+                    }
+                };
+            } else { //Timer with all audio enabled. (looping + non-looping).
+                timer = new PresentationTimer(duration, COUNTDOWN_INTERVAL, audioURL, audioLoopingURL) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        updateOnTick(millisUntilFinished,duration);
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        updateOnFinish(true);
+                        timerIsPlaying = false;
+                    }
+                };
+            }
+        } else {
+            timerLayout.setVisibility(View.GONE); //Hide the timer if no timer needs to be loaded.
+        }
     }
 }
