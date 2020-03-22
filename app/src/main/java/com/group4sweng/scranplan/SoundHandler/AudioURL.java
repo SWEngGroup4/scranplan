@@ -185,4 +185,6 @@ public class AudioURL implements SupportedFormats
     public String getStoredURL(){
         return stored_URL;
     }
+
+    Boolean getPlay_URL() { return play_URL; }
 }
