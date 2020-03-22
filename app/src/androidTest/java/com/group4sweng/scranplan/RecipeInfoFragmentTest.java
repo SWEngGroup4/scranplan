@@ -4,8 +4,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.widget.ImageButton;
 
-import androidx.test.rule.ActivityTestRule;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -14,7 +12,7 @@ import org.junit.Test;
 public class RecipeInfoFragmentTest  {
 
     @Rule
-    public ActivityTestRule mActivityTestRule = new ActivityTestRule (MainActivity.class);
+    //public ActivityTestRule mActivityTestRule = new ActivityTestRule (MainActivity.class);
 
 
     private MainActivity mActivity = null;
@@ -24,7 +22,7 @@ public class RecipeInfoFragmentTest  {
     @Before
     public void setUp() throws Exception {
 
-        mActivity = (MainActivity) mActivityTestRule.getActivity();
+        //mActivity = (MainActivity) mActivityTestRule.getActivity();
 
     }
 

@@ -21,4 +21,5 @@ public class CheckAndroidServices {
         boolean connectionEstablished = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
         return connectionEstablished;
     }
+
 }
