@@ -1,6 +1,8 @@
 package com.group4sweng.scranplan;
 
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -47,7 +49,9 @@ public class PlannerInfoFragment extends RecipeInfoFragment {
 
         builder.setView(layout);
         displayInfo(layout);
+        allergyDisplay(layout);
         initPageListeners(layout);
+        reheatInformation(layout);
         tabFragments(layout);
 
         return layout;
@@ -79,7 +83,7 @@ public class PlannerInfoFragment extends RecipeInfoFragment {
     /*
     *Creates an Alert Dialog to show reheating information to allow the user to see how the meal can be reheated
      */
-    protected void initPageListeners(View layout) {
+    protected void reheatInformation(View layout) {
 
         mReheatInformationButton = layout.findViewById(R.id.reheatInfoButton);
         mReheatInformationButton.setOnClickListener(new View.OnClickListener() {
