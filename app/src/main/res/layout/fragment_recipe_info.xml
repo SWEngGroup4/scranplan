@@ -274,7 +274,7 @@
                 android:src="@drawable/eggs"
                 android:layout_weight="1"
                 android:visibility="gone"
-                android:src="@drawable/logo" />
+                android:adjustViewBounds="true"/>
 
             <ImageView
                 android:id="@+id/recipeInfoMilk"
@@ -283,7 +283,7 @@
                 android:src="@drawable/lactose"
                 android:layout_weight="1"
                 android:visibility="gone"
-                android:src="@drawable/logo" />
+                android:adjustViewBounds="true"/>
 
             <ImageView
                 android:id="@+id/recipeInfoNuts"
@@ -291,6 +291,7 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/nuts"
                 android:layout_weight="1"
+                android:visibility="gone"
                 android:adjustViewBounds="true"/>
 
             <ImageView
@@ -300,6 +301,7 @@
                 android:layout_gravity="left"
                 android:src="@drawable/molluscs"
                 android:layout_weight="1"
+                android:visibility="gone"
                 android:adjustViewBounds="true"/>
 
             <ImageView
@@ -308,6 +310,7 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/soya"
                 android:layout_weight="1"
+                android:visibility="gone"
                 android:adjustViewBounds="true"/>
 
             <ImageView
@@ -316,6 +319,7 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/gluten"
                 android:layout_weight="1"
+                android:visibility="gone"
                 android:adjustViewBounds="true"/>
 
             <ImageView
@@ -324,6 +328,7 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/pescetarian"
                 android:layout_weight="1"
+                android:visibility="gone"
                 android:adjustViewBounds="true"/>
 
             <ImageView
@@ -332,6 +337,7 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/vegan"
                 android:layout_weight="1"
+                android:visibility="gone"
                 android:adjustViewBounds="true"/>
 
             <ImageView
@@ -340,6 +346,7 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/vegetarian"
                 android:layout_weight="1"
+                android:visibility="gone"
                 android:adjustViewBounds="true"/>
         </LinearLayout>
 
