@@ -273,7 +273,8 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/eggs"
                 android:layout_weight="1"
-                android:adjustViewBounds="true"/>
+                android:visibility="gone"
+                android:src="@drawable/logo" />
 
             <ImageView
                 android:id="@+id/recipeInfoMilk"
@@ -281,7 +282,8 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/lactose"
                 android:layout_weight="1"
-                android:adjustViewBounds="true"/>
+                android:visibility="gone"
+                android:src="@drawable/logo" />
 
             <ImageView
                 android:id="@+id/recipeInfoNuts"
