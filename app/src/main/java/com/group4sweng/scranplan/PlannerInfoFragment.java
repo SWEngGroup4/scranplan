@@ -1,8 +1,6 @@
 package com.group4sweng.scranplan;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -46,12 +44,21 @@ public class PlannerInfoFragment extends RecipeInfoFragment {
         this.canFreeze = (Boolean) map.get("canFreeze");
         this.reheat = (String) map.get("reheat");
 
+        this.noEggs = (Boolean) map.get("noEggs");
+        this.noMilk = (Boolean) map.get("noMilk");
+        this.noNuts = (Boolean) map.get("noNuts");
+        this.noShellfish = (Boolean) map.get("noShellfish");
+        this.noSoy = (Boolean) map.get("noSoy");
+        this.noWheat = (Boolean) map.get("noWheat");
+        this.mPescatarian = (Boolean) map.get("pescatarian");
+        this.mVegan = (Boolean) map.get("vegan");
+        this.mVegetarian = (Boolean) map.get("vegetarian");
+
 
         builder.setView(layout);
         displayInfo(layout);
         allergyDisplay(layout);
         initPageListeners(layout);
-        reheatInformation(layout);
         tabFragments(layout);
 
         return layout;
@@ -81,9 +88,10 @@ public class PlannerInfoFragment extends RecipeInfoFragment {
     }
 
     /*
-    *Creates an Alert Dialog to show reheating information to allow the user to see how the meal can be reheated
+     *Creates an Alert Dialog to show reheating information to allow the user to see how the meal can be reheated
      */
-    protected void reheatInformation(View layout) {
+    protected void initPageListeners(View layout) {
+        super.initPageListeners(layout);
 
         mReheatInformationButton = layout.findViewById(R.id.reheatInfoButton);
         mReheatInformationButton.setOnClickListener(new View.OnClickListener() {
