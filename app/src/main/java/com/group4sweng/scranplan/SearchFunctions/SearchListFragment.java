@@ -228,6 +228,15 @@ public class SearchListFragment extends AppCompatDialogFragment {
         bundle.putString("fridgeDays", document.get("fridge").toString());
         bundle.putString("peopleServes", document.get("serves").toString());
         bundle.putBoolean("canFreeze", document.getBoolean("freezer"));
+        bundle.putBoolean("noEggs", document.getBoolean("noEggs"));
+        bundle.putBoolean("noMilk", document.getBoolean("noMilk"));
+        bundle.putBoolean("noNuts", document.getBoolean("noNuts"));
+        bundle.putBoolean("noShellfish", document.getBoolean("noShellfish"));
+        bundle.putBoolean("noSoy", document.getBoolean("noSoy"));
+        bundle.putBoolean("noWheat", document.getBoolean("noWheat"));
+        bundle.putBoolean("pescatarian", document.getBoolean("pescatarian"));
+        bundle.putBoolean("vegan", document.getBoolean("vegan"));
+        bundle.putBoolean("vegetarian", document.getBoolean("vegetarian"));
 
         openRecipeInfo(bundle);
     }

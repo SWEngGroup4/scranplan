@@ -16,7 +16,6 @@ import java.util.HashMap;
 
 public class PlannerInfoFragment extends RecipeInfoFragment {
 
-    private TextView mServing;
     private TextView mFridge;
     private TextView mFreezer;
     private TextView mReheatInformation;
@@ -59,8 +58,6 @@ public class PlannerInfoFragment extends RecipeInfoFragment {
     @Override
     public void displayInfo(View layout) {
         super.displayInfo(layout);
-        mServing = layout.findViewById(R.id.serves);
-        mServing.setText("Serves: " + servingAmount);
 
         mFridge = layout.findViewById(R.id.fridge);
         mFridge.setText("Keep in Fridge: " + fridgeTime + " days");

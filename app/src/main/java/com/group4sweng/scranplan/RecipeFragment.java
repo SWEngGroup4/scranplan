@@ -586,6 +586,15 @@ public class RecipeFragment extends Fragment {
         mBundle.putBoolean("canFreeze", document.getBoolean("freezer"));
         mBundle.putString("peopleServes", document.get("serves").toString());
         mBundle.putString("fridgeDays", document.get("fridge").toString());
+        bundle.putBoolean("noEggs", document.getBoolean("noEggs"));
+        bundle.putBoolean("noMilk", document.getBoolean("noMilk"));
+        bundle.putBoolean("noNuts", document.getBoolean("noNuts"));
+        bundle.putBoolean("noShellfish", document.getBoolean("noShellfish"));
+        bundle.putBoolean("noSoy", document.getBoolean("noSoy"));
+        bundle.putBoolean("noWheat", document.getBoolean("noWheat"));
+        bundle.putBoolean("pescatarian", document.getBoolean("pescatarian"));
+        bundle.putBoolean("vegan", document.getBoolean("vegan"));
+        bundle.putBoolean("vegetarian", document.getBoolean("vegetarian"));
 
         ArrayList faves = (ArrayList) document.get("favourite");
         mBundle.putBoolean("isFav", faves.contains(user.getUID()));
