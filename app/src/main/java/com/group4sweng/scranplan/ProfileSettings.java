@@ -684,7 +684,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
             DocumentReference usersRef = mRef.document(user.getUid());
 
             //  Sync the Firebase info with the client info if successful.
-            usersRef.set(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+            usersRef.update(map).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
                     Toast.makeText(getApplicationContext(),"User Preferences Saved",Toast.LENGTH_SHORT).show();
