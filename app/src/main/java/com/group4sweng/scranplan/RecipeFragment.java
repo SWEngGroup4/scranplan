@@ -586,6 +586,7 @@ public class RecipeFragment extends Fragment {
         mBundle.putBoolean("canFreeze", document.getBoolean("freezer"));
         mBundle.putString("peopleServes", document.get("serves").toString());
         mBundle.putString("fridgeDays", document.get("fridge").toString());
+        bundle.putString("reheat", document.get("reheat").toString());
         bundle.putBoolean("noEggs", document.getBoolean("noEggs"));
         bundle.putBoolean("noMilk", document.getBoolean("noMilk"));
         bundle.putBoolean("noNuts", document.getBoolean("noNuts"));

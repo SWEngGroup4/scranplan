@@ -39,12 +39,10 @@ public class PlannerInfoFragment extends RecipeInfoFragment {
         this.recipeRating = (String) map.get("rating");
         this.xmlPresentation = (String) map.get("xmlURL");
         this.planner = (Boolean) map.get("planner");
-
         this.servingAmount = (String) map.get("peopleServes");
-
         this.fridgeTime =  (String) map.get("fridgeDays");
-
         this.canFreeze = (Boolean) map.get("canFreeze");
+        this.reheat = (String) map.get("reheat");
 
 
         builder.setView(layout);
@@ -76,6 +74,31 @@ public class PlannerInfoFragment extends RecipeInfoFragment {
 
         mReheatInformationButton = layout.findViewById(R.id.reheatInfoButton);
         mReheatInformationButton.setVisibility(View.VISIBLE);
+    }
+
+    /*
+    *Creates an Alert Dialog to show reheating information to allow the user to see how the meal can be reheated
+     */
+    protected void initPageListeners(View layout) {
+
+        mReheatInformationButton = layout.findViewById(R.id.reheatInfoButton);
+        mReheatInformationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+                builder.setMessage(reheat)
+                        .setTitle("Reheating Information")
+                        .setIcon(R.drawable.reheat);
+
+                AlertDialog dialog = builder.create();
+
+                dialog.show();
+
+            }
+        });
+
     }
 
 }

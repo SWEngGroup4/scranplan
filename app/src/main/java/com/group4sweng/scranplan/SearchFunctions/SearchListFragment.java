@@ -227,6 +227,7 @@ public class SearchListFragment extends AppCompatDialogFragment {
         bundle.putBoolean("isFav", faves.contains(user.getUID()));
         bundle.putString("fridgeDays", document.get("fridge").toString());
         bundle.putString("peopleServes", document.get("serves").toString());
+        bundle.putString("reheat", document.get("reheat").toString());
         bundle.putBoolean("canFreeze", document.getBoolean("freezer"));
         bundle.putBoolean("noEggs", document.getBoolean("noEggs"));
         bundle.putBoolean("noMilk", document.getBoolean("noMilk"));
