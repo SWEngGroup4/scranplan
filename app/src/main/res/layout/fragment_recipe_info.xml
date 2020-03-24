@@ -262,7 +262,7 @@
             android:layout_above="@+id/description"
             android:layout_below="@+id/recipeImage"
             android:layout_alignParentStart="true"
-            android:layout_marginTop="14dp"
+            android:layout_marginTop="1dp"
             android:layout_marginBottom="-44dp"
             android:weightSum="9"
             android:orientation="horizontal">
