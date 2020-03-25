@@ -9,11 +9,15 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * Presentation Timer.
+ * Author: JButler
+ * (c) CoDev 2020
+ *
  * Custom abstract timer class, with additional support for:
  *  - Sound URL playback
  *  - Returning the time in minutes and seconds.
  *  - Force stopping a timer. (Includes stopping audio playback)
- *
+
  *      NOTE: When implementing the timer all audio and timer stop methods MUST be called before existing the activity.
  *            Also, when creating a new presentation timer the onTick and onFinish methods always have to be inherited.
  *            There is no workaround for this.
