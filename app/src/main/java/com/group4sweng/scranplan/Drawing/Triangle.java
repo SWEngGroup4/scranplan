@@ -1,4 +1,4 @@
-package com.group4sweng.scranplan.views;
+package com.group4sweng.scranplan.Drawing;
 
 import android.app.Activity;
 import android.graphics.Paint;
@@ -10,7 +10,7 @@ import java.util.TimerTask;
 
 //The lower part o
 
-public class triangle
+public class Triangle
 {
     //Triangle Class
 
@@ -32,7 +32,7 @@ public class triangle
     //          len -> Length of a size of the triangle
     //          x -> the top X coordinate   \   coord of the peak of the triangle
     //          y -> the top Y coordinate    /
-    public triangle(int len, int x, int y, String color)
+    public Triangle(int len, int x, int y, String color)
     {
         this.color = color;
         //defining general attributes

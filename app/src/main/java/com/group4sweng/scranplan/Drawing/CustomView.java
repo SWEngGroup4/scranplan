@@ -1,4 +1,4 @@
-package com.group4sweng.scranplan.views;
+package com.group4sweng.scranplan.Drawing;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -36,20 +36,20 @@ public class CustomView extends View
     //making the array size less important.
 
     //the shapes also have an array of countdowntimers which are indexed the same as the shapes.
-    private triangle[] triangles = new triangle[MAX_NUM_SHAPES];
+    private Triangle[] triangles = new Triangle[MAX_NUM_SHAPES];
     private CountDownTimer[] triangle_lives = new CountDownTimer[MAX_NUM_SHAPES]; //counter for a correspondingly indexed triangle.
     private int num_triangles = 0;
 
-    private square[] square_array = new square[MAX_NUM_SHAPES];
+    private Square[] square_array = new Square[MAX_NUM_SHAPES];
     private CountDownTimer[] square_lives = new CountDownTimer[MAX_NUM_SHAPES];
     private int num_squares = 0;
 
-    private circle[] circle_array = new circle[MAX_NUM_SHAPES];
+    private Circle[] circle_array = new Circle[MAX_NUM_SHAPES];
     private CountDownTimer[] circle_lives = new CountDownTimer[MAX_NUM_SHAPES];
     private int num_circles = 0;
 
     //lines are done in a very much the same way except with '500' by default as its array size - as it is much faster to draw lines.
-    private line[] lines = new line[MAX_NUM_LINES];
+    private Line[] lines = new Line[MAX_NUM_LINES];
     private int num_lines = 0;
     private CountDownTimer[] line_lives = new CountDownTimer[MAX_NUM_LINES];
 
@@ -85,7 +85,7 @@ public class CustomView extends View
     //Creating a new circle and adding it to the circle array.
     public void new_circle()
     {
-        circle_array[num_circles] = new circle(200, 200, 100, "#000000"); //created a new circle object
+        circle_array[num_circles] = new Circle(200, 200, 100, "#000000"); //created a new circle object
         //default colour is green :)
         start_timer(5000,0);
         num_circles++;
@@ -96,7 +96,7 @@ public class CustomView extends View
     public void new_square()
     {
 
-        square_array[num_squares] = new square(100, 100, 200, "#000000");
+        square_array[num_squares] = new Square(100, 100, 200, "#000000");
         num_squares++;
         start_timer(5000, 1);
 
@@ -106,7 +106,7 @@ public class CustomView extends View
     //Creating a new triagngle and adding it to the triangle array.
     public void new_triangle()
     {
-        triangles[num_triangles] = new triangle(200,200,200, "#000000");
+        triangles[num_triangles] = new Triangle(200,200,200, "#000000");
 
         num_triangles ++;
         start_timer(10000, 3);
@@ -426,7 +426,7 @@ public void delete_triangle()
     //Creating a new line and adding it to the array.
     public void new_line(int x_start, int y_start, int x_finish, int y_finish)
     {
-        lines[num_lines] = new line(x_start, y_start, x_finish, y_finish, "#000000");
+        lines[num_lines] = new Line(x_start, y_start, x_finish, y_finish, "#000000");
         start_timer(5000, 2);
         num_lines++;
         postInvalidate();

@@ -1,4 +1,4 @@
-package com.group4sweng.scranplan.views;
+package com.group4sweng.scranplan.Drawing;
 
 import android.app.Activity;
 import android.graphics.Paint;
@@ -7,7 +7,7 @@ import android.graphics.Color;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class circle extends shape {
+public class Circle extends Shape {
 
     //Circle Shape Class
 
@@ -25,7 +25,7 @@ public class circle extends shape {
     //          y -> center y coordinate (int)
     //          rad -> radius of the circle (int)
 
-    circle(int x, int y, int rad, String color)
+    Circle(int x, int y, int rad, String color)
     {
         this.color = color;
         center_x = x;

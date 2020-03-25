@@ -1,4 +1,4 @@
-package com.group4sweng.scranplan.views;
+package com.group4sweng.scranplan.Drawing;
 
 import android.app.Activity;
 import android.graphics.Paint;
@@ -8,7 +8,7 @@ import android.graphics.Rect;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class square extends shape{
+public class Square extends Shape {
 
     // Square shape class
     // This could be modified for different functionality relatively easily.
@@ -30,7 +30,7 @@ public class square extends shape{
     //          Top -> the y value of the top line (int)
     //          Left -> the X value of the furthest left line (int)
     //          length -> the length of the sides to draw the square (int)
-    public square(int top, int left, int length, String color)
+    public Square(int top, int left, int length, String color)
     {
         this.color = color;
         square = new Rect(left, top, (left+length), (top+length)); //this is for a square, could be modified for a variable rect by adding different sized inputs

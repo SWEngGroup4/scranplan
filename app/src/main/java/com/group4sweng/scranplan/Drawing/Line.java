@@ -1,4 +1,4 @@
-package com.group4sweng.scranplan.views;
+package com.group4sweng.scranplan.Drawing;
 
 import android.app.Activity;
 import android.graphics.Color;
@@ -7,7 +7,7 @@ import android.graphics.Paint;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class line
+public class Line
 {
     //Class for Lines
     //It is more of a data store as there isn't much required for a line at this time.
@@ -33,7 +33,7 @@ public class line
     //          y_start -> starting Y coord val (int)
     //          x_end -> line end X coord val (int)
     //          x_end -> line end Y coord val (int)
-    line(int x_start, int y_start, int x_end, int y_end, String color)
+    Line(int x_start, int y_start, int x_end, int y_end, String color)
     {
         this.color = color;
         x_pos_start = x_start;

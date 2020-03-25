@@ -1,13 +1,13 @@
-package com.group4sweng.scranplan;
-
-import androidx.appcompat.app.AppCompatActivity;
+package com.group4sweng.scranplan.Drawing;
 
 import android.os.Bundle;
 import android.view.View;
 
-import com.group4sweng.scranplan.views.CustomView;
+import androidx.appcompat.app.AppCompatActivity;
 
-public class GraphicsActivity extends AppCompatActivity {
+import com.group4sweng.scranplan.R;
+
+public class LayoutCreator extends AppCompatActivity {
 
     private CustomView mCustomView;
 
