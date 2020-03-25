@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -89,6 +90,7 @@ public class RecipeFragment extends Fragment {
     private CollectionReference mColRef = mDatabase.collection("recipes");
 
     private SearchView searchView;
+    private MenuItem sortView;
     private SearchPrefs prefs;
 
     private Bundle mBundle;
@@ -113,8 +115,9 @@ public class RecipeFragment extends Fragment {
         Home home = (Home) getActivity();
         if (home != null) {
             searchView = home.getSearchView();
-            if (searchView != null)
-                searchView.setVisibility(View.VISIBLE);
+            sortView = home.getSortView();
+            if (sortView != null) sortView.setVisible(true);
+            if (searchView != null) searchView.setVisibility(View.VISIBLE);
             prefs = home.getSearchPrefs();
             if (searchView != null && prefs != null) {
 

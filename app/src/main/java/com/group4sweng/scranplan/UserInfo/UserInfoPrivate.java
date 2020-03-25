@@ -130,9 +130,13 @@ public class UserInfoPrivate implements Serializable{
         this.email = email;
     }
 
-    public List<HashMap<String, Object>> getMealPlanner() { return mealPlanner; }
+    public List<HashMap<String, Object>> getMealPlanner() {
+        return mealPlanner;
+    }
 
-    public void setMealPlanner(List<HashMap<String, Object>> mealPlanner) { this.mealPlanner = mealPlanner; }
+    public void setMealPlanner(List<HashMap<String, Object>> mealPlanner) {
+        this.mealPlanner = mealPlanner;
+    }
 
     public String getUID() {
         return UID;
