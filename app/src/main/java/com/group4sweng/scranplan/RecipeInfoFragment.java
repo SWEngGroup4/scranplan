@@ -270,6 +270,10 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         });
     }
 
+    /*
+    * Add/Remove the favourite recipe by the star button which means that
+    * add/remove the current user ID in the "favourite" array in the firestore.
+    */
     private void addFavourite(View layout){
 
         mFavourite = layout.findViewById(R.id.addFavorite);
@@ -277,6 +281,11 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         final DocumentReference docRef = mDataRef.document(recipeID);
         final String user = mUser.getUID();
 
+        /*
+        * After each operation, it will show the text "Added to favourites!" or "Removed from favourites!".
+        * If the current use ID doesn't exist in the "favourite" array, the ID will be added to it and the
+        * text "Added to favourites!" will appear and vise versa.
+        * */
         mFavourite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
