@@ -1,16 +1,16 @@
 package com.group4sweng.scranplan.APIHandler;
 
+import android.util.Log;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -38,9 +38,11 @@ import io.sentry.core.Sentry;
 class APICaller {
 
     private HttpURLConnection mConnection;
+    private OutputStream mOutputStream;
+    private URL mUrl;
 
     /**
-     * Other API methods allowing expansion further down the line
+     * Other API methods
      */
     public static enum Method {
         POST, PUT, DELETE, GET;
@@ -52,13 +54,30 @@ class APICaller {
      */
     APICaller(String url) throws IOException {
         try {
-            URL mUrl = new URL(url);
+            this.mUrl = new URL(url);
             mConnection = (HttpURLConnection) mUrl.openConnection();
-            mConnection.setDoInput(true);
-            mConnection.setRequestMethod(Method.GET.name());
         } catch (MalformedURLException e) {
             Sentry.captureException(e);
         }
+    }
+
+    private void prepareAll(Method method) throws IOException{
+        mConnection.setDoInput(true);
+        mConnection.setRequestMethod(method.name());
+        if(method == Method.POST || method == Method.PUT){
+            mConnection.setDoOutput(true);
+            mOutputStream = mConnection.getOutputStream();
+        }
+    }
+
+    APICaller prepare() throws IOException{
+        prepareAll(Method.GET);
+        return this;
+    }
+
+    APICaller prepare(APICaller.Method method) throws IOException{
+        prepareAll(method);
+        return this;
     }
 
     /**
@@ -79,9 +98,7 @@ class APICaller {
      * @throws IOException .
      */
     APICaller withData(String query) throws IOException {
-        mConnection.setDoOutput(true);
-        OutputStream mOutputStream = mConnection.getOutputStream();
-        Writer writer = new BufferedWriter(new OutputStreamWriter(mOutputStream, StandardCharsets.UTF_8));
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(mOutputStream, StandardCharsets.UTF_8));
         writer.write(query);
         writer.close();
         return this;
@@ -113,7 +130,6 @@ class APICaller {
         int result = -1;
         try {
             result = mConnection.getResponseCode();
-            mConnection.disconnect();
         } catch (NullPointerException e) {
             Sentry.captureException(e);
         }
@@ -127,10 +143,10 @@ class APICaller {
      * @throws IOException .
      */
     String sendAndReadString() throws IOException {
-        InputStream mInputStream = mConnection.getInputStream();
-        BufferedReader br = new BufferedReader(new InputStreamReader(mInputStream));
+        BufferedReader br = new BufferedReader(new InputStreamReader(mConnection.getInputStream()));
         StringBuilder response = new StringBuilder();
-        for (String line; (line = br.readLine()) != null; ) response.append(line + "\n");
+        for (String line; (line = br.readLine()) != null; ) response.append(line).append("\n");
+        Log.d("ressss",response.toString());
         return response.toString();
     }
 
