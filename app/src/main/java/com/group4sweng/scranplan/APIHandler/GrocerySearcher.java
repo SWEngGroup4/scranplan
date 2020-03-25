@@ -12,7 +12,7 @@ public class GrocerySearcher extends APICaller{
 
 
     private static final String TESCOGROCERY = "http://dev.tescolabs.com/grocery/products/";
-    private static final String GROCERYKEYTESCO = "292c39f29323450b9c921b0976b9c4b3";
+    private static final String GROCERYKEYTESCO = System.getenv("TESCO_API_KEY");
 
     private String mOffsetValue;
     private String mQueryValue;
@@ -32,6 +32,7 @@ public class GrocerySearcher extends APICaller{
                 .add("limit", mLimitValue)
                 .build();
 
+        assert GROCERYKEYTESCO != null;
         Request request = new Request.Builder()
                 .header("Ocp-Apim-Subscription-Key", GROCERYKEYTESCO)
                 .url(TESCOGROCERY)
