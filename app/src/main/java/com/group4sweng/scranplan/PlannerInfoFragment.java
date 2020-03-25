@@ -2,12 +2,9 @@ package com.group4sweng.scranplan;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.TextView;
 
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 
@@ -15,11 +12,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class PlannerInfoFragment extends RecipeInfoFragment {
-
-    private TextView mFridge;
-    private TextView mFreezer;
-    private TextView mReheatInformation;
-    private ImageButton mReheatInformationButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -29,6 +21,22 @@ public class PlannerInfoFragment extends RecipeInfoFragment {
         HashMap<String, Object> map = (HashMap<String, Object>) getArguments().getSerializable("hashmap");
 
 
+        initPlannerItems(layout, map);
+        initPageItems(layout);
+        builder.setView(layout);
+        displayInfo(layout);
+        allergyDisplay(layout);
+        initPageListeners(layout);
+        tabFragments(layout);
+
+        return layout;
+    }
+
+    /**
+     * Method that takes all the data out of the map needed for the information screen and assigns it to
+     * the relevant variables
+     */
+    private void initPlannerItems(View layout, HashMap <String,Object> map){
 
         this.recipeID = (String) map.get("recipeID");
         this.recipeName = (String) map.get("recipeTitle");
@@ -43,7 +51,6 @@ public class PlannerInfoFragment extends RecipeInfoFragment {
         this.fridgeTime =  (String) map.get("fridgeDays");
         this.canFreeze = (Boolean) map.get("canFreeze");
         this.reheat = (String) map.get("reheat");
-
         this.noEggs = (Boolean) map.get("noEggs");
         this.noMilk = (Boolean) map.get("noMilk");
         this.noNuts = (Boolean) map.get("noNuts");
@@ -54,37 +61,6 @@ public class PlannerInfoFragment extends RecipeInfoFragment {
         this.mVegan = (Boolean) map.get("vegan");
         this.mVegetarian = (Boolean) map.get("vegetarian");
 
-
-        builder.setView(layout);
-        displayInfo(layout);
-        allergyDisplay(layout);
-        initPageListeners(layout);
-        tabFragments(layout);
-
-        return layout;
-    }
-
-    @Override
-    public void displayInfo(View layout) {
-        super.displayInfo(layout);
-
-        mFridge = layout.findViewById(R.id.fridge);
-        mFridge.setText("Keep in Fridge: " + fridgeTime + " days");
-
-        mFreezer = layout.findViewById(R.id.freezer);
-        if (canFreeze == true){
-            mFreezer = layout.findViewById(R.id.freezer);
-            mFreezer.setText("Can be frozen");
-        }
-        else{
-            mFreezer.setText("Cannot be frozen");
-        }
-
-        mReheatInformation = layout.findViewById(R.id.reheatInfoText);
-        mReheatInformation.setText("Reheat Information");
-
-        mReheatInformationButton = layout.findViewById(R.id.reheatInfoButton);
-        mReheatInformationButton.setVisibility(View.VISIBLE);
     }
 
     /*
@@ -93,7 +69,7 @@ public class PlannerInfoFragment extends RecipeInfoFragment {
     protected void initPageListeners(View layout) {
         super.initPageListeners(layout);
 
-        mReheatInformationButton = layout.findViewById(R.id.reheatInfoButton);
+
         mReheatInformationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -111,6 +87,36 @@ public class PlannerInfoFragment extends RecipeInfoFragment {
             }
         });
 
+    }
+
+
+    /**
+     * Method that displays the extra information on the recipe information fragment for the users who have a subscription
+     */
+    @Override
+    public void displayInfo(View layout) {
+        super.displayInfo(layout);
+
+
+        //Adds refrigerator information
+        mFridge.setText("Keep in Fridge: " + fridgeTime + " days");
+
+        //If canFreeze boolean is set to true then the screen will display that the meal can be frozen
+        mFreezer = layout.findViewById(R.id.freezer);
+        if (canFreeze){
+            mFreezer = layout.findViewById(R.id.freezer);
+            mFreezer.setText("Can be frozen");
+        }
+        else{
+            mFreezer.setText("Cannot be frozen");
+        }
+
+
+        //Sets reheat text
+        mReheatInformation.setText("Reheat Information");
+
+        //Sets the reheat information button to visible for the paying user
+        mReheatInformationButton.setVisibility(View.VISIBLE);
     }
 
 }
