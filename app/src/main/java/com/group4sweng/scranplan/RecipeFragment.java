@@ -404,7 +404,7 @@ public class RecipeFragment extends Fragment {
                 Log.e(TAG, "Time horizontal view added");
             }
 
-            /* Adding the save view as score but with user favourited recipes as a new query
+            /* Adding the save view as score but with user favourite recipes as a new query
             /  This has been done in the same manner but as there are too many variables to track
             /  this is not workable in any kind of loop. */
             final RecyclerView recyclerViewFave = new RecyclerView(view.getContext());
