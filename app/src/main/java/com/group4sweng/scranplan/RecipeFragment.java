@@ -27,7 +27,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.group4sweng.scranplan.MealPlanner.PlannerFragment;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import com.group4sweng.scranplan.SearchFunctions.HomeQueries;
 import com.group4sweng.scranplan.SearchFunctions.HomeRecyclerAdapter;
@@ -126,7 +125,7 @@ public class RecipeFragment extends Fragment {
                     public boolean onQueryTextSubmit(String s) {
                         // Search function
                         SearchQuery query = new SearchQuery(s, prefs);
-                        SearchListFragment searchListFragment = new SearchListFragment();
+                        SearchListFragment searchListFragment = new SearchListFragment(user);
                         searchListFragment.setValue(query.getQuery());
                         Log.e(TAG, "User opening search");
                         searchListFragment.show(getFragmentManager(), "search");
@@ -584,7 +583,7 @@ public class RecipeFragment extends Fragment {
         mBundle.putString("recipeDescription", document.get("Description").toString());
         mBundle.putString("chefName", document.get("Chef").toString());
         mBundle.putBoolean("planner", planner);
-        bundle.putSerializable("user", user);
+        mBundle.putSerializable("user", user);
 
         ArrayList faves = (ArrayList) document.get("favourite");
         bundle.putBoolean("isFav", faves.contains(user.getUID()));

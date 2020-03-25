@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
+import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.Objects;
 
@@ -17,6 +18,10 @@ import java.util.Objects;
 public class PlannerListFragment extends SearchListFragment {
 
     private Bundle mBundle;
+
+    public PlannerListFragment(UserInfoPrivate userSent) {
+        super(userSent);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
