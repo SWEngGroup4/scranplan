@@ -3,7 +3,6 @@ package com.group4sweng.scranplan.MealPlanner;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,10 +11,11 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
 
+import java.util.Objects;
 
+//Extends functionality of search results
 public class PlannerListFragment extends SearchListFragment {
 
-    private DocumentSnapshot mDocumentSnapshot;
     private Bundle mBundle;
 
     @Override
@@ -26,27 +26,31 @@ public class PlannerListFragment extends SearchListFragment {
 
     @Override
     public void recipeSelected(DocumentSnapshot documentSnapshot) {
-        mDocumentSnapshot = documentSnapshot;
         super.recipeSelected(documentSnapshot);
     }
 
+    /* Overrides normal opening process to let info fragment know it is being launched from
+       the planner */
     @Override
     protected void openRecipeInfo(Bundle bundle) {
         mBundle = bundle;
         bundle.putBoolean("planner", true);
-        Log.d("Test", "ON PLANNER FRAGMENT");
+
+        //Loads info fragment for selected recipe
         RecipeInfoFragment recipeInfoFragment = new RecipeInfoFragment();
         recipeInfoFragment.setArguments(bundle);
         recipeInfoFragment.setTargetFragment(PlannerListFragment.this, 1);
-        recipeInfoFragment.show(getFragmentManager(), "Show recipe dialog fragment");
+        recipeInfoFragment.show(getParentFragmentManager(), "Show recipe dialog fragment");
     }
 
+    //Runs on completion of info fragment activity
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //Launches activtiy result method on target fragment
         if (resultCode == Activity.RESULT_OK) {
             Intent i = new Intent();
             i.putExtras(mBundle);
-            getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, i);
+            Objects.requireNonNull(getTargetFragment()).onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, i);
             dismiss();
         }
     }

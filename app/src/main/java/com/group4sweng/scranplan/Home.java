@@ -67,6 +67,7 @@ public class Home extends AppCompatActivity {
 
     // Search variables
     SearchView searchView;
+    MenuItem sortView;
     SearchQuery query;
     SearchPrefs prefs;
 
@@ -130,8 +131,6 @@ public class Home extends AppCompatActivity {
         initPageItems();
         initPageListeners();
         initSearchMenu();
-
-
     }
 
 
@@ -147,6 +146,7 @@ public class Home extends AppCompatActivity {
         inflater.inflate(R.menu.menu_search, menu);
         MenuItem item = menu.findItem(R.id.menuSearch);
         searchView = (SearchView)item.getActionView();
+        sortView = menu.findItem(R.id.menuSortButton);
 
         // Adding the listener to search for string provided by user
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -300,6 +300,10 @@ public class Home extends AppCompatActivity {
     // Quick function for getting the search menu in other fragments
     public SearchView getSearchView() {
         return searchView;
+    }
+
+    public MenuItem getSortView() {
+        return sortView;
     }
 
     // Quick function for getting the search prefs in other fragments
