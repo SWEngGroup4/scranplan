@@ -10,9 +10,11 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDialogFragment;
@@ -26,9 +28,11 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.Presentation.Presentation;
 import com.group4sweng.scranplan.R;
+import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -46,6 +50,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
     private TextView mDescription;
     private TextView mRating;
     private ImageView mRecipeImage;
+    private ImageButton mFavourite;
 
     //Variables to hold the data being passed through into the fragment
     protected String recipeID;
@@ -57,6 +62,10 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
     protected String xmlPresentation;
     protected ArrayList<String> ingredientArray;
     protected Boolean planner;
+    private ArrayList<String> favouriteRecipe;
+    private UserInfoPrivate mUser;
+    private Boolean isFavourite;
+
 
     private FirebaseFirestore mDatabase;
     private CollectionReference mDataRef;
@@ -95,6 +104,10 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         recipeRating = getArguments().getString("rating");
         xmlPresentation = getArguments().getString("xmlURL");
         planner = getArguments().getBoolean("planner");
+        favouriteRecipe = getArguments().getStringArrayList("favourite");
+        mUser =(com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
+        isFavourite = getArguments().getBoolean("isFav");
+
 
         builder.setView(layout);
 
@@ -103,6 +116,8 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         initPageListeners(layout);
 
         tabFragments(layout);
+
+        addFavourite(layout);
 
         return layout;
     }
@@ -153,6 +168,8 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
                 public void onClick(View v) {
                     Intent presentation = new Intent(getActivity(), Presentation.class);
                     presentation.putExtra("xml_URL", xmlPresentation);
+                    presentation.putExtra("recipeID", recipeID);
+                    presentation.putExtra("user", mUser);
                     startActivity(presentation);
                 }
             });
@@ -261,6 +278,49 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
                         }
                     });
                 }
+            }
+        });
+    }
+
+    /*
+     * Add/Remove the favourite recipe by the star button which means that
+     * add/remove the current user ID in the "favourite" array in the firestore.
+     */
+    private void addFavourite(View layout) {
+
+        mFavourite = layout.findViewById(R.id.addFavorite);
+        mDataRef = mDatabase.collection("recipes");
+        final DocumentReference docRef = mDataRef.document(recipeID);
+        final String user = mUser.getUID();
+
+        /*
+         * After each operation, it will show the text "Added to favourites!" or "Removed from favourites!".
+         * If the current use ID doesn't exist in the "favourite" array, the ID will be added to it and the
+         * text "Added to favourites!" will appear and vise versa.
+         * */
+        mFavourite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!isFavourite) {
+                    isFavourite = true;
+                    docRef.update("favourite", FieldValue.arrayUnion(user)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            Toast.makeText(getContext(), "Added to favourites!",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    isFavourite = false;
+                    docRef.update("favourite", FieldValue.arrayRemove(user)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            Toast.makeText(getContext(), "Removed from favourites!",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+
             }
         });
     }

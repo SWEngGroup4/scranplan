@@ -585,7 +585,7 @@ public class RecipeFragment extends Fragment {
         mBundle.putBoolean("planner", planner);
 
         ArrayList faves = (ArrayList) document.get("favourite");
-        bundle.putBoolean("isFav", faves.contains(user.getUID()));
+        mBundle.putBoolean("isFav", faves.contains(user.getUID()));
 
 
         RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
