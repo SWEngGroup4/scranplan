@@ -1,10 +1,13 @@
 package com.group4sweng.scranplan;
 
-import android.app.Activity;
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.InputType;
@@ -22,6 +25,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -34,6 +39,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.group4sweng.scranplan.Exceptions.InvalidUserException;
 import com.group4sweng.scranplan.Helper.CheckAndroidServices;
 import com.group4sweng.scranplan.Helper.HiddenViews;
@@ -61,7 +68,9 @@ import static java.util.Objects.requireNonNull;
 public class ProfileSettings extends AppCompatActivity implements FilterType {
 
     // TAG for Profile Settings
-    final String TAG = "ProfileSettings";
+    private final static String TAG = "ProfileSettings";
+    private static final int IMAGE_REQUEST_CODE = 2;
+    private static final int PERMISSION_CODE = 1001;
 
     //  Default filter type enumeration. Types shown in 'FilterType' interface.
     filterType currentFilterType = filterType.ALLERGENS;
@@ -70,7 +79,14 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
     FirebaseApp mApp;
     FirebaseAuth mAuth;
     FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
+
     CollectionReference mRef = mDatabase.collection("users");
+    FirebaseStorage mStorage = FirebaseStorage.getInstance();
+
+    StorageReference mStorageReference = mStorage.getReference();
+
+
+    private Uri mImageUri;
 
     Context mContext;
 
@@ -162,6 +178,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         }
     }
 
+    /*
     @Override
     public void onBackPressed() {
 
@@ -171,7 +188,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         setResult(Activity.RESULT_OK, returnIntent);
         startActivity(returnIntent);
     }
-
+    */
     /** Initiated on a 'Delete Profile' button press.
      *  Creates an alert dialog box that checks a users old password through re-authentication
      *  and then deletes a users profile if a valid Firebase and local profile is found.
@@ -569,6 +586,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         mUsername = findViewById(R.id.settings_input_username);
         mAboutMe = findViewById(R.id.settings_input_about_me);
         mNumRecipes = findViewById(R.id.profile_recipes);
+        mProfileImage = findViewById(R.id.public_profile_image);
 
         //  Allergens
         mAllergy_eggs = findViewById(R.id.allergy_eggs);
@@ -585,6 +603,59 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         mDisplay_username = findViewById(R.id.settings_privacy_username);
         mDisplay_filters = findViewById(R.id.settings_privacy_filters);
 
+    }
+
+    public void changeProfileImage(View v) {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+            if(checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
+               //Permission isn't granted. So ask for permission.
+               String [] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
+               requestPermissions(permissions, PERMISSION_CODE);
+            } else {
+                //Permission has been granted already
+                imageSelector();
+            }
+        } else {
+            //System OS is less than Marshmallow.
+            imageSelector();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode){
+            case PERMISSION_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    imageSelector();
+                } else {
+                    Toast.makeText(this, "Permissions not granted", Toast.LENGTH_SHORT).show();
+                }
+        }
+    }
+
+    private void imageSelector(){
+        Intent images = new Intent(Intent.ACTION_PICK);
+        images.setType("image/*");
+        startActivityForResult(images, IMAGE_REQUEST_CODE);
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == IMAGE_REQUEST_CODE && resultCode==RESULT_OK){
+            if(data!=null && data.getData()!= null){
+                mImageUri = data.getData();
+
+                Log.e(TAG, "Image URI is: " + mImageUri.toString());
+                
+                //mProfileImage.setImageURI(mImageUri);
+                Glide.with(this)
+                        .load(mImageUri)
+                        .apply(RequestOptions.circleCropTransform())
+                        .into(mProfileImage);
+            }
+        }
     }
 
     private void loadProfileData(){
@@ -640,6 +711,8 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         mApp = FirebaseApp.getInstance();
         mAuth = FirebaseAuth.getInstance(mApp);
         FirebaseUser user = mAuth.getCurrentUser();
+
+        StorageReference mProfileImageRef = mStorageReference.child("user_profile_images/" + user.getUid())
 
         String usernameInput = mUsername.getText().toString();
         String aboutMeInput = mAboutMe.getText().toString();
@@ -726,5 +799,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         }
 
     }
+
 
 }
