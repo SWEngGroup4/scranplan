@@ -1,8 +1,10 @@
 <resources>
-    <string name="app_name">ScranPlan</string>
+    <string name="app_name">Scran Plan</string>
     <string name="action_settings">Settings</string>
     <string name="scranplanTitle">Scranplan Project</string>
     <string name="nav_drawer_open">Open Nav Drawer</string>
     <string name="nav_drawer_close">Close Nav Drawer</string>
     <string name="profile_settings_button_string">profile settings</string>
+    <string name="prevButton"><![CDATA[<-]]></string>
+    <string name="nextButton"><![CDATA[->]]></string>
 </resources>

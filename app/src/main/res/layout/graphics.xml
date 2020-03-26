@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <com.group4sweng.scranplan.views.CustomView
+    <com.group4sweng.scranplan.Drawing.CustomView
         android:id="@+id/customView"
         android:layout_width="match_parent"
         app:square_color="@color/square_color"

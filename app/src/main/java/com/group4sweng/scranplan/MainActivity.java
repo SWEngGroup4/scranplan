@@ -1,134 +1,93 @@
 package com.group4sweng.scranplan;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.HashMap;
 
+import io.sentry.core.Sentry;
+import io.sentry.core.protocol.User;
+
+/**
+ * Root page for the application offering notification to the user that the page is loading
+ */
 public class MainActivity extends AppCompatActivity {
-
     Context mContext = this;
-
-    final String TAG = "FirebaseTest";
+    final static String TAG = "ROOT";
     final FirebaseFirestore database = FirebaseFirestore.getInstance();
+    final static int PROFILE_SETTINGS_REQUEST_CODE = 1;
 
+    // User info and preferences variable
     UserInfoPrivate mUser;
 
+    // Firebase variables
     FirebaseAuth mAuth;
     FirebaseApp mApp;
-
     FirebaseAuth.AuthStateListener mAuthListener;
     String mDisplayName;
 
-    Button mLogoutButton;
-    TabLayout tabLayout;
-    FrameLayout frameLayout;
+    // LOGO that rotates on screen to show user that page is loading
+    ImageView mLogoHomeImage;
 
+    // Sets the page up on create
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
-        if(mUser != null){
-            mUser = (UserInfoPrivate) getIntent().getSerializableExtra("user");
+        setContentView(R.layout.activity_main);
+        Log.e(TAG,"At root page - logging in user or sending to login page");
+
+        initPageItems();
+        initFirebase();
+        if(getIntent().getSerializableExtra("user") != null){
+            mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) getIntent().getSerializableExtra("user");
+            User mSentryUser = new User();
+            mSentryUser.setUsername(mUser.getDisplayName());
+            mSentryUser.setEmail(mUser.getEmail());
+            Sentry.setUser(mSentryUser);
         }
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        // Rotates the logo clockwise
+        rotateImageClockwise(mLogoHomeImage);
 
+    }
 
-        // Drawer setup and and synchronising the states
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.nav_drawer_open, R.string.nav_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
+    public void initPageItems(){
+        mLogoHomeImage = findViewById(R.id.logoHomeImage);
+    }
 
-        initFirebase();
-        initPageItems();
-        initPageListeners();
-
-        tabLayout = findViewById(R.id.tabLayout);
-        frameLayout = findViewById(R.id.frameLayout);
-
-        Fragment fragment = new RecipeFragment();
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.frameLayout, fragment);
-        fragmentTransaction.commit();
-
-        tabLayout.addTab(tabLayout.newTab().setText("Recipes"));
-        tabLayout.addTab(tabLayout.newTab().setText("Meal Planner"));
-        tabLayout.addTab(tabLayout.newTab().setText("Timeline"));
-        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
-
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                Fragment fragment = null;
-                switch (tab.getPosition()) {
-                    case 0:
-                        fragment = new RecipeFragment();
-                        break;
-                    case 1:
-                        fragment = new PlannerFragment();
-                        break;
-                    case 2:
-                        fragment = new TimelinePlanner();
-                        break;
-                }
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.frameLayout, fragment);
-                fragmentTransaction.commit();
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-        });
-
-//        FloatingActionButton fab = findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
+    // Rotating method
+    public void rotateImageClockwise(View view) {
+        ObjectAnimator rotate = ObjectAnimator.ofFloat(view, "rotation", 0f, 360f);
+        rotate.setRepeatCount(999);
+        rotate.setDuration(1000);
+        rotate.start();
     }
 
 
+    /**
+     * setting up the firebase and sets the user authentication listener,
+     * checking if the user is ever logged out that the user is taken back to the login screen.
+     */
     private void initFirebase(){
         mApp = FirebaseApp.getInstance();
         mAuth = FirebaseAuth.getInstance();
@@ -160,14 +119,34 @@ public class MainActivity extends AppCompatActivity {
                                     map.put("numRecipes", document.get("numRecipes"));
                                     map.put("preferences", document.get("preferences"));
                                     map.put("about", document.get("about"));
+                                    map.put("shortPreferences", document.get("shortPreferences"));
+                                    map.put("firstAppLaunch", document.get("firstAppLaunch"));
+                                    map.put("firstPresentationLaunch", document.get("firstPresentationLaunch"));
 
-                                    try {
-                                        mUser = new UserInfoPrivate(map, (HashMap<String, Object>) document.get("preferences"));
-                                    } catch (Exception e){
-                                        e.printStackTrace();
-                                    }
+
+                                    @SuppressWarnings("unchecked")
+                                    HashMap<String, Object> preferences = (HashMap<String, Object>) document.get("preferences");
+
+                                    @SuppressWarnings("unchecked")
+                                    HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacy");
+
+                                    mUser = new UserInfoPrivate(map, preferences, privacy);
 
                                     Log.i(TAG, "Successfully logged back in");
+                                    if(mUser.getFirstAppLaunch()){
+                                        Log.e(TAG,"Sending user to initial preference setup page");
+                                        Intent initialCustom = new Intent(getApplicationContext(), InitialUserCustomisation.class);
+                                        initialCustom.putExtra("user", mUser);
+                                        startActivity(initialCustom);
+                                    } else {
+                                        Log.i(TAG, "Successfully logged back in");
+                                        Intent returningIntent = new Intent(MainActivity.this, Home.class);
+
+                                        returningIntent.putExtra("user", mUser);
+
+                                        startActivity(returningIntent);
+                                    }
+
                                 }else {
                                     Log.e(TAG, "User details retrieval : Unable to retrieve user document in Firestore ");
                                     Toast.makeText(getApplicationContext(),"Unable to retrieve current user details, please sign in again.",Toast.LENGTH_SHORT).show();
@@ -188,31 +167,19 @@ public class MainActivity extends AppCompatActivity {
                     Intent signIn = new Intent(getApplicationContext(), Login.class);
                     startActivity(signIn);
                     mUser = (UserInfoPrivate) getIntent().getSerializableExtra("user");
+
+
                 }
             }
         };
 
-
         mAuth.addAuthStateListener(mAuthListener);
-
-
     }
 
-
-    private void initPageItems(){
-        //Defining all relevant members of signin & register page
-        mLogoutButton = (Button) findViewById(R.id.logoutButton);
-    }
-
-    private void initPageListeners() {
-        mLogoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.e(TAG, "Logout button has been pressed and user has been logged out.");
-                mUser = null;
-                mAuth.signOut();
-            }
-        });
+    // Disable user from pressing back button on main activity page
+    @Override
+    public void onBackPressed() {
+        //Do nothing
     }
 
 }

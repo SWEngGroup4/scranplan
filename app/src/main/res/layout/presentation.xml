@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:id="@+id/mainSlideID">
+
+    <com.github.aakira.expandablelayout.ExpandableRelativeLayout
+        android:id="@+id/expandableLayout"
+        android:layout_width="match_parent"
+        android:layout_height="300sp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="40sp"
+        android:background="#A6AAC9"
+        android:visibility="invisible"
+        app:ael_duration="500"
+        app:ael_expanded="false"
+        app:ael_interpolator="bounce"
+        app:ael_orientation="vertical">
+
+        <ScrollView
+            android:id="@+id/commentsScrollView"
+            android:layout_width="match_parent"
+            android:layout_height="260sp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="40sp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/commentList"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+        </ScrollView>
+
+        <LinearLayout
+            android:id="@+id/addCommentLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="40sp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="0dp">
+
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/addCommentEditText"
+                android:layout_width="351dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:background="@drawable/boarder"
+                android:hint="Enter comment here..."
+                android:padding="5sp" />
+
+            <Button
+                android:id="@+id/sendCommentButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:padding="5sp"
+                android:text="Send" />
+
+
+        </LinearLayout>
+
+    </com.github.aakira.expandablelayout.ExpandableRelativeLayout>
+
+    <ProgressBar
+        android:id="@+id/presentationLoad"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true" />
+
+    <Spinner
+        android:id="@+id/presentationSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="45sp"
+        android:padding="4dp"
+        android:background="@android:drawable/btn_dropdown"
+        android:visibility="invisible"
+        android:layout_alignParentTop="true"/>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/presentationContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true" />
+
+    <Button
+        android:id="@+id/prevButton"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:visibility="invisible"
+        android:text="@string/prevButton" />
+
+    <Button
+        android:id="@+id/nextButton"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:visibility="invisible"
+        android:text="@string/nextButton" />
+
+    <Button
+        android:id="@+id/comments"
+        android:layout_width="match_parent"
+        android:layout_height="50sp"
+        android:layout_marginStart="20sp"
+        android:layout_marginEnd="20sp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="Comments"
+        android:visibility="invisible" />
+
+    <!-- TODO - ADDED LINEAR LAYOUT SPACER FOR ICON + STEP NAME SO I CAN FIT IN TIMER STUFF. FILL THIS IN LATER (Joe B)-->
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/timerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="38sp"
+        android:layout_below="@+id/presentationSpinner"
+        android:layout_marginTop="-7dp"
+        android:background="@color/colorPurpleDark">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.1" />
+
+        <ImageView
+            android:id="@+id/timer_icon"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="5sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guideline4"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_timer_black" />
+
+        <Button
+            android:id="@+id/timer_play_pause"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="60sp"
+            android:layout_height="0dp"
+            android:drawableLeft="@drawable/exo_controls_play"
+            android:textColor="#FFFFFF"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guideline9"
+            app:layout_constraintStart_toStartOf="@+id/guideline4"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.25" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline13"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.39" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline15"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.86" />
+
+        <TextView
+            android:id="@+id/current_duration_text"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:paddingTop="10sp"
+            android:text="00:00"
+            android:textSize="12sp"
+            android:textAlignment="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guideline13"
+            app:layout_constraintStart_toStartOf="@+id/guideline9"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/final_duration_text"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:text ="00:00"
+            android:textSize="12sp"
+            android:textAlignment="center"
+            android:paddingTop="10sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/guideline15"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ProgressBar
+            android:id="@+id/timer_progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:max="100"
+            android:progress="70"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guideline15"
+            app:layout_constraintStart_toEndOf="@+id/current_duration_text"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</RelativeLayout>

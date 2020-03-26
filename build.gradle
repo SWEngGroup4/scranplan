@@ -1,26 +1,38 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
+
 buildscript {
     repositories {
         google()
         jcenter()
-        
+        mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.0'
+        classpath 'com.android.tools.build:gradle:3.6.1'
         classpath 'com.google.gms:google-services:4.3.2'
-        
+        classpath 'io.sentry:sentry-android-gradle-plugin:1.7.28'
+        classpath "com.vanniktech:gradle-android-junit-jacoco-plugin:0.15.0"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
 }
 
+apply plugin: 'com.vanniktech.android.junit.jacoco'
+
 allprojects {
     repositories {
         google()
         jcenter()
-        
+
     }
+}
+
+junitJacoco {
+    jacocoVersion = '0.8.2' // type String
+    ignoreProjects = [] // type String array
+    excludes // type String List
+    includeNoLocationClasses = false // type boolean
+    includeInstrumentationCoverageInMergedReport = false // type boolean
 }
 
 task clean(type: Delete) {
