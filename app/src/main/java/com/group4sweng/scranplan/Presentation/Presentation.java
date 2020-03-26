@@ -758,7 +758,9 @@ public class Presentation extends AppCompatActivity {
         });
     }
 
-    /* ----BEGIN TIMER SECTION---- */
+    /* ----BEGIN TIMER SECTION----
+    * Author: JButler
+    * (c) CoDev 2020    */
 
     /** Load associated User interface elements for the timer. */
     private void loadTimerUI() {

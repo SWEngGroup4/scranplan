@@ -15,7 +15,12 @@ import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertFalse;
 
-//  Unit tests for testing local private user info is able to be stored and retrieved.
+/**
+ * Unit tests for testing local private user info is able to be stored and retrieved.
+ * Author: JButler
+ * Edited by: ...
+ * (c) CoDev 2020
+ **/
 public class UserInfoPrivateTest {
 
     UserInfoPrivate testInfo;
