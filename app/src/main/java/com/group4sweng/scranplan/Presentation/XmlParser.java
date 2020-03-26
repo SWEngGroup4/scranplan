@@ -18,6 +18,7 @@ class XmlParser {
     // TODO - Add handlers for optional attributes (starttime, endtime etc.)
 
     private Defaults defaults;
+    final static String TAG = "XmlParser";
 
     Map<String, Object> parse(InputStream in) throws XmlPullParserException, IOException {
 
@@ -159,6 +160,7 @@ class XmlParser {
         Line line = null;
         Shape shape = null;
         Audio audio = null;
+        Audio audioLooping = null;
         Image image = null;
         Video video = null;
         List<Comment> comments = null;
@@ -181,7 +183,17 @@ class XmlParser {
                     shape = readShape(parser);
                     break;
                 case "audio":
-                    audio = readAudio(parser);
+                    /* Can read in up to 2 audio files. (one looping, one non-looping) Takes priority from highest to lowest.
+                       'audio' tag in the file hierarchy. */
+
+                    //  Store a copy of the audio class from the xml parser.
+                    final Audio tempAudio = readAudio(parser);
+
+                    if(!tempAudio.loop && audio == null){ //Check if the audio is looping or not and if a file has already been stored.
+                        audio = tempAudio; //Assign the audio file to info read in through the parser.
+                    } else if(tempAudio.loop && audioLooping == null){
+                        audioLooping = tempAudio;
+                    }
                     break;
                 case "image":
                     image = readImage(parser);
@@ -201,7 +213,7 @@ class XmlParser {
             }
         }
 
-        return new Slide(id, duration, text, line, shape, audio, image, video, comments, timer);
+        return new Slide(id, duration, text, line, shape, audio, audioLooping, image, video, comments, timer);
     }
 
     // TODO - as b and i are elements might need loop check
@@ -315,17 +327,24 @@ class XmlParser {
         return new Shading(x1, y1, x2, y2, color1, color2, cyclic);
     }
 
+    /** Read in the audio from the XML file.
+     * @param parser - XML parser
+     * @return - A new audio class object.
+     * @throws IOException - Error reading input/output of XML file.
+     * @throws XmlPullParserException - Generic XML parser exception.
+     */
     private Audio readAudio(XmlPullParser parser) throws  IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, null, "audio");
+        parser.require(XmlPullParser.START_TAG, null, "audio"); //Require an 'audio' start tag.
 
-        String urlName = parser.getAttributeValue(null, "urlname");
-        Integer startTime = Integer.valueOf(parser.getAttributeValue(null, "starttime"));
-        Boolean loop = Boolean.valueOf(parser.getAttributeValue(null, "loop"));
+        String urlName = parser.getAttributeValue(null, "urlname"); //Get the URL location of the audio
+        Integer startTime = Integer.valueOf(parser.getAttributeValue(null, "starttime")); //Return the start time of the audio.
+        Boolean loop = Boolean.valueOf(parser.getAttributeValue(null, "loop")); //Find if the audio is looping or not. (boolean)
 
-        parser.require(XmlPullParser.END_TAG, null, "audio");
+        parser.nextTag(); // Skips final tag checks. audio only has attributed values.
 
         return new Audio(urlName, startTime, loop);
     }
+
 
     private Image readImage(XmlPullParser parser) throws IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, null, "image");
@@ -494,19 +513,21 @@ class XmlParser {
         final Line line;
         final Shape shape;
         final Audio audio;
+        final Audio audioLooping;
         final Image image;
         final Video video;
         final List<Comment> comments;
         final Float timer;
 
         private Slide(String id, Integer duration, Text text, Line line, Shape shape,
-                      Audio audio, Image image, Video video, List<Comment> comments, Float timer) {
+                      Audio audio, Audio audioLooping, Image image, Video video, List<Comment> comments, Float timer) {
             this.id = id;
             this.duration = duration;
             this.text = text;
             this.line = line;
             this.shape = shape;
             this.audio = audio;
+            this.audioLooping = audioLooping;
             this.image = image;
             this.video = video;
             this.comments = comments;
@@ -631,12 +652,16 @@ class XmlParser {
         }
     }
 
+    /** XML data for the audio to be played.
+     *  Scranplan uses the audio for the timer module within the presentation. Once the timer finishes the non-looping audio file is played.
+     *  an optional 'looping' audio file can also be played as a timer sound. IE the default is an Egg timer.
+     */
     public static class Audio {
-        final String urlName;
-        final Integer startTime;
-        final Boolean loop;
+        final String urlName; //Direct URL of the audio to be played.
+        final Integer startTime; //Position in time to start audio from (Default = 0).
+        final Boolean loop; //Should the audio player loop?
 
-        private Audio(String urlName, Integer startTime, Boolean loop) {
+        private Audio (String urlName, Integer startTime, Boolean loop) {
             this.urlName = urlName;
             this.startTime = startTime;
             this.loop = loop;

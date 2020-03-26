@@ -1,4 +1,4 @@
-package com.group4sweng.scranplan.Presentation;
+package com.group4sweng.scranplan;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -14,11 +14,10 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.core.provider.FontRequest;
 import androidx.core.provider.FontsContractCompat;
-
-import com.group4sweng.scranplan.R;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -98,7 +97,7 @@ public class PresentationTextView extends ScrollView {
             @Override
             public void onTypefaceRequestFailed(int reason) {
                 // Refer to https://developer.android.com/reference/android/provider/FontsContract.FontRequestCallback#constants_2 for error codes
-//                Toast.makeText(getContext(), "Font request failed with exit code: " + reason, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Font request failed with exit code: " + reason, Toast.LENGTH_LONG).show();
             }
         };
         FontsContractCompat.requestFont(getContext(), fontRequest, callback, getThreadHandler());

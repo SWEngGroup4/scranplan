@@ -44,6 +44,19 @@ import java.util.HashMap;
 
 import static java.util.Objects.requireNonNull;
 
+/**
+ * Class for the Profile Settings activity.
+ * Author(s): JButler, LNewman
+ * (c) CoDev 2020
+ *
+ * Provides support for Deleting/Resetting user profiles.
+ * Also provides user profile settings for:
+ *  - Username
+ *  - About Me Info
+ *  - Filters
+ *  - Privacy options.
+ */
+
 public class ProfileSettings extends AppCompatActivity implements FilterType {
 
     // TAG for Profile Settings
@@ -684,7 +697,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
             DocumentReference usersRef = mRef.document(user.getUid());
 
             //  Sync the Firebase info with the client info if successful.
-            usersRef.set(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+            usersRef.update(map).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
                     Toast.makeText(getApplicationContext(),"User Preferences Saved",Toast.LENGTH_SHORT).show();
