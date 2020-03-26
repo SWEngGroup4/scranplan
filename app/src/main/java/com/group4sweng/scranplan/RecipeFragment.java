@@ -449,7 +449,7 @@ public class RecipeFragment extends Fragment {
                 Log.e(TAG, "Time horizontal view added");
             }
 
-            /* Adding the save view as score but with user favourited recipes as a new query
+            /* Adding the save view as score but with user favourite recipes as a new query
             /  This has been done in the same manner but as there are too many variables to track
             /  this is not workable in any kind of loop. */
             final RecyclerView recyclerViewFave = new RecyclerView(view.getContext());
@@ -558,7 +558,7 @@ public class RecipeFragment extends Fragment {
     /**
      * On click of a recipe a new recipe info fragment is opened and the document is sent through
      * This saves on downloading the data again from the database
-      */
+     */
     public void recipeSelected(DocumentSnapshot document) {
 
         //Takes ingredient array from snap shot and reformats before being passed through to fragment
@@ -574,19 +574,24 @@ public class RecipeFragment extends Fragment {
         }
 
         //Creating a bundle so all data needed from firestore query snapshot can be passed through into fragment class
-        mBundle = new Bundle();
-        mBundle.putStringArrayList("ingredientList", ingredientArray);
-        mBundle.putString("recipeID", document.getId());
-        mBundle.putString("xmlURL", document.get("xml_url").toString());
-        mBundle.putString("recipeTitle", document.get("Name").toString());
-        mBundle.putString("rating", document.get("score").toString());
-        mBundle.putString("imageURL", document.get("imageURL").toString());
-        mBundle.putString("recipeDescription", document.get("Description").toString());
-        mBundle.putString("chefName", document.get("Chef").toString());
-        mBundle.putBoolean("planner", planner);
+        Bundle bundle = new Bundle();
+        bundle.putStringArrayList("ingredientList", ingredientArray);
+        bundle.putString("recipeID", document.getId());
+        bundle.putString("xmlURL", document.get("xml_url").toString());
+        bundle.putString("recipeTitle", document.get("Name").toString());
+        bundle.putString("rating", document.get("score").toString());
+        bundle.putString("imageURL", document.get("imageURL").toString());
+        bundle.putString("recipeDescription", document.get("Description").toString());
+        bundle.putString("chefName", document.get("Chef").toString());
+        bundle.putBoolean("planner", planner);
+        bundle.putSerializable("user", user);
+
+        ArrayList faves = (ArrayList) document.get("favourite");
+        bundle.putBoolean("isFav", faves.contains(user.getUID()));
+
 
         RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
-        recipeDialogFragment.setArguments(mBundle);
+        recipeDialogFragment.setArguments(bundle);
         recipeDialogFragment.setTargetFragment(this, 1);
         recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");
     }

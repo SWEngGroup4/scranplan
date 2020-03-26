@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.group4sweng.scranplan.Presentation.Presentation">
+
+
+    <item
+        android:id="@+id/viewCommentProfile"
+        android:title="View author profile"
+        />
+    <item
+        android:id="@+id/reportComment"
+        android:title="Report comment"
+        />
+    <item
+        android:id="@+id/deleteComment"
+        android:title="Delete"
+        android:visibility="invisible"
+        />
+
+
+
+</menu>

@@ -20,6 +20,11 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
 
+/**
+ * Recorded Espresso helpers
+ * Author: JButler
+ * (c) CoDev 2020
+ **/
 class RecordedEspressoHelper {
 
     /** All helper functions where generated using the built in Espresso test recorder from 'Run Espresso Test'.
