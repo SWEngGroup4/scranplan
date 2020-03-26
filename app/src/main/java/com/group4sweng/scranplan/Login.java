@@ -27,7 +27,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import static java.util.Objects.requireNonNull;
 
@@ -276,6 +278,12 @@ public class Login extends AppCompatActivity{
                     HashMap<String, Object> preferences = new HashMap<>();
                     HashMap<String, Object> privacy = new HashMap<>();
 
+                    // Add empty MealPlan list
+                    List<Bundle> mealPlan = new ArrayList<>();
+                    for (int i = 0; i < 21; i++) {
+                        mealPlan.add(null);
+                    }
+
                     map.put("UID", requireNonNull(mAuth.getCurrentUser()).getUid());
                     map.put("email", mAuth.getCurrentUser().getEmail());
                     map.put("displayName", mDisplayName);
@@ -283,6 +291,7 @@ public class Login extends AppCompatActivity{
                     map.put("chefRating", (double) 0);
                     map.put("numRecipes", (long) 0);
                     map.put("about", "");
+                    map.put("mealPlan", mealPlan);
                     map.put("shortPreferences", true);
                     map.put("firstAppLaunch", true);
                     map.put("firstPresentationLaunch", true);
@@ -404,6 +413,7 @@ public class Login extends AppCompatActivity{
                                             map.put("preferences", document.get("preferences"));
                                             map.put("privacy", document.get("privacy"));
                                             map.put("about", document.get("about"));
+                                            map.put("mealPlan", document.get("mealPlan"));
                                             map.put("shortPreferences", document.get("shortPreferences"));
                                             map.put("firstAppLaunch", document.get("firstAppLaunch"));
                                             map.put("firstPresentationLaunch", document.get("firstPresentationLaunch"));

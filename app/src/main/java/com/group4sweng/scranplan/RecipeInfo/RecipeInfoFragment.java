@@ -1,5 +1,6 @@
-package com.group4sweng.scranplan;
+package com.group4sweng.scranplan.RecipeInfo;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,33 +23,25 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.SetOptions;
 import com.group4sweng.scranplan.Presentation.Presentation;
+import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 
 
 public class RecipeInfoFragment extends AppCompatDialogFragment {
 
     // Variables for the xml layout so data from firebase can be properly assigned
-    private Button mReturnButton;
+    protected Button mReturnButton;
     private Button mLetsCook;
     private TabLayout mTabLayout2;
     private FrameLayout mRecipeFrameLayout;
@@ -60,17 +53,19 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
     private ImageButton mFavourite;
 
     //Variables to hold the data being passed through into the fragment
-    private String recipeID;
-    private String recipeName;
-    private String recipeImage;
-    private String recipeDescription;
-    private String chefName;
-    private String recipeRating;
-    private String xmlPresentation;
-    private ArrayList<String> ingredientArray;
+    protected String recipeID;
+    protected String recipeName;
+    protected String recipeImage;
+    protected String recipeDescription;
+    protected String chefName;
+    protected String recipeRating;
+    protected String xmlPresentation;
+    protected ArrayList<String> ingredientArray;
+    protected Boolean planner;
     private ArrayList<String> favouriteRecipe;
     private UserInfoPrivate mUser;
     private Boolean isFavourite;
+
 
     private FirebaseFirestore mDatabase;
     private CollectionReference mDataRef;
@@ -98,19 +93,21 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
                              Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-
         View layout = inflater.inflate(R.layout.fragment_recipe_info, null);
+
         recipeID = getArguments().getString("recipeID");
         recipeName = getArguments().getString("recipeTitle");
         recipeImage = getArguments().getString("imageURL");
         recipeDescription = getArguments().getString("recipeDescription");
         chefName = getArguments().getString("chefName");
         ingredientArray = getArguments().getStringArrayList("ingredientList");
-        favouriteRecipe = getArguments().getStringArrayList("favourite");
         recipeRating = getArguments().getString("rating");
         xmlPresentation = getArguments().getString("xmlURL");
-        mUser = (UserInfoPrivate) getArguments().getSerializable("user");
+        planner = getArguments().getBoolean("planner");
+        favouriteRecipe = getArguments().getStringArrayList("favourite");
+        mUser =(com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
         isFavourite = getArguments().getBoolean("isFav");
+
 
         builder.setView(layout);
 
@@ -141,7 +138,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
      * When back button is clicked within the recipe information dialogFragment,
      * Recipe information dialogFragment is closed and returns to recipe fragment
      */
-    private void initPageListeners(View layout){
+    protected void initPageListeners(View layout){
 
         mReturnButton = layout.findViewById(R.id.ReturnButton);
         mReturnButton.setOnClickListener(new View.OnClickListener() {
@@ -151,24 +148,39 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
             }
         });
 
-        mLetsCook = layout.findViewById(R.id.LetsCook);
-        mLetsCook.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent presentation = new Intent(getActivity(), Presentation.class);
-                presentation.putExtra("xml_URL", xmlPresentation);
-                presentation.putExtra("recipeID", recipeID);
-                presentation.putExtra("user", mUser);
-                startActivity(presentation);
-            }
-        });
+        // Handles info received from Meal Planner searches
+        if (planner) {
+            mLetsCook = layout.findViewById(R.id.LetsCook);
+            mLetsCook.setText("Add"); // Changes button text
+            mLetsCook.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Adds recipe to planner
+                    Fragment fragment = getTargetFragment();
+                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, new Intent());
+                    dismiss();
+                }
+            });
+        } else {
+            mLetsCook = layout.findViewById(R.id.LetsCook);
+            mLetsCook.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent presentation = new Intent(getActivity(), Presentation.class);
+                    presentation.putExtra("xml_URL", xmlPresentation);
+                    presentation.putExtra("recipeID", recipeID);
+                    presentation.putExtra("user", mUser);
+                    startActivity(presentation);
+                }
+            });
+        }
     }
 
     /**
      * Method that controls the tabs within the recipe information dialogFragment
      * to select between the ingredient information and the comments section
      */
-    private void tabFragments(final View layout){
+    protected void tabFragments(final View layout){
 
         mTabLayout2 = layout.findViewById(R.id.tabLayout2);
         mRecipeFrameLayout = layout.findViewById(R.id.RecipeFrameLayout);
@@ -209,7 +221,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
 
     }
 
-    private void displayInfo(View layout){
+    protected void displayInfo(View layout){
 
         //Getting ingredients array and assigning it to the list layout view
         listViewIngredients = layout.findViewById(R.id.listViewText);
@@ -271,10 +283,10 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
     }
 
     /*
-    * Add/Remove the favourite recipe by the star button which means that
-    * add/remove the current user ID in the "favourite" array in the firestore.
-    */
-    private void addFavourite(View layout){
+     * Add/Remove the favourite recipe by the star button which means that
+     * add/remove the current user ID in the "favourite" array in the firestore.
+     */
+    private void addFavourite(View layout) {
 
         mFavourite = layout.findViewById(R.id.addFavorite);
         mDataRef = mDatabase.collection("recipes");
@@ -282,28 +294,28 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         final String user = mUser.getUID();
 
         /*
-        * After each operation, it will show the text "Added to favourites!" or "Removed from favourites!".
-        * If the current use ID doesn't exist in the "favourite" array, the ID will be added to it and the
-        * text "Added to favourites!" will appear and vise versa.
-        * */
+         * After each operation, it will show the text "Added to favourites!" or "Removed from favourites!".
+         * If the current use ID doesn't exist in the "favourite" array, the ID will be added to it and the
+         * text "Added to favourites!" will appear and vise versa.
+         * */
         mFavourite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!isFavourite){
+                if (!isFavourite) {
                     isFavourite = true;
                     docRef.update("favourite", FieldValue.arrayUnion(user)).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            Toast.makeText(getContext(),"Added to favourites!",
+                            Toast.makeText(getContext(), "Added to favourites!",
                                     Toast.LENGTH_SHORT).show();
                         }
                     });
-                }else{
+                } else {
                     isFavourite = false;
                     docRef.update("favourite", FieldValue.arrayRemove(user)).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            Toast.makeText(getContext(),"Removed from favourites!",
+                            Toast.makeText(getContext(), "Removed from favourites!",
                                     Toast.LENGTH_SHORT).show();
                         }
                     });
@@ -312,4 +324,5 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
             }
         });
     }
+
 }
