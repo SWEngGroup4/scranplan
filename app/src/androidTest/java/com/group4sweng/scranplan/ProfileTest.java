@@ -15,10 +15,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
-/**
- * Profile test class for testing if all elements are visible to the user.
- * Author: JButler
- * (c) CoDev 2020
+/** Profile test class for testing if all elements are visible to the user.
  *
  * =====MANUAL TESTS=====
  * Tests for if data is able to be properly retrieved for multiple users and tests that this information is not shown if

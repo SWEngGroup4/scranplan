@@ -24,10 +24,6 @@ import static org.junit.Assert.fail;
 public class AudioTest extends RecordedEspressoHelper {
 
     /**
-     * Instrumentation tests for audio.
-     * Author: JButler
-     * (c) CoDev 2020
-     *
      * Manual audio timer tests have been conducted for the following conditions:
      *  (If time permits can try to approach adding Instrumentation tests).
      *

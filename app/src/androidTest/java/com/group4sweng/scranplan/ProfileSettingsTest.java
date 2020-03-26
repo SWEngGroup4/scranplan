@@ -35,11 +35,7 @@ import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 
-/**
- * Tests for the Profile Settings Activity.
- * Author: JButler
- * (c) CoDev 2020
- *
+/** Test the Profile Settings Activity.
  *  Tests are included to make sure information is displayed, can be edited and
  *  saved and that spam entries or private email entry is impossible.
  */
