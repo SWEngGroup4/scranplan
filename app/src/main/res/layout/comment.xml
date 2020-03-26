@@ -36,7 +36,7 @@
                 android:id="@+id/commentMessage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Message that will enable the user to input a large message in this section. theill will be limmited to about 50 words." />
+                android:text="Message that will enable the user to input a large message in this section. It will be limmited to about 50 words." />
 
         </LinearLayout>
 

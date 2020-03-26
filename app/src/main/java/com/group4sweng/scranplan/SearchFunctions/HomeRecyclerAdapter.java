@@ -4,16 +4,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.group4sweng.scranplan.R;
-import com.group4sweng.scranplan.RecipeFragment;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;

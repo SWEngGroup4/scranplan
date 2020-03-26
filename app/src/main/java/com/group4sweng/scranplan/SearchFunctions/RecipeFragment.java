@@ -1,4 +1,4 @@
-package com.group4sweng.scranplan;
+package com.group4sweng.scranplan.SearchFunctions;
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -23,8 +23,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.group4sweng.scranplan.SearchFunctions.HomeQueries;
-import com.group4sweng.scranplan.SearchFunctions.HomeRecyclerAdapter;
+import com.group4sweng.scranplan.R;
+import com.group4sweng.scranplan.RecipeInfoFragment;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.ArrayList;

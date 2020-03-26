@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.group4sweng.scranplan.R;
-import com.group4sweng.scranplan.RecipeFragment;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;

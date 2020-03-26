@@ -32,9 +32,11 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
+import com.group4sweng.scranplan.Social.FeedFragment;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import io.sentry.core.Sentry;
@@ -270,7 +272,7 @@ public class Home extends AppCompatActivity {
                         fragment = new PlannerFragment();
                         break;
                     case 2:
-                        fragment = new TimelinePlanner();
+                        fragment = new FeedFragment(mUser);
                         break;
                 }
                 FragmentManager fragmentManager = getSupportFragmentManager();
