@@ -583,7 +583,6 @@ public class RecipeFragment extends Fragment {
         mBundle.putString("recipeDescription", document.get("Description").toString());
         mBundle.putString("chefName", document.get("Chef").toString());
         mBundle.putBoolean("planner", planner);
-        mBundle.putSerializable("user", user);
 
         ArrayList faves = (ArrayList) document.get("favourite");
         bundle.putBoolean("isFav", faves.contains(user.getUID()));
