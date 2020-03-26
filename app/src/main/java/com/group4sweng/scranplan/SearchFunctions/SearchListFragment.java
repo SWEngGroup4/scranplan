@@ -22,7 +22,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.group4sweng.scranplan.R;
-import com.group4sweng.scranplan.RecipeInfoFragment;
+import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchRecyclerAdapter.SearchRecipePreviewData;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
@@ -225,11 +225,14 @@ public class SearchListFragment extends AppCompatDialogFragment {
 
         ArrayList faves = (ArrayList) document.get("favourite");
         bundle.putBoolean("isFav", faves.contains(user.getUID()));
+        openRecipeInfo(bundle);
+    }
 
-
-        RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
-        recipeDialogFragment.setArguments(bundle);
-        recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");
+    protected void openRecipeInfo(Bundle bundle) {
+        bundle.putBoolean("planner", false);
+        RecipeInfoFragment recipeInfoFragment = new RecipeInfoFragment();
+        recipeInfoFragment.setArguments(bundle);
+        recipeInfoFragment.show(getFragmentManager(), "Show recipe dialog fragment");
     }
 
 

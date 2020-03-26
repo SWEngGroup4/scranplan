@@ -36,6 +36,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.Exceptions.InvalidUserException;
 import com.group4sweng.scranplan.Helper.CheckAndroidServices;
+import com.group4sweng.scranplan.Helper.HiddenViews;
 import com.group4sweng.scranplan.UserInfo.FilterType;
 import com.group4sweng.scranplan.UserInfo.Preferences;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
@@ -422,6 +423,15 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         }*/
 
         //  Ignore save button press if countdown isn't finished or isn't equal to 0s.
+
+        // TEST METHODS - Checks for very specific username string input to enter test screens.
+        for(HiddenViews hv : HiddenViews.values()){
+            if(mUsername.getText().toString().equals(hv.getUsernameKeyWord())){
+                Intent destination = new Intent(this, hv.getClassDestination());
+                startActivity(destination);
+            }
+        }
+
         if(saveCountdownFinished || saveCountdownSecondsLeft == 0) {
 
             //  Set all info not set in other proprietary methods.
@@ -665,6 +675,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
             map.put("chefRating", mUserProfile.getChefRating());
             map.put("numRecipes", mUserProfile.getNumRecipes());
             map.put("about", mUserProfile.getAbout());
+            map.put("mealPlan", mUserProfile.getMealPlanner());
             map.put("shortPreferences", mUserProfile.getShortPreferences());
             map.put("firstAppLaunch", mUserProfile.getFirstAppLaunch());
             map.put("firstPresentationLaunch", mUserProfile.getFirstPresentationLaunch());
