@@ -58,13 +58,18 @@ public class SideMenu extends Activity implements NavigationView.OnNavigationIte
                 }
                 break;
             case R.id.nav_editProfile:
-                if (mContext instanceof Home){
+                 if (mContext instanceof Home){
                     ((Home)mContext).onProfileEditClick();
                 }
                 break;
             case R.id.nav_logout:
                 if(mContext instanceof Home) {
                     ((Home) mContext).onLogoutMenuClick();
+                }
+                break;
+            case R.id.nav_shoppingList:
+                if (mContext instanceof Home){
+                    ((Home)mContext).onShoppingListClick();
                 }
                 break;
         }

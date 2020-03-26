@@ -25,6 +25,7 @@
         <activity android:name=".Presentation.Presentation" />
         <activity android:name=".Login" />
         <activity android:name=".InitialUserCustomisation" />
+        <activity android:name=".ShoppingList" />
         <activity
             android:name=".Home"
             android:label="@string/app_name"
