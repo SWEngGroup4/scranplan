@@ -586,16 +586,16 @@ public class RecipeFragment extends Fragment {
         mBundle.putBoolean("canFreeze", document.getBoolean("freezer"));
         mBundle.putString("peopleServes", document.get("serves").toString());
         mBundle.putString("fridgeDays", document.get("fridge").toString());
-        bundle.putString("reheat", document.get("reheat").toString());
-        bundle.putBoolean("noEggs", document.getBoolean("noEggs"));
-        bundle.putBoolean("noMilk", document.getBoolean("noMilk"));
-        bundle.putBoolean("noNuts", document.getBoolean("noNuts"));
-        bundle.putBoolean("noShellfish", document.getBoolean("noShellfish"));
-        bundle.putBoolean("noSoy", document.getBoolean("noSoy"));
-        bundle.putBoolean("noWheat", document.getBoolean("noWheat"));
-        bundle.putBoolean("pescatarian", document.getBoolean("pescatarian"));
-        bundle.putBoolean("vegan", document.getBoolean("vegan"));
-        bundle.putBoolean("vegetarian", document.getBoolean("vegetarian"));
+        mBundle.putString("reheat", document.get("reheat").toString());
+        mBundle.putBoolean("noEggs", document.getBoolean("noEggs"));
+        mBundle.putBoolean("noMilk", document.getBoolean("noMilk"));
+        mBundle.putBoolean("noNuts", document.getBoolean("noNuts"));
+        mBundle.putBoolean("noShellfish", document.getBoolean("noShellfish"));
+        mBundle.putBoolean("noSoy", document.getBoolean("noSoy"));
+        mBundle.putBoolean("noWheat", document.getBoolean("noWheat"));
+        mBundle.putBoolean("pescatarian", document.getBoolean("pescatarian"));
+        mBundle.putBoolean("vegan", document.getBoolean("vegan"));
+        mBundle.putBoolean("vegetarian", document.getBoolean("vegetarian"));
 
         ArrayList faves = (ArrayList) document.get("favourite");
         mBundle.putBoolean("isFav", faves.contains(user.getUID()));
