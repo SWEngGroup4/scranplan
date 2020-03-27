@@ -163,7 +163,7 @@
             android:padding="3sp">
 
             <CheckBox
-                android:id="@+id/allergy_nuts"
+                android:id="@+id/dietary_vegetarian"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -172,7 +172,7 @@
                 android:textSize="13sp" />
 
             <CheckBox
-                android:id="@+id/allergy_milk"
+                android:id="@+id/dietary_vegan"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -195,8 +195,8 @@
 
             <CheckBox
                 android:id="@+id/allergy_soy"
-                android:layout_width="120sp"
-                android:layout_height="30sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:clickable="false"
                 android:text="Soy"
@@ -216,8 +216,8 @@
 
             <CheckBox
                 android:id="@+id/allergy_eggs"
-                android:layout_width="113sp"
-                android:layout_height="38sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:clickable="false"
                 android:text="Eggs"

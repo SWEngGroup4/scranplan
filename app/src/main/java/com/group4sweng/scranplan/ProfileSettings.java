@@ -1,6 +1,7 @@
 package com.group4sweng.scranplan;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -24,6 +25,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -31,6 +35,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
@@ -41,15 +46,23 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.group4sweng.scranplan.Exceptions.InvalidUserException;
+import com.group4sweng.scranplan.Exceptions.ProfileImageException;
 import com.group4sweng.scranplan.Helper.CheckAndroidServices;
 import com.group4sweng.scranplan.Helper.HiddenViews;
+import com.group4sweng.scranplan.PreferencesTabs.AllergensFragment;
+import com.group4sweng.scranplan.PreferencesTabs.DietaryFragment;
 import com.group4sweng.scranplan.UserInfo.FilterType;
 import com.group4sweng.scranplan.UserInfo.Preferences;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.HashMap;
 
+import static com.group4sweng.scranplan.Helper.ImageHelpers.getExtension;
+import static com.group4sweng.scranplan.Helper.ImageHelpers.getPrintableSupportedFormats;
+import static com.group4sweng.scranplan.Helper.ImageHelpers.getSize;
+import static com.group4sweng.scranplan.Helper.ImageHelpers.isImageFormatSupported;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -60,20 +73,23 @@ import static java.util.Objects.requireNonNull;
  * Provides support for Deleting/Resetting user profiles.
  * Also provides user profile settings for:
  *  - Username
+ *  - Profile Image
  *  - About Me Info
  *  - Filters
  *  - Privacy options.
  */
-
-public class ProfileSettings extends AppCompatActivity implements FilterType {
+public class ProfileSettings extends AppCompatActivity implements FilterType, SupportedFormats {
 
     // TAG for Profile Settings
     private final static String TAG = "ProfileSettings";
     private static final int IMAGE_REQUEST_CODE = 2;
     private static final int PERMISSION_CODE = 1001;
+    private static final int MAX_IMAGE_FILE_SIZE_IN_MB = 6;
+    private static boolean IMAGE_IS_UPLOADING = false;
+    private String prevProfileImage;
 
     //  Default filter type enumeration. Types shown in 'FilterType' interface.
-    filterType currentFilterType = filterType.ALLERGENS;
+    static filterType currentFilterType = filterType.ALLERGENS;
 
     // Firebase user variables.
     FirebaseApp mApp;
@@ -84,7 +100,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
     FirebaseStorage mStorage = FirebaseStorage.getInstance();
 
     StorageReference mStorageReference = mStorage.getReference();
-
 
     private Uri mImageUri;
 
@@ -101,13 +116,21 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
     TextView mAboutMe;
     TextView mNumRecipes;
 
-    //  User allegern filters.
+    /*//  User allegern filters.
     CheckBox mAllergy_nuts;
     CheckBox mAllergy_milk;
     CheckBox mAllergy_eggs;
     CheckBox mAllergy_shellfish;
     CheckBox mAllergy_soy;
     CheckBox mAllergy_gluten;
+
+    //  User dietary filters.
+    CheckBox mDietary_vegan;
+    CheckBox mDietary_vegetarian;
+    CheckBox mDietary_pescatarian;*/
+
+
+
 
     //  User privacy filters.
     Switch mDisplay_username;
@@ -121,6 +144,12 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
     EditText mPasswordNew1;
     EditText mPasswordNew2;
     EditText mPasswordOld;
+
+    TabLayout mPreferencesTabs;
+    Fragment currentFragment;
+
+    AllergensFragment mAllergensFragment;
+    DietaryFragment mDietaryFragment;
 
     //  Timer in milliseconds for minimum interval between 'Save Settings' button presses..
     private final int COUNTDOWN_TIMER_MILLIS = 10000;
@@ -164,6 +193,11 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         //connectionEstablished = checkNetworkConnection(mContext);
         mUserProfile = (UserInfoPrivate) getIntent().getSerializableExtra("user"); //Grabs serializable UserInfoPrivate data from main activity.
         if(mUserProfile != null){ //Checks if there is actually any Serializable data received.
+            //  Preferences
+            mPreferencesTabs = findViewById(R.id.preferences_tab_bar);
+            initTabsFirstTime();
+            initTabFragmentListener();
+
             loadProfileData();
         }
     }
@@ -178,17 +212,16 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         }
     }
 
-    /*
+
     @Override
     public void onBackPressed() {
-
         //  Send back with intent and update the MainActivity's UserInfoPrivate class with the new User Info.
         Intent returnIntent = new Intent(this, Home.class);
         returnIntent.putExtra("user", mUserProfile);
         setResult(Activity.RESULT_OK, returnIntent);
         startActivity(returnIntent);
     }
-    */
+
     /** Initiated on a 'Delete Profile' button press.
      *  Creates an alert dialog box that checks a users old password through re-authentication
      *  and then deletes a users profile if a valid Firebase and local profile is found.
@@ -459,7 +492,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
             //  Update the server relative to the client or throw an exception if a valid user isn't found.
             try {
                 updateFirebase();
-            } catch (InvalidUserException e) {
+            } catch (InvalidUserException | ProfileImageException e) {
                 e.printStackTrace();
             }
         } else {
@@ -519,7 +552,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
             case ALLERGENS:
                 // Check which checkbox was clicked.
                 switch(v.getId()) {
-                    case R.id.allergy_nuts:
+                    case R.id.dietary_vegetarian:
                         if (checked)
                             preferences.setAllergy_nuts(true);
                         else
@@ -531,7 +564,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
                         else
                             preferences.setAllergy_eggs(false);
                         break;
-                    case R.id.allergy_milk:
+                    case R.id.dietary_vegan:
                         if (checked)
                             preferences.setAllergy_milk(true);
                         else
@@ -556,30 +589,32 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
                             preferences.setAllergy_gluten(false);
                         break;
                 }
-            case RELIGIOUS:
-                //TODO
             case DIETARY:
+                switch(v.getId()){
+                    case R.id.dietary_vegan:
+                        if(checked)
+                            preferences.setVegan(true);
+                        else
+                            preferences.setVegan(false);
+                        break;
+                    case R.id.dietary_pescatarian:
+                        if(checked)
+                            preferences.setPescatarian(true);
+                        else
+                            preferences.setPescatarian(false);
+                        break;
+                    case R.id.dietary_vegetarian:
+                        if(checked)
+                            preferences.setVegetarian(true);
+                        else
+                            preferences.setVegetarian(false);
+                }
+            case RELIGIOUS:
                 //TODO
             case HEALTH:
                 //TODO
         }
     }
-
-    // TODO Make proper image download class.
-    /*private void downloadImage(String UID){
-        mStorage = FirebaseStorage.getInstance();
-        mStorageRef = mStorage.getInstance().getReference()
-                .child("user_profile_images")
-                .child("megaMan.png");
-        imageRef.getBytes(1024*1024)
-                .addOnSuccessListener(new OnSuccessListener<byte[]>() {
-                    @Override
-                    public void onSuccess(byte[] bytes) {
-                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                        mProfileImage.setImageBitmap(bitmap);
-                    }
-                });
-    }*/
 
     private void initPageItems(){
         //  Basic user info.
@@ -587,14 +622,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         mAboutMe = findViewById(R.id.settings_input_about_me);
         mNumRecipes = findViewById(R.id.profile_recipes);
         mProfileImage = findViewById(R.id.public_profile_image);
-
-        //  Allergens
-        mAllergy_eggs = findViewById(R.id.allergy_eggs);
-        mAllergy_gluten = findViewById(R.id.allergy_wheat);
-        mAllergy_milk = findViewById(R.id.allergy_milk);
-        mAllergy_nuts = findViewById(R.id.allergy_nuts);
-        mAllergy_shellfish = findViewById(R.id.allergy_shellfish);
-        mAllergy_soy = findViewById(R.id.allergy_soy);
 
         //  Privacy
         mDisplay_about_me = findViewById(R.id.settings_privacy_about_me);
@@ -645,18 +672,71 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
 
         if(requestCode == IMAGE_REQUEST_CODE && resultCode==RESULT_OK){
             if(data!=null && data.getData()!= null){
+                mProfileImage.setImageResource(R.drawable.temp_settings_profile_image);
+
                 mImageUri = data.getData();
 
-                Log.e(TAG, "Image URI is: " + mImageUri.toString());
-                
                 //mProfileImage.setImageURI(mImageUri);
                 Glide.with(this)
                         .load(mImageUri)
                         .apply(RequestOptions.circleCropTransform())
                         .into(mProfileImage);
+
+                try {
+                    uploadImage(mImageUri);
+                } catch (ProfileImageException e) {
+                    e.printStackTrace();
+                    return;
+                }
             }
         }
     }
+
+    private void checkImage(Uri uri) throws ProfileImageException {
+        if(getSize(this, uri) > MAX_IMAGE_FILE_SIZE_IN_MB * 100000){
+            Toast.makeText(this, "Image exceeded: " + MAX_IMAGE_FILE_SIZE_IN_MB + "mb limit. Please choose a different file.", Toast.LENGTH_LONG).show();
+            throw new ProfileImageException("Profile image exceeded max file size: " + MAX_IMAGE_FILE_SIZE_IN_MB + "mb");
+        }
+
+        boolean formatIsSupported = isImageFormatSupported(this, uri);
+        String extension = getExtension(this, uri);
+
+        if(!formatIsSupported) {
+            Toast.makeText(this, "Image extension: '" + getExtension(this, uri) +"' is not supported.", Toast.LENGTH_LONG).show();
+
+            new CountDownTimer(3600, 200){
+                @Override
+                public void onTick(long millisUntilFinished) { /*Do Nothing...*/ }
+                @Override
+                public void onFinish() {
+                    Toast.makeText(getApplicationContext(), "Supported formats: " + getPrintableSupportedFormats(), Toast.LENGTH_LONG).show();
+                }
+            }.start();
+
+            throw new ProfileImageException("Image format type: " + extension + " is not supported");
+        }
+    }
+
+    private void uploadImage(Uri uri) throws ProfileImageException {
+        String extension = getExtension(this, uri);
+
+        checkImage(uri);
+
+        IMAGE_IS_UPLOADING = true;
+        StorageReference mImageStorage = mStorageReference.child("images/profile/" + mUserProfile.getUID() + "/profile_image." + extension);
+        mImageStorage.putFile(uri).addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Failed to upload profile image.", Toast.LENGTH_SHORT).show()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                mImageStorage.getDownloadUrl().addOnSuccessListener(locationUri -> {
+                    mUserProfile.setImageURL(locationUri.toString());
+                    IMAGE_IS_UPLOADING = false;
+                }).addOnFailureListener(e -> {
+                    throw new RuntimeException("Unable to grab image URL from Firebase for image URL being uploaded currently. This shouldn't happen.");
+                });
+            }
+        });
+    }
+
 
     private void loadProfileData(){
         mUsername.setText(mUserProfile.getDisplayName());
@@ -665,15 +745,18 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
         mNumRecipes.setText(numOfRecipesString);
 
         //  Load allergen checkBoxes.
-        setFilters(currentFilterType);
+        //setFilters(currentFilterType);
 
         //  Load privacy switches.
         setPrivacyOptions(mUserProfile.getPrivacy());
+
     }
+
 
     /** Set which filter checkboxes should be selected
      * @param type - Enumeration of the type of filter to be displayed. E.g. Allegern, Religious...
      */
+    /*
     private void setFilters(filterType type){
         switch(type){
             case ALLERGENS:
@@ -683,14 +766,17 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
                 mAllergy_shellfish.setChecked(mUserProfile.getPreferences().isAllergy_shellfish());
                 mAllergy_soy.setChecked(mUserProfile.getPreferences().isAllergy_soya());
                 mAllergy_gluten.setChecked(mUserProfile.getPreferences().isAllergy_gluten());
-            case RELIGIOUS:
-                //TODO
             case DIETARY:
+                mDietary_pescatarian.setChecked(mUserProfile.getPreferences().isPescatarian());
+                mDietary_vegan.setChecked(mUserProfile.getPreferences().isVegan());
+                mDietary_vegetarian.setChecked(mUserProfile.getPreferences().isVegetarian());
+            case RELIGIOUS:
                 //TODO
             case HEALTH:
                 //TODO
         }
-    }
+    }*/
+
 
     /** Set which privacy swtiches should be selected
      * @param privacy - HashMap of valid privacy options.
@@ -707,18 +793,21 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
      * @throws InvalidUserException - Error returned when a valid user cannot be found and therefore the server
      * cannot update relative to the client. This can occur when Wifi signal is lost.
      */
-    private void updateFirebase() throws InvalidUserException {
+    private void updateFirebase() throws InvalidUserException, ProfileImageException {
         mApp = FirebaseApp.getInstance();
         mAuth = FirebaseAuth.getInstance(mApp);
         FirebaseUser user = mAuth.getCurrentUser();
-
-        StorageReference mProfileImageRef = mStorageReference.child("user_profile_images/" + user.getUid())
 
         String usernameInput = mUsername.getText().toString();
         String aboutMeInput = mAboutMe.getText().toString();
 
         if(user != null){ //Checks for a valid user.
             String usersEmail = requireNonNull(mAuth.getCurrentUser()).getEmail();
+
+            if(IMAGE_IS_UPLOADING){
+                Toast.makeText(this, "We are still uploading your profile image. Try again in a second.", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             //  If the 'saveCountdown' countdown has finished. Restart it.
             if(saveCountdownFinished){
@@ -736,6 +825,9 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
             } else {
                 throw new RuntimeException("Unable to find associated email address of the user");
             }
+
+            //  Return if image is not of a supported format
+            checkImage(mImageUri);
 
             HashMap<String, Object> map = new HashMap<>();
             HashMap<String, Object> prefMap = new HashMap<>();
@@ -761,6 +853,9 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
             prefMap.put("allergy_nuts", preferences.isAllergy_nuts());
             prefMap.put("allergy_shellfish", preferences.isAllergy_shellfish());
             prefMap.put("allergy_soya", preferences.isAllergy_soya());
+            prefMap.put("vegan", preferences.isVegan());
+            prefMap.put("vegetarian", preferences.isVegetarian());
+            prefMap.put("pescatarian", preferences.isPescatarian());
 
             //  TODO Finish all other preferences.
 
@@ -798,6 +893,92 @@ public class ProfileSettings extends AppCompatActivity implements FilterType {
             throw new InvalidUserException("Invalid user login credentials. Consider logging out and then back in again.");
         }
 
+    }
+
+
+    private void initTabsFirstTime(){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        Bundle prefBundle = new Bundle();
+        prefBundle.putSerializable("preferences", mUserProfile.getPreferences());
+
+        currentFragment = new AllergensFragment();
+        currentFragment.setArguments(prefBundle);
+
+        fragmentTransaction.replace(R.id.settings_checkbox_table, currentFragment);
+        fragmentTransaction.commit();
+    }
+
+    private void initTabFragmentListener(){
+
+        mPreferencesTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+
+                Bundle prefBundle = new Bundle();
+                prefBundle.putSerializable("preferences", mUserProfile.getPreferences());
+                Log.e(TAG, "PREFERENCES PESC " + mUserProfile.getPreferences().isPescatarian());
+
+                switch (tab.getPosition()) {
+                    case 0:
+                        currentFragment = new AllergensFragment();
+                        currentFilterType = filterType.ALLERGENS;
+                        break;
+                    case 1:
+                        currentFragment = new DietaryFragment();
+                        currentFilterType = filterType.DIETARY;
+                        break;
+
+                }
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                assert currentFragment != null;
+                currentFragment.setArguments(prefBundle);
+                fragmentTransaction.replace(R.id.settings_checkbox_table, currentFragment);
+                fragmentTransaction.commit();
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                Fragment fragment = null;
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+
+                fragmentTransaction.remove(currentFragment).commit();
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                /*
+                Bundle prefBundle = new Bundle();
+                prefBundle.putSerializable("preferences", mUserProfile.getPreferences());
+
+                switch (tab.getPosition()) {
+                    case 0:
+                        fragment = new AllergensFragment();
+                        currentFilterType = filterType.ALLERGENS;
+                        //setFilters(currentFilterType);
+                        break;
+                    case 1:
+                        fragment = new DietaryFragment();
+                        currentFilterType = filterType.DIETARY;
+                        //setFilters(currentFilterType);
+                        break;
+
+                }
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                assert fragment != null;
+                fragment.setArguments(prefBundle);
+                fragmentTransaction.replace(R.id.settings_checkbox_table, fragment);
+                fragmentTransaction.commit();*/
+            }
+
+        });
+
+
+    }
+
+    public static FilterType.filterType getCurrentFilterType(){
+        return currentFilterType;
     }
 
 

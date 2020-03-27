@@ -14,6 +14,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
@@ -115,8 +117,8 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         //  Allergens
         mAllergy_eggs = findViewById(R.id.allergy_eggs);
         mAllergy_gluten = findViewById(R.id.allergy_wheat);
-        mAllergy_milk = findViewById(R.id.allergy_milk);
-        mAllergy_nuts = findViewById(R.id.allergy_nuts);
+        mAllergy_milk = findViewById(R.id.dietary_vegan);
+        mAllergy_nuts = findViewById(R.id.dietary_vegetarian);
         mAllergy_shellfish = findViewById(R.id.allergy_shellfish);
         mAllergy_soy = findViewById(R.id.allergy_soy);
     }
@@ -149,6 +151,13 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         String numOfRecipesString = "Recipes: " + ((long) profile.get("numRecipes")); //  Convert 'long' value to something we can use.
         if(retrieveRecipes){ mNumRecipes.setText(numOfRecipesString);} else {
             mNumRecipes.setText(""); // Set number of recipes to nothing if hidden.
+        }
+
+        if(retrieveImages) {
+            Glide.with(this)
+                    .load(mUserProfile.getImageURL())
+                    .apply(RequestOptions.circleCropTransform())
+                    .into(mProfileImage);
         }
 
         if(retrieveUsername){ mUsername.setText((String) profile.get("displayName")); }
@@ -256,6 +265,12 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         }
 
         if(retrieveUsername){ mUsername.setText(mUserProfile.getDisplayName()); }
+
+        if(retrieveImages) {
+            Glide.with(this)
+                    .load(mUserProfile.getImageURL())
+                    .apply(RequestOptions.circleCropTransform())
+                    .into(mProfileImage); }
 
         if(retrieveFilters){
             HashMap<String, Object> filters = new HashMap<>();

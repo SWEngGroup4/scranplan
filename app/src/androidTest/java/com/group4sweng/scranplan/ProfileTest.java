@@ -88,11 +88,11 @@ public class ProfileTest extends RecordedEspressoHelper{
                 .check(matches(isDisplayed()));
         onView(withId(R.id.allergy_soy))
                 .check(matches(isDisplayed()));
-        onView(withId(R.id.allergy_nuts))
+        onView(withId(R.id.dietary_vegetarian))
                 .check(matches(isDisplayed()));
         onView(withId(R.id.allergy_shellfish))
                 .check(matches(isDisplayed()));
-        onView(withId(R.id.allergy_milk))
+        onView(withId(R.id.dietary_vegan))
                 .check(matches(isDisplayed()));
         onView(withId(R.id.allergy_eggs))
                 .check(matches(isDisplayed()));

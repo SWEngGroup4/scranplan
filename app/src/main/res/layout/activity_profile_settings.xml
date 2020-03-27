@@ -80,8 +80,8 @@
                 android:onClick="changeProfileImage"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/temp_settings_profile_image"
-                tools:srcCompat="@drawable/temp_settings_profile_image" />
+                app:srcCompat="@drawable/ic_person_add_black_24dp"
+                tools:srcCompat="@drawable/ic_person_add_black_24dp" />
 
             <TextView
                 android:id="@+id/profile_username"
@@ -104,17 +104,6 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 app:layout_constraintStart_toEndOf="@+id/public_profile_image"
                 app:layout_constraintTop_toBottomOf="@+id/profile_username" />
-
-            <TextView
-                android:id="@+id/profile_allegerns"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16sp"
-                android:layout_marginTop="5sp"
-                android:text="Allergens"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/profile_filters" />
 
             <TextView
                 android:id="@+id/settings_visibility"
@@ -140,87 +129,14 @@
             <TableLayout
                 android:id="@+id/settings_checkbox_table"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="16sp"
-                android:layout_marginTop="5sp"
+                android:layout_marginTop="9dp"
                 android:layout_marginEnd="16sp"
                 android:background="#cecce0"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/profile_allegerns">
-
-                <TableRow
-                    android:layout_height="wrap_content"
-                    android:padding="3sp">
-
-                    <CheckBox
-                        android:id="@+id/allergy_nuts"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:onClick="onCheckboxClicked"
-                        android:text="Nuts"
-                        android:textSize="13sp" />
-
-                    <CheckBox
-                        android:id="@+id/allergy_milk"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:onClick="onCheckboxClicked"
-                        android:text="Milk"
-                        android:textSize="13sp" />
-
-
-                </TableRow>
-
-                <TableRow android:padding="3sp">
-
-                    <CheckBox
-                        android:id="@+id/allergy_shellfish"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:onClick="onCheckboxClicked"
-                        android:text="Shellfish"
-                        android:textSize="13sp" />
-
-                    <CheckBox
-                        android:id="@+id/allergy_soy"
-                        android:layout_width="120sp"
-                        android:layout_height="30sp"
-                        android:layout_weight="1"
-                        android:onClick="onCheckboxClicked"
-                        android:text="Soy"
-                        android:textSize="13sp" />
-
-
-                </TableRow>
-
-                <TableRow android:padding="3sp">
-
-                    <CheckBox
-                        android:id="@+id/allergy_wheat"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:onClick="onCheckboxClicked"
-                        android:text="Wheat"
-                        android:textSize="13sp" />
-
-                    <CheckBox
-                        android:id="@+id/allergy_eggs"
-                        android:layout_width="113sp"
-                        android:layout_height="38sp"
-                        android:layout_weight="1"
-                        android:onClick="onCheckboxClicked"
-                        android:text="Eggs"
-                        android:textSize="13sp" />
-
-                </TableRow>
-
-
-            </TableLayout>
+                app:layout_constraintTop_toBottomOf="@+id/preferences_tab_bar" />
 
             <TextView
                 android:id="@+id/profile_about_me"
@@ -232,17 +148,6 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/public_profile_image" />
-
-            <TextView
-                android:id="@+id/profile_filters"
-                android:layout_width="99sp"
-                android:layout_height="26sp"
-                android:layout_marginStart="16sp"
-                android:layout_marginTop="8sp"
-                android:text="Filters"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/settings_input_about_me" />
 
             <Button
                 android:id="@+id/settings_save_settings"
@@ -369,6 +274,30 @@
                 <TableRow></TableRow>
 
             </TableLayout>
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/preferences_tab_bar"
+                android:layout_width="200sp"
+                android:layout_height="40sp"
+                android:layout_marginStart="16dp"
+
+                android:layout_marginTop="6sp"
+                app:layout_constraintBottom_toTopOf="@+id/settings_checkbox_table"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/settings_input_about_me"
+                app:layout_constraintVertical_bias="0.49">
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Allergens" />
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Dietary" />
+
+            </com.google.android.material.tabs.TabLayout>
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

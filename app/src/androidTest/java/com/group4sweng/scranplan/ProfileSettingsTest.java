@@ -304,7 +304,7 @@ public class ProfileSettingsTest extends RecordedEspressoHelper {
         //  Change every switch and Checkboxes value.
         onView(withId(R.id.allergy_soy))
                 .perform(click());
-        onView(withId(R.id.allergy_nuts))
+        onView(withId(R.id.dietary_vegetarian))
                 .perform(click());
         onView(withId(R.id.allergy_shellfish))
                 .perform(click());
@@ -312,7 +312,7 @@ public class ProfileSettingsTest extends RecordedEspressoHelper {
                 .perform(click());
         onView(withId(R.id.allergy_eggs))
                 .perform(click());
-        onView(withId(R.id.allergy_milk))
+        onView(withId(R.id.dietary_vegan))
                 .perform(click());
 
         onView(withId(R.id.settings_privacy_about_me))
