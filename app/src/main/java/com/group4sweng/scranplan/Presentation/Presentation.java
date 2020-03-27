@@ -47,6 +47,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.group4sweng.scranplan.Exceptions.AudioPlaybackError;
+import com.group4sweng.scranplan.Presentation.Views.PresentationTextView;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.SoundHandler.AudioURL;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
@@ -173,7 +174,7 @@ public class Presentation extends AppCompatActivity {
 
     private void presentation (Map<String, Object> xml) {
         documentInfo = (XmlParser.DocumentInfo) xml.get("documentInfo");
-        final List<RelativeLayout> slideLayouts = new ArrayList<>();
+        final List<PresentationSlide> slideLayouts = new ArrayList<>();
         List<String> dropdownItems = new ArrayList<>();
         final List<XmlParser.Slide> xmlSlides = (List<XmlParser.Slide>) xml.get("slides");
         CardView presentationContainer = findViewById(R.id.presentationContainer);
@@ -207,25 +208,30 @@ public class Presentation extends AppCompatActivity {
         int slideCount = 0;
 
         for (final XmlParser.Slide slide : xmlSlides) {
-            RelativeLayout slideLayout = new RelativeLayout(getApplicationContext());
-            RelativeLayout.LayoutParams slideParams = new RelativeLayout.LayoutParams(slideWidth, slideHeight);
-            slideParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
-            slideLayout.setLayoutParams(slideParams);
-            slideLayout.setBackgroundColor(Color.parseColor(defaults.backgroundColor));
+            Log.d("Test", "Generating slides");
+            PresentationSlide pSlide = new PresentationSlide(getApplicationContext(),
+                    slideWidth, slideHeight);
+            pSlide.setBackgroundColor(Color.parseColor(defaults.backgroundColor));
 
             XmlParser.Text id = new XmlParser.Text(slide.id, defaults);
-            slideLayout.addView(addText(id, slideWidth, slideHeight));
+            pSlide.addText(id);
             dropdownItems.add(id.text);
 
-            if (slide.text != null) {
-                slideLayout.addView(addText(slide.text, slideWidth, slideHeight));
-            }
-            if (slide.line != null) {
-                //TODO - Generate line graphic
-            }
-            if (slide.shape != null) {
-                //TODO - Generate shape graphic
-            }
+            if (slide.text != null)
+                pSlide.addText(slide.text);
+            if (slide.line != null) {}
+                //TODO - Generate line
+            if (slide.shape != null) {}
+                //TODO - Generate shape
+            if (slide.image != null)
+                pSlide.addImage(slide.image);
+            if (slide.video != null)
+                pSlide.addVideo(slide.video);
+            if (slide.timer != null) {
+                slideTimers.add(slideCount, slide.timer);
+                pSlide.addTimer(slide.timer);
+            } else
+                slideTimers.add(slideCount, -1f);
 
             //  Checks if the slide contains a 'non-looping' audio file. Played at end of timer countdown, or as a standalone audio file.
             if (slide.audio != null) { //Check if audio exists within the slide.
@@ -246,24 +252,6 @@ public class Presentation extends AppCompatActivity {
                 slideAudioLooping.add(slideCount, audio);
             } else {
                 slideAudioLooping.add(slideCount, null); //If no audio exists simply set any audioURL objects for the given slide to null.
-            }
-
-            if (slide.image != null) {
-                Log.e("Test", "Text element added");
-                slideLayout.addView(addImage(slide.image, defaults, slideWidth, slideHeight));
-            }
-            if (slide.video != null) {
-                //TODO - Generate video
-            }
-            //TODO old comments section where we used XML, for James Crawley to delete where he sees fit
-//            if (slide.comments != null) {
-//                slideLayout.addView(addComments(slide.comments, defaults, defaultTypeFace[0], slideWidth, slideHeight));
-//            }
-            if (slide.timer != null) {
-                slideTimers.add(slideCount, slide.timer);
-                slideLayout.addView(addTimer((float) slide.timer));
-            } else {
-                slideTimers.add(slideCount, -1f);
             }
 
             // Spinner to choose the slides
@@ -295,8 +283,8 @@ public class Presentation extends AppCompatActivity {
                 public void onClick(View v) {
                     expandableLayout.collapse();
                     if(currentSlide[0]+1 < finalSlideCount+1){
-                    dropdown.setSelection(currentSlide[0]+1);}else{
-                    currentSlide[0] = toSlide(slideLayouts, currentSlide[0], currentSlide[0] + 1);}
+                        dropdown.setSelection(currentSlide[0]+1);}else{
+                        currentSlide[0] = toSlide(slideLayouts, currentSlide[0], currentSlide[0] + 1);}
                 }
             });
 
@@ -305,20 +293,20 @@ public class Presentation extends AppCompatActivity {
                 public void onClick(View v) {
                     expandableLayout.collapse();
                     if(currentSlide[0]-1 >= 0){
-                    dropdown.setSelection(currentSlide[0]-1);}else{
-                    currentSlide[0] = toSlide(slideLayouts, currentSlide[0], currentSlide[0] - 1);}
+                        dropdown.setSelection(currentSlide[0]-1);}else{
+                        currentSlide[0] = toSlide(slideLayouts, currentSlide[0], currentSlide[0] - 1);}
                 }
             });
 
-            slideLayout.setVisibility(View.GONE);
-            presentationContainer.addView(slideLayout);
-            slideLayouts.add(slideLayout);
+            pSlide.hide();
+            presentationContainer.addView(pSlide);
+            slideLayouts.add(pSlide);
             expandableLayout.bringToFront();
-
             slideCount++;
+
         }
 
-        slideLayouts.get(currentSlide[0]).setVisibility(View.VISIBLE);
+        slideLayouts.get(0).show();
         spinner.setVisibility(View.GONE);
 
 
@@ -421,83 +409,6 @@ public class Presentation extends AppCompatActivity {
         });
     }
 
-    private PresentationTextView addText(final XmlParser.Text text, Integer slideWidth, Integer slideHeight) {
-
-        PresentationTextView textView = new PresentationTextView(getApplicationContext(), slideHeight, slideWidth);
-        textView.setDims(text.width, text.height);
-        textView.setBackgroundColor(getResources().getColor(R.color.colorAccent));
-        textView.setText(text.text);
-        textView.setFont(text.font, text.fontWeight);
-        textView.setTextSize(text.fontSize);
-        textView.setTextColour(text.fontColor);
-        textView.setPos(text.xPos, text.yPos);
-        if (text.startTime > 0) {
-            textView.setStartTime(this, text.startTime);
-        }
-        if (text.endTime > text.startTime) {
-            textView.setEndTime(this, text.endTime);
-        }
-        return textView;
-    }
-
-    private ImageView addImage(final XmlParser.Image image, XmlParser.Defaults defaults,
-                               Integer slideWidth, Integer slideHeight) {
-        final ImageView imageView = new ImageView(getApplicationContext());
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
-                Math.round(slideWidth * (image.width / 100)), Math.round(slideHeight * (image.height / 100)));
-        layoutParams.setMargins(Math.round(slideWidth * (image.xStart / 100)),
-                Math.round(slideHeight * (image.yStart / 100)), 0, 0);
-        imageView.setLayoutParams(layoutParams);
-
-        if (image.startTime > 0) {
-            imageView.setVisibility(View.GONE);
-            Thread thread = new Thread(){
-                @Override
-                public void run() {
-                    try {
-                        synchronized (this) {
-                            wait (image.startTime);
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    imageView.setVisibility(View.VISIBLE);
-                                }
-                            });
-                        }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            };
-            thread.start();
-        }
-
-        if (image.endTime > image.startTime) {
-            Thread thread = new Thread(){
-                @Override
-                public void run() {
-                    try {
-                        synchronized (this) {
-                            wait (image.endTime);
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    imageView.setVisibility(View.GONE);
-                                }
-                            });
-                        }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            };
-            thread.start();
-        }
-
-        Picasso.get().load(image.urlName).into(imageView);
-        return imageView;
-    }
-
     //TODO old comments section where we used XML, for James Crawley to delete where he sees fit
 //    private RelativeLayout addComments(List<XmlParser.Comment> comments,
 //                                       XmlParser.Defaults defaults, Typeface defaultTypeFace, Integer slideWidth, Integer slideHeight) {
@@ -538,7 +449,7 @@ public class Presentation extends AppCompatActivity {
         return timerView;
     }
 
-    private Integer toSlide(List<RelativeLayout> slides, Integer currentSlide, Integer slideNumber) {
+    private Integer toSlide(List<PresentationSlide> slides, Integer currentSlide, Integer slideNumber) {
         if(slideNumber.equals(currentSlide)){
             return currentSlide;}
         if (slideNumber > slides.size() - 1 || slideNumber < 0) {
