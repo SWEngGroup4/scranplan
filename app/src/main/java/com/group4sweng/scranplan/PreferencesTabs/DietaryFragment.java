@@ -12,11 +12,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.group4sweng.scranplan.R;
+import com.group4sweng.scranplan.UserInfo.FilterType;
 import com.group4sweng.scranplan.UserInfo.Preferences;
 
 import org.jetbrains.annotations.NotNull;
 
-public class DietaryFragment extends Fragment {
+public class DietaryFragment extends Fragment implements FilterType {
 
     private static final String TAG = "DietaryFragment";
     //  User dietary filters.

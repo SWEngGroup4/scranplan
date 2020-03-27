@@ -146,7 +146,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
     EditText mPasswordOld;
 
     TabLayout mPreferencesTabs;
-    Fragment currentFragment;
+    Fragment currentFragment = new AllergensFragment();
 
     AllergensFragment mAllergensFragment;
     DietaryFragment mDietaryFragment;
@@ -195,7 +195,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         if(mUserProfile != null){ //Checks if there is actually any Serializable data received.
             //  Preferences
             mPreferencesTabs = findViewById(R.id.preferences_tab_bar);
-            initTabsFirstTime();
+            sendSerializableToFragment();
             initTabFragmentListener();
 
             loadProfileData();
@@ -286,6 +286,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         mApp = FirebaseApp.getInstance();
         mAuth = FirebaseAuth.getInstance(mApp);
 
+        final String tempUID = mAuth.getUid();
         final String password = rePassword;
 
         if(isTesting){ //  Checks if we are testing so we don't actually delete a users account.
@@ -297,26 +298,31 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
         if(mAuth.getCurrentUser() != null){
 
+            for(ImageFormats extension : ImageFormats.values()){
+                mStorageReference.child("images/profile/" + mAuth.getUid() + "/profile_image." + extension.toString()).delete().addOnSuccessListener(aVoid12 -> {
+                    Log.e(TAG, "Deleted entry: images/profile/" + mAuth.getUid() + "/profile_image." + extension.toString());
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e(TAG, "Entry: images/profile/" + mAuth.getUid() + "/profile_image." + extension.toString() + " dosen't exist. Ignoring");
+                    }
+                });
+            }
+
             mAuth.getCurrentUser().reauthenticate(credential).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
-                    mDatabase.collection("users").document(mAuth.getCurrentUser().getUid()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            mUserProfile = null;
-                            mAuth.getCurrentUser().delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()) {
-                                        Log.d(TAG, "User account deleted.");
+                    mDatabase.collection("users").document(mAuth.getCurrentUser().getUid()).delete().addOnSuccessListener(aVoid1 -> {
+                        mUserProfile = null;
+                        mAuth.getCurrentUser().delete().addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                Log.d(TAG, "User account deleted.");
 
-                                        //  Verify the account has been deleted.
-                                        Toast.makeText(getApplicationContext(), "Account deleted.", Toast.LENGTH_SHORT).show();
-                                        finish();
-                                    }
-                                }
-                            });
-                        }
+                                //  Verify the account has been deleted.
+                                Toast.makeText(getApplicationContext(), "Account deleted.", Toast.LENGTH_SHORT).show();
+                                finish();
+                            }
+                        });
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
@@ -547,12 +553,13 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
         Preferences preferences = mUserProfile.getPreferences();
 
+        Log.e(TAG, "Current filter type: " + currentFilterType.name());
         //  Check the type of filter. For example, dietary, religious.
         switch(currentFilterType){
             case ALLERGENS:
                 // Check which checkbox was clicked.
                 switch(v.getId()) {
-                    case R.id.dietary_vegetarian:
+                    case R.id.allergy_nuts:
                         if (checked)
                             preferences.setAllergy_nuts(true);
                         else
@@ -564,7 +571,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                         else
                             preferences.setAllergy_eggs(false);
                         break;
-                    case R.id.dietary_vegan:
+                    case R.id.allergy_milk:
                         if (checked)
                             preferences.setAllergy_milk(true);
                         else
@@ -593,9 +600,9 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                 switch(v.getId()){
                     case R.id.dietary_vegan:
                         if(checked)
-                            preferences.setVegan(true);
+                            mUserProfile.getPreferences().setVegan(true);
                         else
-                            preferences.setVegan(false);
+                            mUserProfile.getPreferences().setVegan(false);
                         break;
                     case R.id.dietary_pescatarian:
                         if(checked)
@@ -827,7 +834,9 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             }
 
             //  Return if image is not of a supported format
-            checkImage(mImageUri);
+            if(mImageUri != null){
+                checkImage(mImageUri);
+            }
 
             HashMap<String, Object> map = new HashMap<>();
             HashMap<String, Object> prefMap = new HashMap<>();
@@ -857,6 +866,8 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             prefMap.put("vegetarian", preferences.isVegetarian());
             prefMap.put("pescatarian", preferences.isPescatarian());
 
+
+            Log.e(TAG, "PREFERENCES PESC FIREBASE" + mUserProfile.getPreferences().isPescatarian());
             //  TODO Finish all other preferences.
 
             map.put("preferences", prefMap);
@@ -895,15 +906,12 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
     }
 
-
-    private void initTabsFirstTime(){
+    private void sendSerializableToFragment(){
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
         Bundle prefBundle = new Bundle();
         prefBundle.putSerializable("preferences", mUserProfile.getPreferences());
-
-        currentFragment = new AllergensFragment();
         currentFragment.setArguments(prefBundle);
 
         fragmentTransaction.replace(R.id.settings_checkbox_table, currentFragment);
@@ -916,10 +924,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
 
-                Bundle prefBundle = new Bundle();
-                prefBundle.putSerializable("preferences", mUserProfile.getPreferences());
-                Log.e(TAG, "PREFERENCES PESC " + mUserProfile.getPreferences().isPescatarian());
-
                 switch (tab.getPosition()) {
                     case 0:
                         currentFragment = new AllergensFragment();
@@ -931,54 +935,16 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                         break;
 
                 }
-                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                assert currentFragment != null;
-                currentFragment.setArguments(prefBundle);
-                fragmentTransaction.replace(R.id.settings_checkbox_table, currentFragment);
-                fragmentTransaction.commit();
+                sendSerializableToFragment();
             }
 
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-                Fragment fragment = null;
-                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-
-                fragmentTransaction.remove(currentFragment).commit();
-            }
+            public void onTabUnselected(TabLayout.Tab tab) { /* Nothing here */ }
 
             @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-                /*
-                Bundle prefBundle = new Bundle();
-                prefBundle.putSerializable("preferences", mUserProfile.getPreferences());
-
-                switch (tab.getPosition()) {
-                    case 0:
-                        fragment = new AllergensFragment();
-                        currentFilterType = filterType.ALLERGENS;
-                        //setFilters(currentFilterType);
-                        break;
-                    case 1:
-                        fragment = new DietaryFragment();
-                        currentFilterType = filterType.DIETARY;
-                        //setFilters(currentFilterType);
-                        break;
-
-                }
-                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                assert fragment != null;
-                fragment.setArguments(prefBundle);
-                fragmentTransaction.replace(R.id.settings_checkbox_table, fragment);
-                fragmentTransaction.commit();*/
-            }
+            public void onTabReselected(TabLayout.Tab tab) { /* Nothing here */}
 
         });
-
-
-    }
-
-    public static FilterType.filterType getCurrentFilterType(){
-        return currentFilterType;
     }
 
 

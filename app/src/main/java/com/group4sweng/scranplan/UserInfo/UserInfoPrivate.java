@@ -61,7 +61,8 @@ public class UserInfoPrivate implements Serializable{
             this.preferences = new Preferences((boolean) prefs.get("allergy_nuts"),
                     (boolean) prefs.get("allergy_eggs"), (boolean) prefs.get("allergy_milk"),
                     (boolean) prefs.get("allergy_shellfish"), (boolean)prefs.get("allergy_soya"),
-                    (boolean) prefs.get("allergy_gluten"));
+                    (boolean) prefs.get("allergy_gluten"), (boolean)prefs.get("vegetarian"),
+                    (boolean) prefs.get("vegan"), (boolean) prefs.get("pescatarian"));
         } else {
             this.preferences = new Preferences((boolean) prefs.get("allergy_celery"),
                     (boolean) prefs.get("allergy_crustacean"), (boolean) prefs.get("allergy_eggs"),
