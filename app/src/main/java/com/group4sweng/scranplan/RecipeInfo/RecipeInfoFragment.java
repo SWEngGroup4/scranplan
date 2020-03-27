@@ -66,9 +66,9 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
     protected String reheat;
     protected ArrayList<String> ingredientArray;
     protected Boolean planner;
-    private ArrayList<String> favouriteRecipe;
-    private UserInfoPrivate mUser;
-    private Boolean isFavourite;
+    protected ArrayList<String> favouriteRecipe;
+    protected UserInfoPrivate mUser;
+    protected Boolean isFavourite;
     protected String servingAmount;
     protected String fridgeTime;
     protected Boolean canFreeze;
@@ -423,7 +423,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
      * Add/Remove the favourite recipe by the star button which means that
      * add/remove the current user ID in the "favourite" array in the firestore.
      */
-    private void addFavourite(View layout) {
+    protected void addFavourite(View layout) {
 
         mFavourite = layout.findViewById(R.id.addFavorite);
         mDataRef = mDatabase.collection("recipes");
