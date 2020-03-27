@@ -22,7 +22,6 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.Home;
-import com.group4sweng.scranplan.PlannerInfoFragment;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;

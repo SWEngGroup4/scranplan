@@ -12,7 +12,8 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListView;
+import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,7 +42,7 @@ import java.util.ArrayList;
 public class RecipeInfoFragment extends AppCompatDialogFragment {
 
     // Variables for the xml layout so data from firebase can be properly assigned
-    protected Button mReturnButton;
+    protected ImageButton mReturnButton;
     private Button mLetsCook;
     private TabLayout mTabLayout2;
     private FrameLayout mRecipeFrameLayout;
@@ -51,6 +52,8 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
     private TextView mRating;
     private ImageView mRecipeImage;
     private ImageButton mFavourite;
+    private RatingBar mStars;
+    private TextView mServing;
 
     //Variables to hold the data being passed through into the fragment
     protected String recipeID;
@@ -60,11 +63,28 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
     protected String chefName;
     protected String recipeRating;
     protected String xmlPresentation;
+    protected String reheat;
     protected ArrayList<String> ingredientArray;
     protected Boolean planner;
-    private ArrayList<String> favouriteRecipe;
-    private UserInfoPrivate mUser;
-    private Boolean isFavourite;
+    protected ArrayList<String> favouriteRecipe;
+    protected UserInfoPrivate mUser;
+    protected Boolean isFavourite;
+    protected String servingAmount;
+    protected String fridgeTime;
+    protected Boolean canFreeze;
+    protected Boolean noEggs;
+    protected Boolean noMilk;
+    protected Boolean noNuts;
+    protected Boolean noShellfish;
+    protected Boolean noSoy;
+    protected Boolean noWheat;
+    protected Boolean mPescatarian;
+    protected Boolean mVegan;
+    protected Boolean mVegetarian;
+    protected TextView mFridge;
+    protected TextView mFreezer;
+    protected TextView mReheatInformation;
+    protected ImageButton mReheatInformationButton;
 
 
     private FirebaseFirestore mDatabase;
@@ -72,13 +92,13 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
     private CollectionReference mUserRef;
 
     // Define a String ArrayList for the ingredients
-    private ArrayList<String> ingredientList = new ArrayList<>();
+    protected ArrayList<String> ingredientList = new ArrayList<>();
 
     // Define a ListView to display the data
-    private ListView listViewIngredients;
+    protected LinearLayout listViewIngredients;
 
     // Define an ArrayAdapter for the list
-    private ArrayAdapter<String> arrayAdapter;
+    protected ArrayAdapter<String> arrayAdapter;
 
 
     // Auto-generated super method
@@ -105,13 +125,19 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         xmlPresentation = getArguments().getString("xmlURL");
         planner = getArguments().getBoolean("planner");
         favouriteRecipe = getArguments().getStringArrayList("favourite");
-        mUser =(com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
+        mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
         isFavourite = getArguments().getBoolean("isFav");
 
 
         builder.setView(layout);
 
+        initBundleItems(layout, getArguments());
+
+        initPageItems(layout);
+
         displayInfo(layout);
+
+        allergyDisplay(layout);
 
         initPageListeners(layout);
 
@@ -125,7 +151,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
     /**
      * Method that scales the pop up dialog box to fill the majority of the screen
      */
-    public void onResume(){
+    public void onResume() {
         super.onResume();
         ViewGroup.LayoutParams params = getDialog().getWindow().getAttributes();
         params.width = ConstraintLayout.LayoutParams.MATCH_PARENT;
@@ -134,11 +160,73 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
 
     }
 
+    //Assigning data passed through into the various xml views
+    protected void initPageItems(View layout) {
+
+        //Buttons
+        mReturnButton = layout.findViewById(R.id.ReturnButton);
+        mLetsCook = layout.findViewById(R.id.LetsCook);
+        mReheatInformationButton = layout.findViewById(R.id.reheatInfoButton);
+
+        //Text Views
+        mTitle = layout.findViewById(R.id.Title);
+        mChefName = layout.findViewById(R.id.chefName);
+        mDescription = layout.findViewById(R.id.description);
+        mRecipeImage = layout.findViewById(R.id.recipeImage);
+        mServing = layout.findViewById(R.id.serves);
+        mFridge = layout.findViewById(R.id.fridge);
+        mFreezer = layout.findViewById(R.id.freezer);
+        mReheatInformation = layout.findViewById(R.id.reheatInfoText);
+
+        //Tab Layouts
+        mTabLayout2 = layout.findViewById(R.id.tabLayout2);
+        mRecipeFrameLayout = layout.findViewById(R.id.RecipeFrameLayout);
+
+        //For the Ingredient array
+       listViewIngredients = layout.findViewById(R.id.listViewText);
+
+        //5 star rating bar
+        mStars = layout.findViewById(R.id.ratingBar);
+    }
+
+
+    /**
+     * Arguments from the bundle passed into the fragment that contains data for the info page from the firestore
+     */
+    private void initBundleItems(View layout, Bundle bundle) {
+
+        recipeID = bundle.getString("recipeID");
+        recipeName = bundle.getString("recipeTitle");
+        recipeImage = bundle.getString("imageURL");
+        recipeDescription = bundle.getString("recipeDescription");
+        chefName = bundle.getString("chefName");
+        ingredientArray = bundle.getStringArrayList("ingredientList");
+        recipeRating = bundle.getString("rating");
+        xmlPresentation = bundle.getString("xmlURL");
+        planner = bundle.getBoolean("planner");
+        recipeRating = bundle.getString("rating");
+        recipeRating = bundle.getString("rating");
+        reheat = bundle.getString("reheat");
+        noEggs = bundle.getBoolean("noEggs");
+        noMilk = bundle.getBoolean("noMilk");
+        noNuts = bundle.getBoolean("noNuts");
+        noShellfish = bundle.getBoolean("noShellfish");
+        noSoy = bundle.getBoolean("noSoy");
+        noWheat = bundle.getBoolean("noWheat");
+        mPescatarian = bundle.getBoolean("pescatarian");
+        mVegan = bundle.getBoolean("vegan");
+        mVegetarian = bundle.getBoolean("vegetarian");
+        servingAmount = bundle.getString("peopleServes");
+        canFreeze = bundle.getBoolean("canFreeze");
+        fridgeTime = bundle.getString("fridgeDays");
+
+    }
+
     /**
      * When back button is clicked within the recipe information dialogFragment,
      * Recipe information dialogFragment is closed and returns to recipe fragment
      */
-    protected void initPageListeners(View layout){
+    protected void initPageListeners(View layout) {
 
         mReturnButton = layout.findViewById(R.id.ReturnButton);
         mReturnButton.setOnClickListener(new View.OnClickListener() {
@@ -150,8 +238,43 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
 
         // Handles info received from Meal Planner searches
         if (planner) {
-            mLetsCook = layout.findViewById(R.id.LetsCook);
-            mLetsCook.setText("Add"); // Changes button text
+
+            // Changes button text
+            mLetsCook.setText("Add");
+            // Sets fridge text
+            mFridge.setText("Keep in Fridge: " + fridgeTime + " days");
+
+            //If canFreeze boolean is set to true then the screen will display that the meal can be frozen
+            if (canFreeze == true) {
+                mFreezer = layout.findViewById(R.id.freezer);
+                mFreezer.setText("Can be frozen");
+            } else {
+                mFreezer.setText("Cannot be frozen");
+            }
+
+            //Sets reheat information text above the reheat information button
+            mReheatInformation.setText("Reheat Information");
+
+            //Sets the reheat information button to visible for the paying user and creates a dialog that hold the
+            //reheat information
+            mReheatInformationButton.setVisibility(View.VISIBLE);
+            mReheatInformationButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+                    builder.setMessage(reheat)
+                            .setTitle("Reheating Information")
+                            .setIcon(R.drawable.reheat);
+
+                    AlertDialog dialog = builder.create();
+
+                    dialog.show();
+
+                }
+            });
+
             mLetsCook.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -180,7 +303,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
      * Method that controls the tabs within the recipe information dialogFragment
      * to select between the ingredient information and the comments section
      */
-    protected void tabFragments(final View layout){
+    protected void tabFragments(final View layout) {
 
         mTabLayout2 = layout.findViewById(R.id.tabLayout2);
         mRecipeFrameLayout = layout.findViewById(R.id.RecipeFrameLayout);
@@ -221,23 +344,37 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
 
     }
 
-    protected void displayInfo(View layout){
+    protected void displayInfo(View layout) {
 
-        //Getting ingredients array and assigning it to the list layout view
-        listViewIngredients = layout.findViewById(R.id.listViewText);
+        //Getting ingredients array and assigning it to the linear layout view
         arrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, ingredientList);
         arrayAdapter.addAll(ingredientArray);
-        listViewIngredients.setAdapter(arrayAdapter);
 
         //Assigning data passed through into the various xml views
         mTitle = layout.findViewById(R.id.Title);
         mChefName = layout.findViewById(R.id.chefName);
         mDescription = layout.findViewById(R.id.description);
         mRecipeImage = layout.findViewById(R.id.recipeImage);
-        mRating = layout.findViewById(R.id.Rating);
+        final int adapterCount = arrayAdapter.getCount();
+
+        for (int i = 0; i < adapterCount; i++) {
+            View item = arrayAdapter.getView(i, null, null);
+            listViewIngredients.addView(item);
+        }
+
+
+        //Sets the serving amount for each recipe
+        mServing.setText("Serves: " + servingAmount);
+
+        //Setting the recipe star rating
+        mStars.setRating(Float.parseFloat(recipeRating));
+        mStars.setIsIndicator(true);
+        mStars.setNumStars(5);
+        mStars.setStepSize(0.1F);
+
+        //setting the recipe title
         mTitle.setText(recipeName);
         mDescription.setText(recipeDescription);
-        mRating.setText("Rating: " + recipeRating);
         Picasso.get().load(recipeImage).into(mRecipeImage);
 
 
@@ -256,7 +393,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
 
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()){
+                if (task.isSuccessful()) {
 
                     /**
                      * Using the UID from the Chef field in recipes, the following takes a snapshot of
@@ -268,11 +405,11 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
                         @Override
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
-                            if (task.isSuccessful()){
+                            if (task.isSuccessful()) {
 
                                 //Takes objects from the firestore and assigns them to their relevant variables
                                 DocumentSnapshot userDocument = task.getResult();
-                                mChefName.setText("Chef: " +(userDocument.getData().get("displayName").toString()));
+                                mChefName.setText("Chef: " + (userDocument.getData().get("displayName").toString()));
 
                             }
                         }
@@ -286,7 +423,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
      * Add/Remove the favourite recipe by the star button which means that
      * add/remove the current user ID in the "favourite" array in the firestore.
      */
-    private void addFavourite(View layout) {
+    protected void addFavourite(View layout) {
 
         mFavourite = layout.findViewById(R.id.addFavorite);
         mDataRef = mDatabase.collection("recipes");
@@ -320,9 +457,130 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
                         }
                     });
                 }
-
             }
         });
+    }
+
+    /**
+     * Method that cycles through allergies and eating preference within the recipe collection
+     * and creates an ImageView that displays on a recipe so the user knows what allergy it contains.
+     */
+    protected void allergyDisplay(View layout) {
+
+        allergyIconCreation(layout);
+        eatingAdviceIconCreation(layout);
+    }
+
+    /**
+     * Method that allows for the creation of the allergies icons and displays them onto the recipe information screen
+     */
+    private void allergyIconCreation(View layout){
+
+    //Arrays that hold the boolean values and imageView id's for the allergy ingredients
+    ArrayList<Boolean> allergyValue = new ArrayList<>();
+        allergyValue.add(noEggs);
+        allergyValue.add(noMilk);
+        allergyValue.add(noNuts);
+        allergyValue.add(noShellfish);
+        allergyValue.add(noSoy);
+        allergyValue.add(noWheat);
+
+    ArrayList<String> allergyMessage = new ArrayList<>();
+        allergyMessage.add("Contains Eggs");
+        allergyMessage.add("Contains Lactose");
+        allergyMessage.add("Contains Nuts");
+        allergyMessage.add("Contains Shellfish");
+        allergyMessage.add("Contains Soy");
+        allergyMessage.add("Contains Gluten");
+
+    ArrayList<ImageView> list = new ArrayList<>();
+        list.add(layout.findViewById(R.id.recipeInfoEggs));
+        list.add(layout.findViewById(R.id.recipeInfoMilk));
+        list.add(layout.findViewById(R.id.recipeInfoNuts));
+        list.add(layout.findViewById(R.id.recipeInfoShellfish));
+        list.add(layout.findViewById(R.id.recipeInfoSoy));
+        list.add(layout.findViewById(R.id.recipeInfoWheat));
+
+    //Integers that hold the sizes of the two different category array sizes
+    final int arrayCount1 = allergyValue.size();
+
+    //For loop that iterates through both allergy ingredient arrays and if a recipe holds a certain
+    //allergy then that allergy icon is set to visible
+        for(
+    int i = 0;
+    i<arrayCount1;i++)
+
+    {
+        if (!allergyValue.get(i)) {
+            ImageView createAllergyIcon = list.get(i);
+            String message = allergyMessage.get(i);
+            createAllergyIcon.setVisibility(View.VISIBLE);
+            createAllergyIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+                    AlertDialog dialog = builder.create();
+
+                    dialog.setTitle("Allergy");
+                    dialog.setMessage(message);
+                    dialog.show();
+                }
+            });
+        }
+    }
+
+
+}
+
+    /**
+     * Method that allows for the creation of the eating preference icons and displays them onto the recipe information screen
+     */
+    private void eatingAdviceIconCreation(View layout) {
+
+        //Arrays that hold the boolean values and ImageView id's for the eating preference
+        ArrayList<Boolean> EatingHabitValue = new ArrayList<>();
+        EatingHabitValue.add(mPescatarian);
+        EatingHabitValue.add(mVegan);
+        EatingHabitValue.add(mVegetarian);
+
+        ArrayList<String> EatingHabitMessage = new ArrayList<>();
+        EatingHabitMessage.add("Suitable for Pescatarian's");
+        EatingHabitMessage.add("Suitable for Vegans");
+        EatingHabitMessage.add("Suitable for Vegetarians");
+
+        ArrayList<ImageView> EatingHabit = new ArrayList<>();
+        EatingHabit.add(layout.findViewById(R.id.recipeInfoPesc));
+        EatingHabit.add(layout.findViewById(R.id.recipeInfoVegan));
+        EatingHabit.add(layout.findViewById(R.id.recipeInfoVeggie));
+
+        //Integers that hold the sizes of the two different category array sizes
+        final int arrayCount2 = EatingHabit.size();
+
+
+        //For loop that iterates through the eating preference arrays and if a recipe is either vegan, vegetarian
+        //or pescatarian then the imageView is made visible
+        for (int i = 0; i < arrayCount2; i++) {
+            if (EatingHabitValue.get(i)) {
+                ImageView eatingPreferenceIcon = EatingHabit.get(i);
+                String message = EatingHabitMessage.get(i);
+                eatingPreferenceIcon.setVisibility(View.VISIBLE);
+                eatingPreferenceIcon.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+                        AlertDialog dialog = builder.create();
+
+                        dialog.setTitle("Recipe Advice");
+                        dialog.setMessage(message);
+                        dialog.show();
+                    }
+                });
+            }
+        }
+
+
     }
 
 }
