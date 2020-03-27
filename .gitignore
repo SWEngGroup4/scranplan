@@ -94,3 +94,6 @@ app/.classpath
 app/.settings/org.eclipse.buildship.core.prefs
 
 .vscode/settings.json
+
+app/src/main/res/.DS_Store
+.DS_Store

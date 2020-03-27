@@ -1,10 +1,11 @@
-package com.group4sweng.scranplan.Presentation;
+package com.group4sweng.scranplan.Presentation.Views;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.text.Html;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.core.provider.FontRequest;
 import androidx.core.provider.FontsContractCompat;
@@ -27,8 +29,8 @@ import java.util.TimerTask;
 public class PresentationTextView extends ScrollView {
 
     private Handler mHandler = null;
-    private Timer startTimer = null;
-    private Timer endTimer = null;
+    private CountDownTimer startTimer = null;
+    private CountDownTimer endTimer = null;
     private LinearLayout.LayoutParams scrollLayoutParams;
     private TextView textView;
     private Integer slideHeight;
@@ -97,7 +99,6 @@ public class PresentationTextView extends ScrollView {
             }
             @Override
             public void onTypefaceRequestFailed(int reason) {
-                // Refer to https://developer.android.com/reference/android/provider/FontsContract.FontRequestCallback#constants_2 for error codes
 //                Toast.makeText(getContext(), "Font request failed with exit code: " + reason, Toast.LENGTH_SHORT).show();
             }
         };
@@ -120,54 +121,56 @@ public class PresentationTextView extends ScrollView {
     }
 
     // Sets time in milliseconds for the text box to first appear at
-    public void setStartTime(final Activity activity, final Integer startTime) {
-        setVisibility(View.INVISIBLE); // Change to View.GONE if maintaining layout is not necessary
-        Log.d("Test", "Timer started");
-        startTimer = new Timer();
-        startTimer.schedule(
-                new TimerTask() {
-                    @Override
-                    public void run() {
-                        activity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                setVisibility(View.VISIBLE);
-                                startTimer = null;
-                            }
-                        });
-                    }
-                }, startTime
-        );
+    public void setStartTime(final Integer startTime) {
+        setVisibility(INVISIBLE); // Change to View.GONE if maintaining layout is not necessary
+        startTimer = new CountDownTimer(startTime, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                //Empty
+            }
+
+            @Override
+            public void onFinish() {
+                setVisibility(VISIBLE);
+            }
+        };
     }
 
     // Sets time in milliseconds for the text box to disappear at
-    public void setEndTime(final Activity activity, Integer endTime) {
-        endTimer = new Timer();
-        endTimer.schedule(
-                new TimerTask() {
-                    @Override
-                    public void run() {
-                        activity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                setVisibility(View.INVISIBLE); // Change to View.GONE if maintaining layout is not necessary
-                                endTimer = null;
-                            }
-                        });
-                    }
-                }, endTime
-        );
+    public void setEndTime( Integer endTime) {
+        endTimer = new CountDownTimer(endTime, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {}
+
+            @Override
+            public  void onFinish() {
+                setVisibility(INVISIBLE);
+            }
+        };
+    }
+
+    public void startTimers() {
+        if (startTimer != null)
+            startTimer.start();
+        if (endTimer != null)
+            endTimer.start();
     }
 
     // Stops timers running in case of slide change/transition
     public void stopTimers() {
-        if (startTimer != null) {
+        try {
             startTimer.cancel();
             startTimer = null;
         }
-        if (endTimer != null) {
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
             endTimer.cancel();
             endTimer = null;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

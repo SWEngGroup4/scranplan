@@ -32,6 +32,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.MealPlanner.PlannerFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
@@ -59,6 +60,7 @@ public class Home extends AppCompatActivity {
     // Main tab variables
     FragmentManager fragmentManager = getSupportFragmentManager();
     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+    Fragment fragment;
     TabLayout tabLayout;
     FrameLayout frameLayout;
 
@@ -67,6 +69,8 @@ public class Home extends AppCompatActivity {
     AlertDialog alertDialog;
 
     // Search variables
+    SearchView searchView;
+    MenuItem sortView;
     SearchQuery query;
     SearchPrefs prefs;
 
@@ -109,6 +113,8 @@ public class Home extends AppCompatActivity {
             mSentryUser.setEmail(mUser.getEmail());
             Sentry.setUser(mSentryUser);
         }
+
+        fragment = new RecipeFragment(mUser);
         /*
         // Setting up the action and tab bars
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -147,7 +153,8 @@ public class Home extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_search, menu);
         MenuItem item = menu.findItem(R.id.menuSearch);
-        SearchView searchView = (SearchView)item.getActionView();
+        searchView = (SearchView)item.getActionView();
+        sortView = menu.findItem(R.id.menuSortButton);
 
         // Adding the listener to search for string provided by user
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -261,22 +268,28 @@ public class Home extends AppCompatActivity {
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                Fragment fragment = null;
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                Log.d("Test", String.valueOf(fragment));
                 switch (tab.getPosition()) {
                     case 0:
                         fragment = new RecipeFragment(mUser);
+                        fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
                         break;
                     case 1:
+                        if (fragment.getClass() == RecipeFragment.class) fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                        else fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
                         fragment = new PlannerFragment();
                         break;
                     case 2:
                         fragment = new TimelinePlanner();
+                        fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         break;
                 }
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.frameLayout, fragment);
                 fragmentTransaction.commit();
+                searchView.clearFocus();
+                searchView.onActionViewCollapsed();
             }
 
             @Override
@@ -289,6 +302,20 @@ public class Home extends AppCompatActivity {
 
             }
         });
+    }
+
+    // Quick function for getting the search menu in other fragments
+    public SearchView getSearchView() {
+        return searchView;
+    }
+
+    public MenuItem getSortView() {
+        return sortView;
+    }
+
+    // Quick function for getting the search prefs in other fragments
+    public SearchPrefs getSearchPrefs() {
+        return prefs;
     }
 
     /**

@@ -9,6 +9,8 @@ import org.junit.Test;
 
 import androidx.fragment.app.testing.FragmentScenario;
 
+import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
+
 
 public class RecipeInfoTest {
 

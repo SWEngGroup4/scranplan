@@ -5,11 +5,53 @@
     android:layout_height="match_parent"
     tools:context="com.group4sweng.scranplan.RecipeFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
+        android:id="@+id/plannerLinear"
+        android:layout_width="match_parent"
+        android:layout_height="40sp"
+        android:orientation="horizontal"
+        android:weightSum="3"
+        android:background="@color/colorPrimaryLight">
+
+        <TextView
+            android:textColor="@color/colorWhiteText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@string/planner_breakfast"/>
+
+        <TextView
+            android:textColor="@color/colorWhiteText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@string/planner_lunch"/>
+
+        <TextView
+            android:textColor="@color/colorWhiteText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@string/planner_dinner"/>
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/plannerScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="Planner" />
+        android:layout_marginTop="40sp">
 
+        <LinearLayout
+            android:id="@+id/plannerLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+        </LinearLayout>
+    </ScrollView>
 </FrameLayout>

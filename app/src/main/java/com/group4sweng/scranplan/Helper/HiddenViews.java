@@ -1,6 +1,7 @@
 package com.group4sweng.scranplan.Helper;
 
 import com.group4sweng.scranplan.Drawing.LayoutCreator;
+import com.group4sweng.scranplan.Login;
 
 /**
  * Recorded Espresso helpers
@@ -18,6 +19,7 @@ import com.group4sweng.scranplan.Drawing.LayoutCreator;
 public enum HiddenViews {
 
     LAYOUT_TEST("AccioLayoutCreator2020", LayoutCreator.class);
+    LOGIN("AccioLogin2020", Login.class);
 
     private String usernamekeyWord;
     private Class<?> classDestination;
