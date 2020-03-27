@@ -31,6 +31,7 @@ public class PresentationSlide extends RelativeLayout {
         this.setLayoutParams(layoutParams);
     }
 
+    //Makes slide visible and starts timers for elements
     public void show() {
         this.setVisibility(VISIBLE);
         for (PresentationTextView textView : textViews)
@@ -40,10 +41,18 @@ public class PresentationSlide extends RelativeLayout {
             imageView.startTimers();
     }
 
+    //Makes slide invisble
     public void hide() {
         this.setVisibility(GONE);
+
+        for (PresentationTextView textView : textViews)
+            textView.stopTimers();
+
+        for (PresentationImageView imageView : imageViews)
+            imageView.stopTimers();
     }
 
+    //Add text element to slide
     public void addText(XmlParser.Text text) {
         PresentationTextView textView = new PresentationTextView(getContext(), slideHeight, slideWidth);
         textView.setDims(text.width, text.height);
@@ -63,6 +72,7 @@ public class PresentationSlide extends RelativeLayout {
         this.addView(textView);
     }
 
+    //Add image element to file
     public void addImage(XmlParser.Image image) {
         PresentationImageView imageView = new PresentationImageView(getContext(), slideHeight, slideWidth);
         imageView.setImage(image.urlName);
@@ -79,6 +89,7 @@ public class PresentationSlide extends RelativeLayout {
     }
 
     //TODO - add dimensions for video?
+    //Add video element to file
     public void addVideo(XmlParser.Video video) {
         playerView = new PresentationPlayerView(getContext(), slideHeight, slideWidth);
         playerView.initializePlayer(video.urlName, Boolean.TRUE);
@@ -87,6 +98,7 @@ public class PresentationSlide extends RelativeLayout {
         this.addView(playerView);
     }
 
+    //Add timer to file
     public void addTimer(Float timer) {
         TextView timerView = new TextView(getContext());
         timerView.setText(String.format("Timer: %s", timer));

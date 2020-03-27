@@ -70,4 +70,22 @@ public class PresentationImageView extends AppCompatImageView {
         endTimer.start();
     }
 
+    // Stops timers running in case of slide change/transition
+    public void stopTimers() {
+        try {
+            startTimer.cancel();
+            startTimer = null;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            endTimer.cancel();
+            endTimer = null;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }
