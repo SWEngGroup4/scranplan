@@ -25,7 +25,7 @@ public class Circle extends Shape {
     //          y -> center y coordinate (int)
     //          rad -> radius of the circle (int)
 
-    Circle(int x, int y, int rad, String color)
+    public Circle(int x, int y, int rad, String color)
     {
         this.color = color;
         center_x = x;
@@ -35,27 +35,27 @@ public class Circle extends Shape {
         circle_paint.setColor(Color.parseColor(color));
     }
 
-    void make_hollow()
+    public void make_hollow()
     {
         circle_paint.setStyle(Paint.Style.STROKE);
     }
 
-    void fill_shape()
+    public void fill_shape()
     {
         circle_paint.setStyle(Paint.Style.FILL_AND_STROKE);
     }
 
-    int getSelected_flag()
+    public int getSelected_flag()
     {
         return(selected_flag);
     }
 
-    void set_selected()
+    public void set_selected()
     {
         selected_flag = 1;
     }
 
-    void clear_selected()
+    public void clear_selected()
     {
         selected_flag = 0;
     }
@@ -66,92 +66,43 @@ public class Circle extends Shape {
     // Alternatively color.GREEN (for example) is set to the right value for green.
     //               color.BLACK
     //               color.PINK   etc...
-    void setCircle_colour(int new_color)
+    public void setCircle_colour(int new_color)
     {
         circle_paint.setColor(new_color);
     }
 
-    Paint get_circ_paint()
+    public Paint get_circ_paint()
     {
         return(this.circle_paint);
     }
 
-    int getCenter_x()
+    public int getCenter_x()
     {
         return (center_x);
     }
 
-    int getCenter_y()
+    public  int getCenter_y()
     {
         return(center_y);
     }
 
-    int getRadius()
+    public int getRadius()
     {
         return(radius);
     }
 
-    void setRadius(int new_val)
+    public void setRadius(int new_val)
     {
         radius = new_val;
     }
 
-    void setCenter_x(int new_val)
+    public void setCenter_x(int new_val)
     {
         center_x = new_val;
     }
 
-    void setCenter_y(int new_val)
+    public void setCenter_y(int new_val)
     {
         center_y = new_val;
     }
-
-    void setStartTime(final Activity activity, final Integer startTime) {
-        circle_paint.setColor(Color.TRANSPARENT);
-        startTimer = new Timer();
-        startTimer.schedule(
-                new TimerTask() {
-                    @Override
-                    public void run() {
-                        activity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                circle_paint.setColor(Color.parseColor(color));
-                                startTimer = null;
-                            }
-                        });
-                    }
-                }, startTime
-        );
-    }
-
-    public void setEndTime(final Activity activity, Integer endTime) {
-        endTimer = new Timer();
-        endTimer.schedule(
-                new TimerTask() {
-                    @Override
-                    public void run() {
-                        activity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                circle_paint.setColor(Color.TRANSPARENT);
-                                endTimer = null;
-                            }
-                        });
-                    }
-                }, endTime
-        );
-    }
-
-    public void stopTimers() {
-        if (startTimer != null) {
-            startTimer.cancel();
-            startTimer = null;
-        }
-        if (endTimer != null) {
-            endTimer.cancel();
-            endTimer = null;
-        }
-    }
-
 }

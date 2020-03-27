@@ -294,7 +294,7 @@ class XmlParser {
 
     // TODO - Put loop to check if reaches END_TAG or shading tag
     private Shape readShape(XmlPullParser parser) throws  IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, null, "shape");
+            parser.require(XmlPullParser.START_TAG, null, "shape");
 
         String type = parser.getAttributeValue(null, "type");
         Float xStart = Float.valueOf(parser.getAttributeValue(null, "xstart"));
@@ -304,9 +304,10 @@ class XmlParser {
         String fillColor = parser.getAttributeValue(null, "fillcolor");
         Integer startTime = Integer.valueOf(parser.getAttributeValue(null, "starttime"));
         Integer endTime = Integer.valueOf(parser.getAttributeValue(null, "endtime"));
-        Shading shading = readShading(parser);
+//        Shading shading = readShading(parser);
+        Shading shading = new Shading(0, 0, 0, 0, "", "", false);
 
-        parser.require(XmlPullParser.END_TAG, null, "shape");
+        parser.nextTag();
 
         return new Shape(type, xStart, yStart, width, height, fillColor, startTime, endTime, shading);
     }

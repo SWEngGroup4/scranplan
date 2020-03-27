@@ -23,7 +23,7 @@ public class LayoutCreator extends AppCompatActivity {
             @Override
             public void onClick(View v)
             {
-                mCustomView.new_circle();
+//                mCustomView.new_circle();
                 //mCustomView.start_timer(10000);
                 //function to do something if pressed
 

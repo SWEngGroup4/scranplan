@@ -58,9 +58,11 @@ public class CustomView extends View
     private Paint line_paint_brush;
 
     private int shape_selected = 0;
+    private boolean interaction = false;
 
-    public CustomView(Context context) {
+    public CustomView(Context context, Boolean interaction) {
         super(context);
+        this.interaction = interaction;
         init(null);
     }
 
@@ -83,11 +85,15 @@ public class CustomView extends View
     }
 
     //Creating a new circle and adding it to the circle array.
-    public void new_circle()
+    public void new_circle(Integer xPos, Integer yPos, Integer radius, String colour, Integer startTime, Integer endTime)
     {
-        circle_array[num_circles] = new Circle(200, 200, 100, "#000000"); //created a new circle object
-        //default colour is green :)
-        start_timer(5000,0);
+        circle_array[num_circles] = new Circle(xPos, yPos, radius, colour); //created a new circle object
+        if (startTime > 0)
+            start_timer(startTime, 0, Color.parseColor(colour));
+
+        if (endTime > startTime)
+            end_timer(endTime,0);
+
         num_circles++;
         postInvalidate();
     }
@@ -98,7 +104,7 @@ public class CustomView extends View
 
         square_array[num_squares] = new Square(100, 100, 200, "#000000");
         num_squares++;
-        start_timer(5000, 1);
+        end_timer(5000, 1);
 
         postInvalidate();
     }
@@ -109,16 +115,38 @@ public class CustomView extends View
         triangles[num_triangles] = new Triangle(200,200,200, "#000000");
 
         num_triangles ++;
-        start_timer(10000, 3);
+//        start_timer(10000, 3);
 
         Log.d("hint", "here" + num_triangles);
         postInvalidate();
 
     }
 
+    public void start_timer(int millisInFuture, int flag, int colour) {
+        int curr_num;
+        if (flag == 0) {
+            curr_num = num_circles;
+            circle_array[curr_num].setCircle_colour(Color.parseColor("#80000000"));
+            Log.d("Test", "Circle timer started");
+            circle_lives[curr_num] = new CountDownTimer(millisInFuture, 1000) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    Log.d("Test", "Circle tick");
+                }
+
+                @Override
+                public void onFinish() {
+                    Log.d("Test", "Circle timer done");
+                    circle_array[curr_num].setCircle_colour(colour);
+                    postInvalidate();
+                }
+            }.start();
+        }
+    }
+
     //timer function, that starts the a timer to the specific timer array (so shapes can be indexed).
     // inputs are int millisInfuture (time to count down from in milliseconds) and flag (that tells it what kind of shape it is).
-    public void start_timer(int millisInFuture, int flag) //flag = 0 circle || flag = 1 square || flag = 2 lines || flag = 3 triangle
+    public void end_timer(int millisInFuture, int flag) //flag = 0 circle || flag = 1 square || flag = 2 lines || flag = 3 triangle
     {
         if (flag == 0)
         {
@@ -427,7 +455,7 @@ public void delete_triangle()
     public void new_line(int x_start, int y_start, int x_finish, int y_finish)
     {
         lines[num_lines] = new Line(x_start, y_start, x_finish, y_finish, "#000000");
-        start_timer(5000, 2);
+//        start_timer(5000, 2);
         num_lines++;
         postInvalidate();
 
@@ -557,67 +585,57 @@ public void delete_triangle()
     public boolean onTouchEvent(MotionEvent event) //this function allows movement of shapes
     {
         boolean value = super.onTouchEvent(event);
+         if (interaction) {
+             switch (event.getAction()) {
+                 case MotionEvent.ACTION_DOWN: //MAYBE ROOM FOR HAVING TAP TO CHANGE COLOUR?
+                 {
+                     //At the moment does nothing.
+                     // Switch Case implemented and left for easier implementation of further features.
+                 }
 
-        switch (event.getAction())
-        {
-            case MotionEvent.ACTION_DOWN: //MAYBE ROOM FOR HAVING TAP TO CHANGE COLOUR?
-            {
-                //At the moment does nothing.
-                // Switch Case implemented and left for easier implementation of further features.
-            }
+                 case MotionEvent.ACTION_MOVE: //if touch and move
+                 {
+                     double x = event.getX();
+                     double y = event.getY(); //position of touch x or y
 
-            case MotionEvent.ACTION_MOVE: //if touch and move
-            {
-                double x = event.getX();
-                double y = event.getY(); //position of touch x or y
+                     if (!draw_line) {
 
-                if (!draw_line) {
+                         shape_selected = 0;
+                         square_check(x, y, 0); //square has priority as it was put first
 
-                    shape_selected = 0;
-                    square_check(x, y, 0); //square has priority as it was put first
+                         if (shape_selected == 0) {
+                             circle_check(x, y, 0);    //if square hasn't been selected check circle
+                             if (shape_selected == 0) {
+                                 triangle_check(x, y, 0); //if circle hasn't been selected check triangle
+                             } else {
+                                 triangle_check(x, y, 1);
+                             }
 
-                    if (shape_selected == 0)
-                    {
-                        circle_check(x, y, 0);    //if square hasn't been selected check circle
-                        if (shape_selected == 0)
-                        {
-                            triangle_check(x, y, 0); //if circle hasn't been selected check triangle
-                        }
-                        else
-                        {
-                            triangle_check(x,y,1);
-                        }
-
-                    }
-
-                    else
-                        {
-                        circle_check(x, y, 1); //because a square has been selected
-                        triangle_check(x, y, 1);
-                    }
+                         } else {
+                             circle_check(x, y, 1); //because a square has been selected
+                             triangle_check(x, y, 1);
+                         }
 
 
-                    postInvalidate();
-                    return true;
-                }
-                else if (draw_line & old_x == 0) //if in draw_line mode, it will consider these 2 options.
-                {
-                    old_y = y; //remember the old tap location, so next time the difference can be found.
-                    old_x = x;
-                }
-                else if (draw_line & (old_x != 0))
-                {
-                    //draw a line between the new and last points
-                    new_line((int)old_x, (int)old_y, (int)x, (int)y);
-                    postInvalidate();
+                         postInvalidate();
+                         return true;
+                     } else if (draw_line & old_x == 0) //if in draw_line mode, it will consider these 2 options.
+                     {
+                         old_y = y; //remember the old tap location, so next time the difference can be found.
+                         old_x = x;
+                     } else if (draw_line & (old_x != 0)) {
+                         //draw a line between the new and last points
+                         new_line((int) old_x, (int) old_y, (int) x, (int) y);
+                         postInvalidate();
 
-                    old_x = 0;//reset the old points so it can start the process again.
-                    old_y = 0;
+                         old_x = 0;//reset the old points so it can start the process again.
+                         old_y = 0;
 
-                    return(true);
-                }
-            }
-        }
+                         return (true);
+                     }
+                 }
+             }
+         }
      return value;
     }
 

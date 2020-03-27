@@ -3,6 +3,7 @@ package com.group4sweng.scranplan.Presentation;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
@@ -46,6 +47,8 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.group4sweng.scranplan.Drawing.Circle;
+import com.group4sweng.scranplan.Drawing.CustomView;
 import com.group4sweng.scranplan.Exceptions.AudioPlaybackError;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.SoundHandler.AudioURL;
@@ -115,6 +118,8 @@ public class Presentation extends AppCompatActivity {
     com.group4sweng.scranplan.UserInfo.UserInfoPrivate mUser;
     Context context;
 
+    private Circle circle;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,7 +127,7 @@ public class Presentation extends AppCompatActivity {
         setContentView(R.layout.presentation);
         expandableLayout = (ExpandableRelativeLayout) findViewById(R.id.expandableLayout);
 
-        Log.d("Test", "Presentation launched");
+        Log.d(TAG, "Presentation launched");
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -213,6 +218,9 @@ public class Presentation extends AppCompatActivity {
             slideLayout.setLayoutParams(slideParams);
             slideLayout.setBackgroundColor(Color.parseColor(defaults.backgroundColor));
 
+            CustomView customView = new CustomView(this, false);
+            slideLayout.addView(customView);
+
             XmlParser.Text id = new XmlParser.Text(slide.id, defaults);
             slideLayout.addView(addText(id, slideWidth, slideHeight));
             dropdownItems.add(id.text);
@@ -224,7 +232,11 @@ public class Presentation extends AppCompatActivity {
                 //TODO - Generate line graphic
             }
             if (slide.shape != null) {
-                //TODO - Generate shape graphic
+//                addShape(slide.shape, slideWidth, slideHeight);
+                Integer xPos = Math.round(slideWidth * (slide.shape.xStart / 100));
+                Integer yPos = Math.round(slideHeight * (slide.shape.yStart / 100));
+                Integer radius = Math.round(slideWidth * (slide.shape.width / 100));
+                customView.new_circle(xPos, yPos, radius, "#000000", 5000, 0);
             }
 
             //  Checks if the slide contains a 'non-looping' audio file. Played at end of timer countdown, or as a standalone audio file.
@@ -416,7 +428,6 @@ public class Presentation extends AppCompatActivity {
     }
 
     private PresentationTextView addText(final XmlParser.Text text, Integer slideWidth, Integer slideHeight) {
-
         PresentationTextView textView = new PresentationTextView(getApplicationContext(), slideHeight, slideWidth);
         textView.setDims(text.width, text.height);
         textView.setBackgroundColor(getResources().getColor(R.color.colorAccent));
@@ -492,7 +503,7 @@ public class Presentation extends AppCompatActivity {
         return imageView;
     }
 
-    //TODO old comments section where we used XML, for James Crawley to delete where he sees fit
+    //TODO old comments section where we used XML, for James Clawley to delete where he sees fit
 //    private RelativeLayout addComments(List<XmlParser.Comment> comments,
 //                                       XmlParser.Defaults defaults, Typeface defaultTypeFace, Integer slideWidth, Integer slideHeight) {
 //        RelativeLayout commentLayout = new RelativeLayout(getApplicationContext());
@@ -592,6 +603,11 @@ public class Presentation extends AppCompatActivity {
             urlConnection.connect();
             return urlConnection.getInputStream();
         }
+    }
+
+    protected void onDraw(Canvas canvas) {
+        canvas.drawCircle(circle.getCenter_x(), circle.getCenter_y(), circle.getRadius(), circle.get_circ_paint());
+        Log.d("Test", "onDraw");
     }
 
     /**
