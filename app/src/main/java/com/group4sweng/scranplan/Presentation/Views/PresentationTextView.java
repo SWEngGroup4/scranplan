@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.core.provider.FontRequest;
 import androidx.core.provider.FontsContractCompat;
@@ -98,7 +99,6 @@ public class PresentationTextView extends ScrollView {
             }
             @Override
             public void onTypefaceRequestFailed(int reason) {
-                // Refer to https://developer.android.com/reference/android/provider/FontsContract.FontRequestCallback#constants_2 for error codes
 //                Toast.makeText(getContext(), "Font request failed with exit code: " + reason, Toast.LENGTH_SHORT).show();
             }
         };
@@ -158,13 +158,19 @@ public class PresentationTextView extends ScrollView {
 
     // Stops timers running in case of slide change/transition
     public void stopTimers() {
-        if (startTimer != null) {
+        try {
             startTimer.cancel();
             startTimer = null;
         }
-        if (endTimer != null) {
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
             endTimer.cancel();
             endTimer = null;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
