@@ -1,4 +1,4 @@
-package com.group4sweng.scranplan;
+package com.group4sweng.scranplan.MealPlanner;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
@@ -6,7 +6,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
+import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,6 +30,7 @@ public class PlannerInfoFragment extends RecipeInfoFragment {
         allergyDisplay(layout);
         initPageListeners(layout);
         tabFragments(layout);
+        addFavourite(layout);
 
         return layout;
     }
@@ -47,6 +50,9 @@ public class PlannerInfoFragment extends RecipeInfoFragment {
         this.recipeRating = (String) map.get("rating");
         this.xmlPresentation = (String) map.get("xmlURL");
         this.planner = (Boolean) map.get("planner");
+        this.favouriteRecipe = (ArrayList<String>) map.get("favourite");
+        this.mUser = (UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
+        this.isFavourite = (Boolean) map.get("isFav");
         this.servingAmount = (String) map.get("peopleServes");
         this.fridgeTime =  (String) map.get("fridgeDays");
         this.canFreeze = (Boolean) map.get("canFreeze");
