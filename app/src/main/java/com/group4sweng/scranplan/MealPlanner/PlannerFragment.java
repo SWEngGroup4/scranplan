@@ -7,7 +7,10 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -55,6 +58,7 @@ public class PlannerFragment extends Fragment {
     //Menu items
     private SearchView searchView;
     private MenuItem sortButton;
+    Button mShoppingList;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,6 +70,7 @@ public class PlannerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_planner, container, false);
+        initPageItems();
 
         //Grabs user and user's meal planner
         mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
@@ -86,6 +91,7 @@ public class PlannerFragment extends Fragment {
             //Gets search preferences from home class
             prefs = home.getSearchPrefs();
         }
+
 
         //Generates rows of meal planners
         LinearLayout topView = view.findViewById(R.id.plannerLinearLayout);
@@ -136,6 +142,10 @@ public class PlannerFragment extends Fragment {
         }
 
         return view;
+    }
+
+    private void initPageItems(){
+        mShoppingList = (Button) findViewById(R.id.ShoppingListButton);
     }
 
     //Opens list fragment on searching

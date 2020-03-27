@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -19,14 +20,7 @@ public class ShoppingList extends AppCompatActivity implements FilterType {
     TextView mShoppingList;
     private String UID;
     private UserInfoPrivate mUserProfile;
-    private ArrayList<String> ingredientArray;
-
-    private ArrayList<String> ingredientList = new ArrayList<>();
-
-    private ListView listViewIngredients;
-
-    private ArrayAdapter<String> arrayAdapter;
-
+    Button mShoppingListButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +33,7 @@ public class ShoppingList extends AppCompatActivity implements FilterType {
     private void initPageItems(){
 
         mShoppingList = findViewById(R.id.shoppingListText);
+        mShoppingListButton = (Button) findViewById(R.id.ShoppingListButton);
 
 
     }
