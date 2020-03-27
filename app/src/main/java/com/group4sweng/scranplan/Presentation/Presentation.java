@@ -266,6 +266,7 @@ public class Presentation extends AppCompatActivity {
                 slideTimers.add(slideCount, -1f);
             }
 
+            // Spinner to choose the slides
             Spinner dropdown = findViewById(R.id.presentationSpinner);
             dropdown.setVisibility(View.VISIBLE);
             ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, dropdownItems);
@@ -288,11 +289,14 @@ public class Presentation extends AppCompatActivity {
             prevSlide.setVisibility(View.VISIBLE);
             Button nextSlide = findViewById(R.id.nextButton);
             nextSlide.setVisibility(View.VISIBLE);
+            int finalSlideCount = slideCount;
             nextSlide.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     expandableLayout.collapse();
-                    currentSlide[0] = toSlide(slideLayouts, currentSlide[0], currentSlide[0] + 1);
+                    if(currentSlide[0]+1 < finalSlideCount+1){
+                    dropdown.setSelection(currentSlide[0]+1);}else{
+                    currentSlide[0] = toSlide(slideLayouts, currentSlide[0], currentSlide[0] + 1);}
                 }
             });
 
@@ -300,7 +304,9 @@ public class Presentation extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     expandableLayout.collapse();
-                    currentSlide[0] = toSlide(slideLayouts, currentSlide[0], currentSlide[0] - 1);
+                    if(currentSlide[0]-1 >= 0){
+                    dropdown.setSelection(currentSlide[0]-1);}else{
+                    currentSlide[0] = toSlide(slideLayouts, currentSlide[0], currentSlide[0] - 1);}
                 }
             });
 
@@ -533,6 +539,8 @@ public class Presentation extends AppCompatActivity {
     }
 
     private Integer toSlide(List<RelativeLayout> slides, Integer currentSlide, Integer slideNumber) {
+        if(slideNumber.equals(currentSlide)){
+            return currentSlide;}
         if (slideNumber > slides.size() - 1 || slideNumber < 0) {
             Toast.makeText(getApplicationContext(), "Slide does not exist", Toast.LENGTH_SHORT).show();
         } else {
