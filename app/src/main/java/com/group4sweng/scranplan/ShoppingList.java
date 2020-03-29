@@ -1,10 +1,8 @@
 package com.group4sweng.scranplan;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 
 import android.widget.TextView;
@@ -12,14 +10,10 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.MealPlanner.PlannerListFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
-import com.group4sweng.scranplan.UserInfo.FilterType;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.ArrayList;
@@ -37,12 +31,9 @@ public class ShoppingList extends AppCompatActivity {
     private CollectionReference mUserRef = mDatabase.collection("users");
 
     //List for storing current ingredients
-    private List<HashMap<String, Object>> ingredientList = new ArrayList<>();
+    private List<HashMap<String, Object>> updateIngredientList = new ArrayList<>();
     //Used for hardcoded string generation
 
-    //Fragment handlers
-    private FragmentTransaction fragmentTransaction;
-    private RecipeFragment recipeFragment;
 
     //User information
     private com.group4sweng.scranplan.UserInfo.UserInfoPrivate mUser;
@@ -52,35 +43,24 @@ public class ShoppingList extends AppCompatActivity {
     private String UID;
     private UserInfoPrivate mUserProfile;
     Button mShoppingListButton;
+    private List<HashMap<String, Object>> ShoppingList = new ArrayList<>();
+    private List<HashMap<String, Object>> PlannerList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        //initPageItems();
-        //AddIngredinets();
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shoppinglist);
-        Log.e(TAG, "TEST ONE");
+
         //initialize text view object
-        TextView tv=(TextView)findViewById(R.id.textView2);
-        //set text color
-        tv.setTextColor(Color.RED);
-        //print 1 to 100 numbers using for loop
-        //use append method to print all numbers
+        TextView tv = (TextView) findViewById(R.id.textView2);
 
+        AddIngredients();
+            for(HashMap<String, Object> ingredients: ShoppingList){
+               tv.append((CharSequence) mUser.getIngredientList());
+            }
 
-        for(int a=0;a<=100;a++)
-        {
-            tv.setText((CharSequence) ingredientList);
-
-        }
-    }
-
-    private void initPageItems(){
-        mShoppingList = findViewById(R.id.shoppingListText);
-
-    }
+            }
 
     @Override
     public void onBackPressed() {
@@ -90,14 +70,27 @@ public class ShoppingList extends AppCompatActivity {
         finish(); //    We don't need to send anything back but do need to destroy the current activity.
     }
 
-    private void AddIngredients(){
+    public void AddIngredients() {
+
         mUser = (UserInfoPrivate) getIntent().getSerializableExtra("user");
-        if (mUser != null) ingredientList = mUser.getIngredientList();
+        if (mUser != null) {
+            HashMap<String, Object> ShoppingList = new HashMap<>();
+            if (mUser.getMealPlanner() != null) {
+                for(int x = 0; x <= 200; x++){
+                    PlannerList.get(x).get("ingredients");
+                    ShoppingList.put("ingredient", mUser.getIngredientList());
+                    mUser.setIngredients((List<HashMap<String, Object>>) ShoppingList);
+            }
+
+        }
+
+
+        }
+
+
 
 
     }
-
-
 }
 
 

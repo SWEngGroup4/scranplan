@@ -255,6 +255,5 @@ public class PlannerFragment extends Fragment {
         DocumentReference documentReference = mUserRef.document(mUser.getUID());
         updateMap.put("mealPlan", plannerList);
         documentReference.update(updateMap);
-
     }
 }

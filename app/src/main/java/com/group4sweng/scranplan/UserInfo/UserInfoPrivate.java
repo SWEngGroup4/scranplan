@@ -2,6 +2,8 @@ package com.group4sweng.scranplan.UserInfo;
 
 import android.os.Bundle;
 
+import com.group4sweng.scranplan.ShoppingList;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -143,6 +145,10 @@ public class UserInfoPrivate implements Serializable{
         return ingredientList;
     }
 
+    public void setIngredients(List<HashMap<String, Object>> ingredientList) {
+        this.ingredientList = ingredientList;
+    }
+
     public String getUID() {
         return UID;
     }
@@ -223,5 +229,6 @@ public class UserInfoPrivate implements Serializable{
     public boolean getFirstPresentationLaunch() {
         return firstPresentationLaunch;
     }
+
 
 }
