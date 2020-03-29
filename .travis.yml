@@ -102,7 +102,7 @@ jobs:
 
     - name: Create Sentry Release on push to master
       if: (type = push)
-      env: SENTRY_ORG=myorg SENTRY_PROJECT=myproject
+      env: SENTRY_ORG=nbillis SENTRY_PROJECT=scranplan
       script: |
         curl -sL https://sentry.io/get-cli/ | bash
         export SENTRY_RELEASE=$(sentry-cli releases propose-version)
