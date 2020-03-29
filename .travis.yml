@@ -101,7 +101,7 @@ jobs:
       - ./gradlew jacocoTestReportDebug
 
     - name: Create Sentry Release on push to master
-      if: (type = push)
+      if: (type = push AND branch = master)
       env: SENTRY_ORG=nbillis SENTRY_PROJECT=scranplan
       script: |
         curl -sL https://sentry.io/get-cli/ | bash
