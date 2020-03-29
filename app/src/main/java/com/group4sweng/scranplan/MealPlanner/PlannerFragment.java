@@ -242,7 +242,6 @@ public class PlannerFragment extends Fragment {
                 openRecipeDialog(query);
                 return false;
             }
-
             @Override
             public boolean onQueryTextChange(String newText) {
                 return false;
@@ -256,5 +255,6 @@ public class PlannerFragment extends Fragment {
         DocumentReference documentReference = mUserRef.document(mUser.getUID());
         updateMap.put("mealPlan", plannerList);
         documentReference.update(updateMap);
+
     }
 }

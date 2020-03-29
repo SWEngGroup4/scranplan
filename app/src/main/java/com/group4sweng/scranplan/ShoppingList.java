@@ -16,6 +16,7 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.UserInfo.FilterType;
@@ -67,14 +68,11 @@ public class ShoppingList extends AppCompatActivity {
         tv.setTextColor(Color.RED);
         //print 1 to 100 numbers using for loop
         //use append method to print all numbers
-        Log.e(TAG, "TEST TWO");
 
 
         for(int a=0;a<=100;a++)
         {
             tv.setText((CharSequence) ingredientList);
-            Log.e(TAG, "TEST three");
-
 
         }
     }

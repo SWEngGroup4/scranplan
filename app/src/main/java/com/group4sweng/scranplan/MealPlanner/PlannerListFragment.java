@@ -46,6 +46,7 @@ public class PlannerListFragment extends SearchListFragment {
         recipeInfoFragment.setArguments(bundle);
         recipeInfoFragment.setTargetFragment(PlannerListFragment.this, 1);
         recipeInfoFragment.show(getParentFragmentManager(), "Show recipe dialog fragment");
+
     }
 
     //Runs on completion of info fragment activity
