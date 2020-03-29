@@ -23,6 +23,7 @@ public class UserInfoPrivate implements Serializable{
     private String about;
     private String email;
     private List<HashMap<String, Object>> mealPlanner;
+    private List<HashMap<String, Object>> ingredientList;
     private boolean shortPreferences = true;
     private boolean firstAppLaunch = true;
     private boolean firstPresentationLaunch = true;
@@ -53,7 +54,8 @@ public class UserInfoPrivate implements Serializable{
         this.numRecipes =  (long) map.get("numRecipes");
         this.about = (String) map.get("about");
         this.mealPlanner = (List<HashMap<String, Object>>) map.get("mealPlan");
-        this.shortPreferences = (boolean) map.get("shortPreferences");
+        this.ingredientList = (List<HashMap<String, Object>>) map.get("ingredientList");
+                this.shortPreferences = (boolean) map.get("shortPreferences");
         this.firstAppLaunch = (boolean) map.get("firstAppLaunch");
         this.firstPresentationLaunch = (boolean) map.get("firstPresentationLaunch");
 
@@ -137,6 +139,9 @@ public class UserInfoPrivate implements Serializable{
     public void setMealPlanner(List<HashMap<String, Object>> mealPlanner) {
         this.mealPlanner = mealPlanner;
     }
+    public  List<HashMap<String, Object>>  getIngredientList(){
+        return ingredientList;
+    }
 
     public String getUID() {
         return UID;
@@ -218,4 +223,5 @@ public class UserInfoPrivate implements Serializable{
     public boolean getFirstPresentationLaunch() {
         return firstPresentationLaunch;
     }
+
 }

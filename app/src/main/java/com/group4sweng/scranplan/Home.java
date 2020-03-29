@@ -524,7 +524,6 @@ public class Home extends AppCompatActivity {
         mIngredientsBox = layout.findViewById(R.id.ingredientCheckBox);
         mNameBox = layout.findViewById(R.id.nameCheckBox);
         mChefBox = layout.findViewById(R.id.chefCheckBox);
-
         // Initialise the check boxes by filling them with users current preferences
         initMenuCheckBoxes();
 

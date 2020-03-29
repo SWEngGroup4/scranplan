@@ -53,7 +53,6 @@ public class InitialUserCustomisation extends AppCompatActivity {
         setContentView(R.layout.activity_initial_user_customisation);
         userDetails = (UserInfoPrivate) getIntent().getSerializableExtra("user");
 
-        Log.e(TAG, "I GET TO THIS POINT");
 
         if (userDetails != null) { //only if user details are retrieved
             preferences = userDetails.getPreferences();

@@ -67,6 +67,7 @@ public class PlannerInfoFragment extends RecipeInfoFragment {
         this.mVegan = (Boolean) map.get("vegan");
         this.mVegetarian = (Boolean) map.get("vegetarian");
 
+
     }
 
     /*

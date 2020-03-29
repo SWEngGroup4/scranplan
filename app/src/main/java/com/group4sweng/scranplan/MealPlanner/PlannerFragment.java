@@ -69,7 +69,6 @@ public class PlannerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_planner, container, false);
-        initPageItems();
 
         //Grabs user and user's meal planner
         mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
@@ -143,9 +142,6 @@ public class PlannerFragment extends Fragment {
         return view;
     }
 
-    private void initPageItems(){
-        mShoppingList = (Button) findViewById(R.id.ShoppingListButton);
-    }
 
     //Opens list fragment on searching
     private void openRecipeDialog(SearchQuery query) {
