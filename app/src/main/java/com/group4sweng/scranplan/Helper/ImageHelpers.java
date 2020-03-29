@@ -11,9 +11,18 @@ import com.group4sweng.scranplan.SupportedFormats;
 
 import java.util.ArrayList;
 
+/** Static image helper functions.
+ *  Author: JButler, (Credits & references given to external authors)
+ *  (c) CoDev 2020 **/
 public class ImageHelpers {
 
-    /** Reference: https://gist.github.com/VassilisPallas/b88fb701c55cdace0c420356ee7c1464 **/
+    /** Returns the size of an image file. Uses Androids content resolver to query using only a uri input
+     *  and a cursor to search through the associated database for the 'Size' column.
+     *  @return - Size of image file in bytes.
+     *
+     *  Author: VassilisPallas
+     *  Reference: https://gist.github.com/VassilisPallas/b88fb701c55cdace0c420356ee7c1464
+     *  Fair use statement: TODO - Get a response on if we can use this section of code.**/
     public static long getSize(Context context, Uri uri) {
         String fileSize = null;
         Cursor cursor = context.getContentResolver()
@@ -35,16 +44,21 @@ public class ImageHelpers {
         return Long.parseLong(fileSize);
     }
 
+    /** Gets the file extension from a singleton MIME map that grabs the associated image uri extension type from the given context
+     * @return - Associated extension name. IE 'jpeg', 'gif' **/
     public static String getExtension(Context context, Uri uri) {
         ContentResolver cr = context.getContentResolver();
         MimeTypeMap mimeMap = MimeTypeMap.getSingleton();
         return  mimeMap.getExtensionFromMimeType(cr.getType(uri));
     }
 
+    /** Check if our image format is supported by checking against or list of supported extensions within the 'ImageFormats' enum
+     * @return - Boolean value for if the image format is supported.
+     **/
     public static boolean isImageFormatSupported(Context context, Uri uri){
         String extension = ImageHelpers.getExtension(context, uri);
 
-        for(SupportedFormats.ImageFormats format : SupportedFormats.ImageFormats.values()){
+        for(SupportedFormats.ImageFormats format : SupportedFormats.ImageFormats.values()){ //  Cycles through each format to check.
             if(extension.equals(format.toString())){
                 return true;
             }
@@ -52,14 +66,18 @@ public class ImageHelpers {
         return false;
     }
 
+    /** Return a list of the supported formats from the enum 'ImageFormats' in a way that can be used to print to screen **/
     public static String getPrintableSupportedFormats(){
         ArrayList<String> supportedFormats = new ArrayList<>();
 
+        //  Cycle through each format and add to the arraylist.
         for(SupportedFormats.ImageFormats format : SupportedFormats.ImageFormats.values()){
             supportedFormats.add(format.toString());
         }
 
         String printableFormats = "";
+
+        //  Concatenates each new format to the end of 'printableFormats'.
         for(String pf: supportedFormats){
             printableFormats = pf.concat(" " + printableFormats + " ");
         }

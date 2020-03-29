@@ -3,7 +3,6 @@ package com.group4sweng.scranplan;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -31,10 +30,8 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthCredential;
@@ -80,34 +77,32 @@ import static java.util.Objects.requireNonNull;
  */
 public class ProfileSettings extends AppCompatActivity implements FilterType, SupportedFormats {
 
-    // TAG for Profile Settings
-    private final static String TAG = "ProfileSettings";
+    private final static String TAG = "ProfileSettings"; // Tag for 'Log'.
+
+    // Unique codes for image & permission request activity callbacks.
     private static final int IMAGE_REQUEST_CODE = 2;
     private static final int PERMISSION_CODE = 1001;
-    private static final int MAX_IMAGE_FILE_SIZE_IN_MB = 6;
-    private static boolean IMAGE_IS_UPLOADING = false;
-    private String prevProfileImage;
+
+    private static final int MAX_IMAGE_FILE_SIZE_IN_MB = 4; // Max storage image size for the profile picture.
+    private static boolean IMAGE_IS_UPLOADING = false; // Boolean to determine if the image is uploading currently.
 
     //  Default filter type enumeration. Types shown in 'FilterType' interface.
     static filterType currentFilterType = filterType.ALLERGENS;
 
-    // Firebase user variables.
+    // Firebase user variables & authentication access.
     FirebaseApp mApp;
     FirebaseAuth mAuth;
     FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
 
+    // Firebase user collection and storage references.
     CollectionReference mRef = mDatabase.collection("users");
     FirebaseStorage mStorage = FirebaseStorage.getInstance();
-
     StorageReference mStorageReference = mStorage.getReference();
 
-    private Uri mImageUri;
+    private Uri mImageUri; // Unique image uri.
 
-    Context mContext;
+    UserInfoPrivate mUserProfile; // Local user info data.
 
-    UserInfoPrivate mUserProfile;
-
-    //  TODO - Add profile image.
     //  TODO - Add valid network connection checks.
 
     //  Basic user settings.
@@ -115,22 +110,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
     TextView mUsername;
     TextView mAboutMe;
     TextView mNumRecipes;
-
-    /*//  User allegern filters.
-    CheckBox mAllergy_nuts;
-    CheckBox mAllergy_milk;
-    CheckBox mAllergy_eggs;
-    CheckBox mAllergy_shellfish;
-    CheckBox mAllergy_soy;
-    CheckBox mAllergy_gluten;
-
-    //  User dietary filters.
-    CheckBox mDietary_vegan;
-    CheckBox mDietary_vegetarian;
-    CheckBox mDietary_pescatarian;*/
-
-
-
 
     //  User privacy filters.
     Switch mDisplay_username;
@@ -145,11 +124,11 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
     EditText mPasswordNew2;
     EditText mPasswordOld;
 
+    //  Preference tab that switches between different types of fragments.
     TabLayout mPreferencesTabs;
-    Fragment currentFragment = new AllergensFragment();
 
-    AllergensFragment mAllergensFragment;
-    DietaryFragment mDietaryFragment;
+    //  Set our initial fragment to Allergens.
+    Fragment currentFragment = new AllergensFragment();
 
     //  Timer in milliseconds for minimum interval between 'Save Settings' button presses..
     private final int COUNTDOWN_TIMER_MILLIS = 10000;
@@ -160,8 +139,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
     private long saveCountdownSecondsLeft = 0; //Initial timer is set to 0.
     private boolean saveCountdownFinished = true; //Initial countdown is finished.
 
-    CheckAndroidServices androidServices;
-    boolean connectionEstablished;
     boolean isTesting = false; //Used to check if the activity is currently being tested. If so, do not delete the users account.
 
     //  Initialize 'Save Settings minimum interval countdown timer.
@@ -190,13 +167,15 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
     protected void onStart(){
         super.onStart();
 
-        //connectionEstablished = checkNetworkConnection(mContext);
         mUserProfile = (UserInfoPrivate) getIntent().getSerializableExtra("user"); //Grabs serializable UserInfoPrivate data from main activity.
         if(mUserProfile != null){ //Checks if there is actually any Serializable data received.
             //  Preferences
             mPreferencesTabs = findViewById(R.id.preferences_tab_bar);
+
+            //  Send initial serializable preferences data to the initial preferences checkbox fragment + initiate listeners for the tab bar for these fragments.
             sendSerializableToFragment();
             initTabFragmentListener();
+
 
             loadProfileData();
         }
@@ -206,7 +185,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
     protected void onRestart() {
         super.onRestart();
 
-        //connectionEstablished = checkNetworkConnection(mContext);
         if(mUserProfile != null){
             loadProfileData();
         }
@@ -215,7 +193,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
     @Override
     public void onBackPressed() {
-        //  Send back with intent and update the MainActivity's UserInfoPrivate class with the new User Info.
+        //  Send back with intent and update the Home's UserInfoPrivate class with the new User Info.
         Intent returnIntent = new Intent(this, Home.class);
         returnIntent.putExtra("user", mUserProfile);
         setResult(Activity.RESULT_OK, returnIntent);
@@ -249,28 +227,23 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         builder.setMessage("Are you sure you want to delete?");
         builder.setTitle("Delete Profile");
         builder.setCancelable(true);
-        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                final String passwordString = mPasswordConfirm.getText().toString();
+        builder.setPositiveButton("Yes", (dialog, which) -> {
+            final String passwordString = mPasswordConfirm.getText().toString(); // Retrieve text input, convert to a string.
 
-                                if(passwordString.equals("")){
-                                    Log.e(TAG, "Password cannot be set to an empty field");
-                                    Toast.makeText(getApplicationContext(), "Cannot enter a blank password. Please try again.", Toast.LENGTH_SHORT).show();
-                                } else if(passwordString.length() <= 6){
-                                    Log.e(TAG, "Password must be greater than 6 characters in length");
-                                    Toast.makeText(getApplicationContext(),"Password must be greater than 6 characters in length", Toast.LENGTH_SHORT).show();
-                                } else {
-                                    deleteAccount(passwordString);  //Delete our account
-                                }
-                            }
-                        });
-        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) { //Allow the user to cancel the operation.
-                                dialog.cancel();
-                            }
-                        });
+            // Check invalid password entries.
+            if(passwordString.equals("")){
+                Log.e(TAG, "Password cannot be set to an empty field");
+                Toast.makeText(getApplicationContext(), "Cannot enter a blank password. Please try again.", Toast.LENGTH_SHORT).show();
+            } else if(passwordString.length() <= 6){
+                Log.e(TAG, "Password must be greater than 6 characters in length");
+                Toast.makeText(getApplicationContext(),"Password must be greater than 6 characters in length", Toast.LENGTH_SHORT).show();
+            } else {
+                deleteAccount(passwordString);  //Delete our account
+            }
+        });
+        builder.setNegativeButton("No", (dialog, which) -> { //Allow the user to cancel the operation.
+            dialog.cancel();
+        });
         AlertDialog alertDialog = builder.create();
 
         alertDialog.show();
@@ -296,47 +269,43 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
         AuthCredential credential = EmailAuthProvider.getCredential(mUserProfile.getEmail(), password); //Obtain a users credentials and therefore equivalent password.
 
-        if(mAuth.getCurrentUser() != null){
+        if(mAuth.getCurrentUser() != null){ //  Check the current user exists.
 
+            /*  Brute force deletes all associated user images for every possible combination of image extensions.
+                Initiated before re-authentication to make sure all images are deleted and that the user always has permission to delete these files. */
             for(ImageFormats extension : ImageFormats.values()){
                 mStorageReference.child("images/profile/" + mAuth.getUid() + "/profile_image." + extension.toString()).delete().addOnSuccessListener(aVoid12 -> {
                     Log.e(TAG, "Deleted entry: images/profile/" + mAuth.getUid() + "/profile_image." + extension.toString());
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e(TAG, "Entry: images/profile/" + mAuth.getUid() + "/profile_image." + extension.toString() + " dosen't exist. Ignoring");
-                    }
+                }).addOnFailureListener(e -> {
+                    //  Common failure. delete function is attempting to brute force delete files so the reference may not always exist.#
+                    //  This isn't an issue but Firebase will flag it in the console.
+                    Log.e(TAG, "Entry: images/profile/" + mAuth.getUid() + "/profile_image." + extension.toString() + " dosen't exist. Ignoring");
                 });
             }
 
-            mAuth.getCurrentUser().reauthenticate(credential).addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    mDatabase.collection("users").document(mAuth.getCurrentUser().getUid()).delete().addOnSuccessListener(aVoid1 -> {
-                        mUserProfile = null;
-                        mAuth.getCurrentUser().delete().addOnCompleteListener(task -> {
-                            if (task.isSuccessful()) {
-                                Log.d(TAG, "User account deleted.");
+            //  Attempt to re-authenticate the user.
+            mAuth.getCurrentUser().reauthenticate(credential).addOnSuccessListener(aVoid -> {
+                /* Delete a reference to the users data in the following order.
+                   Users collection stored within Firebase > Local reference to the user 'UserInfoPrivate' > Firebase stored Auth details for the user.
+                   Order chosen since collection data is visible in plaintext from the Firebase Panel and therefore should be our priority to remove even if any one of the other operations fail. */
+                mDatabase.collection("users").document(mAuth.getCurrentUser().getUid()).delete().addOnSuccessListener(aVoid1 -> {
+                    mUserProfile = null;
+                    mAuth.getCurrentUser().delete().addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "User account deleted.");
 
-                                //  Verify the account has been deleted.
-                                Toast.makeText(getApplicationContext(), "Account deleted.", Toast.LENGTH_SHORT).show();
-                                finish();
-                            }
-                        });
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.e(TAG, "Deleted associated collection 'users'. Couldn't delete all users data. User has been asked for this to be removed manually.");
-                            Toast.makeText(getApplicationContext(), "Failed to delete all associated user info. Please contact Scranplan with your email address to have your data manually removed.", Toast.LENGTH_LONG).show();
+                            //  Verify the account has been deleted.
+                            Toast.makeText(getApplicationContext(), "Account deleted.", Toast.LENGTH_SHORT).show();
+                            finish();
                         }
                     });
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.e(TAG, "Failed to re-authenticate. May have entered the wrong password");
-                    Toast.makeText(getApplicationContext(),"Could not delete data. Make sure you are connected to the internet and have inputted a correct previous password.", Toast.LENGTH_LONG).show();
-                }
+                }).addOnFailureListener(e -> {
+                    Log.e(TAG, "Deleted associated collection 'users'. Couldn't delete all users data. User has been asked for this to be removed manually.");
+                    Toast.makeText(getApplicationContext(), "Failed to delete all associated user info. Please contact Scranplan with your email address to have your data manually removed.", Toast.LENGTH_LONG).show();
+                });
+            }).addOnFailureListener(e -> {
+                Log.e(TAG, "Failed to re-authenticate. May have entered the wrong password");
+                Toast.makeText(getApplicationContext(),"Could not delete data. Make sure you are connected to the internet and have inputted a correct previous password.", Toast.LENGTH_LONG).show();
             });
         } else {
             Log.e(TAG, "Unable to get current user details");
@@ -437,28 +406,19 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             mAuth.getCurrentUser().reauthenticate(credential).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
-                    mAuth.getCurrentUser().updatePassword(newPassword).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                Log.d(TAG, "Password updated.");
-                                Toast.makeText(getApplicationContext(),"Password updated.",Toast.LENGTH_SHORT).show();
-                            }
+                    mAuth.getCurrentUser().updatePassword(newPassword).addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "Password updated.");
+                            Toast.makeText(getApplicationContext(),"Password updated.",Toast.LENGTH_SHORT).show();
                         }
-                    }).addOnFailureListener( new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.e(TAG,"Password update failed.");
-                            Toast.makeText(getApplicationContext(),"Password update failed, please try again.",Toast.LENGTH_SHORT).show();
-                        }
+                    }).addOnFailureListener(e -> {
+                        Log.e(TAG,"Password update failed.");
+                        Toast.makeText(getApplicationContext(),"Password update failed, please try again.",Toast.LENGTH_SHORT).show();
                     });
                 }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.e(TAG,"Failed to re-authenticate.");
-                    Toast.makeText(getApplicationContext(),"Failed to reset password. Make sure you are connected to the internet and have inputted a correct previous password.",Toast.LENGTH_LONG).show();
-                }
+            }).addOnFailureListener(e -> {
+                Log.e(TAG,"Failed to re-authenticate.");
+                Toast.makeText(getApplicationContext(),"Failed to reset password. Make sure you are connected to the internet and have inputted a correct previous password.",Toast.LENGTH_LONG).show();
             });
         } else {
             Log.e(TAG, "Unable to get current user details");
@@ -472,11 +432,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
      * @param v - Button View.
      */
     public void saveSettings(View v){
-        //connectionEstablished = checkNetworkConnection(mContext);
-
-        /*if(!connectionEstablished){
-            Toast.makeText(getApplicationContext(), "A connection cannot be established. Please make sure you are connected to the internet otherwise your settings may not be saved.", Toast.LENGTH_LONG).show();
-        }*/
 
         //  Ignore save button press if countdown isn't finished or isn't equal to 0s.
 
@@ -553,7 +508,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
         Preferences preferences = mUserProfile.getPreferences();
 
-        Log.e(TAG, "Current filter type: " + currentFilterType.name());
         //  Check the type of filter. For example, dietary, religious.
         switch(currentFilterType){
             case ALLERGENS:
@@ -623,6 +577,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         }
     }
 
+    /** Initiate all page items that are not already placed within separate fragments **/
     private void initPageItems(){
         //  Basic user info.
         mUsername = findViewById(R.id.settings_input_username);
@@ -639,58 +594,78 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
     }
 
+    /** Method called when we click to change the users profile image.
+     * @param v - The associated view object of the users profile image.
+     */
     public void changeProfileImage(View v) {
+
+        //  Check if the version of Android is above 'Marshmallow' we check for additional permission.
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+
+            //  Checks if permission has already been granted to read from external storage (our image picker)
             if(checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
-               //Permission isn't granted. So ask for permission.
+               //   Ask for permission.
                String [] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
                requestPermissions(permissions, PERMISSION_CODE);
             } else {
-                //Permission has been granted already
+                //  Read permission has been granted already.
                 imageSelector();
             }
         } else {
-            //System OS is less than Marshmallow.
             imageSelector();
         }
     }
 
+    /** returns the result of our permission caller.
+     * @param requestCode - Unique permission request code. (default = 1001)
+     * @param permissions - A string array of the permissions to be granted/denied (Should only a single READ_EXTERNAL_STORAGE permission)
+     * @param grantResults - Whether the permission is accepted or denied. Accepted = 0, Denied = -1.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode){
-            case PERMISSION_CODE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    imageSelector();
-                } else {
-                    Toast.makeText(this, "Permissions not granted", Toast.LENGTH_SHORT).show();
-                }
+
+        if(requestCode == PERMISSION_CODE){ // Checks if we are at least receiving the correct unique permission code.
+
+            //  Checks we return a string and not a null value and that the permission is granted.
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                imageSelector();
+            } else {
+                Toast.makeText(this, "Permissions not granted", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
+    //  Open our image picker.
     private void imageSelector(){
         Intent images = new Intent(Intent.ACTION_PICK);
-        images.setType("image/*");
-        startActivityForResult(images, IMAGE_REQUEST_CODE);
+        images.setType("image/*"); // Only open the 'image' file picker. Don't include videos, audio etc...
+        startActivityForResult(images, IMAGE_REQUEST_CODE); // Start the image picker and expect a result once an image is selected.
     }
 
+    /** Handle our activity result for the image picker.
+     * @param requestCode - Image request code.
+     * @param resultCode - Success/failure code. 0 = success, -1 = failure.
+     * @param data - Our associated image data.
+     */
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        //   Check for a valid request code and successful result.
         if(requestCode == IMAGE_REQUEST_CODE && resultCode==RESULT_OK){
             if(data!=null && data.getData()!= null){
-                mProfileImage.setImageResource(R.drawable.temp_settings_profile_image);
+                mProfileImage.setImageResource(R.drawable.temp_settings_profile_image); // Set to a default image if image uploading fails.
 
                 mImageUri = data.getData();
 
-                //mProfileImage.setImageURI(mImageUri);
+                //  Use Glides image functionality to quickly load a circular, center cropped image.
                 Glide.with(this)
                         .load(mImageUri)
                         .apply(RequestOptions.circleCropTransform())
                         .into(mProfileImage);
 
                 try {
-                    uploadImage(mImageUri);
+                    uploadImage(mImageUri); // Attempt to upload the image in storage to Firebase.
                 } catch (ProfileImageException e) {
                     e.printStackTrace();
                     return;
@@ -699,23 +674,33 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         }
     }
 
+    /** Image checker.
+     *  Used to reduce wait times for the user when uploading on a slow network.
+     *  Also limits the data that has to be stored and queried from Firebase.
+     *  @param uri - The unique uri of the image file location from the users storage.
+     *  @throws ProfileImageException - Throws if the image file is too large or the format isn't a supported image format.
+     */
     private void checkImage(Uri uri) throws ProfileImageException {
-        if(getSize(this, uri) > MAX_IMAGE_FILE_SIZE_IN_MB * 100000){
+
+        //  If the image files size is greater than the max file size in mb converted to bytes throw an exception and return this issue to the user.
+        if(getSize(this, uri) > MAX_IMAGE_FILE_SIZE_IN_MB * 1000000){
             Toast.makeText(this, "Image exceeded: " + MAX_IMAGE_FILE_SIZE_IN_MB + "mb limit. Please choose a different file.", Toast.LENGTH_LONG).show();
             throw new ProfileImageException("Profile image exceeded max file size: " + MAX_IMAGE_FILE_SIZE_IN_MB + "mb");
         }
 
-        boolean formatIsSupported = isImageFormatSupported(this, uri);
-        String extension = getExtension(this, uri);
+        boolean formatIsSupported = isImageFormatSupported(this, uri); // Check if the image is of a supported format
+        String extension = getExtension(this, uri); // Grab the extension as a string.
 
+        //  If our format isn't supported then throw an exception. Otherwise continue and don't throw an exception indicating a successful image check.
         if(!formatIsSupported) {
             Toast.makeText(this, "Image extension: '" + getExtension(this, uri) +"' is not supported.", Toast.LENGTH_LONG).show();
 
-            new CountDownTimer(3600, 200){
+            new CountDownTimer(3600, 200){ // Display another toast message after the existing one. Long Toast messages last 3500ms, hence 3600 delay.
                 @Override
                 public void onTick(long millisUntilFinished) { /*Do Nothing...*/ }
                 @Override
                 public void onFinish() {
+                    //   Make the user aware of the supported formats they can upload.
                     Toast.makeText(getApplicationContext(), "Supported formats: " + getPrintableSupportedFormats(), Toast.LENGTH_LONG).show();
                 }
             }.start();
@@ -724,19 +709,31 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         }
     }
 
+    /** Upload the image to Firebase. Initiated before saving preferences if the format and size is supported to give some time for the app to upload the image.
+     *  Does not update the users reference to the image. This is updated after saving the users preferences.
+     *
+     * @param uri - The unique uri of the image file location from the users storage.
+     * @throws ProfileImageException - Thrown if URL cannot be retrieved. This will only fail if there is a reference to a blank file.
+     *  In normal operation this shouldn't happen.
+     */
     private void uploadImage(Uri uri) throws ProfileImageException {
         String extension = getExtension(this, uri);
 
-        checkImage(uri);
+        checkImage(uri); // Check the image doesn't throw any exceptions
 
-        IMAGE_IS_UPLOADING = true;
+        IMAGE_IS_UPLOADING = true; // State that the image is still uploading and therefore we shouldn't save a reference on firebase to it yet.
+
+        /*  Create a unique reference of the format. 'image/profile/[UNIQUE UID]/profile_image.[EXTENSION].
+            Whereby [UNIQUE UID] = the Unique id of the user, [EXTENSION] = file image extension. E.g. .jpg,.png. */
         StorageReference mImageStorage = mStorageReference.child("images/profile/" + mUserProfile.getUID() + "/profile_image." + extension);
+
+        //  Check if the upload fails
         mImageStorage.putFile(uri).addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Failed to upload profile image.", Toast.LENGTH_SHORT).show()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                mImageStorage.getDownloadUrl().addOnSuccessListener(locationUri -> {
-                    mUserProfile.setImageURL(locationUri.toString());
-                    IMAGE_IS_UPLOADING = false;
+                mImageStorage.getDownloadUrl().addOnSuccessListener(locationUri -> { // Successful upload.
+                    mUserProfile.setImageURL(locationUri.toString()); // Update the UserInfoPrivate class with this new image URL.
+                    IMAGE_IS_UPLOADING = false; // State we have finished uploading (a reference exists).
                 }).addOnFailureListener(e -> {
                     throw new RuntimeException("Unable to grab image URL from Firebase for image URL being uploaded currently. This shouldn't happen.");
                 });
@@ -744,45 +741,17 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         });
     }
 
-
+    /** Load basic firebase data & any data not present in fragments. **/
     private void loadProfileData(){
         mUsername.setText(mUserProfile.getDisplayName());
         mAboutMe.setText(mUserProfile.getAbout());
         String numOfRecipesString = "Recipes: " +  mUserProfile.getNumRecipes();
         mNumRecipes.setText(numOfRecipesString);
 
-        //  Load allergen checkBoxes.
-        //setFilters(currentFilterType);
-
         //  Load privacy switches.
         setPrivacyOptions(mUserProfile.getPrivacy());
 
     }
-
-
-    /** Set which filter checkboxes should be selected
-     * @param type - Enumeration of the type of filter to be displayed. E.g. Allegern, Religious...
-     */
-    /*
-    private void setFilters(filterType type){
-        switch(type){
-            case ALLERGENS:
-                mAllergy_eggs.setChecked(mUserProfile.getPreferences().isAllergy_eggs());
-                mAllergy_milk.setChecked(mUserProfile.getPreferences().isAllergy_milk());
-                mAllergy_nuts.setChecked(mUserProfile.getPreferences().isAllergy_nuts());
-                mAllergy_shellfish.setChecked(mUserProfile.getPreferences().isAllergy_shellfish());
-                mAllergy_soy.setChecked(mUserProfile.getPreferences().isAllergy_soya());
-                mAllergy_gluten.setChecked(mUserProfile.getPreferences().isAllergy_gluten());
-            case DIETARY:
-                mDietary_pescatarian.setChecked(mUserProfile.getPreferences().isPescatarian());
-                mDietary_vegan.setChecked(mUserProfile.getPreferences().isVegan());
-                mDietary_vegetarian.setChecked(mUserProfile.getPreferences().isVegetarian());
-            case RELIGIOUS:
-                //TODO
-            case HEALTH:
-                //TODO
-        }
-    }*/
 
 
     /** Set which privacy swtiches should be selected
@@ -811,7 +780,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         if(user != null){ //Checks for a valid user.
             String usersEmail = requireNonNull(mAuth.getCurrentUser()).getEmail();
 
-            if(IMAGE_IS_UPLOADING){
+            if(IMAGE_IS_UPLOADING){ //  Prevent saving to firebase if an image is currently uploading.
                 Toast.makeText(this, "We are still uploading your profile image. Try again in a second.", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -833,11 +802,12 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                 throw new RuntimeException("Unable to find associated email address of the user");
             }
 
-            //  Return if image is not of a supported format
+            //  Return if image is not of a supported format & of the correct size. Else throw an exception and prevent saving of settings.
             if(mImageUri != null){
                 checkImage(mImageUri);
             }
 
+            //  Create maps to store associated data.
             HashMap<String, Object> map = new HashMap<>();
             HashMap<String, Object> prefMap = new HashMap<>();
             HashMap<String, Object> privacy = new HashMap<>();
@@ -866,10 +836,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             prefMap.put("vegetarian", preferences.isVegetarian());
             prefMap.put("pescatarian", preferences.isPescatarian());
 
-
-            Log.e(TAG, "PREFERENCES PESC FIREBASE" + mUserProfile.getPreferences().isPescatarian());
-            //  TODO Finish all other preferences.
-
             map.put("preferences", prefMap);
 
             HashMap<String, Object> privacyMap = mUserProfile.getPrivacy();
@@ -882,7 +848,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
             map.put("privacy", privacy);
 
-            mUserProfile = new UserInfoPrivate(map, prefMap, privacy); //Create a new UserInfoPrivate class based upon our inputs.
+            mUserProfile = new UserInfoPrivate(map, prefMap, privacy); //Create a new local UserInfoPrivate class based upon our inputs.
 
             DocumentReference usersRef = mRef.document(user.getUid());
 
@@ -906,18 +872,24 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
     }
 
+    /** Handle sending serializable data to tabbed fragments **/
     private void sendSerializableToFragment(){
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
+        // Create a new bundle, complete with the users preferences to be set as arguments for the fragment.
         Bundle prefBundle = new Bundle();
         prefBundle.putSerializable("preferences", mUserProfile.getPreferences());
         currentFragment.setArguments(prefBundle);
 
+        //  Switch current checkbox table with our new fragment.
         fragmentTransaction.replace(R.id.settings_checkbox_table, currentFragment);
         fragmentTransaction.commit();
     }
 
+    /** Listeners for preferences fragment.
+     *  Check which tab is selected, load the associated fragment and send associated serializable preference data to accommodate.
+     */
     private void initTabFragmentListener(){
 
         mPreferencesTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -925,9 +897,9 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             public void onTabSelected(TabLayout.Tab tab) {
 
                 switch (tab.getPosition()) {
-                    case 0:
-                        currentFragment = new AllergensFragment();
-                        currentFilterType = filterType.ALLERGENS;
+                    case 0: // Tab order in index. 0 = leftmost element.
+                        currentFragment = new AllergensFragment(); // Create a new fragment.
+                        currentFilterType = filterType.ALLERGENS; // Set current filter type to handle 'checkbox click' actions.
                         break;
                     case 1:
                         currentFragment = new DietaryFragment();
