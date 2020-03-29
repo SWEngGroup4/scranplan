@@ -53,7 +53,7 @@ public class PresentationImageView extends AppCompatImageView {
         };
     }
 
-    public void setEndTimer(Integer endTime) {
+    public void setEndTime(Integer endTime) {
         endTimer = new CountDownTimer(endTime, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {}
@@ -74,14 +74,12 @@ public class PresentationImageView extends AppCompatImageView {
     public void stopTimers() {
         try {
             startTimer.cancel();
-            startTimer = null;
         }
         catch (Exception e) {
             e.printStackTrace();
         }
         try {
             endTimer.cancel();
-            endTimer = null;
         }
         catch (Exception e) {
             e.printStackTrace();

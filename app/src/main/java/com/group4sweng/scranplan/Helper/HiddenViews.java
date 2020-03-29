@@ -1,6 +1,5 @@
 package com.group4sweng.scranplan.Helper;
 
-import com.group4sweng.scranplan.Drawing.LayoutCreator;
 import com.group4sweng.scranplan.Login;
 
 /**
@@ -18,7 +17,7 @@ import com.group4sweng.scranplan.Login;
  */
 public enum HiddenViews {
 
-    LAYOUT_TEST("AccioLayoutCreator2020", LayoutCreator.class);
+//    LAYOUT_TEST("AccioLayoutCreator2020", LayoutCreator.class);
     LOGIN("AccioLogin2020", Login.class);
 
     private String usernamekeyWord;

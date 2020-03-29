@@ -215,10 +215,12 @@ public class Presentation extends AppCompatActivity {
 
             if (slide.text != null)
                 pSlide.addText(slide.text);
-            if (slide.line != null) {}
-                //TODO - Generate line
-            if (slide.shape != null) {}
-                //TODO - Generate shape
+            for (XmlParser.Line line : slide.lines)
+                pSlide.addLine(line);
+            for (XmlParser.Shape shape : slide.shapes)
+                pSlide.addShape(shape);
+            for (XmlParser.Triangle triangle : slide.triangles)
+                pSlide.addTriangle(triangle);
             if (slide.image != null)
                 pSlide.addImage(slide.image);
             if (slide.video != null)
@@ -274,6 +276,7 @@ public class Presentation extends AppCompatActivity {
             Button nextSlide = findViewById(R.id.nextButton);
             nextSlide.setVisibility(View.VISIBLE);
             int finalSlideCount = slideCount;
+
             nextSlide.setOnClickListener(v -> {
                 expandableLayout.collapse();
                 if(currentSlide[0]+1 < finalSlideCount+1){

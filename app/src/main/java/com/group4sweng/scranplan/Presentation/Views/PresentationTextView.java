@@ -160,14 +160,12 @@ public class PresentationTextView extends ScrollView {
     public void stopTimers() {
         try {
             startTimer.cancel();
-            startTimer = null;
         }
         catch (Exception e) {
             e.printStackTrace();
         }
         try {
             endTimer.cancel();
-            endTimer = null;
         }
         catch (Exception e) {
             e.printStackTrace();
