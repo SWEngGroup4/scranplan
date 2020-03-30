@@ -1,5 +1,6 @@
 package com.group4sweng.scranplan.Presentation;
 
+import android.util.Log;
 import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -12,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class XmlParser {
+public class XmlParser {
 
     // TODO - Add handlers for multiple repeated tags
     // TODO - Add handlers for optional attributes (starttime, endtime etc.)
@@ -301,6 +302,8 @@ class XmlParser {
     private Shape readShape(XmlPullParser parser) throws  IOException, XmlPullParserException {
             parser.require(XmlPullParser.START_TAG, null, "shape");
 
+        Shading shading = null;
+
         String type = parser.getAttributeValue(null, "type");
         Float xStart = Float.valueOf(parser.getAttributeValue(null, "xstart"));
         Float yStart = Float.valueOf(parser.getAttributeValue(null, "ystart"));
@@ -310,9 +313,15 @@ class XmlParser {
         Integer startTime = Integer.valueOf(parser.getAttributeValue(null, "starttime"));
         Integer endTime = Integer.valueOf(parser.getAttributeValue(null, "endtime"));
 //        Shading shading = readShading(parser);
-        Shading shading = new Shading(0, 0, 0, 0, "", "", false);
 
-        parser.nextTag();
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) {
+                continue;
+            }
+            if (parser.getName().equals("shading")) {
+                shading = readShading(parser);
+            }
+        }
 
         return new Shape(type, xStart, yStart, width, height, fillColor, startTime, endTime, shading);
     }
@@ -329,7 +338,7 @@ class XmlParser {
         String fillColor = parser.getAttributeValue(null, "fillcolor");
         Integer startTime = Integer.valueOf(parser.getAttributeValue(null, "starttime"));
         Integer endTime = Integer.valueOf(parser.getAttributeValue(null, "endtime"));
-        Shading shading = new Shading(0, 0, 0, 0, "", "", false);
+        Shading shading = null;
 
         parser.nextTag();
 
@@ -337,17 +346,15 @@ class XmlParser {
     }
 
     private Shading readShading(XmlPullParser parser) throws  IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, null, "shading");
-
-        Integer x1 = Integer.valueOf(parser.getAttributeValue(null, "x1"));
-        Integer y1 = Integer.valueOf(parser.getAttributeValue(null, "y1"));
-        Integer x2 = Integer.valueOf(parser.getAttributeValue(null, "x2"));
-        Integer y2 = Integer.valueOf(parser.getAttributeValue(null, "y2"));
+        Float x1 = Float.valueOf(parser.getAttributeValue(null, "x1"));
+        Float y1 = Float.valueOf(parser.getAttributeValue(null, "y1"));
+        Float x2 = Float.valueOf(parser.getAttributeValue(null, "x2"));
+        Float y2 = Float.valueOf(parser.getAttributeValue(null, "y2"));
         String color1 =  parser.getAttributeValue(null, "color1");
         String color2 = parser.getAttributeValue(null, "color2");
         Boolean cyclic = Boolean.valueOf(parser.getAttributeValue(null, "cyclic"));
 
-        parser.require(XmlPullParser.END_TAG, null, "shading");
+        parser.nextTag();
 
         return new Shading(x1, y1, x2, y2, color1, color2, cyclic);
     }
@@ -688,16 +695,16 @@ class XmlParser {
     }
 
     public static class Shading {
-        final Integer x1;
-        final Integer y1;
-        final Integer x2;
-        final Integer y2;
-        final String color1;
-        final String color2;
-        final Boolean cyclic;
+        public final Float x1;
+        public final Float y1;
+        public final Float x2;
+        public final Float y2;
+        public final String color1;
+        public final String color2;
+        public final Boolean cyclic;
 
-        private Shading(Integer x1, Integer y1, Integer x2, Integer y2,
-                        String color1, String color2, Boolean cyclic) {
+        Shading(Float x1, Float y1, Float x2, Float y2,
+                String color1, String color2, Boolean cyclic) {
             this.x1 = x1;
             this.y1 = y1;
             this.x2 = x2;

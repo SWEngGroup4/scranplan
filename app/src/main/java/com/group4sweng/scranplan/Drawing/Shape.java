@@ -1,20 +1,17 @@
 package com.group4sweng.scranplan.Drawing;
 
 import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
-import android.graphics.RectF;
+import android.graphics.RadialGradient;
+import android.graphics.Shader;
+import com.group4sweng.scranplan.Presentation.XmlParser;
 
 public class Shape {
 
-    private Integer centreX;
-    private Integer centreY;
-    private Float width;
-    private Float height;
-    protected Paint paint;
-    private Integer selectedFlag = 0;
-    protected Integer colour;
+    Paint paint;
+    private Integer colour;
 
-    //Default constructor for line and triangle class access
     Shape(String colour) {
         this.colour = Color.parseColor(colour);
 
@@ -22,35 +19,32 @@ public class Shape {
         paint.setColor(this.colour);
     }
 
-    public Shape(Integer centreX, Integer centreY, Integer width, Integer height, String colour)
-    {
-        this.centreX = centreX;
-        this.centreY = centreY;
-        this.width = Float.valueOf(width);
-        this.height = Float.valueOf(height);
-        this.colour = Color.parseColor(colour);
-
-        paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setColor(this.colour);
+    void setPaintColour(Integer colour) {
+        paint.setColor(colour);
     }
 
-    void setColour(Integer colour) {
-        paint.setColor(colour);
+    Integer getPaintColour() {
+        return paint.getColor();
     }
 
     Integer getColour() {
         return colour;
     }
 
+    void setGradient(Float xPos1, Float yPos1, String colour1, Float xPos2, Float yPos2, String colour2, Boolean cyclic) {
+        if (cyclic)
+            paint.setShader(new RadialGradient((xPos1 + xPos2) / 2, (yPos1 + yPos2) / 2,
+                    (float) Math.sqrt(Math.pow(Math.abs(xPos2-xPos1), 2) * Math.pow(Math.abs(yPos2-yPos1), 2)),
+                    Color.parseColor(colour1), Color.parseColor(colour2), Shader.TileMode.CLAMP));
+        else
+            paint.setShader(new LinearGradient(xPos1, yPos1, xPos2, yPos2, Color.parseColor(colour1), Color.parseColor(colour2), Shader.TileMode.CLAMP));
+    }
+
+    Object getGradient() {
+        return paint.getShader();
+    }
+
     Paint getPaint() {
         return paint;
     }
-
-    RectF getRectF() {
-        return new RectF(centreX - (width / 2),
-                centreY - (height / 2),
-                centreX + (width / 2),
-                centreY + (height / 2));
-    }
-
 }

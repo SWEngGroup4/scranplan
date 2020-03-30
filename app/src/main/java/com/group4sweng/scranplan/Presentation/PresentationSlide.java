@@ -5,8 +5,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.group4sweng.scranplan.Drawing.Line;
-import com.group4sweng.scranplan.Drawing.Oval;
 import com.group4sweng.scranplan.Drawing.GraphicsView;
+import com.group4sweng.scranplan.Drawing.Rectangle;
 import com.group4sweng.scranplan.Drawing.Shape;
 import com.group4sweng.scranplan.Drawing.Triangle;
 import com.group4sweng.scranplan.Presentation.Views.PresentationImageView;
@@ -98,19 +98,30 @@ public class PresentationSlide extends RelativeLayout {
 
     //Add shape to file
     public void addShape(XmlParser.Shape shape) {
+        XmlParser.Shading shading = null;
+        if (shape.shading != null) {
+            shading = new XmlParser.Shading(
+                    slideWidth * (shape.shading.x1 / 100),
+                    slideHeight * (shape.shading.y1 / 100),
+                    slideWidth * (shape.shading.x2 / 100),
+                    slideHeight * (shape.shading.y2 / 100),
+                    shape.shading.color1, shape.shading.color2,
+                    shape.shading.cyclic);
+        }
+
         if (shape.type.equals("oval")) {
-            Shape oval = new Shape(Math.round(slideWidth * (shape.xStart / 100)), //xPos
+            Rectangle oval = new Rectangle(Math.round(slideWidth * (shape.xStart / 100)), //xPos
                     Math.round(slideHeight * (shape.yStart / 100)), //yPos
                     Math.round(slideWidth * (shape.width / 100)), //width
                     Math.round(slideHeight * (shape.height / 100)), //height
-                    shape.fillColor);
+                    shape.fillColor, shading);
             graphicsView.addOval(oval, shape.startTime, shape.endTime);
         } else if (shape.type.equals("rectangle")) {
-            Shape rect = new Shape(Math.round(slideWidth * (shape.xStart / 100)), //xPos
+            Rectangle rect = new Rectangle(Math.round(slideWidth * (shape.xStart / 100)), //xPos
                     Math.round(slideHeight * (shape.yStart / 100)), //yPos
                     Math.round(slideWidth * (shape.width / 100)), //width
                     Math.round(slideHeight * (shape.height / 100)), //height
-                    shape.fillColor);
+                    shape.fillColor, shading);
             graphicsView.addRectangle(rect, shape.startTime, shape.endTime);
         }
     }
@@ -122,7 +133,7 @@ public class PresentationSlide extends RelativeLayout {
                 Math.round(slideHeight * (triangle.yPos2 / 100)),
                 Math.round(slideWidth * (triangle.xPos3 / 100)),
                 Math.round(slideHeight * (triangle.yPos3 / 100)),
-                triangle.fillColor);
+                triangle.fillColor, triangle.shading);
         graphicsView.addTriangle(newTriangle, triangle.startTime, triangle.endTime);
     }
 

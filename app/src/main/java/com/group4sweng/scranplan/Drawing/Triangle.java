@@ -3,6 +3,8 @@ package com.group4sweng.scranplan.Drawing;
 import android.graphics.Paint;
 import android.graphics.Path;
 
+import com.group4sweng.scranplan.Presentation.XmlParser;
+
 public class Triangle extends Shape {
 
     private Integer xPos1;
@@ -13,7 +15,7 @@ public class Triangle extends Shape {
     private Integer yPos3;
 
     public Triangle(Integer xPos1, Integer yPos1, Integer xPos2, Integer yPos2,
-                    Integer xPos3, Integer yPos3, String colour) {
+                    Integer xPos3, Integer yPos3, String colour, XmlParser.Shading shading) {
         super(colour);
         this.xPos1 = xPos1;
         this.yPos1 = yPos1;
@@ -21,8 +23,6 @@ public class Triangle extends Shape {
         this.yPos2 = yPos2;
         this.xPos3 = xPos3;
         this.yPos3 = yPos3;
-
-        this.paint.setStyle(Paint.Style.FILL_AND_STROKE);
     }
 
     Path getPath() {

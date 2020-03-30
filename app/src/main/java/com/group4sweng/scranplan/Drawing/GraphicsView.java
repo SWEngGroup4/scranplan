@@ -16,8 +16,8 @@ public class GraphicsView extends View {
     private Boolean interaction;
 
     private ArrayList<Line> lines = new ArrayList<>();
-    private ArrayList<Shape> ovals = new ArrayList<>();
-    private ArrayList<Shape> rectangles = new ArrayList<>();
+    private ArrayList<Rectangle> ovals = new ArrayList<>();
+    private ArrayList<Rectangle> rectangles = new ArrayList<>();
     private ArrayList<Triangle> triangles = new ArrayList<>();
     private ArrayList<CountDownTimer> startTimers = new ArrayList<>();
     private ArrayList<CountDownTimer> endTimers = new ArrayList<>();
@@ -42,13 +42,13 @@ public class GraphicsView extends View {
         postInvalidate();
     }
 
-    public void addOval(Shape shape, Integer startTime, Integer endTime) {
+    public void addOval(Rectangle shape, Integer startTime, Integer endTime) {
         ovals.add(shape);
         setTimers(shape, startTime, endTime);
         postInvalidate();
     }
 
-    public void addRectangle(Shape shape, Integer startTime, Integer endTime) {
+    public void addRectangle(Rectangle shape, Integer startTime, Integer endTime) {
         rectangles.add(shape);
         setTimers(shape, startTime, endTime);
         postInvalidate();
@@ -62,17 +62,17 @@ public class GraphicsView extends View {
 
     private void setTimers(Shape shape, Integer startTime, Integer endTime) {
         if (startTime > 0) {
-            shape.setColour(Color.TRANSPARENT);
+            shape.setPaintColour(Color.TRANSPARENT);
             startTimers.add(new CountDownTimer(startTime, 1000) {
                 @Override
                 public void onTick(long millisUntilFinished) {
-                    shape.setColour(Color.TRANSPARENT);
+                    shape.setPaintColour(Color.TRANSPARENT);
                     postInvalidate();
                 }
 
                 @Override
                 public void onFinish() {
-                    shape.setColour(shape.getColour());
+                    shape.setPaintColour(shape.getColour());
                     postInvalidate();
                 }
             });
@@ -86,7 +86,7 @@ public class GraphicsView extends View {
 
                 @Override
                 public void onFinish() {
-                    shape.setColour(Color.TRANSPARENT);
+                    shape.setPaintColour(Color.TRANSPARENT);
                     postInvalidate();
                 }
             });
@@ -119,10 +119,10 @@ public class GraphicsView extends View {
             canvas.drawLine(line.getxStart(), line.getyStart(),
                     line.getxEnd(), line.getyEnd(), line.getPaint());
 
-        for (Shape oval : ovals)
+        for (Rectangle oval : ovals)
             canvas.drawOval(oval.getRectF(), oval.getPaint());
 
-        for (Shape rect : rectangles)
+        for (Rectangle rect : rectangles)
             canvas.drawRect(rect.getRectF(), rect.getPaint());
 
         for (Triangle triangle : triangles)
