@@ -87,21 +87,104 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/public_profile_about_me_desc" />
 
-        <TextView
-            android:id="@+id/profile_allegerns"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="10dp"
-            android:background="@color/colorBackground"
-            android:padding="2sp"
-            android:text="Allergens"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/profile_filters" />
+            <LinearLayout
+                android:id="@+id/allergyLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:background="@color/colorPurpleLight"
+                android:orientation="horizontal"
+                android:weightSum="9"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/profile_filters">
 
-    <TextView
+                <ImageView
+                    android:id="@+id/recipeInfoEggs"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:src="@drawable/eggs"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/recipeInfoMilk"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:src="@drawable/lactose"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/recipeInfoNuts"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:src="@drawable/nuts"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/recipeInfoShellfish"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:src="@drawable/molluscs"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/recipeInfoSoy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:src="@drawable/soya"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/recipeInfoWheat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:src="@drawable/gluten"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/recipeInfoPesc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:src="@drawable/pescetarian"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/recipeInfoVegan"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:src="@drawable/vegan"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/recipeInfoVeggie"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:src="@drawable/vegetarian"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <TextView
         android:id="@+id/public_profile_about_me_desc"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -123,27 +206,7 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.35" />
 
-    <TableLayout
-            android:layout_width="0dp"
-            android:layout_height="120sp"
-            android:layout_marginStart="35dp"
-            android:layout_marginEnd="10dp"
-            android:background="#cecce0"
-            android:padding="2dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/profile_allegerns">
-
-            <TableRow
-                android:layout_height="wrap_content"
-                android:padding="3sp"/>
-
-        <TableRow android:padding="3sp"/>
-
-        </TableLayout>
-
-    <TextView
+            <TextView
         android:id="@+id/textView"
         android:layout_width="0dp"
         android:layout_height="35sp"
