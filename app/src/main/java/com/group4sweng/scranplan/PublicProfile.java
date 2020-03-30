@@ -1,11 +1,10 @@
 package com.group4sweng.scranplan;
 
+import android.app.AlertDialog;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -23,12 +22,15 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.Helper.ImageHelpers;
 import com.group4sweng.scranplan.UserInfo.FilterType;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import static com.group4sweng.scranplan.UserInfo.FilterType.filterType.ALLERGENS;
+import static com.group4sweng.scranplan.UserInfo.FilterType.filterType.DIETARY;
 
 /** Class retrieves and displays public profile data on a given user based on a valid UID input string or UserInfoPrivate object.
  *  from Firebase or from local data.
@@ -121,6 +123,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         mAllergy_nuts = findViewById(R.id.dietary_vegetarian);
         mAllergy_shellfish = findViewById(R.id.allergy_shellfish);
         mAllergy_soy = findViewById(R.id.allergy_soy);
+
     }
 
     @Override
@@ -165,12 +168,13 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         if(retrieveFilters){
             @SuppressWarnings("unchecked")
             HashMap<String, Object> filters = (HashMap<String, Object>) profile.get("preferences");
-            setFilters(currentFilterType, filters);
+            initFiltersIcons(currentFilterType, filters);
         } else { // Remove all checkboxes if filters are hidden.
-            makeFiltersInvisible();
+            //TODO - Remove filters if required.
         }
     }
 
+    /*
     private void makeFiltersInvisible(){
         switch(currentFilterType){
             case ALLERGENS:
@@ -202,12 +206,16 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                 Log.i(TAG, "Religious");
         }
 
-    }
+    }*/
 
     /** Set which filter checkboxes should be selected
-     * @param type - Enumeration of the type of filter to be displayed. E.g. Allegern, Religious...
+     * @param - Enumeration of the type of filter to be displayed. E.g. Allegern, Religious...
      */
-    private void setFilters(filterType type, HashMap<String, Object> filters){
+    /*
+    private void displayFilters(HashMap<String, Object> filters){
+
+
+
         switch(type){
             case ALLERGENS:
                 mAllergy_eggs.setChecked((boolean) filters.get("allergy_eggs"));
@@ -223,7 +231,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
             case HEALTH:
                 //TODO
         }
-    }
+    }*/
 
     //  Load in all associated public profile data for a given UID. (defined at Activity Start).
     private void loadFirebase() {
@@ -283,10 +291,66 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
             filters.put("allergy_gluten", mUserProfile.getPreferences().isAllergy_gluten());
             filters.put("allergy_eggs", mUserProfile.getPreferences().isAllergy_eggs());
 
-            setFilters(currentFilterType, filters);
+            initFiltersIcons(ALLERGENS, filters);
+            initFiltersIcons(DIETARY, filters);
 
         } else { // Remove all checkboxes if filters are hidden.
-            makeFiltersInvisible();
+            //TODO - Hide stuff!
+        }
+    }
+
+    private void initFiltersIcons(filterType type, HashMap<String , Object> filters){
+        ArrayList<Boolean> filterValues = new ArrayList<>();
+        ArrayList<ImageView> filterIcons = new ArrayList<>();
+        ArrayList<String> filterMessages = ImageHelpers.getFilterIconsHoverMessage(type);
+        final String title;
+
+        switch(type){
+            case ALLERGENS:
+                title = "Allergy";
+                filterValues.add((boolean) filters.get("allergy_eggs"));
+                filterValues.add((boolean) filters.get("allergy_milk"));
+                filterValues.add((boolean) filters.get("allergy_nuts"));
+                filterValues.add((boolean) filters.get("allergy_shellfish"));
+                filterValues.add((boolean) filters.get("allergy_soy"));
+                filterValues.add((boolean) filters.get("allergy_wheat"));
+
+                filterIcons.add(findViewById(R.id.recipeInfoEggs));
+                filterIcons.add(findViewById(R.id.recipeInfoMilk));
+                filterIcons.add(findViewById(R.id.recipeInfoNuts));
+                filterIcons.add(findViewById(R.id.recipeInfoShellfish));
+                filterIcons.add(findViewById(R.id.recipeInfoSoy));
+                filterIcons.add(findViewById(R.id.recipeInfoWheat));
+                break;
+            case DIETARY:
+                title = "Dietary";
+                filterValues.add((boolean) filters.get("pescatarian"));
+                filterValues.add((boolean) filters.get("vegan"));
+                filterValues.add((boolean) filters.get("vegetarian"));
+
+                filterIcons.add(findViewById(R.id.recipeInfoPesc));
+                filterIcons.add(findViewById(R.id.recipeInfoVegan));
+                filterIcons.add(findViewById(R.id.recipeInfoVeggie));
+                break;
+            default:
+                title = "";
+        }
+
+
+        for(int i = 0; i < filterIcons.size(); i++){
+            if (filterValues.get(i)) {
+                ImageView icon = filterIcons.get(i);
+                String message = filterMessages.get(i);
+
+                icon.setVisibility(View.VISIBLE);
+                icon.setOnClickListener(v -> {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    AlertDialog dialog = builder.create();
+                    dialog.setTitle(title);
+                    dialog.setMessage(message);
+                    dialog.show();
+                });
+            }
         }
     }
 

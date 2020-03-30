@@ -46,7 +46,6 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.group4sweng.scranplan.Exceptions.InvalidUserException;
 import com.group4sweng.scranplan.Exceptions.ProfileImageException;
-import com.group4sweng.scranplan.Helper.CheckAndroidServices;
 import com.group4sweng.scranplan.Helper.HiddenViews;
 import com.group4sweng.scranplan.PreferencesTabs.AllergensFragment;
 import com.group4sweng.scranplan.PreferencesTabs.DietaryFragment;

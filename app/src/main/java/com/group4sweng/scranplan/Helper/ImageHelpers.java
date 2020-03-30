@@ -1,20 +1,24 @@
 package com.group4sweng.scranplan.Helper;
 
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.OpenableColumns;
 import android.webkit.MimeTypeMap;
+import android.widget.ImageView;
 
+import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.SupportedFormats;
+import com.group4sweng.scranplan.UserInfo.FilterType;
 
 import java.util.ArrayList;
 
 /** Static image helper functions.
  *  Author: JButler, (Credits & references given to external authors)
  *  (c) CoDev 2020 **/
-public class ImageHelpers {
+public class ImageHelpers implements FilterType {
 
     /** Returns the size of an image file. Uses Androids content resolver to query using only a uri input
      *  and a cursor to search through the associated database for the 'Size' column.
@@ -84,4 +88,44 @@ public class ImageHelpers {
         return printableFormats;
     }
 
+    public static ArrayList<String> getFilterIconsHoverMessage(filterType type){
+
+        ArrayList<String> message = new ArrayList<>();
+        
+        switch(type){
+            case ALLERGENS:
+                message.add("Contains Eggs");
+                message.add("Contains Lactose");
+                message.add("Contains Nuts");
+                message.add("Contains Shellfish");
+                message.add("Contains Soy");
+                message.add("Contains Gluten");
+                break;
+            case DIETARY:
+                message.add("Suitable for Pescatarian's");
+                message.add("Suitable for Vegans");
+                message.add("Suitable for Vegetarians");
+                break;
+        }
+        return message;
+    }
+
+
+    public static ArrayList<ImageView> getFilterIcons(Activity activity, filterType type){
+        ArrayList<ImageView> icons = new ArrayList<>();
+
+        switch(type){
+            case ALLERGENS:
+
+                icons.add(activity.findViewById(R.id.recipeInfoEggs));
+                icons.add(activity.findViewById(R.id.recipeInfoMilk));
+                icons.add(activity.findViewById(R.id.recipeInfoNuts));
+                icons.add(activity.findViewById(R.id.recipeInfoShellfish));
+                icons.add(activity.findViewById(R.id.recipeInfoSoy));
+                icons.add(activity.findViewById(R.id.recipeInfoWheat));
+            case DIETARY:
+
+        }
+        return icons;
+    }
 }
