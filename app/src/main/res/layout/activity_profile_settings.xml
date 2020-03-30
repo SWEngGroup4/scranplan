@@ -88,7 +88,7 @@
                 android:layout_width="97sp"
                 android:layout_height="23sp"
                 android:layout_marginStart="10sp"
-                android:layout_marginTop="15sp"
+                android:layout_marginTop="10dp"
                 android:text="Username:"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 app:layout_constraintStart_toEndOf="@+id/public_profile_image"
@@ -99,11 +99,11 @@
                 android:layout_width="159dp"
                 android:layout_height="28dp"
                 android:layout_marginStart="8sp"
-                android:layout_marginTop="56sp"
+                android:layout_marginTop="15dp"
                 android:text="Recipes:"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 app:layout_constraintStart_toEndOf="@+id/public_profile_image"
-                app:layout_constraintTop_toBottomOf="@+id/profile_username" />
+                app:layout_constraintTop_toBottomOf="@+id/settings_input_username" />
 
             <TextView
                 android:id="@+id/settings_visibility"
@@ -188,13 +188,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="120sp"
                 android:layout_marginStart="16sp"
-                android:layout_marginTop="4sp"
+                android:layout_marginTop="6dp"
                 android:layout_marginEnd="16sp"
                 android:showDividers="middle"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.52"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/settings_visibility">
+                app:layout_constraintTop_toBottomOf="@+id/profile_visibility_tab_bar">
 
                 <TableRow android:padding="1sp">
 
@@ -296,6 +296,28 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Dietary" />
+
+            </com.google.android.material.tabs.TabLayout>
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/profile_visibility_tab_bar"
+                android:layout_width="200sp"
+                android:layout_height="40sp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="6dp"
+                app:layout_constraintBottom_toTopOf="@+id/settings_privacy_table"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/settings_visibility">
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Public" />
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Friends" />
 
             </com.google.android.material.tabs.TabLayout>
 
