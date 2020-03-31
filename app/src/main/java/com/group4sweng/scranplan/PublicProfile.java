@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -22,8 +21,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.group4sweng.scranplan.Helper.ImageHelpers;
 import com.group4sweng.scranplan.UserInfo.FilterType;
+import com.group4sweng.scranplan.UserInfo.Kudos;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.ArrayList;
@@ -42,6 +41,10 @@ import static com.group4sweng.scranplan.UserInfo.FilterType.filterType.DIETARY;
  *  Privacy is always checked first before displaying any content.
  */
 public class PublicProfile extends AppCompatActivity implements FilterType{
+
+
+    //TODO - Remove Kudos image on very teeny screens.
+
 
     // TAG for Profile Settings
     final String TAG = "PublicProfile";
@@ -64,14 +67,8 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     TextView mAboutMe;
     TextView mNumRecipes;
     RecyclerView mFilters;
-
-    //  Profile allergen filters.
-    CheckBox mAllergy_nuts;
-    CheckBox mAllergy_milk;
-    CheckBox mAllergy_eggs;
-    CheckBox mAllergy_shellfish;
-    CheckBox mAllergy_soy;
-    CheckBox mAllergy_gluten;
+    TextView mKudos;
+    ImageView mKudosIcon;
 
     //  Whether we should retrieve different information for the user. E.g. username, about me etc...
     private boolean retrieveAboutMe = false, retrieveUsername = false,
@@ -99,7 +96,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
         if(mUserProfile != null){ // Check if local data is available to reference. Don't have to grab from firebase.
             Log.i(TAG, "Loading local user data");
-            loadInPrivacySettings(mUserProfile.getPrivacy());
+            loadInPrivacySettings(mUserProfile.getPublicPrivacy());
             loadLocalProfile();
         } else if(UID != null){ // If not instead search for the profile via the associated UID and reference Firebase.
             Log.i(TAG, "Loading data from Firebase");
@@ -108,6 +105,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
             Log.e(TAG, "Unable to retrieve extra UID intent string. Cannot initialize profile.");
         }
 
+        initKudosIconPressListener();
     }
 
     private void initPageItems(){
@@ -115,15 +113,8 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         mAboutMe = findViewById(R.id.public_profile_about_me_desc);
         mNumRecipes = findViewById(R.id.profile_recipes);
         mUsername = findViewById(R.id.profile_username);
-
-        //  Allergens
-        mAllergy_eggs = findViewById(R.id.allergy_eggs);
-        mAllergy_gluten = findViewById(R.id.allergy_wheat);
-        mAllergy_milk = findViewById(R.id.dietary_vegan);
-        mAllergy_nuts = findViewById(R.id.dietary_vegetarian);
-        mAllergy_shellfish = findViewById(R.id.allergy_shellfish);
-        mAllergy_soy = findViewById(R.id.allergy_soy);
-
+        mKudos = findViewById(R.id.profile_kudos);
+        mKudosIcon = findViewById(R.id.profile_kudos_icon);
     }
 
     @Override
@@ -155,6 +146,19 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         if(retrieveRecipes){ mNumRecipes.setText(numOfRecipesString);} else {
             mNumRecipes.setText(""); // Set number of recipes to nothing if hidden.
         }
+
+        if(retrieveImages) {
+            Glide.with(this)
+                    .load(profile.get("imageURL"))
+                    .apply(RequestOptions.circleCropTransform())
+                    .into(mProfileImage); }
+
+        //  Load in kudos.
+        String kudosString = "Kudos: " + ((long) profile.get("kudos"));
+        mKudos.setText(kudosString);
+        Kudos kudos = new Kudos((long) profile.get("kudos"));
+        kudos.updateKudos();
+        mKudosIcon.setImageResource(kudos.getChefLevelIconResource());
 
         if(retrieveImages) {
             Glide.with(this)
@@ -280,6 +284,12 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                     .apply(RequestOptions.circleCropTransform())
                     .into(mProfileImage); }
 
+        //  Load in kudos.
+        String kudosString = "Kudos: " + ((long) mUserProfile.getKudos().getKudos());
+        mKudos.setText(kudosString);
+        mUserProfile.getKudos().updateKudos();
+        mKudosIcon.setImageResource(mUserProfile.getKudos().getChefLevelIconResource());
+
         if(retrieveFilters){
             HashMap<String, Object> filters = new HashMap<>();
 
@@ -290,6 +300,9 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
             filters.put("allergy_shellfish", mUserProfile.getPreferences().isAllergy_shellfish());
             filters.put("allergy_gluten", mUserProfile.getPreferences().isAllergy_gluten());
             filters.put("allergy_eggs", mUserProfile.getPreferences().isAllergy_eggs());
+            filters.put("pescatarian", mUserProfile.getPreferences().isPescatarian());
+            filters.put("vegan", mUserProfile.getPreferences().isVegan());
+            filters.put("vegetarian", mUserProfile.getPreferences().isVegetarian());
 
             initFiltersIcons(ALLERGENS, filters);
             initFiltersIcons(DIETARY, filters);
@@ -299,10 +312,22 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         }
     }
 
+    private void initKudosIconPressListener(){
+        mKudosIcon.setOnClickListener(v -> {
+            mUserProfile.getKudos().updateKudos();
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            AlertDialog dialog = builder.create();
+            dialog.setTitle("Chef Rank");
+            dialog.setMessage(mUserProfile.getKudos().getChefLevel());
+            dialog.show();
+        });
+    }
+
     private void initFiltersIcons(filterType type, HashMap<String , Object> filters){
         ArrayList<Boolean> filterValues = new ArrayList<>();
         ArrayList<ImageView> filterIcons = new ArrayList<>();
-        ArrayList<String> filterMessages = ImageHelpers.getFilterIconsHoverMessage(type);
+        ArrayList<String> filterMessages = new ArrayList<>();
         final String title;
 
         switch(type){
@@ -312,8 +337,15 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                 filterValues.add((boolean) filters.get("allergy_milk"));
                 filterValues.add((boolean) filters.get("allergy_nuts"));
                 filterValues.add((boolean) filters.get("allergy_shellfish"));
-                filterValues.add((boolean) filters.get("allergy_soy"));
-                filterValues.add((boolean) filters.get("allergy_wheat"));
+                filterValues.add((boolean) filters.get("allergy_soya"));
+                filterValues.add((boolean) filters.get("allergy_gluten"));
+
+                filterMessages.add("Allergic to Eggs");
+                filterMessages.add("Allergic to Lactose");
+                filterMessages.add("Allergic to Nuts");
+                filterMessages.add("Allergic to Shellfish");
+                filterMessages.add("Allergic to Soya");
+                filterMessages.add("Allergic to Gluten");
 
                 filterIcons.add(findViewById(R.id.recipeInfoEggs));
                 filterIcons.add(findViewById(R.id.recipeInfoMilk));
@@ -327,6 +359,10 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                 filterValues.add((boolean) filters.get("pescatarian"));
                 filterValues.add((boolean) filters.get("vegan"));
                 filterValues.add((boolean) filters.get("vegetarian"));
+
+                filterMessages.add("Pescatarian");
+                filterMessages.add("Vegan");
+                filterMessages.add("Vegetarian");
 
                 filterIcons.add(findViewById(R.id.recipeInfoPesc));
                 filterIcons.add(findViewById(R.id.recipeInfoVegan));

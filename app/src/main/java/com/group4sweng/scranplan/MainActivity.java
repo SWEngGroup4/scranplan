@@ -123,15 +123,18 @@ public class MainActivity extends AppCompatActivity {
                                     map.put("shortPreferences", document.get("shortPreferences"));
                                     map.put("firstAppLaunch", document.get("firstAppLaunch"));
                                     map.put("firstPresentationLaunch", document.get("firstPresentationLaunch"));
-
+                                    map.put("firstMealPlannerLaunch", document.get("firstMealPlannerLaunch"));
+                                    map.put("kudos", document.get("kudos"));
 
                                     @SuppressWarnings("unchecked")
                                     HashMap<String, Object> preferences = (HashMap<String, Object>) document.get("preferences");
 
                                     @SuppressWarnings("unchecked")
-                                    HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacy");
+                                    HashMap<String, Object> privacyPublic = (HashMap<String, Object>) document.get("privacyPublic");
+                                    @SuppressWarnings("unchecked")
+                                    HashMap<String, Object> privacyFriends = (HashMap<String, Object>) document.get("privacyFriends");
 
-                                    mUser = new UserInfoPrivate(map, preferences, privacy);
+                                    mUser = new UserInfoPrivate(map, preferences, privacyFriends, privacyPublic);
 
                                     Log.i(TAG, "Successfully logged back in");
                                     if(mUser.getFirstAppLaunch()){

@@ -1,11 +1,10 @@
 package com.group4sweng.scranplan.UserInfo;
 
-import android.os.Bundle;
+import android.util.Log;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * UserInfoPrivate class
@@ -15,6 +14,7 @@ public class UserInfoPrivate implements Serializable{
 
     //  Unique Log TAG ID.
     final static String TAG = "UserInfo";
+    final static int INITIAL_KUDOS = 0;
 
     //  User information
     private String UID;
@@ -26,11 +26,14 @@ public class UserInfoPrivate implements Serializable{
     private boolean shortPreferences = true;
     private boolean firstAppLaunch = true;
     private boolean firstPresentationLaunch = true;
+    private boolean firstMealPlannerLaunch = true;
 
     //  HashMap privacy values are Boolean values of: 'display_username', 'display_about_me', 'display_recipes' & 'display_profile_image'.
-    private HashMap<String, Object> privacy;
+    private HashMap<String, Object> privacyPublic;
+    private HashMap<String, Object> privacyFriends;
     private double chefRating;
     private long numRecipes;
+    private Kudos kudos;
 
     /*TODO
         Add saved recipes here. Check UML profile diagram and Recipe diagram for more information.
@@ -42,9 +45,10 @@ public class UserInfoPrivate implements Serializable{
     /** Initiate a users private profile.
      * @param map - Basic user information. E.g. UID, display name. (HashMap, String) pair
      * @param prefs - The users preferences found within the 'Preferences' class. (HashMap, Boolean) pair
-     * @param privacy - A HashMap of the users privacy settings. (HashMap, Boolean) pair.
+     * @param privacyPublic - A HashMap of the users public privacy settings. (HashMap, Boolean) pair.
+     * @param privacyFriends - A HashMap of the users privacy settings determining what is viewable by friends.
      */
-    public UserInfoPrivate(HashMap<String, Object> map, HashMap<String, Object> prefs, HashMap<String, Object> privacy) {
+    public UserInfoPrivate(HashMap<String, Object> map, HashMap<String, Object> prefs, HashMap<String, Object> privacyFriends, HashMap<String, Object> privacyPublic) {
         this.email = (String) map.get("email");
         this.UID = (String) map.get("UID");
         this.displayName = (String) map.get("displayName");
@@ -56,6 +60,10 @@ public class UserInfoPrivate implements Serializable{
         this.shortPreferences = (boolean) map.get("shortPreferences");
         this.firstAppLaunch = (boolean) map.get("firstAppLaunch");
         this.firstPresentationLaunch = (boolean) map.get("firstPresentationLaunch");
+        this.firstMealPlannerLaunch = (boolean) map.get("firstMealPlannerLaunch");
+
+        long kudosLong = (long) map.get("kudos");
+        this.kudos = new Kudos(kudosLong);
 
         if(shortPreferences){
             this.preferences = new Preferences((boolean) prefs.get("allergy_nuts"),
@@ -64,6 +72,7 @@ public class UserInfoPrivate implements Serializable{
                     (boolean) prefs.get("allergy_gluten"), (boolean)prefs.get("vegetarian"),
                     (boolean) prefs.get("vegan"), (boolean) prefs.get("pescatarian"));
         } else {
+            Log.e(TAG, "REACHING LONG PREFERENCES FOR SOME WEIRD REASON");
             this.preferences = new Preferences((boolean) prefs.get("allergy_celery"),
                     (boolean) prefs.get("allergy_crustacean"), (boolean) prefs.get("allergy_eggs"),
                     (boolean) prefs.get("allergy_fish"), (boolean) prefs.get("allergy_gluten"),
@@ -79,7 +88,8 @@ public class UserInfoPrivate implements Serializable{
                     (boolean) prefs.get("ovovegetarian"), (boolean) prefs.get("pescatarian"),
                     (boolean) prefs.get("vegan"), (boolean) prefs.get("vegetarian"));
         }
-        this.privacy = privacy;
+        this.privacyFriends = privacyFriends;
+        this.privacyPublic = privacyPublic;
 
     }
 
@@ -191,14 +201,29 @@ public class UserInfoPrivate implements Serializable{
         this.preferences = preferences;
     }
 
-    public HashMap<String, Object> getPrivacy() { return privacy; }
+    public void setKudos(Kudos kudos) {this.kudos = kudos;}
 
-    public void setPrivacy(HashMap<String, Object> privacy) {
+    public Kudos getKudos() { return kudos;}
+
+    public HashMap<String, Object> getPublicPrivacy() { return privacyPublic; }
+
+    public HashMap<String, Object> getPrivacyFriends() { return privacyFriends; }
+
+    public void setPrivacyPublic(HashMap<String, Object> privacy) {
         //  Check the HashMap has been properly initialized with all valid privacy parameters., otherwise return a runtime exception.
         if (privacy.containsKey("display_username") && privacy.containsKey("display_profile_image") && privacy.containsKey("display_about_me") && privacy.containsKey("display_recipes") && privacy.containsKey("display_filters")) {
-            this.privacy = privacy;
+            this.privacyPublic = privacy;
         } else {
-            throw new RuntimeException("Tried to set privacy settings with invalid or incomplete inputs");
+            throw new RuntimeException("Tried to set privacy settings for public profile with invalid or incomplete inputs");
+        }
+    }
+
+    public void setPrivacyFriends(HashMap<String, Object> privacy) {
+        //  Check the HashMap has been properly initialized with all valid privacy parameters., otherwise return a runtime exception.
+        if (privacy.containsKey("display_username") && privacy.containsKey("display_profile_image") && privacy.containsKey("display_about_me") && privacy.containsKey("display_recipes") && privacy.containsKey("display_filters")) {
+            this.privacyFriends = privacy;
+        } else {
+            throw new RuntimeException("Tried to set privacy settings for friends with invalid or incomplete inputs");
         }
     }
 
@@ -219,4 +244,13 @@ public class UserInfoPrivate implements Serializable{
     public boolean getFirstPresentationLaunch() {
         return firstPresentationLaunch;
     }
+
+    public void setFirstMealPlannerLaunch(boolean firstLaunch) {firstMealPlannerLaunch = firstLaunch; }
+
+    public boolean getFirstMealPlannerLaunch() {
+        return firstMealPlannerLaunch;
+    }
+
+
+
 }

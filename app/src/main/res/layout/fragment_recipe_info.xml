@@ -29,14 +29,14 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:textColor="#CBFFFFFF"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintTop_toTopOf="@+id/guideline5"
+        app:layout_constraintTop_toTopOf="@+id/addFavorite"
         app:layout_constraintVertical_bias="1.0" />
 
 
         <Button
             android:id="@+id/LetsCook"
             style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="100dp"
+            android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="10dp"
@@ -54,7 +54,7 @@
             android:layout_below="@+id/Title"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="5dp"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="20dp"
             android:layout_marginEnd="5dp"
             android:layout_toEndOf="@+id/recipeImage"
             android:ems="10"
@@ -67,11 +67,11 @@
 
         <ImageButton
             android:id="@+id/addFavorite"
-            android:layout_width="70dp"
+            android:layout_width="32dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="35dp"
+            android:layout_marginStart="0dp"
             android:layout_marginTop="18dp"
-            android:layout_marginEnd="35dp"
+            android:layout_marginEnd="0dp"
             android:layout_toStartOf="@+id/LetsCook"
             android:layout_toEndOf="@+id/ReturnButton"
             android:background="@color/colorWindow"
@@ -81,8 +81,8 @@
 
         <ImageView
             android:id="@+id/recipeImage"
-            android:layout_width="151dp"
-            android:layout_height="170dp"
+            android:layout_width="150dp"
+            android:layout_height="140dp"
             android:layout_below="@+id/Title"
             android:layout_alignParentStart="true"
             android:layout_marginStart="5dp"
@@ -161,7 +161,7 @@
             app:layout_constraintLeft_toRightOf="@id/recipeImage"
             app:layout_constraintRight_toLeftOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/recipeImage" />
+            app:layout_constraintTop_toBottomOf="@+id/allergyLayout" />
 
         <RatingBar
             android:id="@+id/ratingBar"
@@ -242,7 +242,7 @@
         <ImageButton
             android:id="@+id/ReturnButton"
             style="@style/Widget.AppCompat.Button"
-            android:layout_width="100dp"
+            android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_marginStart="10dp"
@@ -255,7 +255,13 @@
             app:layout_constraintTop_toTopOf="parent"
             android:src="?attr/actionModeCloseDrawable" />
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"></androidx.constraintlayout.widget.ConstraintLayout>
+
         <LinearLayout
+            android:layout_marginStart="10sp"
+            android:layout_marginEnd="10sp"
             android:id="@+id/allergyLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -263,16 +269,24 @@
             android:layout_below="@+id/recipeImage"
             android:layout_alignParentStart="true"
             android:layout_marginTop="1dp"
-            android:layout_marginBottom="-44dp"
-            android:weightSum="9"
+            app:layout_constraintTop_toBottomOf="@+id/recipeImage"
+            android:layout_marginBottom="-50dp"
             android:orientation="horizontal">
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent">
 
             <ImageView
                 android:id="@+id/recipeInfoEggs"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/eggs"
-                android:layout_weight="1"
+                android:padding="2sp"
                 android:visibility="gone"
                 android:adjustViewBounds="true"/>
 
@@ -281,8 +295,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/lactose"
-                android:layout_weight="1"
                 android:visibility="gone"
+                android:padding="2sp"
                 android:adjustViewBounds="true"/>
 
             <ImageView
@@ -290,7 +304,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/nuts"
-                android:layout_weight="1"
+                android:padding="2sp"
                 android:visibility="gone"
                 android:adjustViewBounds="true"/>
 
@@ -298,9 +312,8 @@
                 android:id="@+id/recipeInfoShellfish"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left"
+                android:padding="2sp"
                 android:src="@drawable/molluscs"
-                android:layout_weight="1"
                 android:visibility="gone"
                 android:adjustViewBounds="true"/>
 
@@ -309,7 +322,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/soya"
-                android:layout_weight="1"
+                android:padding="2sp"
                 android:visibility="gone"
                 android:adjustViewBounds="true"/>
 
@@ -317,8 +330,8 @@
                 android:id="@+id/recipeInfoWheat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:padding="2sp"
                 android:src="@drawable/gluten"
-                android:layout_weight="1"
                 android:visibility="gone"
                 android:adjustViewBounds="true"/>
 
@@ -327,7 +340,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/pescetarian"
-                android:layout_weight="1"
+                android:padding="2sp"
                 android:visibility="gone"
                 android:adjustViewBounds="true"/>
 
@@ -335,8 +348,8 @@
                 android:id="@+id/recipeInfoVegan"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:padding="2sp"
                 android:src="@drawable/vegan"
-                android:layout_weight="1"
                 android:visibility="gone"
                 android:adjustViewBounds="true"/>
 
@@ -344,11 +357,14 @@
                 android:id="@+id/recipeInfoVeggie"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:padding="4sp"
                 android:src="@drawable/vegetarian"
-                android:layout_weight="1"
                 android:visibility="gone"
                 android:adjustViewBounds="true"/>
         </LinearLayout>
+            </HorizontalScrollView>
+        </LinearLayout>
+
 
     </RelativeLayout>
 </androidx.core.widget.NestedScrollView>

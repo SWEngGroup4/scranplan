@@ -87,7 +87,7 @@ public class ImageHelpers implements FilterType {
         }
         return printableFormats;
     }
-    
+
     public static ArrayList<String> getFilterIconsHoverMessage(filterType type){
 
         ArrayList<String> message = new ArrayList<>();
