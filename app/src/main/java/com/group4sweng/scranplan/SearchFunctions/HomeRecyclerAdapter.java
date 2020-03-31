@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
@@ -36,12 +37,16 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
     public static class HomeRecipePreviewData {
 
         private String recipeID;
+        private String title;
+        private Float rating;
         private String imageURL;
         private DocumentSnapshot document;
 
-        public HomeRecipePreviewData(DocumentSnapshot doc, String recipeID, String imageURL) {
+        public HomeRecipePreviewData(DocumentSnapshot doc, String recipeID, String title, Float rating, String imageURL) {
             this.document = doc;
             this.recipeID = recipeID;
+            this.title = title;
+            this.rating = rating;
             this.imageURL = imageURL;
         }
     }
@@ -52,11 +57,15 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         private CardView cardView;
+        private TextView textView;
+        private RatingBar ratingBar;
         private ImageView imageView;
 
         private ViewHolder(View v) {
             super(v);
             cardView = v.findViewById(R.id.recipeListCardView);
+            textView = v.findViewById(R.id.recipeListTitle);
+            ratingBar = v.findViewById(R.id.recipeListRating);
             imageView = v.findViewById(R.id.recipeListImageView);
         }
     }
@@ -91,18 +100,17 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
      */
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
+        holder.textView.setText(mDataset.get(position).title);
+        holder.ratingBar.setRating(mDataset.get(position).rating);
         Picasso.get().load(mDataset.get(position).imageURL).into(holder.imageView);
 
-        holder.cardView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mRecipeFragment != null){
-                    mRecipeFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
-                }else{
-                    Log.e("SEARCH RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
-                }
-
+        holder.cardView.setOnClickListener(v -> {
+            if (mRecipeFragment != null){
+                mRecipeFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
+            }else{
+                Log.e("SEARCH RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
             }
+
         });
     }
 

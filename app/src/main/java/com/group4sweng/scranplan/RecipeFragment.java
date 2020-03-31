@@ -181,6 +181,8 @@ public class RecipeFragment extends Fragment {
                                 dataScore.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                         document,
                                         document.getId(),
+                                        document.get("Name").toString(),
+                                        Float.valueOf(document.get("score").toString()),
                                         document.get("imageURL").toString()
                                 ));
                             }
@@ -220,6 +222,8 @@ public class RecipeFragment extends Fragment {
                                                         dataScore.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                                                 d,
                                                                 d.getId(),
+                                                                d.get("Name").toString(),
+                                                                Float.valueOf(d.get("score").toString()),
                                                                 d.get("imageURL").toString()
                                                         ));
                                                     }
@@ -280,6 +284,8 @@ public class RecipeFragment extends Fragment {
                                 dataVotes.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                         document,
                                         document.getId(),
+                                        document.get("Name").toString(),
+                                        Float.valueOf(document.get("score").toString()),
                                         document.get("imageURL").toString()
                                 ));
                             }
@@ -319,6 +325,8 @@ public class RecipeFragment extends Fragment {
                                                         dataVotes.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                                                 d,
                                                                 d.getId(),
+                                                                d.get("Name").toString(),
+                                                                Float.valueOf(d.get("score").toString()),
                                                                 d.get("imageURL").toString()
                                                         ));
                                                     }
@@ -380,6 +388,8 @@ public class RecipeFragment extends Fragment {
                                 dataTime.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                         document,
                                         document.getId(),
+                                        document.get("Name").toString(),
+                                        Float.valueOf(document.get("score").toString()),
                                         document.get("imageURL").toString()
                                 ));
                             }
@@ -419,6 +429,8 @@ public class RecipeFragment extends Fragment {
                                                         dataTime.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                                                 d,
                                                                 d.getId(),
+                                                                d.get("Name").toString(),
+                                                                Float.valueOf(d.get("score").toString()),
                                                                 d.get("imageURL").toString()
                                                         ));
                                                     }
@@ -479,6 +491,8 @@ public class RecipeFragment extends Fragment {
                                 dataFave.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                         document,
                                         document.getId(),
+                                        document.get("Name").toString(),
+                                        Float.valueOf(document.get("score").toString()),
                                         document.get("imageURL").toString()
                                 ));
                             }
@@ -518,6 +532,8 @@ public class RecipeFragment extends Fragment {
                                                         dataFave.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                                                 d,
                                                                 d.getId(),
+                                                                d.get("Name").toString(),
+                                                                Float.valueOf(d.get("score").toString()),
                                                                 d.get("imageURL").toString()
                                                         ));
                                                     }
