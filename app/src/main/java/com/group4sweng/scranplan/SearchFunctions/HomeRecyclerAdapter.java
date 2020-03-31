@@ -1,11 +1,14 @@
 package com.group4sweng.scranplan.SearchFunctions;
 
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
@@ -15,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeFragment;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -56,6 +60,7 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
      */
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
+        private LinearLayout linearLayout;
         private CardView cardView;
         private TextView textView;
         private RatingBar ratingBar;
@@ -63,6 +68,7 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
 
         private ViewHolder(View v) {
             super(v);
+            linearLayout = v.findViewById(R.id.recipeListContainer);
             cardView = v.findViewById(R.id.recipeListCardView);
             textView = v.findViewById(R.id.recipeListTitle);
             ratingBar = v.findViewById(R.id.recipeListRating);
@@ -100,9 +106,30 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
      */
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.textView.setText(mDataset.get(position).title);
-        holder.ratingBar.setRating(mDataset.get(position).rating);
-        Picasso.get().load(mDataset.get(position).imageURL).into(holder.imageView);
+        Integer padding = 10;
+        Float density = holder.cardView.getContext().getResources().getDisplayMetrics().density;
+        Integer paddingDP = (int)(padding * density);
+
+        //Load image into ImageView
+        Picasso.get().load(mDataset.get(position).imageURL).into(holder.imageView, new Callback() {
+            @Override
+            public void onSuccess() {
+                //Once image has been loaded, set up info for recipe display
+                holder.linearLayout.setVisibility(View.VISIBLE);
+                holder.linearLayout.setPadding(paddingDP, 0, paddingDP, 0);
+
+                holder.textView.setText(mDataset.get(position).title);
+                holder.textView.setBackgroundColor(Color.parseColor("#80FFFFFF"));
+
+                holder.ratingBar.setRating(mDataset.get(position).rating);
+                holder.ratingBar.setBackgroundColor(Color.parseColor("#80FFFFFF"));
+            }
+
+            @Override
+            public void onError(Exception e) {
+
+            }
+        });
 
         holder.cardView.setOnClickListener(v -> {
             if (mRecipeFragment != null){
