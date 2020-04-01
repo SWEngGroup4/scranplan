@@ -31,9 +31,6 @@ public class UserInfoPrivate implements Serializable{
     //  HashMap privacy values are Boolean values of: 'display_username', 'display_about_me', 'display_recipes' & 'display_profile_image'.
     private HashMap<String, Object> privacyPublic;
     private HashMap<String, Object> privacyFriends;
-    private double chefRating;
-    private long numRecipes;
-    private Kudos kudos;
 
     /*TODO
         Add saved recipes here. Check UML profile diagram and Recipe diagram for more information.
@@ -53,17 +50,12 @@ public class UserInfoPrivate implements Serializable{
         this.UID = (String) map.get("UID");
         this.displayName = (String) map.get("displayName");
         this.imageURL = (String) map.get("imageURL");
-        this.chefRating = (double) map.get("chefRating");
-        this.numRecipes =  (long) map.get("numRecipes");
         this.about = (String) map.get("about");
         this.mealPlanner = (List<HashMap<String, Object>>) map.get("mealPlan");
         this.shortPreferences = (boolean) map.get("shortPreferences");
         this.firstAppLaunch = (boolean) map.get("firstAppLaunch");
         this.firstPresentationLaunch = (boolean) map.get("firstPresentationLaunch");
         this.firstMealPlannerLaunch = (boolean) map.get("firstMealPlannerLaunch");
-
-        long kudosLong = (long) map.get("kudos");
-        this.kudos = new Kudos(kudosLong);
 
         if(shortPreferences){
             this.preferences = new Preferences((boolean) prefs.get("allergy_nuts"),
@@ -173,20 +165,6 @@ public class UserInfoPrivate implements Serializable{
         this.imageURL = imageURL;
     }
 
-    public double getChefRating() {
-        return chefRating;
-    }
-
-    public void setChefRating(double chefRating )  { this.chefRating = chefRating; }
-
-    public long getNumRecipes() {
-        return numRecipes;
-    }
-
-    public void setNumRecipes(long numRecipes )   {
-        this.numRecipes = numRecipes;
-    }
-
     public String getAbout() {
         return about;
     }
@@ -200,10 +178,6 @@ public class UserInfoPrivate implements Serializable{
     public void setPreferences(Preferences preferences)   {
         this.preferences = preferences;
     }
-
-    public void setKudos(Kudos kudos) {this.kudos = kudos;}
-
-    public Kudos getKudos() { return kudos;}
 
     public HashMap<String, Object> getPublicPrivacy() { return privacyPublic; }
 

@@ -6,16 +6,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -42,10 +39,12 @@ import static com.group4sweng.scranplan.UserInfo.FilterType.filterType.DIETARY;
  */
 public class PublicProfile extends AppCompatActivity implements FilterType{
 
+    enum FirebaseLoadType {
+        FULL,
+        PARTIAL
+    }
 
     //TODO - Remove Kudos image on very teeny screens.
-
-
     // TAG for Profile Settings
     final String TAG = "PublicProfile";
 
@@ -66,7 +65,6 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     TextView mUsername;
     TextView mAboutMe;
     TextView mNumRecipes;
-    RecyclerView mFilters;
     TextView mKudos;
     ImageView mKudosIcon;
 
@@ -98,14 +96,13 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
             Log.i(TAG, "Loading local user data");
             loadInPrivacySettings(mUserProfile.getPublicPrivacy());
             loadLocalProfile();
+            loadFirebase(FirebaseLoadType.PARTIAL);
         } else if(UID != null){ // If not instead search for the profile via the associated UID and reference Firebase.
             Log.i(TAG, "Loading data from Firebase");
-            loadFirebase();
+            loadFirebase(FirebaseLoadType.FULL);
         } else {
             Log.e(TAG, "Unable to retrieve extra UID intent string. Cannot initialize profile.");
         }
-
-        initKudosIconPressListener();
     }
 
     private void initPageItems(){
@@ -138,43 +135,42 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
     //  Load all the data grabbed from the Firebase document snapshot.
     private void loadProfile(DocumentSnapshot profile) {
-        if(retrieveAboutMe){ mAboutMe.setText((String) profile.get("about")); } //  If we are allowed to retrieve this data. do so.
-        /* TODO- Implement Image retrieval later,
-        if(retrieveImages){ }
-        */
-        String numOfRecipesString = "Recipes: " + ((long) profile.get("numRecipes")); //  Convert 'long' value to something we can use.
-        if(retrieveRecipes){ mNumRecipes.setText(numOfRecipesString);} else {
-            mNumRecipes.setText(""); // Set number of recipes to nothing if hidden.
+        if(retrieveAboutMe) { //  If we are allowed to retrieve this data. do so.
+            mAboutMe.setText((String) profile.get("about"));
+        } else {
+            View profileAboutMeDesc = findViewById(R.id.public_profile_about_me_desc);
+            View profileAboutMe = findViewById(R.id.profile_about_me);
+            profileAboutMe.setVisibility(View.INVISIBLE);
+            profileAboutMeDesc.setVisibility(View.INVISIBLE);
         }
 
         if(retrieveImages) {
-            Glide.with(this)
-                    .load(profile.get("imageURL"))
-                    .apply(RequestOptions.circleCropTransform())
-                    .into(mProfileImage); }
+            String imageURL = (String) profile.get("imageURL");
 
-        //  Load in kudos.
-        String kudosString = "Kudos: " + ((long) profile.get("kudos"));
-        mKudos.setText(kudosString);
-        Kudos kudos = new Kudos((long) profile.get("kudos"));
-        kudos.updateKudos();
-        mKudosIcon.setImageResource(kudos.getChefLevelIconResource());
-
-        if(retrieveImages) {
-            Glide.with(this)
-                    .load(mUserProfile.getImageURL())
-                    .apply(RequestOptions.circleCropTransform())
-                    .into(mProfileImage);
-        }
+            if(imageURL == null){
+                throw new NullPointerException("Unable to load Profile image URL. Image URL is null");
+            } else if(!imageURL.equals("")){
+                Glide.with(this)
+                        .load(profile.get("imageURL"))
+                        .apply(RequestOptions.circleCropTransform())
+                        .into(mProfileImage); }
+            }
 
         if(retrieveUsername){ mUsername.setText((String) profile.get("displayName")); }
 
         if(retrieveFilters){
             @SuppressWarnings("unchecked")
             HashMap<String, Object> filters = (HashMap<String, Object>) profile.get("preferences");
-            initFiltersIcons(currentFilterType, filters);
+            initFiltersIcons(ALLERGENS, filters);
+            initFiltersIcons(DIETARY, filters);
         } else { // Remove all checkboxes if filters are hidden.
-            //TODO - Remove filters if required.
+            LinearLayout allergyLayout = findViewById(R.id.allergyLayout);
+            View allergyPressInfo = findViewById(R.id.allergyPressInfo);
+            View profileSettingsAllergens = findViewById(R.id.profile_settings_allergens);
+
+            allergyLayout.setVisibility(View.INVISIBLE);
+            allergyPressInfo.setVisibility(View.INVISIBLE);
+            profileSettingsAllergens.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -238,57 +234,80 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     }*/
 
     //  Load in all associated public profile data for a given UID. (defined at Activity Start).
-    private void loadFirebase() {
+    private void loadFirebase(FirebaseLoadType flt) {
+        final FirebaseLoadType fltFinal = flt;
 
+        if(fltFinal == FirebaseLoadType.PARTIAL){
+            UID = mUserProfile.getUID();
+        }
         //  Grab the 'users' collection corresponding to the correct document UID.
         DocumentReference usersRef = mDatabase.collection("users").document(UID);
-        usersRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.isSuccessful()){ // Check a document can be accessed.
-                    DocumentSnapshot document = task.getResult();
+        usersRef.get().addOnCompleteListener(task -> {
+            if(task.isSuccessful()){ // Check a document can be accessed.
+                DocumentSnapshot document = task.getResult();
 
-                    if(document.exists()){ // Check a document exists.
+                assert document != null;
+                if(document.exists()){ // Check a document exists.
+                    if(fltFinal == FirebaseLoadType.FULL){
                         @SuppressWarnings("unchecked")
                         HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacy");
                         loadInPrivacySettings(privacy); // Load in privacy settings first (always)
                         loadProfile(document); // Then we load the public users profile.
-                        Log.i(TAG, "Successfully loaded the users profile");
-                    } else {
-                        Log.e(TAG, "No such document, " + document.toString() + " exists");
                     }
-            } else {
-                    Log.e(TAG, "Failed to get document for public user profile");
+                    loadKudosAndRecipes(document);
+                    initKudosIconPressListener(document);
+                    Log.i(TAG, "Successfully loaded the users profile");
+                } else {
+                    Log.e(TAG, "No such document, " + document.toString() + " exists");
                 }
+        } else {
+                Log.e(TAG, "Failed to get document for public user profile");
             }
         });
+    }
+
+    private void loadKudosAndRecipes(DocumentSnapshot profile){
+        //  Load in kudos.
+        String kudosString = "Kudos: " + ((long) profile.get("kudos"));
+        Log.e(TAG, "KUDOS is: " + kudosString);
+
+        Kudos.setKudos((long) profile.get("kudos"));
+        Kudos.updateKudos();
+
+        Log.e(TAG, "Image resource number: " + Kudos.chefLevelIcon);
+        mKudosIcon.setImageResource(Kudos.chefLevelIcon);
+        mKudos.setText(kudosString);
+
+        //  Load in number of recipes.
+        String numOfRecipesString = "Recipes: " + ((long) profile.get("numRecipes")); //  Convert 'long' value to something we can use.
+        if(retrieveRecipes){ mNumRecipes.setText(numOfRecipesString);} else {
+            mNumRecipes.setText(""); // Set number of recipes to nothing if hidden.
+        }
     }
 
     //  Load the information from the local UserInfoPrivate object if the profile corresponds to that of the user using the app/
     //  Reduces amount of Firebase Queries overall.
     private void loadLocalProfile() {
-        if(retrieveAboutMe){ mAboutMe.setText(mUserProfile.getAbout()); } //  If we are allowed to retrieve this data. do so.
-        /* TODO- Implement Image retrieval later,
-        if(retrieveImages){ }
-        */
-        String numOfRecipesString = "Recipes: " + (mUserProfile.getNumRecipes()); //  Convert 'long' value to something we can use.
-        if(retrieveRecipes){ mNumRecipes.setText(numOfRecipesString);} else {
-            mNumRecipes.setText(""); // Set number of recipes to nothing if hidden.
+        if (retrieveAboutMe) { //  If we are allowed to retrieve this data. do so.
+            mAboutMe.setText(mUserProfile.getAbout());
+        } else {
+            View profileAboutMeDesc = findViewById(R.id.public_profile_about_me_desc);
+            View profileAboutMe = findViewById(R.id.profile_about_me);
+            profileAboutMe.setVisibility(View.INVISIBLE);
+            profileAboutMeDesc.setVisibility(View.INVISIBLE);
         }
 
         if(retrieveUsername){ mUsername.setText(mUserProfile.getDisplayName()); }
 
         if(retrieveImages) {
-            Glide.with(this)
-                    .load(mUserProfile.getImageURL())
-                    .apply(RequestOptions.circleCropTransform())
-                    .into(mProfileImage); }
-
-        //  Load in kudos.
-        String kudosString = "Kudos: " + ((long) mUserProfile.getKudos().getKudos());
-        mKudos.setText(kudosString);
-        mUserProfile.getKudos().updateKudos();
-        mKudosIcon.setImageResource(mUserProfile.getKudos().getChefLevelIconResource());
+            if(mUserProfile.getImageURL() == null){
+                throw new NullPointerException("Unable to load Profile image URL. Image URL is null");
+            } else if(!mUserProfile.getImageURL().equals("")){
+                Glide.with(this)
+                        .load(mUserProfile.getImageURL())
+                        .apply(RequestOptions.circleCropTransform())
+                        .into(mProfileImage); }
+        }
 
         if(retrieveFilters){
             HashMap<String, Object> filters = new HashMap<>();
@@ -307,19 +326,25 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
             initFiltersIcons(ALLERGENS, filters);
             initFiltersIcons(DIETARY, filters);
 
-        } else { // Remove all checkboxes if filters are hidden.
-            //TODO - Hide stuff!
+        } else { // Remove preferences icons if required.
+            LinearLayout allergyLayout = findViewById(R.id.allergyLayout);
+            View allergyPressInfo = findViewById(R.id.allergyPressInfo);
+            View profileSettingsAllergens = findViewById(R.id.profile_settings_allergens);
+
+            allergyLayout.setVisibility(View.INVISIBLE);
+            allergyPressInfo.setVisibility(View.INVISIBLE);
+            profileSettingsAllergens.setVisibility(View.INVISIBLE);
         }
     }
 
-    private void initKudosIconPressListener(){
+    private void initKudosIconPressListener(DocumentSnapshot profile){
         mKudosIcon.setOnClickListener(v -> {
-            mUserProfile.getKudos().updateKudos();
+            Kudos.updateKudos();
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             AlertDialog dialog = builder.create();
             dialog.setTitle("Chef Rank");
-            dialog.setMessage(mUserProfile.getKudos().getChefLevel());
+            dialog.setMessage(Kudos.chefLevel);
             dialog.show();
         });
     }

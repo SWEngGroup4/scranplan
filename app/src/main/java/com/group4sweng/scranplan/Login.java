@@ -277,7 +277,7 @@ public class Login extends AppCompatActivity{
                     HashMap<String, Object> map = new HashMap<>();
                     HashMap<String, Object> preferences = new HashMap<>();
                     HashMap<String, Object> privacyPublic = new HashMap<>();
-                    HashMap<String, Object> privacyFriends = new HashMap<>();
+                    HashMap<String, Object> privacyPrivate = new HashMap<>();
 
                     // Add empty MealPlan list
                     List<Bundle> mealPlan = new ArrayList<>();
@@ -289,7 +289,6 @@ public class Login extends AppCompatActivity{
                     map.put("email", mAuth.getCurrentUser().getEmail());
                     map.put("displayName", mDisplayName);
                     map.put("imageURL", "");
-                    map.put("chefRating", (double) 0);
                     map.put("numRecipes", (long) 0);
                     map.put("about", "");
                     map.put("mealPlan", mealPlan);
@@ -305,11 +304,11 @@ public class Login extends AppCompatActivity{
                     privacyPublic.put("display_profile_image", true);
                     privacyPublic.put("display_filters", false);
 
-                    privacyFriends.put("display_username", true);
-                    privacyFriends.put("display_about_me", true);
-                    privacyFriends.put("display_recipes", true);
-                    privacyFriends.put("display_profile_image", true);
-                    privacyFriends.put("display_filters", true);
+                    privacyPrivate.put("display_username", true);
+                    privacyPrivate.put("display_about_me", true);
+                    privacyPrivate.put("display_recipes", true);
+                    privacyPrivate.put("display_profile_image", true);
+                    privacyPrivate.put("display_filters", true);
 
                     // Default user food preferences
                     preferences.put("allergy_celery", false);
@@ -342,7 +341,7 @@ public class Login extends AppCompatActivity{
 
                     map.put("preferences", preferences);
                     map.put("privacyPublic", privacyPublic);
-                    map.put("privacyFriends", privacyFriends);
+                    map.put("privacyPrivate", privacyPrivate);
                     // Saving default profile locally to user
 
                     // Saving default user to Firebase Firestore database
@@ -418,8 +417,6 @@ public class Login extends AppCompatActivity{
                                             map.put("email", document.get("email"));
                                             map.put("displayName", document.get("displayName"));
                                             map.put("imageURL", document.get("imageURL"));
-                                            map.put("chefRating", document.get("chefRating"));
-                                            map.put("numRecipes", document.get("numRecipes"));
                                             map.put("preferences", document.get("preferences"));
                                             map.put("privacy", document.get("privacy"));
                                             map.put("about", document.get("about"));
@@ -428,7 +425,6 @@ public class Login extends AppCompatActivity{
                                             map.put("firstAppLaunch", document.get("firstAppLaunch"));
                                             map.put("firstPresentationLaunch", document.get("firstPresentationLaunch"));
                                             map.put("firstMealPlannerLaunch", document.get("firstMealPlannerLaunch"));
-                                            map.put("kudos", document.get("kudos"));
 
                                             @SuppressWarnings("unchecked")
                                             HashMap<String, Object> preferences = (HashMap<String, Object>) document.get("preferences");
@@ -436,9 +432,9 @@ public class Login extends AppCompatActivity{
                                             @SuppressWarnings("unchecked")
                                             HashMap<String, Object> privacyPublic = (HashMap<String, Object>) document.get("privacyPublic");
                                             @SuppressWarnings("unchecked")
-                                            HashMap<String, Object> privacyFriends = (HashMap<String, Object>) document.get("privacyFriends");
+                                            HashMap<String, Object> privacyPrivate = (HashMap<String, Object>) document.get("privacyPrivate");
 
-                                            mUser = new UserInfoPrivate(map, preferences, privacyFriends, privacyPublic);
+                                            mUser = new UserInfoPrivate(map, preferences, privacyPrivate, privacyPublic);
 
                                             Log.i(TAG, "SignIn : Valid current user : UID [" + mUser.getUID() + "]");
 

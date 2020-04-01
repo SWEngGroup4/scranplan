@@ -30,7 +30,6 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
@@ -108,7 +107,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
     ImageView mProfileImage;
     TextView mUsername;
     TextView mAboutMe;
-    TextView mNumRecipes;
 
     //  User privacy filters.
     Switch mDisplay_username;
@@ -565,23 +563,39 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                         break;
                 }
             case DIETARY:
-                switch(v.getId()){
+                CheckBox vegan = findViewById(R.id.dietary_vegan);
+                CheckBox vegetarian = findViewById(R.id.dietary_vegetarian);
+                CheckBox pescatarian = findViewById(R.id.dietary_pescatarian);
+
+                switch(v.getId()) {
                     case R.id.dietary_vegan:
-                        if(checked)
-                            mUserProfile.getPreferences().setVegan(true);
-                        else
-                            mUserProfile.getPreferences().setVegan(false);
+                        if (checked) {
+                            preferences.setVegan(true);
+                            preferences.setVegetarian(false);
+                            preferences.setPescatarian(false);
+                            vegetarian.setChecked(false);
+                            pescatarian.setChecked(false);
+                        } else
+                            preferences.setVegan(false);
                         break;
                     case R.id.dietary_pescatarian:
-                        if(checked)
+                        if(checked) {
                             preferences.setPescatarian(true);
-                        else
+                            preferences.setVegetarian(false);
+                            preferences.setVegan(false);
+                            vegetarian.setChecked(false);
+                            vegan.setChecked(false);
+                        } else
                             preferences.setPescatarian(false);
                         break;
                     case R.id.dietary_vegetarian:
-                        if(checked)
+                        if(checked) {
                             preferences.setVegetarian(true);
-                        else
+                            preferences.setVegan(false);
+                            preferences.setPescatarian(false);
+                            vegan.setChecked(false);
+                            pescatarian.setChecked(false);
+                        } else
                             preferences.setVegetarian(false);
                 }
             case RELIGIOUS:
@@ -596,7 +610,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         //  Basic user info.
         mUsername = findViewById(R.id.settings_input_username);
         mAboutMe = findViewById(R.id.settings_input_about_me);
-        mNumRecipes = findViewById(R.id.profile_recipes);
         mProfileImage = findViewById(R.id.public_profile_image);
 
         //  Privacy
@@ -761,8 +774,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
     private void loadProfileData(){
         mUsername.setText(mUserProfile.getDisplayName());
         mAboutMe.setText(mUserProfile.getAbout());
-        String numOfRecipesString = "Recipes: " +  mUserProfile.getNumRecipes();
-        mNumRecipes.setText(numOfRecipesString);
 
         //  Load privacy switches.
         setPrivacyOptions(mUserProfile.getPublicPrivacy());
@@ -829,21 +840,18 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             HashMap<String, Object> map = new HashMap<>();
             HashMap<String, Object> prefMap = new HashMap<>();
             HashMap<String, Object> privacyPublic = new HashMap<>();
-            HashMap<String, Object> privacyFriends = new HashMap<>();
+            HashMap<String, Object> privacyPrivate = new HashMap<>();
 
             map.put("UID", requireNonNull(mAuth.getCurrentUser()).getUid());
             map.put("email", usersEmail);
             map.put("displayName", mUserProfile.getDisplayName());
             map.put("imageURL", mUserProfile.getImageURL());
-            map.put("chefRating", mUserProfile.getChefRating());
-            map.put("numRecipes", mUserProfile.getNumRecipes());
             map.put("about", mUserProfile.getAbout());
             map.put("mealPlan", mUserProfile.getMealPlanner());
             map.put("shortPreferences", mUserProfile.getShortPreferences());
             map.put("firstAppLaunch", mUserProfile.getFirstAppLaunch());
             map.put("firstPresentationLaunch", mUserProfile.getFirstPresentationLaunch());
             map.put("firstMealPlannerLaunch", mUserProfile.getFirstMealPlannerLaunch());
-            map.put("kudos", mUserProfile.getKudos().getKudos());
 
             Preferences preferences = mUserProfile.getPreferences();
 
@@ -860,7 +868,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             map.put("preferences", prefMap);
 
             HashMap<String, Object> privacyPublicMap = mUserProfile.getPublicPrivacy();
-            HashMap<String, Object> privacyFriendsMap = mUserProfile.getPrivacyFriends();
+            HashMap<String, Object> privacyPrivateMap = mUserProfile.getPrivacyFriends();
 
             privacyPublic.put("display_username", privacyPublicMap.get("display_username"));
             privacyPublic.put("display_about_me", privacyPublicMap.get("display_about_me"));
@@ -868,34 +876,26 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             privacyPublic.put("display_profile_image", privacyPublicMap.get("display_profile_image"));
             privacyPublic.put("display_filters", privacyPublicMap.get("display_filters"));
 
-            privacyFriends.put("display_username", privacyFriendsMap.get("display_username"));
-            privacyFriends.put("display_about_me", privacyFriendsMap.get("display_about_me"));
-            privacyFriends.put("display_recipes", privacyFriendsMap.get("display_recipes"));
-            privacyFriends.put("display_profile_image", privacyFriendsMap.get("display_profile_image"));
-            privacyFriends.put("display_filters", privacyFriendsMap.get("display_filters"));
+            privacyPrivate.put("display_username", privacyPrivateMap.get("display_username"));
+            privacyPrivate.put("display_about_me", privacyPrivateMap.get("display_about_me"));
+            privacyPrivate.put("display_recipes", privacyPrivateMap.get("display_recipes"));
+            privacyPrivate.put("display_profile_image", privacyPrivateMap.get("display_profile_image"));
+            privacyPrivate.put("display_filters", privacyPrivateMap.get("display_filters"));
 
             map.put("privacyPublic", privacyPublic);
-            map.put("privacyFriends", privacyFriends);
+            map.put("privacyPrivate", privacyPrivate);
 
             // TODO - Sync public and private privacy.
             //syncVisibility(privacyPublic);
 
-            mUserProfile = new UserInfoPrivate(map, prefMap, privacyFriends, privacyPublic); //Create a new local UserInfoPrivate class based upon our inputs.
+            mUserProfile = new UserInfoPrivate(map, prefMap, privacyPrivate, privacyPublic); //Create a new local UserInfoPrivate class based upon our inputs.
 
             DocumentReference usersRef = mRef.document(user.getUid());
 
             //  Sync the Firebase info with the client info if successful.
-            usersRef.update(map).addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    Toast.makeText(getApplicationContext(),"User Preferences Saved",Toast.LENGTH_SHORT).show();
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Toast.makeText(getApplicationContext(), "Failed to save user preferences", Toast.LENGTH_SHORT).show();
-                }
-            });
+            usersRef.update(map)
+                    .addOnSuccessListener(aVoid -> Toast.makeText(getApplicationContext(),"User Preferences Saved",Toast.LENGTH_SHORT).show())
+                    .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Failed to save user preferences", Toast.LENGTH_SHORT).show());
 
         } else {
             Toast.makeText(getApplicationContext(),"Invalid user login credentials. Consider logging out and then back in again.",Toast.LENGTH_LONG).show();
@@ -904,6 +904,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
     }
 
+    // TODO - Sync the private and public profile information.
     /*
     private void syncVisibility(HashMap<String, Object> privacyPublic){
         HashMap<String, Object> friendsPrivacy = mUserProfile.getPrivacyFriends();

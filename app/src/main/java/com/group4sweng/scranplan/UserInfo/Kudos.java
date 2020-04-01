@@ -1,25 +1,20 @@
 package com.group4sweng.scranplan.UserInfo;
 
-import android.util.Log;
-
 import com.group4sweng.scranplan.R;
 
-import java.io.Serializable;
+public class Kudos {
+    private static long kudos;
+    public static String chefLevel;
+    public static int chefLevelIcon;
 
-public class Kudos implements Serializable {
-    private long kudos;
-    private String chefLevel = "dishwasher";
-    private int chefLevelIcon = R.drawable.ic_dishwasher;
+    public static void updateKudos(){
+        if(kudos < 5){
+            chefLevel = "Dishwasher";
+            chefLevelIcon = R.drawable.ic_dishwasher;
+            return;
+        }
 
-    public Kudos(long initialKudos){
-        kudos = initialKudos;
-    }
-
-    public void updateKudos(){
         int kudosScaled = (int) (Math.log(kudos) / Math.log(5));
-
-
-        Log.e("Kudos", "New kudos scaled value is: " + kudosScaled);
 
         switch(kudosScaled) {
             case 0:
@@ -55,22 +50,18 @@ public class Kudos implements Serializable {
 
     }
 
-    public long getKudos(){ return kudos; }
+    public static long getKudos() { return Kudos.kudos; }
 
-    public String getChefLevel() { return chefLevel; }
-
-    public int getChefLevelIconResource() { return chefLevelIcon; }
-
-    public void setKudos(int kudos){
+    public static void setKudos(long kudos){
         if(kudos < 0){
             kudos = 0;
         }
-        this.kudos = kudos;
+        Kudos.kudos = kudos;
     }
 
-    public void incrementKudos(int incrementAmount) { kudos = kudos + incrementAmount; }
+    public static void incrementKudos(long incrementAmount) { kudos = kudos + incrementAmount; }
 
-    public void decrementKudos(int decrementAmount) {
+    public static void decrementKudos(long decrementAmount) {
         kudos = kudos - decrementAmount;
 
         if(kudos < 0){
