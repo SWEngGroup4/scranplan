@@ -95,10 +95,10 @@ public class RecipeReviewFragment extends FeedFragment {
         });
 
         //Gets rid of recipe icon
-        mRecipeIcon.setVisibility(View.GONE);
+        mRecipeIcon.setVisibility(View.INVISIBLE);
 
         //Gets rid of review icon
-        mReviewIcon.setVisibility(View.GONE);
+        mReviewIcon.setVisibility(View.INVISIBLE);
 
         //Sets the text view for rating to visible
         mRecipeRate.setVisibility(View.VISIBLE);
