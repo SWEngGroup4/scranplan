@@ -86,7 +86,8 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
 
         View layout = inflater.inflate(R.layout.fragment_recipe_info, null);
         recipeID = getArguments().getString("recipeID");
-        recipeName = getArguments().getString("recipeTitle");
+        String cap = getArguments().getString("recipeTitle");
+        recipeName = cap.substring(0, 1).toUpperCase() + cap.substring(1);
         recipeImage = getArguments().getString("imageURL");
         recipeDescription = getArguments().getString("recipeDescription");
         chefName = getArguments().getString("chefName");

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.group4sweng.scranplan.Social.FeedFragment">
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="5sp">
+
+            <LinearLayout
+                android:id="@+id/makePostLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rounded_corners_coloured"
+                android:radius="10sp"
+
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/addPostLinearLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_weight="3">
+
+                        <EditText
+                            android:id="@+id/postBodyInput"
+                            style="@style/Widget.AppCompat.EditText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16sp"
+                            android:layout_marginTop="5sp"
+                            android:layout_marginEnd="16sp"
+                            android:background="@drawable/rounded_corners"
+                            android:ems="10"
+                            android:padding="5.5sp"
+                            android:hint="@string/enter_post_text_here"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                            android:textColor="#353236"
+                            android:textSize="15sp"
+                            android:importantForAutofill="no"
+                            android:maxLines="10"
+                            android:scrollbars="vertical"
+                            android:gravity="top|left"
+                            android:inputType="textMultiLine"
+                            android:minLines="3"/>
+
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <Button
+                            android:id="@+id/sendPostButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal|center_vertical"
+                            android:layout_weight="1"
+                            android:foregroundGravity="center_vertical|center|center_horizontal"
+                            android:gravity="center_horizontal|center_vertical"
+                            android:text="@string/post"
+                            android:textColor="#C8FFFFFF"
+                            style="@style/Widget.AppCompat.Button.Colored"
+                            android:singleLine="true"
+                            android:paddingRight="10sp"/>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+                            <CheckBox
+                                android:id="@+id/imageIcon"
+                                android:layout_width="30sp"
+                                android:layout_height="30sp"
+                                android:maxWidth="30sp"
+                                android:maxHeight="30sp"
+                                android:scaleType="fitCenter"
+                                android:button="@null"
+                                android:checked="false"
+                                android:background="@drawable/add_image"
+                                android:stateListAnimator="@animator/select"/>
+                            <CheckBox
+                                android:id="@+id/recipeIcon"
+                                android:layout_width="30sp"
+                                android:layout_height="30sp"
+                                android:maxWidth="30sp"
+                                android:maxHeight="30sp"
+                                android:scaleType="fitCenter"
+                                android:button="@null"
+                                android:checked="false"
+                                android:background="@drawable/add_recipe"
+                                android:stateListAnimator="@animator/select"/>
+                            <CheckBox
+                                android:id="@+id/reviewIcon"
+                                android:layout_width="30sp"
+                                android:layout_height="30sp"
+                                android:maxWidth="30sp"
+                                android:maxHeight="30sp"
+                                android:scaleType="fitCenter"
+                                android:button="@null"
+                                android:checked="false"
+                                android:background="@drawable/add_rating"
+                                android:stateListAnimator="@animator/select"/>
+
+                        </LinearLayout>
+                    </LinearLayout>
+
+
+                </LinearLayout>
+
+
+
+<!--                <LinearLayout-->
+<!--                    android:id="@+id/openCommentsLinearLayout"-->
+<!--                    android:layout_margin="5sp"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="40sp"-->
+<!--                    android:layout_marginBottom="0dp">-->
+
+
+
+<!--                    <Button-->
+<!--                        android:id="@+id/postRecipe"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="50sp"-->
+<!--                        android:layout_marginStart="20sp"-->
+<!--                        android:layout_marginEnd="20sp"-->
+<!--                        android:text="+ 🍽"-->
+<!--                        android:textColor="#C8FFFFFF"-->
+<!--                        style="@style/Widget.AppCompat.Button.Colored"-->
+<!--                        android:singleLine="true"/>-->
+
+<!--                    <Button-->
+<!--                        android:id="@+id/postReview"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="50sp"-->
+<!--                        android:layout_marginStart="20sp"-->
+<!--                        android:layout_marginEnd="20sp"-->
+<!--                        android:text="+ ⭐"-->
+<!--                        android:textColor="#C8FFFFFF"-->
+<!--                        style="@style/Widget.AppCompat.Button.Colored"-->
+<!--                        android:singleLine="true"/>-->
+
+
+<!--                    <Button-->
+<!--                        android:id="@+id/postPic"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="50sp"-->
+<!--                        android:layout_marginStart="20sp"-->
+<!--                        android:layout_marginEnd="20sp"-->
+<!--                        android:text="+ 📷"-->
+<!--                        android:textColor="#C8FFFFFF"-->
+<!--                        style="@style/Widget.AppCompat.Button.Colored"-->
+<!--                        android:singleLine="true"/>-->
+
+<!--                </LinearLayout>-->
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/topLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>

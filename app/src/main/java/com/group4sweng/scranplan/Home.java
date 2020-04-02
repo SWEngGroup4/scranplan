@@ -317,7 +317,7 @@ public class Home extends AppCompatActivity {
     /**
      *  Initialise all check boxes to user preferences and ensure that queries are only query that is allowed
      */
-    public void initMenuCheckBoxes(){
+    public void initMenuCheckBoxes(TabHost tabs){
         // Ensure that only the correct boxes are ticked at any one time
         mPescatarianBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
@@ -396,8 +396,14 @@ public class Home extends AppCompatActivity {
                 if (mChefBox.isChecked()) {
                     mIngredientsBox.setChecked(false);
                     mNameBox.setChecked(false);
+                    tabs.setCurrentTab(2);
+                    tabs.getCurrentTabView().setVisibility(View.GONE);
+                    tabs.setCurrentTab(0);
                 }else if(!mNameBox.isChecked() && !mIngredientsBox.isChecked()){
                     mChefBox.setChecked(true);
+                    tabs.setCurrentTab(2);
+                    tabs.getCurrentTabView().setVisibility(View.GONE);
+                    tabs.setCurrentTab(0);
                 }
             }
         });
@@ -409,8 +415,14 @@ public class Home extends AppCompatActivity {
                 if (mIngredientsBox.isChecked()) {
                     mChefBox.setChecked(false);
                     mNameBox.setChecked(false);
+                    tabs.setCurrentTab(2);
+                    tabs.getCurrentTabView().setVisibility(View.VISIBLE);
+                    tabs.setCurrentTab(0);
                 }else if(!mNameBox.isChecked() && !mChefBox.isChecked()){
                     mIngredientsBox.setChecked(true);
+                    tabs.setCurrentTab(2);
+                    tabs.getCurrentTabView().setVisibility(View.VISIBLE);
+                    tabs.setCurrentTab(0);
                 }
             }
         });
@@ -422,8 +434,14 @@ public class Home extends AppCompatActivity {
                 if (mNameBox.isChecked()) {
                     mChefBox.setChecked(false);
                     mIngredientsBox.setChecked(false);
+                    tabs.setCurrentTab(2);
+                    tabs.getCurrentTabView().setVisibility(View.GONE);
+                    tabs.setCurrentTab(0);
                 }else if(!mChefBox.isChecked() && !mIngredientsBox.isChecked()){
                     mNameBox.setChecked(true);
+                    tabs.setCurrentTab(2);
+                    tabs.getCurrentTabView().setVisibility(View.GONE);
+                    tabs.setCurrentTab(0);
                 }
             }
         });
@@ -469,6 +487,7 @@ public class Home extends AppCompatActivity {
         tabpage3.setContent(R.id.ScrollView03);
         tabpage3.setIndicator("Sort");
 
+
         // Adding the XML for each tab
         tabs.addTab(tabpage1);
         tabs.addTab(tabpage2);
@@ -492,7 +511,7 @@ public class Home extends AppCompatActivity {
         mChefBox = layout.findViewById(R.id.chefCheckBox);
 
         // Initialise the check boxes by filling them with users current preferences
-        initMenuCheckBoxes();
+        initMenuCheckBoxes(tabs);
 
         // add the alert dialogue to the current context
         builder = new AlertDialog.Builder(Home.this);

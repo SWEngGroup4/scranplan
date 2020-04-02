@@ -7,4 +7,10 @@
     <string name="profile_settings_button_string">profile settings</string>
     <string name="prevButton"><![CDATA[<-]]></string>
     <string name="nextButton"><![CDATA[->]]></string>
+    <string name="post_title">Post title</string>
+    <string name="enter_post_text_here">Enter post text here...</string>
+    <string name="recipe">+ Recipe</string>
+    <string name="review">+ Review</string>
+    <string name="image">+ Image</string>
+    <string name="post">Post</string>
 </resources>

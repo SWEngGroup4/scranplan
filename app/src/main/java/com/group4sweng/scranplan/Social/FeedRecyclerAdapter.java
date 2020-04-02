@@ -1,6 +1,5 @@
 package com.group4sweng.scranplan.Social;
 
-import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,10 +8,14 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.R;
 import com.squareup.picasso.Picasso;
 
@@ -31,6 +34,9 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
     private FeedFragment mFeedFragment;
     private List<FeedPostPreviewData> mDataset;
 
+    /**  Firebase **/
+    FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
+
     /**
      * The holder for the card with variables required
      */
@@ -39,7 +45,6 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
         private String postID;
         private String authorUID;
 
-        private String title;
         private String body;
         private boolean isPic;
         private String uploadedImageURL;
@@ -54,7 +59,7 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
             this.document = doc;
             this.isRecipe = (boolean) document.get("isRecipe");
             this.isPic = (boolean) document.get("isPic");
-            this.title = (String) document.get("title");
+            this.authorUID = (String) document.get("author");
             this.body = (String) document.get("body");
             if(isPic){
                 this.uploadedImageURL = (String) document.get("uploadedImageURL");
@@ -76,7 +81,7 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
 
 
         private CardView cardView;
-        private TextView title;
+        private TextView author;
         private TextView body;
         private ImageView uploadedImageView;
 
@@ -89,7 +94,7 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
         private ViewHolder(View v) {
             super(v);
             cardView = v.findViewById(R.id.postCardView);
-            title = v.findViewById(R.id.postTitle);
+            author = v.findViewById(R.id.postAuthor);
             body = v.findViewById(R.id.postBody);
             uploadedImageView = v.findViewById(R.id.uploadedImageView);
             recipeLayout = v.findViewById(R.id.recipePostInput);
@@ -99,6 +104,8 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
 
         }
     }
+
+
 
     /**
      * Constructor to add all variables
@@ -130,7 +137,25 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
      */
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.title.setText(mDataset.get(position).title);
+        if(mDataset.get(position).authorUID != null){
+            mDatabase.collection("users").document(mDataset.get(position).authorUID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        holder.author.setText((String)task.getResult().get("displayName"));
+
+                    }else {
+                        Log.e("FdRc", "User details retrieval : Unable to retrieve user document in Firestore ");
+                        holder.author.setText("");
+                    }
+                }
+            });
+        }else {
+            Log.e("FdRc", "User UID null");
+            holder.author.setText("");
+        }
+
+
         holder.body.setText(mDataset.get(position).body);
         if(mDataset.get(position).uploadedImageURL != null){
             holder.uploadedImageView.setVisibility(View.VISIBLE);
@@ -154,6 +179,7 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
 
             }
         });
+
     }
 
     // Getting dataset size

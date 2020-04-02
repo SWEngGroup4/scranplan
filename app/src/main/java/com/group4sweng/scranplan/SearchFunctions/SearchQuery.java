@@ -95,20 +95,21 @@ public class SearchQuery {
         // Only allowing the user to search for a single item
         if(mIngredientsBox){
             query = query.whereArrayContains("listIngredients", mSearch.toLowerCase());
+            // Only enabling a single search order
+            if(mScoreBox){
+                query = query.orderBy("score", Direction.DESCENDING);
+            }else if(mVoteBox){
+                query = query.orderBy("votes", Direction.DESCENDING);
+            }else if(mTimeBox){
+                query = query.orderBy("timestamp", Direction.DESCENDING);
+            }
         }else if(mNameBox){
-            query = query.whereEqualTo("name", mSearch.toLowerCase());
+            query = query.whereGreaterThanOrEqualTo("Name", mSearch.toLowerCase()).whereLessThanOrEqualTo("Name", mSearch.toLowerCase());
         }else if(mChefBox){
-            query = query.whereEqualTo("chef", mSearch.toLowerCase());
+            query = query.whereGreaterThanOrEqualTo("Chef", mSearch.toLowerCase()).whereLessThanOrEqualTo("Chef", mSearch.toLowerCase());
         }
 
-        // Only enabling a single search order
-        if(mScoreBox){
-            query = query.orderBy("score", Direction.DESCENDING);
-        }else if(mVoteBox){
-            query = query.orderBy("votes", Direction.DESCENDING);
-        }else if(mTimeBox){
-            query = query.orderBy("timestamp", Direction.DESCENDING);
-        }
+
 
         // Limiting the search to sets of 5 items until the user scrolls to bottom
         query = query.limit(5);

@@ -1,41 +1,56 @@
 package com.group4sweng.scranplan.Social;
 
-import android.graphics.Color;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.group4sweng.scranplan.Exceptions.ImageException;
 import com.group4sweng.scranplan.R;
-import com.group4sweng.scranplan.RecipeInfoFragment;
-import com.group4sweng.scranplan.SearchFunctions.HomeQueries;
-import com.group4sweng.scranplan.SearchFunctions.HomeRecyclerAdapter;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import static android.app.Activity.RESULT_OK;
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+import static com.group4sweng.scranplan.Helper.ImageHelpers.getExtension;
+import static com.group4sweng.scranplan.Helper.ImageHelpers.getPrintableSupportedFormats;
+import static com.group4sweng.scranplan.Helper.ImageHelpers.getSize;
+import static com.group4sweng.scranplan.Helper.ImageHelpers.isImageFormatSupported;
 
 /**
  * This class builds the horizontal scrolls of custom preference recipe selection for the user on the
@@ -46,6 +61,18 @@ import java.util.Map;
 public class FeedFragment extends Fragment {
 
     final String TAG = "Home horizontal queries";
+
+    // Unique codes for image & permission request activity callbacks.
+    private static final int IMAGE_REQUEST_CODE = 2;
+    private static final int PERMISSION_CODE = 1001;
+
+    private static final int MAX_IMAGE_FILE_SIZE_IN_MB = 4; // Max storage image size for the profile picture.
+    private static boolean IMAGE_IS_UPLOADING = false; // Boolean to determine if the image is uploading currently.
+
+    private Uri mImageUri; // Unique image uri.
+    ImageView mUploadedImage;
+
+
     // User preferences passed into scroll views via constructor
     UserInfoPrivate user;
     public FeedFragment(UserInfoPrivate userSent){
@@ -61,11 +88,22 @@ public class FeedFragment extends Fragment {
     private boolean isScrolling = false;
     private boolean isLastItemReached = false;
 
+    Button mPostButton;
+    Button mPostRecipe;
+    Button mPostReview;
+    Button mPostPic;
+    EditText mPostTitleInput;
+    EditText mPostBodyInput;
+
 
 
     // Database objects for accessing recipes
     private FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
     private CollectionReference mColRef = mDatabase.collection("followers");
+    // Firebase user collection and storage references.
+    CollectionReference mRef = mDatabase.collection("posts");
+    FirebaseStorage mStorage = FirebaseStorage.getInstance();
+    StorageReference mStorageReference = mStorage.getReference();
 
 
 
@@ -81,13 +119,16 @@ public class FeedFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_recipe, container, false);
+        View view = inflater.inflate(R.layout.fragment_feed, container, false);
 
         // Grabs screen size for % layout TODO - change to density pixels + NullPointerException check
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
 
         // Procedurally fills topLayout with imageButton content
         LinearLayout topLayout = view.findViewById(R.id.topLayout);
+
+        initPageItems(view);
+        initPageListeners();
 
         // Checks users details have been provided
         if(user != null){
@@ -107,7 +148,7 @@ public class FeedFragment extends Fragment {
             data = new ArrayList<>();
             final RecyclerView.Adapter rAdapter = new FeedRecyclerAdapter(FeedFragment.this, data);
             recyclerView.setAdapter(rAdapter);
-            final Query query = mColRef.whereArrayContains("users", user.getUID()).orderBy("timestamp").limit(10);
+            final Query query = mColRef.whereArrayContains("users", user.getUID()).orderBy("lastPost", Query.Direction.DESCENDING).limit(10);
             // Ensure query exists and builds view with query
             if (query != null) {
                 Log.e(TAG, "User is searching the following query: " + query.toString());
@@ -125,11 +166,51 @@ public class FeedFragment extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+                            Log.e("FEED", "UID = " + user.getUID());
+                            Log.e("FEED", "task success");
                             ArrayList<HashMap> posts = new ArrayList<>();
                             for (DocumentSnapshot document : task.getResult()) {
-                                posts.add((HashMap)document.get("recent"));
+                                Log.e("FEED", "I have found a doc");
+                                //posts.addAll((ArrayList)document.get("recent"));
+                                String first = (String) document.get("space1");
+                                String second = (String) document.get("space1");
+                                String third = (String) document.get("space1");
+                                if(document.get("map" + first) != null){
+                                    posts.add((HashMap)document.get("map" + first));
+                                }
+                                if(document.get("map" + second) != null){
+                                    posts.add((HashMap)document.get("map" + second));
+                                }
+                                if(document.get("map" + third) != null){
+                                    posts.add((HashMap)document.get("map" + third));
+                                }
                             }
-                            Collections.sort(posts, new MapComparator("timestamp"));
+                            // Bubble sort items
+                            HashMap<String, Object> temporary;
+                            for (int i = 0; i < (posts.size() - 1); i++) {
+                                for (int j = 0; j < (posts.size() - i - 1); j++) {
+
+                                    if (((Timestamp) posts.get(j).get("timestamp")).toDate().before(((Timestamp) posts.get(j + 1).get("timestamp")).toDate())) {
+
+                                        temporary = posts.get(j);
+                                        posts.set(j, posts.get(j + 1));
+                                        posts.set(j + 1, temporary);
+
+                                    }
+                                }
+                            }
+//
+//                            Collections.sort(posts, new Comparator<Map<String, Object>>() {
+//                                @Override
+//                                public int compare(Map<String, Object> map1, Map<String, Object> map2) {
+//                                    Timestamp firstValue = (Timestamp) map1.get("timestamp");
+//                                    Timestamp secondValue = (Timestamp) map2.get("timestamp");
+//                                    if (firstValue != null & secondValue != null) {
+//                                        return firstValue.toDate().compareTo(secondValue.toDate());
+//                                    }
+//                                    return 0;
+//                                }
+//                            });
                             for(int i = 0; i < posts.size(); i++){
                                 data.add(new FeedRecyclerAdapter.FeedPostPreviewData(
                                         posts.get(i)));
@@ -177,16 +258,20 @@ public class FeedFragment extends Fragment {
                                                     for (DocumentSnapshot document : task.getResult()) {
                                                         posts.add((HashMap)document.get("recent"));
                                                     }
-                                                    Collections.sort(posts, new Comparator<Map<String, Object>>() {
-                                                        @Override
-                                                        public int compare(Map<String, Object> map1, Map<String, Object> map2) {
+                                                    // Bubble sort items
+                                                    HashMap<String, Object> temporary;
+                                                    for (int i = 0; i < (posts.size() - 1); i++) {
+                                                        for (int j = 0; j < (posts.size() - i - 1); j++) {
 
-                                                            //TODO compare the two doubles or its from the map and then return the correct one.
-                                                            return 0;
+                                                            if (((Timestamp) posts.get(j).get("timestamp")).toDate().before(((Timestamp) posts.get(j + 1).get("timestamp")).toDate())) {
+
+                                                                temporary = posts.get(j);
+                                                                posts.set(j, posts.get(j + 1));
+                                                                posts.set(j + 1, temporary);
+
+                                                            }
                                                         }
-                                                    });
-
-
+                                                    }
 
                                                     for(int i = 0; i < posts.size(); i++){
                                                         data.add(new FeedRecyclerAdapter.FeedPostPreviewData(
@@ -226,25 +311,187 @@ public class FeedFragment extends Fragment {
         return view;
     }
 
+
     /**
-     * Sort the ArrayList of maps
+     *  Connecting up elements on the screen to variable names
      */
-    class MapComparator implements Comparator<Map<String, String>>
-    {
-        private final String key;
+    private void initPageItems(View v){
+        //Defining all relevant members of page
+        mPostButton = v.findViewById(R.id.sendPostButton);
+        mPostRecipe = v.findViewById(R.id.recipeIcon);
+        mPostReview = v.findViewById(R.id.reviewIcon);
+        mPostPic = v.findViewById(R.id.imageIcon);
+        mPostBodyInput = v.findViewById(R.id.postBodyInput);
 
-        public MapComparator(String key)
-        {
-            this.key = key;
+    }
+
+    /**
+     *  Setting up page listeners for when buttons are pressed
+     */
+    private void initPageListeners() {
+        mPostButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String title = mPostTitleInput.getText().toString();
+                String body = mPostBodyInput.getText().toString();
+                boolean isPic = false;
+                boolean isRecipe = false;
+                boolean isReview = false;
+                //TODO set these variables from the addition of these items
+
+
+                mPostTitleInput.getText().clear();
+                mPostBodyInput.getText().clear();
+
+                CollectionReference ref = mDatabase.collection("posts");
+                Log.e(TAG, "Added new post ");
+                // Saving the comment as a new document
+                HashMap<String, Object> map = new HashMap<>();
+                map.put("author", user.getUID());
+                map.put("title", title);
+                map.put("body", body);
+                map.put("timestamp", FieldValue.serverTimestamp());
+                map.put("isPic", isPic);
+                map.put("isRecipe", isRecipe);
+                map.put("isReview", isReview);
+                if(isPic){
+
+                }
+                if(isRecipe){
+                    if(isReview){
+
+                    }
+                }
+                // Saving default user to Firebase Firestore database
+                ref.add(map);
+
+
+            }
+        });
+        mPostRecipe.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        mPostReview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        mPostPic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+    }
+
+    //  Open our image picker.
+    private void imageSelector(){
+        Intent images = new Intent(Intent.ACTION_PICK);
+        images.setType("image/*"); // Only open the 'image' file picker. Don't include videos, audio etc...
+        startActivityForResult(images, IMAGE_REQUEST_CODE); // Start the image picker and expect a result once an image is selected.
+    }
+
+    /** Handle our activity result for the image picker.
+     * @param requestCode - Image request code.
+     * @param resultCode - Success/failure code. 0 = success, -1 = failure.
+     * @param data - Our associated image data.
+     */
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        //   Check for a valid request code and successful result.
+        if(requestCode == IMAGE_REQUEST_CODE && resultCode==RESULT_OK){
+            if(data!=null && data.getData()!= null){
+                mUploadedImage.setImageResource(R.drawable.temp_settings_profile_image); // Set to a default image if image uploading fails.
+
+                mImageUri = data.getData();
+
+                //  Use Glides image functionality to quickly load a circular, center cropped image.
+                Glide.with(this)
+                        .load(mImageUri)
+                        .apply(RequestOptions.circleCropTransform())
+                        .into(mUploadedImage);
+
+                try {
+                    uploadImage(mImageUri); // Attempt to upload the image in storage to Firebase.
+                } catch (ImageException e) {
+                    e.printStackTrace();
+                    return;
+                }
+            }
+        }
+    }
+
+    /** Image checker.
+     *  Used to reduce wait times for the user when uploading on a slow network.
+     *  Also limits the data that has to be stored and queried from Firebase.
+     *  @param uri - The unique uri of the image file location from the users storage.
+     *  @throws ImageException - Throws if the image file is too large or the format isn't a supported image format.
+     */
+    private void checkImage(Uri uri) throws ImageException {
+
+        //  If the image files size is greater than the max file size in mb converted to bytes throw an exception and return this issue to the user.
+        if(getSize(this.getContext(), uri) > MAX_IMAGE_FILE_SIZE_IN_MB * 1000000){
+            Toast.makeText(this.getContext(), "Image exceeded: " + MAX_IMAGE_FILE_SIZE_IN_MB + "mb limit. Please choose a different file.", Toast.LENGTH_LONG).show();
+            throw new ImageException("Profile image exceeded max file size: " + MAX_IMAGE_FILE_SIZE_IN_MB + "mb");
         }
 
-        public int compare(Map<String, String> first,
-                           Map<String, String> second)
-        {
-            String firstValue = first.get(key);
-            String secondValue = second.get(key);
-            return firstValue.compareTo(secondValue);
+        boolean formatIsSupported = isImageFormatSupported(this.getContext(), uri); // Check if the image is of a supported format
+        String extension = getExtension(this.getContext(), uri); // Grab the extension as a string.
+
+        //  If our format isn't supported then throw an exception. Otherwise continue and don't throw an exception indicating a successful image check.
+        if(!formatIsSupported) {
+            Toast.makeText(this.getContext(), "Image extension: '" + getExtension(this.getContext(), uri) +"' is not supported.", Toast.LENGTH_LONG).show();
+
+            new CountDownTimer(3600, 200){ // Display another toast message after the existing one. Long Toast messages last 3500ms, hence 3600 delay.
+                @Override
+                public void onTick(long millisUntilFinished) { /*Do Nothing...*/ }
+                @Override
+                public void onFinish() {
+                    //   Make the user aware of the supported formats they can upload.
+                    Toast.makeText(getApplicationContext(), "Supported formats: " + getPrintableSupportedFormats(), Toast.LENGTH_LONG).show();
+                }
+            }.start();
+
+            throw new ImageException("Image format type: " + extension + " is not supported");
         }
+    }
+
+    /** Upload the image to Firebase. Initiated before saving preferences if the format and size is supported to give some time for the app to upload the image.
+     *  Does not update the users reference to the image. This is updated after saving the users preferences.
+     *
+     * @param uri - The unique uri of the image file location from the users storage.
+     * @throws ImageException - Thrown if URL cannot be retrieved. This will only fail if there is a reference to a blank file.
+     *  In normal operation this shouldn't happen.
+     */
+    private void uploadImage(Uri uri) throws ImageException {
+        String extension = getExtension(this.getContext(), uri);
+
+        checkImage(uri); // Check the image doesn't throw any exceptions
+
+        IMAGE_IS_UPLOADING = true; // State that the image is still uploading and therefore we shouldn't save a reference on firebase to it yet.
+
+        /*  Create a unique reference of the format. 'image/profile/[UNIQUE UID]/profile_image.[EXTENSION].
+            Whereby [UNIQUE UID] = the Unique id of the user, [EXTENSION] = file image extension. E.g. .jpg,.png. */
+        StorageReference mImageStorage = mStorageReference.child("images/posts/" + user.getUID() + "/IMAGEID" + extension); //todo input image id
+
+        //  Check if the upload fails
+        mImageStorage.putFile(uri).addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Failed to upload profile image.", Toast.LENGTH_SHORT).show()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                mImageStorage.getDownloadUrl().addOnSuccessListener(locationUri -> { // Successful upload.
+                    // TODO set image URL for post - only save when uploading post
+                    //mUserProfile.setImageURL(locationUri.toString()); // Update the UserInfoPrivate class with this new image URL.
+                    IMAGE_IS_UPLOADING = false; // State we have finished uploading (a reference exists).
+                }).addOnFailureListener(e -> {
+                    throw new RuntimeException("Unable to grab image URL from Firebase for image URL being uploaded currently. This shouldn't happen.");
+                });
+            }
+        });
     }
 
     /**
