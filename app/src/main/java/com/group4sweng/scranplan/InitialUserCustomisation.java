@@ -35,6 +35,7 @@ public class InitialUserCustomisation extends AppCompatActivity {
     Preferences preferences;
     Button mSkipButton;
     Button mSubmitButton;
+    Button mGoButton;
     CheckBox mVegetarianBox;
     CheckBox mVeganBox;
     CheckBox mNutsBox;
@@ -50,6 +51,8 @@ public class InitialUserCustomisation extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //sets the page to the initial filer page
+        setContentView(R.layout.popup_firstscreen);
+        sendToMainScreen();
         setContentView(R.layout.activity_initial_user_customisation);
         userDetails = (UserInfoPrivate) getIntent().getSerializableExtra("user");
 
@@ -89,6 +92,7 @@ public class InitialUserCustomisation extends AppCompatActivity {
         mShellfishBox = findViewById(R.id.shellfishCheckBox);
         mSoyBox = findViewById(R.id.soyCheckBox);
         mPescatarianBox = findViewById(R.id.pescatarianCheckBox);
+        mGoButton = findViewById(R.id.goButton);
 
     }
 
@@ -155,6 +159,23 @@ public class InitialUserCustomisation extends AppCompatActivity {
                  savePref();
                  finishActivity();
              }
+        });
+
+    }
+
+    private void sendToMainScreen(){
+        mGoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //skip button takes user directly to the main page
+                Log.e(TAG, "Initial user returning to main activity");
+
+                Intent returningIntent = new Intent(InitialUserCustomisation.this, Home.class );
+
+                startActivity(returningIntent);
+
+                finish();
+            }
         });
 
     }
