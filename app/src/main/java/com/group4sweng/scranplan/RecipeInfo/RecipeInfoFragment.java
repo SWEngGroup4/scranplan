@@ -117,22 +117,9 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
 
         View layout = inflater.inflate(R.layout.fragment_recipe_info, null);
 
-        recipeID = getArguments().getString("recipeID");
-        recipeName = getArguments().getString("recipeTitle");
-        recipeImage = getArguments().getString("imageURL");
-        recipeDescription = getArguments().getString("recipeDescription");
-        chefName = getArguments().getString("chefName");
-        ingredientArray = getArguments().getStringArrayList("ingredientList");
-        recipeRating = getArguments().getString("rating");
-        xmlPresentation = getArguments().getString("xmlURL");
-        planner = getArguments().getBoolean("planner");
-        favouriteRecipe = getArguments().getStringArrayList("favourite");
-        mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
-        isFavourite = getArguments().getBoolean("isFav");
-
-
         builder.setView(layout);
 
+        //This method holds all the arguments from the bundle
         initBundleItems(layout, getArguments());
 
         initPageItems(layout);
@@ -207,7 +194,6 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         xmlPresentation = bundle.getString("xmlURL");
         planner = bundle.getBoolean("planner");
         recipeRating = bundle.getString("rating");
-        recipeRating = bundle.getString("rating");
         reheat = bundle.getString("reheat");
         noEggs = bundle.getBoolean("noEggs");
         noMilk = bundle.getBoolean("noMilk");
@@ -221,6 +207,9 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         servingAmount = bundle.getString("peopleServes");
         canFreeze = bundle.getBoolean("canFreeze");
         fridgeTime = bundle.getString("fridgeDays");
+        favouriteRecipe = getArguments().getStringArrayList("favourite");
+        mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
+        isFavourite = getArguments().getBoolean("isFav");
 
     }
 
@@ -323,7 +312,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
                         fragment = new RecipeIngredientFragment();
                         break;
                     case 1:
-                        fragment = new RecipeCommentsFragment();
+                        fragment = new RecipeReviewFragment(mUser);
                         break;
 
                 }

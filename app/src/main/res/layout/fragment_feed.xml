@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/FrameLayoutid"
     tools:context="com.group4sweng.scranplan.Social.FeedFragment"
     android:background="#A6AAC9">
 
@@ -27,7 +28,6 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/rounded_corners_coloured"
                 android:radius="10sp"
-
                 android:orientation="vertical">
 
                 <LinearLayout
@@ -173,6 +173,9 @@
 <!--                        android:singleLine="true"/>-->
 
 <!--                </LinearLayout>-->
+
+
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -244,22 +247,40 @@
                     </LinearLayout>
             </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/recipeRate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20sp"
+                        android:layout_marginTop="10sp"
+                        android:text="Rating:"
+                        android:visibility="gone"/>
+
+                    <RatingBar
+                        android:id="@+id/rating"
+                        style="?android:attr/ratingBarStyleIndicator"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10sp"
+                        android:layout_marginBottom="10sp"
+                        android:progressTint="@color/colorRatingGold"
+                        android:isIndicator="false"
+                        android:numStars="5"
+                        android:stepSize="0.1"
+                        android:visibility="gone"/>
+
+                </LinearLayout>
 
 
             </LinearLayout>
 
-            <RatingBar
-                android:id="@+id/rating"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                style="?android:attr/ratingBarStyleSmall"
-                android:numStars="5"
-                android:stepSize="0.1"
-                android:isIndicator="true"
-                android:visibility="gone"/>
 
-
-            </LinearLayout>
+        </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/topLayout"

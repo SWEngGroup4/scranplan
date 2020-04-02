@@ -94,12 +94,12 @@ public class FeedFragment extends Fragment {
     private boolean isScrolling = false;
     private boolean isLastItemReached = false;
 
-    Button mPostButton;
-    Button mPostRecipe;
-    Button mPostReview;
-    CheckBox mPostPic;
-    EditText mPostTitleInput;
-    EditText mPostBodyInput;
+    protected Button mPostButton;
+    protected Button mPostRecipe;
+    protected Button mPostReview;
+    protected CheckBox mPostPic;
+    protected EditText mPostTitleInput;
+    protected EditText mPostBodyInput;
 
 
 
@@ -321,7 +321,7 @@ public class FeedFragment extends Fragment {
     /**
      *  Connecting up elements on the screen to variable names
      */
-    private void initPageItems(View v){
+    protected void initPageItems(View v){
         //Defining all relevant members of page
         mPostButton = v.findViewById(R.id.sendPostButton);
         mPostRecipe = v.findViewById(R.id.recipeIcon);
@@ -353,7 +353,7 @@ public class FeedFragment extends Fragment {
     /**
      *  Setting up page listeners for when buttons are pressed
      */
-    private void initPageListeners() {
+    protected void initPageListeners() {
         mPostPic.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {

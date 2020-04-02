@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorWindow"
-    tools:context=".RecipeInfoFragment"
+    tools:context=".RecipeInfo.RecipeInfoFragment"
     android:fillViewport="true">
 
     <RelativeLayout
@@ -172,6 +172,7 @@
             android:layout_marginStart="5dp"
             android:layout_marginTop="17dp"
             android:layout_toEndOf="@+id/recipeImage"
+            android:progressTint="@color/colorRatingGold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/chefName" />
 
@@ -255,9 +256,6 @@
             app:layout_constraintTop_toTopOf="parent"
             android:src="?attr/actionModeCloseDrawable" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"></androidx.constraintlayout.widget.ConstraintLayout>
 
         <LinearLayout
             android:layout_marginStart="10sp"
