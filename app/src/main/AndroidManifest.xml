@@ -21,6 +21,7 @@
         <activity android:name=".PublicProfile" />
         <activity android:name=".ProfileSettings" />
         <activity android:name=".Presentation.Presentation" />
+        <activity android:name=".UserCreatedRecipe"/>
         <activity android:name=".Login" />
         <activity android:name=".InitialUserCustomisation" />
         <activity

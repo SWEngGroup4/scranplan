@@ -14,12 +14,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.SearchView;
 import android.widget.TabHost;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,6 +30,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
@@ -91,6 +95,12 @@ public class Home extends AppCompatActivity {
     CheckBox mNameBox;
     CheckBox mChefBox;
     SideMenu mSideMenu;
+
+    //Floating action button menu
+    private FloatingActionButton fabMain, fabRecipe, fabPost;
+    private TextView textViewRecipe, textViewPost;
+    private Animation fab_open, fab_close;
+    private Boolean isOpen = false;
 
     // Side menu variable
     NavigationView navigationView;
@@ -221,6 +231,14 @@ public class Home extends AppCompatActivity {
         tabLayout.addTab(tabLayout.newTab().setText("Meal Planner"));
         tabLayout.addTab(tabLayout.newTab().setText("Timeline"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+
+        fabMain = findViewById(R.id.fabMain);
+        fabRecipe = findViewById(R.id.fabRecipe);
+        fabPost = findViewById(R.id.fabPost);
+        textViewRecipe = findViewById(R.id.textViewRecipe);
+        textViewPost = findViewById(R.id.textViewPost);
+        fab_close = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_close);
+        fab_open = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
     }
 
     /**
@@ -302,6 +320,44 @@ public class Home extends AppCompatActivity {
 
             }
         });
+
+        fabMain.setOnClickListener(v -> {
+            fabMainListener(isOpen);
+        });
+
+        fabMain.setOnFocusChangeListener((v, hasFocus) -> {
+            fabMainListener(hasFocus);
+        });
+
+        fabRecipe.setOnClickListener(v -> {
+            Intent intent = new Intent(mContext, UserCreatedRecipe.class);
+            startActivity(intent);
+        });
+
+        fabPost.setOnClickListener(v -> {
+            Toast.makeText(getApplicationContext(), "Create post", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    void fabMainListener(Boolean condition) {
+        Log.d("Test", "FAB FOCUS");
+        if (condition) {
+            textViewRecipe.setVisibility(View.INVISIBLE);
+            textViewPost.setVisibility(View.INVISIBLE);
+            fabRecipe.startAnimation(fab_close);
+            fabRecipe.setClickable(false);
+            fabPost.startAnimation(fab_close);
+            fabPost.setClickable(false);
+            isOpen = false;
+        } else {
+            textViewRecipe.setVisibility(View.VISIBLE);
+            textViewPost.setVisibility(View.VISIBLE);
+            fabRecipe.startAnimation(fab_open);
+            fabRecipe.setClickable(true);
+            fabPost.startAnimation(fab_open);
+            fabPost.setClickable(true);
+            isOpen = true;
+        }
     }
 
     // Quick function for getting the search menu in other fragments

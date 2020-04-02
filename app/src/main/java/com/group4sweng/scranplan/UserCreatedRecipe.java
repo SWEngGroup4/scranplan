@@ -1,0 +1,17 @@
+package com.group4sweng.scranplan;
+
+import android.os.Bundle;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+public class UserCreatedRecipe extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.create_recipe);
+
+
+    }
+
+}
