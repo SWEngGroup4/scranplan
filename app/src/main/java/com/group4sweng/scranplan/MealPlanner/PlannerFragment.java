@@ -20,7 +20,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.Home;
 import com.group4sweng.scranplan.R;
-import com.group4sweng.scranplan.RecipeFragment;
+import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
 import com.squareup.picasso.Picasso;

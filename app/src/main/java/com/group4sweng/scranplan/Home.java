@@ -285,7 +285,6 @@ public class Home extends AppCompatActivity {
                         break;
                     case 2:
                         fragment = new FeedFragment(mUser);
-                        fragment = new TimelinePlanner();
                         fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         break;
                 }
