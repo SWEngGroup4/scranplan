@@ -10,6 +10,7 @@ import android.os.CountDownTimer;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -19,6 +20,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -42,7 +44,10 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.group4sweng.scranplan.Exceptions.ImageException;
+import com.group4sweng.scranplan.Home;
 import com.group4sweng.scranplan.R;
+import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
+import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.ArrayList;
@@ -79,11 +84,6 @@ public class FeedFragment extends Fragment {
     ImageView mUploadedImage;
 
 
-    // User preferences passed into scroll views via constructor
-    UserInfoPrivate user;
-    public FeedFragment(UserInfoPrivate userSent){
-        user = userSent;
-    }
 
     // Width size of each scroll view, dictating size of images on home screen
     final int scrollViewSize = 5;
@@ -100,6 +100,16 @@ public class FeedFragment extends Fragment {
     CheckBox mPostPic;
     EditText mPostTitleInput;
     EditText mPostBodyInput;
+
+    private RecipeFragment recipeFragment;
+
+    //User information
+    private com.group4sweng.scranplan.UserInfo.UserInfoPrivate user;
+    private SearchPrefs prefs;
+
+    //Menu items
+    private SearchView searchView;
+    private MenuItem sortButton;
 
 
 
@@ -140,6 +150,21 @@ public class FeedFragment extends Fragment {
         if(user != null){
             // Build the first horizontal scroll built around organising the recipes via highest rated
             //TODO make new query
+            Home home = (Home) getActivity();
+            if (home != null) {
+                // Gets search activity from home class and make it invisible
+                searchView = home.getSearchView();
+                sortButton = home.getSortView();
+
+                sortButton.setVisible(false);
+                searchView.setVisibility(View.INVISIBLE);
+                setSearch();
+
+
+
+                //Gets search preferences from home class
+                prefs = home.getSearchPrefs();
+            }
 
 
 
@@ -358,7 +383,6 @@ public class FeedFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (mPostPic.isChecked()) {
-                    // your code to checked checkbox
                     //  Check if the version of Android is above 'Marshmallow' we check for additional permission.
                     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
 
@@ -376,7 +400,7 @@ public class FeedFragment extends Fragment {
                         imageSelector();
                     }
                 } else {
-                    // your code to  no checked checkbox
+                    mUploadedImage.setVisibility(View.GONE);
                 }
             }
         });
@@ -445,7 +469,7 @@ public class FeedFragment extends Fragment {
         Intent images = new Intent(Intent.ACTION_PICK);
         images.setType("image/*"); // Only open the 'image' file picker. Don't include videos, audio etc...
         startActivityForResult(images, IMAGE_REQUEST_CODE);
-        mPostPic.setChecked(false);// Start the image picker and expect a result once an image is selected.
+        //mPostPic.setChecked(false);// Start the image picker and expect a result once an image is selected.
     }
 
     /** Handle our activity result for the image picker.
@@ -466,7 +490,6 @@ public class FeedFragment extends Fragment {
                         .load(mImageUri)
                         .into(mUploadedImage);
                 mUploadedImage.setVisibility(View.VISIBLE);
-                mPostPic.setChecked(true);
 
 //                try {
 //                    uploadImage(mImageUri); // Attempt to upload the image in storage to Firebase.

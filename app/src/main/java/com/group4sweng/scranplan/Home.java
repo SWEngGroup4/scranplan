@@ -272,7 +272,7 @@ public class Home extends AppCompatActivity {
                         fragment = new PlannerFragment();
                         break;
                     case 2:
-                        fragment = new FeedFragment(mUser);
+                        fragment = new FeedFragment();
                         break;
                 }
                 FragmentManager fragmentManager = getSupportFragmentManager();
@@ -291,6 +291,13 @@ public class Home extends AppCompatActivity {
 
             }
         });
+    }
+
+
+
+    // Quick function for getting the search prefs in other fragments
+    public SearchPrefs getSearchPrefs() {
+        return prefs;
     }
 
     /**
