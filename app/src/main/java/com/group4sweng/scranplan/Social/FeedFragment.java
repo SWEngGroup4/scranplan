@@ -1,7 +1,10 @@
 package com.group4sweng.scranplan.Social;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.DisplayMetrics;
@@ -11,6 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -52,6 +57,7 @@ import static com.group4sweng.scranplan.Helper.ImageHelpers.getPrintableSupporte
 import static com.group4sweng.scranplan.Helper.ImageHelpers.getSize;
 import static com.group4sweng.scranplan.Helper.ImageHelpers.isImageFormatSupported;
 
+
 /**
  * This class builds the horizontal scrolls of custom preference recipe selection for the user on the
  * home screen. Each of these scrolls is infinite in length, loading 5 recipes at a time to minimise
@@ -91,7 +97,7 @@ public class FeedFragment extends Fragment {
     Button mPostButton;
     Button mPostRecipe;
     Button mPostReview;
-    Button mPostPic;
+    CheckBox mPostPic;
     EditText mPostTitleInput;
     EditText mPostBodyInput;
 
@@ -320,15 +326,61 @@ public class FeedFragment extends Fragment {
         mPostButton = v.findViewById(R.id.sendPostButton);
         mPostRecipe = v.findViewById(R.id.recipeIcon);
         mPostReview = v.findViewById(R.id.reviewIcon);
-        mPostPic = v.findViewById(R.id.imageIcon);
+        mPostPic = (CheckBox) v.findViewById(R.id.imageIcon);
         mPostBodyInput = v.findViewById(R.id.postBodyInput);
+        mUploadedImage = v.findViewById(R.id.userUploadedImageView);
 
+    }
+
+    private void postPicClick(){
+        //  Check if the version of Android is above 'Marshmallow' we check for additional permission.
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+
+            //  Checks if permission has already been granted to read from external storage (our image picker)
+            if(getContext().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
+                //   Ask for permission.
+                String [] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
+                requestPermissions(permissions, PERMISSION_CODE);
+            } else {
+                //  Read permission has been granted already.
+                imageSelector();
+            }
+        } else {
+            imageSelector();
+        }
     }
 
     /**
      *  Setting up page listeners for when buttons are pressed
      */
     private void initPageListeners() {
+        mPostPic.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (mPostPic.isChecked()) {
+                    // your code to checked checkbox
+                    //  Check if the version of Android is above 'Marshmallow' we check for additional permission.
+                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+
+                        //  Checks if permission has already been granted to read from external storage (our image picker)
+                        if(getContext().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
+                            //   Ask for permission.
+                            String [] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
+                            requestPermissions(permissions, PERMISSION_CODE);
+                            imageSelector();
+                        } else {
+                            //  Read permission has been granted already.
+                            imageSelector();
+                        }
+                    } else {
+                        imageSelector();
+                    }
+                } else {
+                    // your code to  no checked checkbox
+                }
+            }
+        });
+
         mPostButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -392,7 +444,8 @@ public class FeedFragment extends Fragment {
     private void imageSelector(){
         Intent images = new Intent(Intent.ACTION_PICK);
         images.setType("image/*"); // Only open the 'image' file picker. Don't include videos, audio etc...
-        startActivityForResult(images, IMAGE_REQUEST_CODE); // Start the image picker and expect a result once an image is selected.
+        startActivityForResult(images, IMAGE_REQUEST_CODE);
+        mPostPic.setChecked(false);// Start the image picker and expect a result once an image is selected.
     }
 
     /** Handle our activity result for the image picker.
@@ -406,22 +459,23 @@ public class FeedFragment extends Fragment {
         //   Check for a valid request code and successful result.
         if(requestCode == IMAGE_REQUEST_CODE && resultCode==RESULT_OK){
             if(data!=null && data.getData()!= null){
-                mUploadedImage.setImageResource(R.drawable.temp_settings_profile_image); // Set to a default image if image uploading fails.
-
                 mImageUri = data.getData();
 
                 //  Use Glides image functionality to quickly load a circular, center cropped image.
                 Glide.with(this)
                         .load(mImageUri)
-                        .apply(RequestOptions.circleCropTransform())
                         .into(mUploadedImage);
+                mUploadedImage.setVisibility(View.VISIBLE);
+                mPostPic.setChecked(true);
 
-                try {
-                    uploadImage(mImageUri); // Attempt to upload the image in storage to Firebase.
-                } catch (ImageException e) {
-                    e.printStackTrace();
-                    return;
-                }
+//                try {
+//                    uploadImage(mImageUri); // Attempt to upload the image in storage to Firebase.
+//                } catch (ImageException e) {
+//                    e.printStackTrace();
+//                    return;
+//                }
+            }else{
+                mPostPic.setChecked(false);
             }
         }
     }

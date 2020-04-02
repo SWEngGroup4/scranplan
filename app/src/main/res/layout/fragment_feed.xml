@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.group4sweng.scranplan.Social.FeedFragment">
+    tools:context="com.group4sweng.scranplan.Social.FeedFragment"
+    android:background="#A6AAC9">
 
 
     <ScrollView
@@ -18,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="5sp">
+            android:paddingTop="5sp">
 
             <LinearLayout
                 android:id="@+id/makePostLayout"
@@ -172,7 +173,91 @@
 <!--                        android:singleLine="true"/>-->
 
 <!--                </LinearLayout>-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="5sp">
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" >
+                    </Space>
+
+                    <ImageView
+                        android:id="@+id/postRecipeImageView"
+                        android:maxHeight="100sp"
+                        android:maxWidth="100sp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/scran"
+                        android:visibility="gone" />
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" >
+                    </Space>
+
+                    <ImageView
+                        android:id="@+id/userUploadedImageView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxHeight="250sp"
+                        android:maxWidth="250sp"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/scran"
+                        android:visibility="gone"/>
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" >
+                    </Space>
                 </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/recipePostInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+
+
+                    <LinearLayout
+                        android:layout_margin="10sp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/postRecipeTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:singleLine="true"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/postRecipeDescription"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+            </LinearLayout>
+
+
+
+            </LinearLayout>
+
+            <RatingBar
+                android:id="@+id/rating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="?android:attr/ratingBarStyleSmall"
+                android:numStars="5"
+                android:stepSize="0.1"
+                android:isIndicator="true"
+                android:visibility="gone"/>
+
 
             </LinearLayout>
 
