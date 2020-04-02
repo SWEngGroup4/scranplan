@@ -25,7 +25,8 @@ public class BreakfastQueries {
     // Constructor to build all queries in the home page
     public BreakfastQueries(UserInfoPrivate user){
         queries = new HashMap();
-        queries.put("breakfast", ref.whereEqualTo("breakfast", true));
+
+        queries.put("Breakfast", buildQuery(user).whereEqualTo("Breakfast", true).orderBy("score", Query.Direction.DESCENDING));
         queries.put("favourite", ref.whereArrayContains("favourite", user.getUID().hashCode()));
         if(!user.getPreferences().isVegan()){
             queries.put("topVegan", buildQuery(user).whereEqualTo("vegan", true).orderBy("score", Query.Direction.DESCENDING));
