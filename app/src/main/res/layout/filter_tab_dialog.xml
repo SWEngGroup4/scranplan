@@ -39,7 +39,7 @@
                     tools:context=".InitialUserCustomisation">
 
                     <CheckBox
-                        android:id="@+id/ingredientCheckBox"
+                        android:id="@+id/BreackfastCheckBox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="20sp"
@@ -54,7 +54,7 @@
 
 
                     <CheckBox
-                        android:id="@+id/nameCheckBox"
+                        android:id="@+id/LunchCheckBox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="20sp"
@@ -65,10 +65,10 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/ingredientCheckBox" />
+                        app:layout_constraintTop_toBottomOf="@+id/BreackfastCheckBox" />
 
                     <CheckBox
-                        android:id="@+id/chefCheckBox"
+                        android:id="@+id/DinnerCheckBox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="20sp"
@@ -79,7 +79,7 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/nameCheckBox" />
+                        app:layout_constraintTop_toBottomOf="@+id/LunchCheckBox" />
 
 
 

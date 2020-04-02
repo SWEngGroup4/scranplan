@@ -44,6 +44,7 @@ import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
 import com.group4sweng.scranplan.Social.FeedFragment;
 import com.group4sweng.scranplan.Social.Notifications;
+import com.group4sweng.scranplan.TimelinePlanner.TimelinePlanner;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import io.sentry.core.Sentry;
@@ -583,9 +584,9 @@ public class Home extends AppCompatActivity {
         mScoreBox = layout.findViewById(R.id.scoreCheckBox);
         mVoteBox = layout.findViewById(R.id.voteCheckBox);
         mTimeBox = layout.findViewById(R.id.timestampCheckBox);
-        mIngredientsBox = layout.findViewById(R.id.ingredientCheckBox);
-        mNameBox = layout.findViewById(R.id.nameCheckBox);
-        mChefBox = layout.findViewById(R.id.chefCheckBox);
+        mIngredientsBox = layout.findViewById(R.id.BreackfastCheckBox);
+        mNameBox = layout.findViewById(R.id.LunchCheckBox);
+        mChefBox = layout.findViewById(R.id.DinnerCheckBox);
 
         // Initialise the check boxes by filling them with users current preferences
         initMenuCheckBoxes(tabs);
@@ -674,5 +675,3 @@ public class Home extends AppCompatActivity {
 
 
 }
-
-

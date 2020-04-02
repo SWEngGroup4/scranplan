@@ -188,6 +188,9 @@ public class HomeTest implements Credentials {
         // Open up filter menu
         onView(withId(R.id.menuSortButton)).perform(click());
 
+        //  Change every switch and Checkboxes value.
+        onView(withId(R.id.DinnerCheckBox))
+                .perform(click());
 
         // Change tab
         onView(withText("Diet")).perform(click());

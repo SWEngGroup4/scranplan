@@ -37,6 +37,9 @@ public class Preferences implements Serializable, FilterType, Cloneable {
     private boolean pescatarian;
     private boolean vegan;
     private boolean vegetarian;
+    private boolean breakfast;
+    private boolean lunch;
+    private boolean dinner;
 
     //  Basic constructor for setting a users allergy preferences. (6 allegerns)
     public Preferences(boolean allergy_nuts, boolean allergy_eggs, boolean allergy_milk, boolean allergy_shellfish, boolean allergy_soya, boolean allergy_gluten,
@@ -52,6 +55,12 @@ public class Preferences implements Serializable, FilterType, Cloneable {
         this.pescatarian = pescatarian;
     }
 
+    public Preferences(boolean breakfast, boolean lunch, boolean dinner) {
+        this.breakfast = breakfast;
+        this.lunch = lunch;
+        this.dinner = dinner;
+    }
+
     //  Constructor for setting all of a users preferences.
     public Preferences(boolean allergy_celery,
                 boolean allergy_crustacean, boolean allergy_eggs, boolean allergy_fish,
@@ -62,7 +71,7 @@ public class Preferences implements Serializable, FilterType, Cloneable {
                 boolean lactose_free, boolean lactovegetarian, boolean low_carb,
                 boolean low_sodium, boolean no_alcohol, boolean no_pork,
                 boolean ovovegetarian, boolean pescatarian, boolean vegan,
-                boolean vegetarian){
+                boolean vegetarian/*, boolean breakfast, boolean lunch, boolean dinner*/){
         this.allergy_celery = allergy_celery;
         this.allergy_crustacean = allergy_crustacean;
         this.allergy_eggs = allergy_eggs;
@@ -307,4 +316,15 @@ public class Preferences implements Serializable, FilterType, Cloneable {
         this.vegetarian = vegetarian;
     }
 
+    public boolean isBreakfast() { return breakfast; }
+
+    public void setBreakfast(boolean breakfast) { this.breakfast = breakfast; }
+
+    public boolean isLunch() { return lunch; }
+
+    public void setLunch(boolean lunch) { this.lunch = lunch; }
+
+    public boolean isDinner() { return dinner; }
+
+    public void setDinner(boolean dinner) { this.dinner = dinner; }
 }

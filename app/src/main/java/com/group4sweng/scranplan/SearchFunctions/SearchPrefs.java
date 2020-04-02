@@ -27,12 +27,16 @@ public class SearchPrefs {
     Boolean mIngredientsPref;
     Boolean mNamePref;
     Boolean mChefPref;
+    Boolean mBreakfast;
+    Boolean mLunch;
+    Boolean mDinner;
 
     // Building a new search preferences following user input
     public SearchPrefs(Boolean pes, Boolean vegi, Boolean vega, Boolean nut,
                        Boolean milk, Boolean egg, Boolean wheat, Boolean shell,
                        Boolean soy, Boolean score, Boolean vote, Boolean time,
-                       Boolean ingred, Boolean name, Boolean chef){
+                       Boolean ingred, Boolean name, Boolean chef/*, Boolean breakfast,
+                       Boolean lunch, Boolean dinner*/){
         mpescatarianPref = pes;
         mVegetarianPref = vegi;
         mVeganPref = vega;
@@ -48,6 +52,9 @@ public class SearchPrefs {
         mIngredientsPref = ingred;
         mNamePref = name;
         mChefPref = chef;
+        /*mBreakfast = breakfast;
+        mLunch = lunch;
+        mDinner = dinner;*/
 
     }
 
@@ -68,6 +75,11 @@ public class SearchPrefs {
         mIngredientsPref = true;
         mNamePref = false;
         mChefPref = false;
+        /*mBreakfast = user.getPreferences().isBreakfast();
+        mLunch = user.getPreferences().isLunch();
+        mDinner = user.getPreferences().isDinner();*/
 
     }
+
+
 }
