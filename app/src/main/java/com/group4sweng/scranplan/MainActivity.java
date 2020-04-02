@@ -115,22 +115,23 @@ public class MainActivity extends AppCompatActivity {
                                     map.put("email", document.get("email"));
                                     map.put("displayName", document.get("displayName"));
                                     map.put("imageURL", document.get("imageURL"));
-                                    map.put("chefRating", document.get("chefRating"));
-                                    map.put("numRecipes", document.get("numRecipes"));
                                     map.put("preferences", document.get("preferences"));
                                     map.put("about", document.get("about"));
+                                    map.put("mealPlan", document.get("mealPlan"));
                                     map.put("shortPreferences", document.get("shortPreferences"));
                                     map.put("firstAppLaunch", document.get("firstAppLaunch"));
                                     map.put("firstPresentationLaunch", document.get("firstPresentationLaunch"));
-
+                                    map.put("firstMealPlannerLaunch", document.get("firstMealPlannerLaunch"));
 
                                     @SuppressWarnings("unchecked")
                                     HashMap<String, Object> preferences = (HashMap<String, Object>) document.get("preferences");
 
                                     @SuppressWarnings("unchecked")
-                                    HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacy");
+                                    HashMap<String, Object> privacyPublic = (HashMap<String, Object>) document.get("privacyPublic");
+                                    @SuppressWarnings("unchecked")
+                                    HashMap<String, Object> privacyPrivate = (HashMap<String, Object>) document.get("privacyPrivate");
 
-                                    mUser = new UserInfoPrivate(map, preferences, privacy);
+                                    mUser = new UserInfoPrivate(map, preferences, privacyPrivate, privacyPublic);
 
                                     Log.i(TAG, "Successfully logged back in");
                                     if(mUser.getFirstAppLaunch()){

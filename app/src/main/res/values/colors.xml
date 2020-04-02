@@ -7,6 +7,7 @@
     <color name="colorText">#1c1f1d</color> //Text Colour
     <color name="colorPrimaryText">#1c1f1d</color>
     <color name="colorSecondaryText">#000000</color>
+    <color name="colorWhiteText">#ffffff</color>
     <color name="colorDarkerWidget">#8C7A80</color>
     <color name="colorDivider">#8D8D8D</color>
     <color name="colorAccent">#7C4DFF</color>
@@ -17,4 +18,6 @@
     <color name="colorPurpleDark">#36675B7A</color>
     <color name="colorPurpleLight">#cecce0</color>
     <color name="colorDangerRed">#F44336</color>
+    <color name="colorRatingGold">#FFD700</color>
+    <color name="colorRatingGrey">#696969</color>
 </resources>

@@ -20,6 +20,11 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
 
+/**
+ * Recorded Espresso helpers
+ * Author: JButler
+ * (c) CoDev 2020
+ **/
 class RecordedEspressoHelper {
 
     /** All helper functions where generated using the built in Espresso test recorder from 'Run Espresso Test'.
@@ -56,7 +61,7 @@ class RecordedEspressoHelper {
 
     //  Opens the correct side menu element based on an enumeration which is translated into the corresponding side menu row.
     //  to be used by the test recorder output.
-    void openSideBar(SideBarElement element){
+    static void openSideBar(SideBarElement element){
         int ROW_ID = 1; //By default make this the top element in the side menu.
 
         switch(element) {

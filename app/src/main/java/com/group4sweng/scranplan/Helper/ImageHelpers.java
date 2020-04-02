@@ -111,6 +111,22 @@ public class ImageHelpers implements FilterType {
     }
 
 
+    public static ArrayList<ImageView> getFilterIcons(Activity activity, filterType type){
+        ArrayList<ImageView> icons = new ArrayList<>();
 
+        switch(type){
+            case ALLERGENS:
+
+                icons.add(activity.findViewById(R.id.recipeInfoEggs));
+                icons.add(activity.findViewById(R.id.recipeInfoMilk));
+                icons.add(activity.findViewById(R.id.recipeInfoNuts));
+                icons.add(activity.findViewById(R.id.recipeInfoShellfish));
+                icons.add(activity.findViewById(R.id.recipeInfoSoy));
+                icons.add(activity.findViewById(R.id.recipeInfoWheat));
+            case DIETARY:
+
+        }
+        return icons;
+    }
 
 }

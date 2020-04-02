@@ -17,10 +17,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,7 +48,6 @@ import com.group4sweng.scranplan.Exceptions.AudioPlaybackError;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.SoundHandler.AudioURL;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
-import com.squareup.picasso.Picasso;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -62,6 +59,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  *  All parts of the presentation, taking the XML document and separating it out into its slide that
@@ -120,7 +118,7 @@ public class Presentation extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         context = getApplicationContext();
         setContentView(R.layout.presentation);
-        expandableLayout = (ExpandableRelativeLayout) findViewById(R.id.expandableLayout);
+        expandableLayout = findViewById(R.id.expandableLayout);
 
         Log.d("Test", "Presentation launched");
 
@@ -131,7 +129,7 @@ public class Presentation extends AppCompatActivity {
         Log.d(TAG, "Device display size: " + deviceHeight);
 
         // Fullscreen the presentation
-        getSupportActionBar().hide();
+        Objects.requireNonNull(getSupportActionBar()).hide();
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
@@ -139,7 +137,6 @@ public class Presentation extends AppCompatActivity {
         String xml_URL = intent.getStringExtra("xml_URL");
         recipeID = intent.getStringExtra("recipeID");
         mUser = (UserInfoPrivate) intent.getSerializableExtra("user");
-        Log.d("Test", xml_URL);
         DownloadXmlTask xmlTask = new DownloadXmlTask(this);
 
         spinner = findViewById(R.id.presentationLoad);
@@ -173,7 +170,7 @@ public class Presentation extends AppCompatActivity {
 
     private void presentation (Map<String, Object> xml) {
         documentInfo = (XmlParser.DocumentInfo) xml.get("documentInfo");
-        final List<RelativeLayout> slideLayouts = new ArrayList<>();
+        final List<PresentationSlide> slideLayouts = new ArrayList<>();
         List<String> dropdownItems = new ArrayList<>();
         final List<XmlParser.Slide> xmlSlides = (List<XmlParser.Slide>) xml.get("slides");
         CardView presentationContainer = findViewById(R.id.presentationContainer);
@@ -197,7 +194,7 @@ public class Presentation extends AppCompatActivity {
                 "com.google.android.gms",
                 defaults.font,
                 R.array.com_google_android_gms_fonts_certs);
-        FontsContractCompat.FontRequestCallback callback = new FontsContractCompat.FontRequestCallback() {
+        new FontsContractCompat.FontRequestCallback() {
             @Override
             public void onTypefaceRetrieved(Typeface typeface) {
                 defaultTypeFace[0] = typeface;
@@ -207,25 +204,30 @@ public class Presentation extends AppCompatActivity {
         int slideCount = 0;
 
         for (final XmlParser.Slide slide : xmlSlides) {
-            RelativeLayout slideLayout = new RelativeLayout(getApplicationContext());
-            RelativeLayout.LayoutParams slideParams = new RelativeLayout.LayoutParams(slideWidth, slideHeight);
-            slideParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
-            slideLayout.setLayoutParams(slideParams);
-            slideLayout.setBackgroundColor(Color.parseColor(defaults.backgroundColor));
+            Log.d("Test", "Generating slides");
+            PresentationSlide pSlide = new PresentationSlide(getApplicationContext(),
+                    slideWidth, slideHeight);
+            pSlide.setBackgroundColor(Color.parseColor(defaults.backgroundColor));
 
             XmlParser.Text id = new XmlParser.Text(slide.id, defaults);
-            slideLayout.addView(addText(id, slideWidth, slideHeight));
+            pSlide.addText(id);
             dropdownItems.add(id.text);
 
-            if (slide.text != null) {
-                slideLayout.addView(addText(slide.text, slideWidth, slideHeight));
-            }
-            if (slide.line != null) {
-                //TODO - Generate line graphic
-            }
-            if (slide.shape != null) {
-                //TODO - Generate shape graphic
-            }
+            if (slide.text != null)
+                pSlide.addText(slide.text);
+            if (slide.line != null) {}
+                //TODO - Generate line
+            if (slide.shape != null) {}
+                //TODO - Generate shape
+            if (slide.image != null)
+                pSlide.addImage(slide.image);
+            if (slide.video != null)
+                pSlide.addVideo(slide.video);
+            if (slide.timer != null) {
+                slideTimers.add(slideCount, slide.timer);
+                pSlide.addTimer(slide.timer);
+            } else
+                slideTimers.add(slideCount, -1f);
 
             //  Checks if the slide contains a 'non-looping' audio file. Played at end of timer countdown, or as a standalone audio file.
             if (slide.audio != null) { //Check if audio exists within the slide.
@@ -248,24 +250,7 @@ public class Presentation extends AppCompatActivity {
                 slideAudioLooping.add(slideCount, null); //If no audio exists simply set any audioURL objects for the given slide to null.
             }
 
-            if (slide.image != null) {
-                Log.e("Test", "Text element added");
-                slideLayout.addView(addImage(slide.image, defaults, slideWidth, slideHeight));
-            }
-            if (slide.video != null) {
-                //TODO - Generate video
-            }
-            //TODO old comments section where we used XML, for James Crawley to delete where he sees fit
-//            if (slide.comments != null) {
-//                slideLayout.addView(addComments(slide.comments, defaults, defaultTypeFace[0], slideWidth, slideHeight));
-//            }
-            if (slide.timer != null) {
-                slideTimers.add(slideCount, slide.timer);
-                slideLayout.addView(addTimer((float) slide.timer));
-            } else {
-                slideTimers.add(slideCount, -1f);
-            }
-
+            // Spinner to choose the slides
             Spinner dropdown = findViewById(R.id.presentationSpinner);
             dropdown.setVisibility(View.VISIBLE);
             ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, dropdownItems);
@@ -288,31 +273,30 @@ public class Presentation extends AppCompatActivity {
             prevSlide.setVisibility(View.VISIBLE);
             Button nextSlide = findViewById(R.id.nextButton);
             nextSlide.setVisibility(View.VISIBLE);
-            nextSlide.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    expandableLayout.collapse();
-                    currentSlide[0] = toSlide(slideLayouts, currentSlide[0], currentSlide[0] + 1);
-                }
+            int finalSlideCount = slideCount;
+            nextSlide.setOnClickListener(v -> {
+                expandableLayout.collapse();
+                if(currentSlide[0]+1 < finalSlideCount+1){
+                    dropdown.setSelection(currentSlide[0]+1);}else{
+                    currentSlide[0] = toSlide(slideLayouts, currentSlide[0], currentSlide[0] + 1);}
             });
 
-            prevSlide.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    expandableLayout.collapse();
-                    currentSlide[0] = toSlide(slideLayouts, currentSlide[0], currentSlide[0] - 1);
-                }
+            prevSlide.setOnClickListener(v -> {
+                expandableLayout.collapse();
+                if(currentSlide[0]-1 >= 0){
+                    dropdown.setSelection(currentSlide[0]-1);}else{
+                    currentSlide[0] = toSlide(slideLayouts, currentSlide[0], currentSlide[0] - 1);}
             });
 
-            slideLayout.setVisibility(View.GONE);
-            presentationContainer.addView(slideLayout);
-            slideLayouts.add(slideLayout);
+            pSlide.hide();
+            presentationContainer.addView(pSlide);
+            slideLayouts.add(pSlide);
             expandableLayout.bringToFront();
-
             slideCount++;
+
         }
 
-        slideLayouts.get(currentSlide[0]).setVisibility(View.VISIBLE);
+        slideLayouts.get(0).show();
         spinner.setVisibility(View.GONE);
 
 
@@ -324,15 +308,11 @@ public class Presentation extends AppCompatActivity {
         ViewCompat.setTranslationZ(expandableLayout, 20);
         expandableLayout.setVisibility(View.VISIBLE);
 
-        /**
-         *  Clicking the comments button toggles comments open and closed
-         */
+         // Clicking the comments button toggles comments open and closed
         comments.setOnClickListener(v -> expandableLayout.toggle());
 
-        /**
-         *  Setting up the expandable comments listeners to download new comments
-         *  when the view is reopened
-         */
+        /* Setting up the expandable comments listeners to download new comments
+         when the view is reopened */
         expandableLayout.setListener(new ExpandableLayoutListener() {
             @Override
             public void onAnimationStart() {
@@ -365,174 +345,49 @@ public class Presentation extends AppCompatActivity {
         EditText mInputComment = findViewById(R.id.addCommentEditText);
 
 
-        /**
-         *  Setting up the post comment listener, removing the text from the box and saving
-         *  it as a new document in the Firestore, the data is also reloaded
-         */
-        mPostComment.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String content = mInputComment.getText().toString();
-                mInputComment.getText().clear();
+        /* Setting up the post comment listener, removing the text from the box and saving
+         it as a new document in the Firestore, the data is also reloaded */
+        mPostComment.setOnClickListener(v -> {
+            String content = mInputComment.getText().toString();
+            mInputComment.getText().clear();
 
-                CollectionReference ref = mDatabase.collection("recipes").document(recipeID).collection("slide" + currentSlide[0].toString());
-                Log.e(TAG, "Added new doc ");
-                // Saving the comment as a new document
-                HashMap<String, Object> map = new HashMap<>();
-                map.put("authorID", mUser.getUID());
-                map.put("author", mUser.getDisplayName());
-                map.put("comment", content);
-                map.put("timestamp", FieldValue.serverTimestamp());
-                // Saving default user to Firebase Firestore database
-                ref.add(map);
-                addFirestoreComments(currentSlide[0].toString());
+            CollectionReference ref = mDatabase.collection("recipes").document(recipeID).collection("slide" + currentSlide[0].toString());
+            Log.e(TAG, "Added new doc ");
+            // Saving the comment as a new document
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("authorID", mUser.getUID());
+            map.put("author", mUser.getDisplayName());
+            map.put("comment", content);
+            map.put("timestamp", FieldValue.serverTimestamp());
+            // Saving default user to Firebase Firestore database
+            ref.add(map);
+            addFirestoreComments(currentSlide[0].toString());
 
 
-            }
         });
 
-        /**
-         *   Start timer listener that checks for a play/pause button press.
-         **/
-        playPause.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        // Start timer listener that checks for a play/pause button press
+        playPause.setOnClickListener(v -> {
 
-                //  Reference the current slides corresponding timer float values and audio objects.
-                AudioURL audio = slideAudio.get(currentSlide[0]);
-                AudioURL audioLooping = slideAudioLooping.get(currentSlide[0]);
-                Float slideTimer = slideTimers.get(currentSlide[0]);
+            //  Reference the current slides corresponding timer float values and audio objects.
+            AudioURL audio = slideAudio.get(currentSlide[0]);
+            AudioURL audioLooping = slideAudioLooping.get(currentSlide[0]);
+            Float slideTimer = slideTimers.get(currentSlide[0]);
 
-                //  Choose how we handle the timer based on what audio files are retrieved from the XML document and if anything is missing or not.
-                if(audio == null & audioLooping == null){
-                    timerListenerHandler(slideTimer, null, null, false);
-                } else if (audioLooping == null || audio == null){
-                    timerListenerHandler(slideTimer, audio, null, true);
-                } else {
-                    timerListenerHandler(slideTimer, audio, audioLooping, true);
-                }
+            //  Choose how we handle the timer based on what audio files are retrieved from the XML document and if anything is missing or not.
+            if(audio == null & audioLooping == null){
+                timerListenerHandler(slideTimer, null, null, false);
+            } else if (audioLooping == null || audio == null){
+                timerListenerHandler(slideTimer, audio, null, true);
+            } else {
+                timerListenerHandler(slideTimer, audio, audioLooping, true);
             }
         });
     }
 
-    private PresentationTextView addText(final XmlParser.Text text, Integer slideWidth, Integer slideHeight) {
-
-        PresentationTextView textView = new PresentationTextView(getApplicationContext(), slideHeight, slideWidth);
-        textView.setDims(text.width, text.height);
-        textView.setBackgroundColor(getResources().getColor(R.color.colorAccent));
-        textView.setText(text.text);
-        textView.setFont(text.font, text.fontWeight);
-        textView.setTextSize(text.fontSize);
-        textView.setTextColour(text.fontColor);
-        textView.setPos(text.xPos, text.yPos);
-        if (text.startTime > 0) {
-            textView.setStartTime(this, text.startTime);
-        }
-        if (text.endTime > text.startTime) {
-            textView.setEndTime(this, text.endTime);
-        }
-        return textView;
-    }
-
-    private ImageView addImage(final XmlParser.Image image, XmlParser.Defaults defaults,
-                               Integer slideWidth, Integer slideHeight) {
-        final ImageView imageView = new ImageView(getApplicationContext());
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
-                Math.round(slideWidth * (image.width / 100)), Math.round(slideHeight * (image.height / 100)));
-        layoutParams.setMargins(Math.round(slideWidth * (image.xStart / 100)),
-                Math.round(slideHeight * (image.yStart / 100)), 0, 0);
-        imageView.setLayoutParams(layoutParams);
-
-        if (image.startTime > 0) {
-            imageView.setVisibility(View.GONE);
-            Thread thread = new Thread(){
-                @Override
-                public void run() {
-                    try {
-                        synchronized (this) {
-                            wait (image.startTime);
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    imageView.setVisibility(View.VISIBLE);
-                                }
-                            });
-                        }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            };
-            thread.start();
-        }
-
-        if (image.endTime > image.startTime) {
-            Thread thread = new Thread(){
-                @Override
-                public void run() {
-                    try {
-                        synchronized (this) {
-                            wait (image.endTime);
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    imageView.setVisibility(View.GONE);
-                                }
-                            });
-                        }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            };
-            thread.start();
-        }
-
-        Picasso.get().load(image.urlName).into(imageView);
-        return imageView;
-    }
-
-    //TODO old comments section where we used XML, for James Crawley to delete where he sees fit
-//    private RelativeLayout addComments(List<XmlParser.Comment> comments,
-//                                       XmlParser.Defaults defaults, Typeface defaultTypeFace, Integer slideWidth, Integer slideHeight) {
-//        RelativeLayout commentLayout = new RelativeLayout(getApplicationContext());
-//        RelativeLayout.LayoutParams commentListParams = new RelativeLayout.LayoutParams(
-//                RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT
-//        );
-//        commentListParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-//        commentLayout.setLayoutParams(commentListParams);
-//
-//        int prevCommentId = 0;
-//        for (XmlParser.Comment comment : comments) {
-//            comment.text.text = comment.userID + ": " + comment.text.text;
-//            PresentationTextView commentText = addText(comment.text, slideWidth, slideHeight);
-//
-//            commentText.setId(prevCommentId + 1);
-//            RelativeLayout.LayoutParams commentParams = new RelativeLayout.LayoutParams(
-//                    RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT
-//            );
-//            commentParams.addRule(RelativeLayout.BELOW, prevCommentId);
-//            commentText.setLayoutParams(commentParams);
-//
-//            prevCommentId += 1;
-//            commentLayout.addView(commentText);
-//        }
-//
-//        return commentLayout;
-//    }
-
-    private TextView addTimer(final Float timer) {
-        final TextView timerView = new TextView(getApplicationContext());
-        timerView.setText("Timer: " + timer);
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_END, RelativeLayout.TRUE);
-        timerView.setLayoutParams(layoutParams);
-
-        return timerView;
-    }
-
-    private Integer toSlide(List<RelativeLayout> slides, Integer currentSlide, Integer slideNumber) {
+    private Integer toSlide(List<PresentationSlide> slides, Integer currentSlide, Integer slideNumber) {
+        if(slideNumber.equals(currentSlide)){
+            return currentSlide;}
         if (slideNumber > slides.size() - 1 || slideNumber < 0) {
             Toast.makeText(getApplicationContext(), "Slide does not exist", Toast.LENGTH_SHORT).show();
         } else {
@@ -543,8 +398,8 @@ public class Presentation extends AppCompatActivity {
             } else {
                 timerLayout.setVisibility(View.GONE);
             }
-            slides.get(slideNumber).setVisibility(View.VISIBLE);
-            slides.get(currentSlide).setVisibility(View.GONE);
+            slides.get(slideNumber).show();
+            slides.get(currentSlide).hide();
             currentSlide = slideNumber;
         }
         return currentSlide;
@@ -632,12 +487,7 @@ public class Presentation extends AppCompatActivity {
                         break;
                     case R.id.deleteComment:
                         Log.e(TAG,"Clicked delete comment!");
-                        document.getReference().delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                addFirestoreComments(sentCurrentSlide);
-                            }
-                        });
+                        document.getReference().delete().addOnCompleteListener(task -> addFirestoreComments(sentCurrentSlide));
                         break;
                 }
                 return true;
@@ -758,7 +608,9 @@ public class Presentation extends AppCompatActivity {
         });
     }
 
-    /* ----BEGIN TIMER SECTION---- */
+    /* ----BEGIN TIMER SECTION----
+    * Author: JButler
+    * (c) CoDev 2020    */
 
     /** Load associated User interface elements for the timer. */
     private void loadTimerUI() {

@@ -1,11 +1,12 @@
-package com.group4sweng.scranplan;
+package com.group4sweng.scranplan.RecipeInfo;
 
-import android.net.Uri;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.group4sweng.scranplan.R;
 
 
 public class RecipeCommentsFragment extends Fragment {

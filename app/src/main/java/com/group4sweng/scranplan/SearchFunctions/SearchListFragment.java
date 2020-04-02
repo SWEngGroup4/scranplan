@@ -22,7 +22,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.group4sweng.scranplan.R;
-import com.group4sweng.scranplan.RecipeInfoFragment;
+import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchRecyclerAdapter.SearchRecipePreviewData;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
@@ -223,9 +223,31 @@ public class SearchListFragment extends AppCompatDialogFragment {
         bundle.putString("chefName", document.get("Chef").toString());
         bundle.putSerializable("user", user);
 
+        ArrayList faves = (ArrayList) document.get("favourite");
+        bundle.putBoolean("isFav", faves.contains(user.getUID()));
+        bundle.putString("fridgeDays", document.get("fridge").toString());
+        bundle.putString("peopleServes", document.get("serves").toString());
+        bundle.putString("reheat", document.get("reheat").toString());
+        bundle.putBoolean("canFreeze", document.getBoolean("freezer"));
+        bundle.putBoolean("noEggs", document.getBoolean("noEggs"));
+        bundle.putBoolean("noMilk", document.getBoolean("noMilk"));
+        bundle.putBoolean("noNuts", document.getBoolean("noNuts"));
+        bundle.putBoolean("noShellfish", document.getBoolean("noShellfish"));
+        bundle.putBoolean("noSoy", document.getBoolean("noSoy"));
+        bundle.putBoolean("noWheat", document.getBoolean("noWheat"));
+        bundle.putBoolean("pescatarian", document.getBoolean("pescatarian"));
+        bundle.putBoolean("vegan", document.getBoolean("vegan"));
+        bundle.putBoolean("vegetarian", document.getBoolean("vegetarian"));
 
-        RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
-        recipeDialogFragment.setArguments(bundle);
-        recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");
+        openRecipeInfo(bundle);
     }
+
+    protected void openRecipeInfo(Bundle bundle) {
+        bundle.putBoolean("planner", false);
+        RecipeInfoFragment recipeInfoFragment = new RecipeInfoFragment();
+        recipeInfoFragment.setArguments(bundle);
+        recipeInfoFragment.show(getFragmentManager(), "Show recipe dialog fragment");
+    }
+
+
 }

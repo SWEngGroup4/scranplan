@@ -15,7 +15,10 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
-/** Profile test class for testing if all elements are visible to the user.
+/**
+ * Profile test class for testing if all elements are visible to the user.
+ * Author: JButler
+ * (c) CoDev 2020
  *
  * =====MANUAL TESTS=====
  * Tests for if data is able to be properly retrieved for multiple users and tests that this information is not shown if
@@ -78,18 +81,18 @@ public class ProfileTest extends RecordedEspressoHelper{
     public void testFiltersAreVisible(){
 
 
-        onView(withId(R.id.profile_filters))
-                .check(matches(isDisplayed()));
+        /*onView(withId(R.id.profile_filters))
+                .check(matches(isDisplayed()));*/
 
         onView(withId(R.id.allergy_wheat))
                 .check(matches(isDisplayed()));
         onView(withId(R.id.allergy_soy))
                 .check(matches(isDisplayed()));
-        onView(withId(R.id.allergy_nuts))
+        onView(withId(R.id.dietary_vegetarian))
                 .check(matches(isDisplayed()));
         onView(withId(R.id.allergy_shellfish))
                 .check(matches(isDisplayed()));
-        onView(withId(R.id.allergy_milk))
+        onView(withId(R.id.dietary_vegan))
                 .check(matches(isDisplayed()));
         onView(withId(R.id.allergy_eggs))
                 .check(matches(isDisplayed()));
