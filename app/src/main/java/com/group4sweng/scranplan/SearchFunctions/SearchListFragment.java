@@ -15,6 +15,8 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.algolia.search.saas.Client;
+import com.algolia.search.saas.Index;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -40,6 +42,9 @@ import java.util.Map;
 public class SearchListFragment extends AppCompatDialogFragment {
 
     final String TAG = "SearchScreen";
+    private static final String ALGOLIA_APP_ID = "WK13YORECK";
+    private static final String ALGOLIA_SEARCH_API = "e6885a71639407fcec9e79f123dd5567";
+    private static final String ALGOLIA_INDEX_NAME ="SCRANPLAN_RECIPES";
 
     UserInfoPrivate user;
     public SearchListFragment(UserInfoPrivate userSent){
@@ -71,6 +76,8 @@ public class SearchListFragment extends AppCompatDialogFragment {
         builder.setView(view);
         mDatabase = FirebaseFirestore.getInstance();
         data = new ArrayList<>();
+        Client client = new Client(ALGOLIA_APP_ID, ALGOLIA_SEARCH_API);
+        Index index = client.getIndex(ALGOLIA_INDEX_NAME);
 
         // Creating a list of the data and building all variables to add to recycler view
         final RecyclerView recyclerView = view.findViewById(R.id.recipeList);
