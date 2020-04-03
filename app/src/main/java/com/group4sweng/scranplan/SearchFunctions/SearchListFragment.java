@@ -102,6 +102,7 @@ public class SearchListFragment extends AppCompatDialogFragment {
                     for (String object: objectID) {
                         DocumentReference docRef = mDatabase.collection("recipes").document(object);
                         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            // Gets the DocumentSnapshot from the document ID
                             @Override
                             public void onSuccess(DocumentSnapshot documentSnapshot) {
                                     DocumentSnapshot document = documentSnapshot;
@@ -124,7 +125,6 @@ public class SearchListFragment extends AppCompatDialogFragment {
                                             }
                                             isLastItemReached = true;
 
-                                          //TODO Below code causes crashes due to null recipe being called
                                             data.add(new SearchRecipePreviewData(
                                                     null,
                                                     null,
@@ -138,6 +138,7 @@ public class SearchListFragment extends AppCompatDialogFragment {
                         });
                     }
                 }
+                // Displays no more results when no recipes are found
                 if(objectID.size() == 0){
                     data.add(new SearchRecipePreviewData(
                             null,
@@ -150,6 +151,7 @@ public class SearchListFragment extends AppCompatDialogFragment {
                 }
             }
         };
+
 
         // Check if query is found
         if (query != null) {
