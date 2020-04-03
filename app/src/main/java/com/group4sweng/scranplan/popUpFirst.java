@@ -1,14 +1,23 @@
+package com.group4sweng.scranplan;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.Home;
 import com.group4sweng.scranplan.InitialUserCustomisation;
@@ -20,13 +29,17 @@ import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.HashMap;
 
+import kotlin.collections.IndexingIterable;
+
 public class popUpFirst extends AppCompatActivity {
 
     final String TAG = "FirstpopUp";
 
+
+
     FirebaseApp mApp;
     FirebaseAuth mAuth;
-    FirebaseAuth.AuthStateListener mAuthStateListener;
+    FirebaseAuth.AuthStateListener mAuthListener;
     UserInfoPrivate userDetails;
     final FirebaseFirestore database = FirebaseFirestore.getInstance();
     private UserInfoPrivate mUser;
@@ -34,59 +47,45 @@ public class popUpFirst extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getSupportActionBar().hide();
         super.onCreate(savedInstanceState);
         //sets the page to the initial filer page
         setContentView(R.layout.popup_firstscreen);
 
-        Log.e(TAG, "I GET TO THIS POINT");
 
             initPageItems();
             getResources().getColor(R.color.colorBackground);
+
             initPageListeners();
+
             initFirebase();
+
+
         }
 
-
-
-
-
-
-    private void initFirebase() {
-        mApp = FirebaseApp.getInstance();
-        mAuth = FirebaseAuth.getInstance();
-    }
 
     private void initPageItems() {
     mgoButton =  findViewById(R.id.goButton);
     }
 
 
-
     private void initPageListeners() {
+
         mgoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 //skip button takes user directly to the main page
                 Log.e(TAG, "Initial user returning to main activity");
 
-                Intent returningIntent = new Intent();
-                setResult(RESULT_OK, returningIntent);
+                Log.e(TAG,"Sending user to initial preference setup page");
+                Intent BackToMain = new Intent(getApplicationContext(), InitialUserCustomisation.class);
+                BackToMain.putExtra("user", mUser);
+                startActivity(BackToMain);
 
-                finish();
             }
 
         });
-
-        Log.e(TAG,"SignIn Returning to main activity");
-
-        Intent returningIntent = new Intent(popUpFirst.class, MainActivity.class);
-
-        returningIntent.putExtra("user", mUser);
-
-        mUser = null;
-        startActivity(returningIntent);
-
-        finish();
 
     }
 
@@ -108,5 +107,12 @@ public class popUpFirst extends AppCompatActivity {
     public void onBackPressed() {
         //Do nothing
     }
+
+
+    private void initFirebase() {
+        mApp = FirebaseApp.getInstance();
+        mAuth = FirebaseAuth.getInstance();
+    }
+
 
 }

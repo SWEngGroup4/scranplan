@@ -46,14 +46,12 @@ public class InitialUserCustomisation extends AppCompatActivity {
     CheckBox mSoyBox;
     CheckBox mPescatarianBox;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //sets the page to the initial filer page
-        setContentView(R.layout.popup_firstscreen);
-        sendToMainScreen();
         setContentView(R.layout.activity_initial_user_customisation);
+
         userDetails = (UserInfoPrivate) getIntent().getSerializableExtra("user");
 
         Log.e(TAG, "I GET TO THIS POINT");
@@ -65,12 +63,11 @@ public class InitialUserCustomisation extends AppCompatActivity {
             getResources().getColor(R.color.colorBackground);
             initPageListeners();
             initFirebase();
+
         }
 
         //getSupportActionBar().hide();
         Log.e(TAG, "Starting initial user customisation activity");
-
-
 
     }
 
@@ -158,27 +155,12 @@ public class InitialUserCustomisation extends AppCompatActivity {
                  //submit button saves the users preferences before
                  savePref();
                  finishActivity();
+                 Log.e(TAG, "ButtonPressed");
              }
         });
 
     }
 
-    private void sendToMainScreen(){
-        mGoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //skip button takes user directly to the main page
-                Log.e(TAG, "Initial user returning to main activity");
-
-                Intent returningIntent = new Intent(InitialUserCustomisation.this, Home.class );
-
-                startActivity(returningIntent);
-
-                finish();
-            }
-        });
-
-    }
 
     //make function to add info to firestore
     private void savePref() {
@@ -208,11 +190,8 @@ public class InitialUserCustomisation extends AppCompatActivity {
         updatedPrefs.put("allergy_gluten", userDetails.getPreferences().isAllergy_gluten());
         updatedPrefs.put("allergy_eggs", userDetails.getPreferences().isAllergy_eggs());
 
-
         usersRef.update("preferences", updatedPrefs); //preferences updated
         usersRef.update("firstAppLaunch", false); //first time login set to false so page wont show again
-
-
     }
 
 
@@ -221,9 +200,9 @@ public class InitialUserCustomisation extends AppCompatActivity {
         Log.e(TAG, "Initial User Customisation returning to main activity");
 
         // User data returned to main menu
-        Intent returningIntent = new Intent(InitialUserCustomisation.this, Home.class);
-        returningIntent.putExtra("user", userDetails);
-        startActivity(returningIntent);
+        Intent returningIntenttomain = new Intent(InitialUserCustomisation.this, Home.class);
+        returningIntenttomain.putExtra("user", userDetails);
+        startActivity(returningIntenttomain);
 
         finish();
     }
