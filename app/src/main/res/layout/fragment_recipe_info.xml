@@ -65,17 +65,19 @@
             app:layout_constraintHorizontal_bias="0.476"
             app:layout_constraintTop_toBottomOf="@+id/Title" />
 
-        <ImageButton
+        <CheckBox
             android:id="@+id/addFavorite"
-            android:layout_width="32dp"
+            android:layout_width="47dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="0dp"
+            android:layout_marginStart="40dp"
             android:layout_marginTop="18dp"
-            android:layout_marginEnd="0dp"
+            android:layout_marginEnd="40dp"
+            android:scaleType="fitCenter"
+            android:button="@null"
+            android:checked="false"
             android:layout_toStartOf="@+id/LetsCook"
             android:layout_toEndOf="@+id/ReturnButton"
-            android:background="@color/colorWindow"
-            android:src="@android:drawable/btn_star_big_on"
+            android:background="@drawable/click_favourite"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintTop_toTopOf="parent" />
 

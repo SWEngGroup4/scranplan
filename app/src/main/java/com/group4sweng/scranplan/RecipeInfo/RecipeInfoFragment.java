@@ -3,12 +3,14 @@ package com.group4sweng.scranplan.RecipeInfo;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -53,7 +55,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
     private TextView mDescription;
     private TextView mRating;
     private ImageView mRecipeImage;
-    private ImageButton mFavourite;
+    private CheckBox mFavourite;
     private RatingBar mStars;
     private TextView mServing;
 
@@ -156,6 +158,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         mReturnButton = layout.findViewById(R.id.ReturnButton);
         mLetsCook = layout.findViewById(R.id.LetsCook);
         mReheatInformationButton = layout.findViewById(R.id.reheatInfoButton);
+        mFavourite = layout.findViewById(R.id.addFavorite);
 
         //Text Views
         mTitle = layout.findViewById(R.id.Title);
@@ -416,7 +419,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
      */
     protected void addFavourite(View layout) {
 
-        mFavourite = layout.findViewById(R.id.addFavorite);
+
         mDataRef = mDatabase.collection("recipes");
         final DocumentReference docRef = mDataRef.document(recipeID);
         final String user = mUser.getUID();
@@ -436,6 +439,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
                         public void onComplete(@NonNull Task<Void> task) {
                             Toast.makeText(getContext(), "Added to favourites!",
                                     Toast.LENGTH_SHORT).show();
+                            mFavourite.setChecked(true);
                         }
                     });
                 } else {
@@ -445,6 +449,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
                         public void onComplete(@NonNull Task<Void> task) {
                             Toast.makeText(getContext(), "Removed from favourites!",
                                     Toast.LENGTH_SHORT).show();
+                            mFavourite.setChecked(false);
                         }
                     });
                 }
