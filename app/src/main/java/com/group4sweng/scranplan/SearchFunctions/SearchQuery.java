@@ -1,9 +1,8 @@
 package com.group4sweng.scranplan.SearchFunctions;
 
+import com.algolia.search.saas.Query;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.Query.Direction;
 
 /**
  * Builds up a search query from the preferences selected by the user.
@@ -16,7 +15,7 @@ public class SearchQuery {
     public Query getQuery() {
         return query;
     }
-    com.google.firebase.firestore.Query query;
+    Query query;
 
     // All variables that the user is able to manipulate
     Boolean mPescatarianBox;
@@ -57,61 +56,61 @@ public class SearchQuery {
         mChefBox = preference.mChefPref;
         mSearch = sentSearch;
 
-        query = ref;
+        query = new Query(mSearch);
 
-        // User diet preferences
-        if(mPescatarianBox){
-            query = query.whereEqualTo("pescatarian", true);
-        }else if(mVegetarianBox){
-            query = query.whereEqualTo("vegetarian", true);
-        }else if(mVeganBox){
-            query = query.whereEqualTo("vegan", true);
-        }
-
-        if(mNutsBox){
-            query = query.whereEqualTo("noNuts", true);
-        }
-
-        if(mMilkBox){
-            query = query.whereEqualTo("noMilk", true);
-        }
-
-        if(mEggsBox){
-            query = query.whereEqualTo("noEggs", true);
-        }
-
-        if(mWheatBox){
-            query = query.whereEqualTo("noWheat", true);
-        }
-
-        if(mShellfishBox){
-            query = query.whereEqualTo("noShellfish", true);
-        }
-
-        if(mSoyBox){
-            query = query.whereEqualTo("noSoy", true);
-        }
-
-        // Only allowing the user to search for a single item
-        if(mIngredientsBox){
-            query = query.whereArrayContains("listIngredients", mSearch.toLowerCase());
-        }else if(mNameBox){
-            query = query.whereEqualTo("name", mSearch.toLowerCase());
-        }else if(mChefBox){
-            query = query.whereEqualTo("chef", mSearch.toLowerCase());
-        }
-
-        // Only enabling a single search order
-        if(mScoreBox){
-            query = query.orderBy("score", Direction.DESCENDING);
-        }else if(mVoteBox){
-            query = query.orderBy("votes", Direction.DESCENDING);
-        }else if(mTimeBox){
-            query = query.orderBy("timestamp", Direction.DESCENDING);
-        }
-
-        // Limiting the search to sets of 5 items until the user scrolls to bottom
-        query = query.limit(5);
+//        // User diet preferences
+//        if(mPescatarianBox){
+//            query = query.whereEqualTo("pescatarian", true);
+//        }else if(mVegetarianBox){
+//            query = query.whereEqualTo("vegetarian", true);
+//        }else if(mVeganBox){
+//            query = query.whereEqualTo("vegan", true);
+//        }
+//
+//        if(mNutsBox){
+//            query = query.whereEqualTo("noNuts", true);
+//        }
+//
+//        if(mMilkBox){
+//            query = query.whereEqualTo("noMilk", true);
+//        }
+//
+//        if(mEggsBox){
+//            query = query.whereEqualTo("noEggs", true);
+//        }
+//
+//        if(mWheatBox){
+//            query = query.whereEqualTo("noWheat", true);
+//        }
+//
+//        if(mShellfishBox){
+//            query = query.whereEqualTo("noShellfish", true);
+//        }
+//
+//        if(mSoyBox){
+//            query = query.whereEqualTo("noSoy", true);
+//        }
+//
+//        // Only allowing the user to search for a single item
+//        if(mIngredientsBox){
+//            query = query.whereArrayContains("listIngredients", mSearch.toLowerCase());
+//        }else if(mNameBox){
+//            query = query.whereEqualTo("name", mSearch.toLowerCase());
+//        }else if(mChefBox){
+//            query = query.whereEqualTo("chef", mSearch.toLowerCase());
+//        }
+//
+//        // Only enabling a single search order
+//        if(mScoreBox){
+//            query = query.orderBy("score", Direction.DESCENDING);
+//        }else if(mVoteBox){
+//            query = query.orderBy("votes", Direction.DESCENDING);
+//        }else if(mTimeBox){
+//            query = query.orderBy("timestamp", Direction.DESCENDING);
+//        }
+//
+//        // Limiting the search to sets of 5 items until the user scrolls to bottom
+//        query = query.limit(5);
 
 
 
