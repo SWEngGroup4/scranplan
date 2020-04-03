@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -159,6 +160,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         mLetsCook = layout.findViewById(R.id.LetsCook);
         mReheatInformationButton = layout.findViewById(R.id.reheatInfoButton);
         mFavourite = layout.findViewById(R.id.addFavorite);
+        mFavourite.setChecked(isFavourite);
 
         //Text Views
         mTitle = layout.findViewById(R.id.Title);
@@ -429,17 +431,17 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
          * If the current use ID doesn't exist in the "favourite" array, the ID will be added to it and the
          * text "Added to favourites!" will appear and vise versa.
          * */
-        mFavourite.setOnClickListener(new View.OnClickListener() {
+        mFavourite.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
-                if (!isFavourite) {
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (mFavourite.isChecked()) {
                     isFavourite = true;
                     docRef.update("favourite", FieldValue.arrayUnion(user)).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             Toast.makeText(getContext(), "Added to favourites!",
                                     Toast.LENGTH_SHORT).show();
-                            mFavourite.setChecked(true);
+                            //mFavourite.setChecked(true);
                         }
                     });
                 } else {
@@ -449,7 +451,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
                         public void onComplete(@NonNull Task<Void> task) {
                             Toast.makeText(getContext(), "Removed from favourites!",
                                     Toast.LENGTH_SHORT).show();
-                            mFavourite.setChecked(false);
+                            //mFavourite.setChecked(false);
                         }
                     });
                 }
