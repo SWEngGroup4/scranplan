@@ -138,6 +138,16 @@ public class SearchListFragment extends AppCompatDialogFragment {
                         });
                     }
                 }
+                if(objectID.size() == 0){
+                    data.add(new SearchRecipePreviewData(
+                            null,
+                            null,
+                            "No more results",
+                            "We have checked all over and there is nothing more to be found!",
+                            null
+                    ));
+                    rAdapter.notifyDataSetChanged();
+                }
             }
         };
 
