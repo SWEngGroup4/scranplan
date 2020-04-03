@@ -90,6 +90,7 @@ public class SearchListFragment extends AppCompatDialogFragment {
         final RecyclerView.Adapter rAdapter = new SearchRecyclerAdapter(SearchListFragment.this, data);
         recyclerView.setAdapter(rAdapter);
 
+        // Completion Handler to parse the JSON incoming file and to display the results
         CompletionHandler completionHandler = new CompletionHandler() {
             @Override
             public void requestCompleted(JSONObject content, AlgoliaException error) {
@@ -98,21 +99,20 @@ public class SearchListFragment extends AppCompatDialogFragment {
                 List<DocumentSnapshot> documents = new ArrayList<DocumentSnapshot>();
 
                 if(objectID != null){
-
                     for (String object: objectID) {
                         DocumentReference docRef = mDatabase.collection("recipes").document(object);
                         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                             @Override
                             public void onSuccess(DocumentSnapshot documentSnapshot) {
                                     DocumentSnapshot document = documentSnapshot;
-                                    for(String ignored : objectID){
                                     if (document.exists()) {
                                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                                         documents.add(document);
                                     } else {
-                                        Log.d(TAG, "No such document");}}
-                                        // For each document a new recipe preview view is generated
-                                    if (documents != null) {
+                                        Log.d(TAG, "No such document");}
+
+                                    // For each document a new recipe preview view is generated
+                                    if (documents.size() == objectID.size()) {
                                             for (DocumentSnapshot documentSnap : documents) {
                                                 data.add(new SearchRecipePreviewData(
                                                         documentSnap,
@@ -122,10 +122,9 @@ public class SearchListFragment extends AppCompatDialogFragment {
                                                         documentSnap.get("imageURL").toString()
                                                 ));
                                             }
-                                            rAdapter.notifyDataSetChanged();
-                                        } else {
-                                            // If no data returned, user notified
                                             isLastItemReached = true;
+
+                                          //TODO Below code causes crashes due to null recipe being called
                                             data.add(new SearchRecipePreviewData(
                                                     null,
                                                     null,
@@ -133,6 +132,7 @@ public class SearchListFragment extends AppCompatDialogFragment {
                                                     "We have checked all over and there is nothing more to be found!",
                                                     null
                                             ));
+                                            rAdapter.notifyDataSetChanged();
                                         }
                                 }
                         });
@@ -145,73 +145,20 @@ public class SearchListFragment extends AppCompatDialogFragment {
         if (query != null) {
             Log.e(TAG, "User is searching the following query: " + query.toString());
 
+            //Search for the Query using Algolia
             index.searchAsync(query,completionHandler);
 
-
-
-
-            // Once the data has been returned, dataset populated and components build
-
-
-                        // check if user has scrolled through the view
-                        RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
-                            @Override
-                            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                                super.onScrollStateChanged(recyclerView, newState);
-                                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
-                                    isScrolling = true;
-                                }
-                            }
-//                            // If user is scrolling and has reached the end, more data is loaded
-//                            @Override
-//                            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-//                                super.onScrolled(recyclerView, dx, dy);
-//                                // Checking if user is at the end
-//                                LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
-//                                int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
-//                                int visibleItemCount = linearLayoutManager.getChildCount();
-//                                int totalItemCount = linearLayoutManager.getItemCount();
-//                                // If found to have reached end, more data is requested from the server in the same manner
-//                                if (isScrolling && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReached) {
-//                                    isScrolling = false;
-//                                    Query nextQuery = query.startAfter(lastVisible);
-//                                    nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-//                                        @Override
-//                                        public void onComplete(@NonNull Task<QuerySnapshot> t) {
-//                                            if (t.isSuccessful()) {
-//                                                for (DocumentSnapshot d : t.getResult()) {
-//                                                    data.add(new SearchRecipePreviewData(
-//                                                            d,
-//                                                            d.getId(),
-//                                                            d.get("Name").toString(),
-//                                                            d.get("Description").toString(),
-//                                                            d.get("imageURL").toString()
-//                                                    ));
-//                                                }
-//                                                if(isLastItemReached){
-//                                                    data.add(new SearchRecipePreviewData(
-//                                                            null,
-//                                                            null,
-//                                                            "No more results",
-//                                                            "We have checked all over and there is nothing more to be found!",
-//                                                            null
-//                                                    ));
-//                                                }
-//                                                rAdapter.notifyDataSetChanged();
-//                                                if (t.getResult().size() != 0) {
-//                                                    lastVisible = t.getResult().getDocuments().get(t.getResult().size() - 1);
-//                                                }
-//
-//                                                if (t.getResult().size() < 5) {
-//                                                    isLastItemReached = true;
-//                                                }
-//                                            }
-//                                        }
-//                                    });
-//                                }
-//                            }
-                        };
-                        recyclerView.addOnScrollListener(onScrollListener);
+            // check if user has scrolled through the view
+            RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
+                    if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                        isScrolling = true;
+                    }
+                }
+            };
+            recyclerView.addOnScrollListener(onScrollListener);
         }
         return view;
     }
