@@ -37,6 +37,8 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.MealPlanner.PlannerFragment;
+import com.group4sweng.scranplan.RecipeCreation.BasicInfo;
+import com.group4sweng.scranplan.RecipeCreation.RecipeCreation;
 import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
@@ -52,6 +54,7 @@ public class Home extends AppCompatActivity {
     Context mContext = this;
     final static String TAG = "ScranPlanHome";
     final static int PROFILE_SETTINGS_REQUEST_CODE = 1;
+    final static int CREATE_RECIPE_REQUEST_CODE = 2;
 
     // User variable for all preferences saved to device
     com.group4sweng.scranplan.UserInfo.UserInfoPrivate mUser;
@@ -288,7 +291,6 @@ public class Home extends AppCompatActivity {
             public void onTabSelected(TabLayout.Tab tab) {
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                Log.d("Test", String.valueOf(fragment));
                 switch (tab.getPosition()) {
                     case 0:
                         fragment = new RecipeFragment(mUser);
@@ -330,7 +332,7 @@ public class Home extends AppCompatActivity {
         });
 
         fabRecipe.setOnClickListener(v -> {
-            Intent intent = new Intent(mContext, UserCreatedRecipe.class);
+            Intent intent = new Intent(mContext, RecipeCreation.class);
             startActivity(intent);
         });
 
@@ -340,7 +342,6 @@ public class Home extends AppCompatActivity {
     }
 
     void fabMainListener(Boolean condition) {
-        Log.d("Test", "FAB FOCUS");
         if (condition) {
             textViewRecipe.setVisibility(View.INVISIBLE);
             textViewPost.setVisibility(View.INVISIBLE);
@@ -390,6 +391,10 @@ public class Home extends AppCompatActivity {
                     mUser = (UserInfoPrivate) getIntent().getSerializableExtra("user");
                 }
                 break;
+            case (CREATE_RECIPE_REQUEST_CODE):
+                if (resultCode == RESULT_OK) {
+
+                }
             default:
                 Log.e(TAG, "I am not returning anything. Should return new profile settings from Profile Settings Activity.");
         }

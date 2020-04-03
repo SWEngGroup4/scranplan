@@ -7,9 +7,6 @@
     android:background="#ACE98A"
     tools:context=".MainActivity">
 
-
-
-
     <ImageView
         android:id="@+id/logoHomeImage"
         android:layout_width="242dp"
