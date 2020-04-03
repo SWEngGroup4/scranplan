@@ -58,38 +58,38 @@ public class SearchQuery {
 
         query = new Query(mSearch);
 
-//        // User diet preferences
-//        if(mPescatarianBox){
-//            query = query.whereEqualTo("pescatarian", true);
-//        }else if(mVegetarianBox){
-//            query = query.whereEqualTo("vegetarian", true);
-//        }else if(mVeganBox){
-//            query = query.whereEqualTo("vegan", true);
-//        }
-//
-//        if(mNutsBox){
-//            query = query.whereEqualTo("noNuts", true);
-//        }
-//
-//        if(mMilkBox){
-//            query = query.whereEqualTo("noMilk", true);
-//        }
-//
-//        if(mEggsBox){
-//            query = query.whereEqualTo("noEggs", true);
-//        }
-//
-//        if(mWheatBox){
-//            query = query.whereEqualTo("noWheat", true);
-//        }
-//
-//        if(mShellfishBox){
-//            query = query.whereEqualTo("noShellfish", true);
-//        }
-//
-//        if(mSoyBox){
-//            query = query.whereEqualTo("noSoy", true);
-//        }
+        // User diet preferences
+        if(mPescatarianBox){
+            query = query.setFilters("pescatarian:true");
+        }else if(mVegetarianBox){
+            query = query.setFilters("vegetarian:true");
+        }else if(mVeganBox){
+            query = query.setFilters("vegan:true");
+        }
+
+        if(mNutsBox){
+            query = query.setFilters("noNuts:true");
+        }
+
+        if(mMilkBox){
+            query = query.setFilters("noMilk:true");
+        }
+
+        if(mEggsBox){
+            query = query.setFilters("noEggs:true");
+        }
+
+        if(mWheatBox){
+            query = query.setFilters("noWheat:true");
+        }
+
+        if(mShellfishBox){
+            query = query.setFilters("noShellfish:true");
+        }
+
+        if(mSoyBox){
+            query = query.setFilters("noSoy:true");
+        }
 //
 //        // Only allowing the user to search for a single item
 //        if(mIngredientsBox){
