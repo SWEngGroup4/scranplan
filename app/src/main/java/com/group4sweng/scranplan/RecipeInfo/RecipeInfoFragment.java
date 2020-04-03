@@ -430,7 +430,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         mFavourite = layout.findViewById(R.id.addFavorite);
         mDataRef = mDatabase.collection("recipes");
         final DocumentReference docRef = mDataRef.document(recipeID);
-        final String user = mUser.getUID();
+        final int user = mUser.getUID().hashCode();
 
         /*
          * After each operation, it will show the text "Added to favourites!" or "Removed from favourites!".
