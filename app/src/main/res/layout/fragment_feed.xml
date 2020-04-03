@@ -198,7 +198,8 @@
                         android:layout_height="wrap_content"
                         android:adjustViewBounds="true"
                         android:src="@drawable/scran"
-                        android:visibility="gone" />
+                        android:visibility="gone"
+                        android:layout_marginHorizontal="5sp"/>
                     <Space
                         android:id="@+id/picSpacer"
                         android:layout_width="0dp"
@@ -216,7 +217,8 @@
                         android:maxWidth="250sp"
                         android:adjustViewBounds="true"
                         android:src="@drawable/scran"
-                        android:visibility="gone"/>
+                        android:visibility="gone"
+                        android:layout_marginHorizontal="5sp"/>
                     <Space
                         android:layout_width="0dp"
                         android:layout_height="1dp"
@@ -267,7 +269,7 @@
                         android:visibility="gone"/>
 
                     <RatingBar
-                        android:id="@+id/rating"
+                        android:id="@+id/postRecipeRating"
                         style="?android:attr/ratingBarStyleIndicator"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

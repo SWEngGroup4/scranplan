@@ -21,6 +21,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.SearchView;
 import android.widget.Space;
 import android.widget.TextView;
@@ -111,6 +112,8 @@ public class FeedFragment extends Fragment {
     ImageView mAttachedRecipeImage;
     TextView mAttachedRecipeTitle;
     TextView mAttachedRecipeInfo;
+
+    RatingBar mAttachedRecipeReview;
 
     //Fragment handlers
     private FragmentTransaction fragmentTransaction;
@@ -372,6 +375,7 @@ public class FeedFragment extends Fragment {
         mAttachedRecipeImage = v.findViewById(R.id.postRecipeImageView);
         mAttachedRecipeTitle = v.findViewById(R.id.postRecipeTitle);
         mAttachedRecipeInfo =  v.findViewById(R.id.postRecipeDescription);
+        mAttachedRecipeReview = v.findViewById(R.id.postRecipeRating);
 
 
     }
@@ -488,13 +492,22 @@ public class FeedFragment extends Fragment {
                     }
                 } else {
                     mAttachedRecipeImage.setVisibility(View.GONE);
+                    mAttachedRecipeInfo.setVisibility(View.GONE);
+                    mAttachedRecipeTitle.setVisibility(View.GONE);
+                    mPicSpacer.setVisibility(View.GONE);
                 }
             }
         });
-        mPostReview.setOnClickListener(new View.OnClickListener() {
+        mPostReview.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View view) {
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (mPostReview.isChecked()) {
+                    if(mAttachedRecipeReview.getVisibility() != View.VISIBLE){
 
+                    }
+                } else {
+
+                }
             }
         });
         mPostPic.setOnClickListener(new View.OnClickListener() {
@@ -534,6 +547,8 @@ public class FeedFragment extends Fragment {
                 mPostPic.setChecked(true);
                 if(mPostRecipe.isChecked()){
                     mPicSpacer.setVisibility(View.VISIBLE);
+                }else {
+                    mPicSpacer.setVisibility(View.GONE);
                 }
 
 //                try {
@@ -573,6 +588,11 @@ public class FeedFragment extends Fragment {
                 mAttachedRecipeTitle.setVisibility(View.VISIBLE);
                 mAttachedRecipeInfo.setVisibility(View.VISIBLE);
                 mAttachedRecipeImage.setVisibility(View.VISIBLE);
+                if(mPostPic.isChecked()){
+                    mPicSpacer.setVisibility(View.VISIBLE);
+                }else{
+                    mPicSpacer.setVisibility(View.GONE);
+                }
 
                 //Removes recipe fragment overlay and makes planner fragment visible
                 fragmentTransaction = getParentFragmentManager().beginTransaction();

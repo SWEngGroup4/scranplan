@@ -45,7 +45,7 @@ public class RecipeReviewFragment extends FeedFragment {
     public void initPageItems(View layout){
         super.initPageItems(layout);
 
-        mStars = layout.findViewById(R.id.rating);
+        mStars = layout.findViewById(R.id.postRecipeRating);
         mImageIcon = layout.findViewById(R.id.imageIcon);
         mRecipeIcon = layout.findViewById(R.id.recipeIcon);
         mReviewIcon = layout.findViewById(R.id.reviewIcon);
