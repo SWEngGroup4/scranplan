@@ -15,30 +15,32 @@ public class SearchQuery {
     public Query getQuery() {
         return query;
     }
-    Query query;
+    public String getIndex(){ return index; }
 
-    // All variables that the user is able to manipulate
-    Boolean mPescatarianBox;
-    Boolean mVegetarianBox;
-    Boolean mVeganBox;
-    Boolean mNutsBox;
-    Boolean mMilkBox;
-    Boolean mEggsBox;
-    Boolean mWheatBox;
-    Boolean mShellfishBox;
-    Boolean mSoyBox;
-    Boolean mScoreBox;
-    Boolean mVoteBox;
-    Boolean mTimeBox;
-    Boolean mIngredientsBox;
-    Boolean mNameBox;
-    Boolean mChefBox;
-
-    String mSearch;
+    private Query query;
+    private String index;
 
 
     // Constructor building the query from these parameters
     public SearchQuery(String sentSearch, SearchPrefs preference){
+        // All variables that the user is able to manipulate
+        Boolean mPescatarianBox;
+        Boolean mVegetarianBox;
+        Boolean mVeganBox;
+        Boolean mNutsBox;
+        Boolean mMilkBox;
+        Boolean mEggsBox;
+        Boolean mWheatBox;
+        Boolean mShellfishBox;
+        Boolean mSoyBox;
+        Boolean mScoreBox;
+        Boolean mVoteBox;
+        Boolean mTimeBox;
+        Boolean mIngredientsBox;
+        Boolean mNameBox;
+        Boolean mChefBox;
+        String mSearch;
+
         mPescatarianBox = preference.mpescatarianPref;
         mVegetarianBox = preference.mVegetarianPref;
         mVeganBox = preference.mVeganPref;
@@ -90,33 +92,24 @@ public class SearchQuery {
         if(mSoyBox){
             query = query.setFilters("noSoy:true");
         }
-//
-//        // Only allowing the user to search for a single item
-//        if(mIngredientsBox){
-//            query = query.whereArrayContains("listIngredients", mSearch.toLowerCase());
-//        }else if(mNameBox){
-//            query = query.whereEqualTo("name", mSearch.toLowerCase());
-//        }else if(mChefBox){
-//            query = query.whereEqualTo("chef", mSearch.toLowerCase());
-//        }
-//
-//        // Only enabling a single search order
-//        if(mScoreBox){
-//            query = query.orderBy("score", Direction.DESCENDING);
-//        }else if(mVoteBox){
-//            query = query.orderBy("votes", Direction.DESCENDING);
-//        }else if(mTimeBox){
-//            query = query.orderBy("timestamp", Direction.DESCENDING);
-//        }
-//
-//        // Limiting the search to sets of 5 items until the user scrolls to bottom
-//        query = query.limit(5);
 
+        // Only allowing the user to search for a single item
+        if(mIngredientsBox){
+            query = query.setRestrictSearchableAttributes("listIngredients");
+        }else if(mNameBox){
+            query = query.setRestrictSearchableAttributes("Name");
+        }else if(mChefBox){
+            query = query.setRestrictSearchableAttributes("Chef");
+        }
 
-
-
-
-
+        // Only enabling a single search order
+        if(mScoreBox){
+            index = "recipe_score";
+        }else if(mVoteBox){
+            index = "recipe_votes";
+        }else if(mTimeBox){
+            index = "recipe_time";
+        }
     }
 }
 

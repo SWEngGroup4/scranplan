@@ -61,6 +61,8 @@ public class SearchListFragment extends AppCompatDialogFragment {
     private boolean isScrolling = false;
     private boolean isLastItemReached = false;
     List<String> objectID;
+    String searchIndex;
+    String searchBy;
 
     /**
      * On the create of this view, the alert dialogue is build over the current page within the application
@@ -80,7 +82,6 @@ public class SearchListFragment extends AppCompatDialogFragment {
         mDatabase = FirebaseFirestore.getInstance();
         data = new ArrayList<>();
         Client client = new Client(ALGOLIA_APP_ID, ALGOLIA_SEARCH_API);
-        Index index = client.getIndex(ALGOLIA_INDEX_NAME);
 
         // Creating a list of the data and building all variables to add to recycler view
         final RecyclerView recyclerView = view.findViewById(R.id.recipeList);
@@ -157,8 +158,9 @@ public class SearchListFragment extends AppCompatDialogFragment {
         if (query != null) {
             Log.e(TAG, "User is searching the following query: " + query.toString());
 
+            Index scoreIndex = client.getIndex(searchIndex);
             //Search for the Query using Algolia
-            index.searchAsync(query,completionHandler);
+            scoreIndex.searchAsync(query,completionHandler);
 
             // check if user has scrolled through the view
             RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
@@ -178,6 +180,11 @@ public class SearchListFragment extends AppCompatDialogFragment {
     public void setValue(Query sentQuery) {
         this.query = sentQuery;
     }
+
+    public void setIndex(String index){
+        this.searchIndex = index;
+    }
+
     // Set the layout of the new window
     public void onResume() {
         super.onResume();
