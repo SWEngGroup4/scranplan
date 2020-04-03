@@ -104,8 +104,19 @@ public class RecipeFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_recipe, container, false);
 
-        if (getArguments() != null)
+        if (getArguments() != null) {
             planner = getArguments().getBoolean("planner");
+            if(planner){
+                view.findViewById(R.id.recipeFragmentReturnButton).setVisibility(View.VISIBLE);
+                view.findViewById(R.id.recipeFragmentReturnButton).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Fragment fragment = getTargetFragment();
+                        getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, new Intent());
+                    }
+                });
+            }
+        }
         else planner = false;
 
         Home home = (Home) getActivity();

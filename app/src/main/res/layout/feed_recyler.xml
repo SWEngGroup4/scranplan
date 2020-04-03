@@ -19,6 +19,8 @@ android:paddingTop="5sp">
         android:focusable="true"
         android:foreground="?android:attr/selectableItemBackground">
 
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -26,32 +28,47 @@ android:paddingTop="5sp">
             android:background="@drawable/rounded_corners_coloured">
 
             <LinearLayout
-                android:layout_margin="10sp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@android:color/transparent">
-
-                <TextView
-                    android:id="@+id/postAuthor"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:singleLine="true"
-                    android:textStyle="bold" />
-
-
-                <TextView
-                    android:id="@+id/postBody"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                android:layout_margin="10sp">
 
                 <ImageView
-                    android:id="@+id/uploadedImageView"
-                    android:layout_width="match_parent"
+                    android:id="@+id/postAuthorPic"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:maxHeight="75sp"
+                    android:maxWidth="75sp"
                     android:adjustViewBounds="true"
                     android:src="@drawable/scran"
                     android:visibility="gone"/>
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingLeft="10sp">
+
+                    <TextView
+                        android:id="@+id/postAuthor"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
+                        android:textStyle="bold" />
+
+
+                    <TextView
+                        android:id="@+id/postBody"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                    <ImageView
+                        android:id="@+id/uploadedImageView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/scran"
+                        android:visibility="gone"/>
+                </LinearLayout>
 
             </LinearLayout>
 

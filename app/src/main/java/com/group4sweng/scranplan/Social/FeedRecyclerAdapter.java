@@ -12,6 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -21,6 +23,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 import java.util.List;
+
+import static androidx.test.InstrumentationRegistry.getContext;
 
 /**
  *  Class holding the recycler adapter for the home page, each card will represent the view
@@ -83,6 +87,7 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
         private CardView cardView;
         private TextView author;
         private TextView body;
+        private ImageView authorPic;
         private ImageView uploadedImageView;
 
         private LinearLayout recipeLayout;
@@ -93,6 +98,7 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
 
         private ViewHolder(View v) {
             super(v);
+            authorPic = v.findViewById(R.id.postAuthorPic);
             cardView = v.findViewById(R.id.postCardView);
             author = v.findViewById(R.id.postAuthor);
             body = v.findViewById(R.id.postBody);
@@ -143,6 +149,13 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                     if (task.isSuccessful()) {
                         holder.author.setText((String)task.getResult().get("displayName"));
+                        if(task.getResult().get("imageURL") != null){
+                            Glide.with(holder.authorPic.getContext())
+                                    .load(task.getResult().get("imageURL"))
+                                    .apply(RequestOptions.circleCropTransform())
+                                    .into(holder.authorPic);
+                            holder.authorPic.setVisibility(View.VISIBLE);
+                        }
 
                     }else {
                         Log.e("FdRc", "User details retrieval : Unable to retrieve user document in Firestore ");

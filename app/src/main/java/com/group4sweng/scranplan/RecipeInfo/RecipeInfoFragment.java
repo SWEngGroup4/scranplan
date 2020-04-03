@@ -312,7 +312,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
                         fragment = new RecipeIngredientFragment();
                         break;
                     case 1:
-                        fragment = new RecipeReviewFragment(mUser);
+                        fragment = new RecipeReviewFragment();
                         break;
 
                 }

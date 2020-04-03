@@ -2,24 +2,17 @@ package com.group4sweng.scranplan.RecipeInfo;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FieldValue;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.Social.FeedFragment;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
-
-import java.util.HashMap;
 
 
 public class RecipeReviewFragment extends FeedFragment {
@@ -33,9 +26,6 @@ public class RecipeReviewFragment extends FeedFragment {
     private float getRating;
 
 
-    public RecipeReviewFragment(UserInfoPrivate userSent) {
-        super(userSent);
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -52,7 +42,7 @@ public class RecipeReviewFragment extends FeedFragment {
     }
 
     //Defining all relevant members of page
-    protected void initPageItems(View layout){
+    public void initPageItems(View layout){
         super.initPageItems(layout);
 
         mStars = layout.findViewById(R.id.rating);

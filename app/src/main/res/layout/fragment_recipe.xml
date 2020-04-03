@@ -14,6 +14,22 @@
             android:id="@+id/topLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" />
+            android:orientation="vertical">
+            <ImageButton
+                android:id="@+id/recipeFragmentReturnButton"
+                style="@style/Widget.AppCompat.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10sp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="10dp"
+                android:text="Cancel recipe selection"
+                android:textColor="#000000"
+                android:textSize="13sp"
+                android:src="?attr/actionModeCloseDrawable"
+                android:visibility="gone"/>
+
+        </LinearLayout>
     </ScrollView>
 </FrameLayout>

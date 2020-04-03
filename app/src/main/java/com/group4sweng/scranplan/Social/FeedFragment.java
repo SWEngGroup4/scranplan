@@ -1,6 +1,7 @@
 package com.group4sweng.scranplan.Social;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -10,6 +11,7 @@ import android.os.CountDownTimer;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -19,15 +21,18 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SearchView;
+import android.widget.Space;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -42,8 +47,15 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.group4sweng.scranplan.Exceptions.ImageException;
+import com.group4sweng.scranplan.Home;
+import com.group4sweng.scranplan.MealPlanner.PlannerFragment;
+import com.group4sweng.scranplan.MealPlanner.PlannerInfoFragment;
+import com.group4sweng.scranplan.MealPlanner.PlannerListFragment;
 import com.group4sweng.scranplan.R;
-import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
+import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
+import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
+import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -79,11 +91,6 @@ public class FeedFragment extends Fragment {
     ImageView mUploadedImage;
 
 
-    // User preferences passed into scroll views via constructor
-    UserInfoPrivate user;
-    public FeedFragment(UserInfoPrivate userSent){
-        user = userSent;
-    }
 
     // Width size of each scroll view, dictating size of images on home screen
     final int scrollViewSize = 5;
@@ -95,11 +102,27 @@ public class FeedFragment extends Fragment {
     private boolean isLastItemReached = false;
 
     protected Button mPostButton;
-    protected Button mPostRecipe;
-    protected Button mPostReview;
-    protected CheckBox mPostPic;
-    protected EditText mPostTitleInput;
-    protected EditText mPostBodyInput;
+    CheckBox mPostRecipe;
+    CheckBox mPostReview;
+    CheckBox mPostPic;
+    EditText mPostBodyInput;
+    Space mPicSpacer;
+
+    ImageView mAttachedRecipeImage;
+    TextView mAttachedRecipeTitle;
+    TextView mAttachedRecipeInfo;
+
+    //Fragment handlers
+    private FragmentTransaction fragmentTransaction;
+    private RecipeFragment recipeFragment;
+
+    //User information
+    private com.group4sweng.scranplan.UserInfo.UserInfoPrivate user;
+    private SearchPrefs prefs;
+
+    //Menu items
+    private SearchView searchView;
+    private MenuItem sortButton;
 
 
 
@@ -129,6 +152,7 @@ public class FeedFragment extends Fragment {
 
         // Grabs screen size for % layout TODO - change to density pixels + NullPointerException check
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+        user = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
 
         // Procedurally fills topLayout with imageButton content
         LinearLayout topLayout = view.findViewById(R.id.topLayout);
@@ -140,6 +164,21 @@ public class FeedFragment extends Fragment {
         if(user != null){
             // Build the first horizontal scroll built around organising the recipes via highest rated
             //TODO make new query
+            Home home = (Home) getActivity();
+            if (home != null) {
+                // Gets search activity from home class and make it invisible
+                searchView = home.getSearchView();
+                sortButton = home.getSortView();
+
+                sortButton.setVisible(false);
+                searchView.setVisibility(View.INVISIBLE);
+                //setSearch();
+
+
+
+                //Gets search preferences from home class
+                prefs = home.getSearchPrefs();
+            }
 
 
 
@@ -324,11 +363,16 @@ public class FeedFragment extends Fragment {
     protected void initPageItems(View v){
         //Defining all relevant members of page
         mPostButton = v.findViewById(R.id.sendPostButton);
-        mPostRecipe = v.findViewById(R.id.recipeIcon);
-        mPostReview = v.findViewById(R.id.reviewIcon);
+        mPostRecipe = (CheckBox) v.findViewById(R.id.recipeIcon);
+        mPostReview = (CheckBox) v.findViewById(R.id.reviewIcon);
         mPostPic = (CheckBox) v.findViewById(R.id.imageIcon);
         mPostBodyInput = v.findViewById(R.id.postBodyInput);
         mUploadedImage = v.findViewById(R.id.userUploadedImageView);
+        mPicSpacer = v.findViewById(R.id.picSpacer);
+        mAttachedRecipeImage = v.findViewById(R.id.postRecipeImageView);
+        mAttachedRecipeTitle = v.findViewById(R.id.postRecipeTitle);
+        mAttachedRecipeInfo =  v.findViewById(R.id.postRecipeDescription);
+
 
     }
 
@@ -358,25 +402,28 @@ public class FeedFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (mPostPic.isChecked()) {
-                    // your code to checked checkbox
-                    //  Check if the version of Android is above 'Marshmallow' we check for additional permission.
-                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-
-                        //  Checks if permission has already been granted to read from external storage (our image picker)
-                        if(getContext().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
-                            //   Ask for permission.
-                            String [] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
-                            requestPermissions(permissions, PERMISSION_CODE);
-                            imageSelector();
+                    if(mUploadedImage.getVisibility() != View.VISIBLE){
+                        //  Check if the version of Android is above 'Marshmallow' we check for additional permission.
+                        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                            //  Checks if permission has already been granted to read from external storage (our image picker)
+                            if(getContext().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
+                                //   Ask for permission.
+                                String [] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
+                                requestPermissions(permissions, PERMISSION_CODE);
+                                mPostPic.setChecked(false);
+                                imageSelector();
+                            } else {
+                                //  Read permission has been granted already.
+                                mPostPic.setChecked(false);
+                                imageSelector();
+                            }
                         } else {
-                            //  Read permission has been granted already.
+                            mPostPic.setChecked(false);
                             imageSelector();
                         }
-                    } else {
-                        imageSelector();
                     }
                 } else {
-                    // your code to  no checked checkbox
+                    mUploadedImage.setVisibility(View.GONE);
                 }
             }
         });
@@ -384,15 +431,12 @@ public class FeedFragment extends Fragment {
         mPostButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String title = mPostTitleInput.getText().toString();
                 String body = mPostBodyInput.getText().toString();
                 boolean isPic = false;
                 boolean isRecipe = false;
                 boolean isReview = false;
                 //TODO set these variables from the addition of these items
 
-
-                mPostTitleInput.getText().clear();
                 mPostBodyInput.getText().clear();
 
                 CollectionReference ref = mDatabase.collection("posts");
@@ -400,7 +444,6 @@ public class FeedFragment extends Fragment {
                 // Saving the comment as a new document
                 HashMap<String, Object> map = new HashMap<>();
                 map.put("author", user.getUID());
-                map.put("title", title);
                 map.put("body", body);
                 map.put("timestamp", FieldValue.serverTimestamp());
                 map.put("isPic", isPic);
@@ -420,10 +463,32 @@ public class FeedFragment extends Fragment {
 
             }
         });
-        mPostRecipe.setOnClickListener(new View.OnClickListener() {
+        mPostRecipe.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View view) {
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (mPostRecipe.isChecked()) {
+                    if(mAttachedRecipeImage.getVisibility() != View.VISIBLE){
+                        Bundle bundle = new Bundle();
+                        bundle.putBoolean("planner", true); //Condition to let child fragments know access is from planner
 
+                        //Creates and launches recipe fragment
+                        recipeFragment = new RecipeFragment(user);
+                        recipeFragment.setArguments(bundle);
+                        recipeFragment.setTargetFragment(FeedFragment.this, 1);
+                        fragmentTransaction = getParentFragmentManager().beginTransaction();
+                        fragmentTransaction.add(R.id.frameLayout, recipeFragment); //Overlays fragment on existing one
+                        fragmentTransaction.commitNow(); //Waits for fragment transaction to be completed
+                        requireView().setVisibility(View.INVISIBLE); //Sets current fragment invisible
+
+                        //Makes search bar icon visible
+                        searchView.setQuery("", false);
+                        searchView.setVisibility(View.VISIBLE);
+                        setSearch();
+
+                    }
+                } else {
+                    mAttachedRecipeImage.setVisibility(View.GONE);
+                }
             }
         });
         mPostReview.setOnClickListener(new View.OnClickListener() {
@@ -445,7 +510,7 @@ public class FeedFragment extends Fragment {
         Intent images = new Intent(Intent.ACTION_PICK);
         images.setType("image/*"); // Only open the 'image' file picker. Don't include videos, audio etc...
         startActivityForResult(images, IMAGE_REQUEST_CODE);
-        mPostPic.setChecked(false);// Start the image picker and expect a result once an image is selected.
+        //mPostPic.setChecked(false);// Start the image picker and expect a result once an image is selected.
     }
 
     /** Handle our activity result for the image picker.
@@ -467,6 +532,9 @@ public class FeedFragment extends Fragment {
                         .into(mUploadedImage);
                 mUploadedImage.setVisibility(View.VISIBLE);
                 mPostPic.setChecked(true);
+                if(mPostRecipe.isChecked()){
+                    mPicSpacer.setVisibility(View.VISIBLE);
+                }
 
 //                try {
 //                    uploadImage(mImageUri); // Attempt to upload the image in storage to Firebase.
@@ -476,6 +544,41 @@ public class FeedFragment extends Fragment {
 //                }
             }else{
                 mPostPic.setChecked(false);
+            }
+        }else if(resultCode == Activity.RESULT_OK) {
+            Bundle bundle = data.getExtras();
+
+            //Hides menu options
+            sortButton.setVisible(false);
+
+            //Clears search view
+            searchView.clearFocus();
+            searchView.onActionViewCollapsed();
+            searchView.setVisibility(View.INVISIBLE);
+
+            //Compiles bundle into a hashmap object for serialization
+            final HashMap<String, Object> map = new HashMap<>();
+            if (bundle != null) {
+                for (String key : bundle.keySet()) {
+                    map.put(key, bundle.get(key));
+                }
+
+                //Sets new listener for inserted recipe to open info fragment
+                mAttachedRecipeImage.setOnClickListener(v -> openRecipeInfo(map));
+
+                //Loads recipe image
+                Picasso.get().load(bundle.getString("imageURL")).into(mAttachedRecipeImage);
+                mAttachedRecipeTitle.setText(bundle.getString("recipeTitle"));
+                mAttachedRecipeInfo.setText(bundle.getString("recipeDescription"));
+                mAttachedRecipeTitle.setVisibility(View.VISIBLE);
+                mAttachedRecipeInfo.setVisibility(View.VISIBLE);
+                mAttachedRecipeImage.setVisibility(View.VISIBLE);
+
+                //Removes recipe fragment overlay and makes planner fragment visible
+                fragmentTransaction = getParentFragmentManager().beginTransaction();
+                fragmentTransaction.remove(recipeFragment).commitNow();
+                requireView().setVisibility(View.VISIBLE);
+
             }
         }
     }
@@ -546,6 +649,46 @@ public class FeedFragment extends Fragment {
                 });
             }
         });
+    }
+
+    //Opens info dialog for selected recipe
+    private void openRecipeInfo(HashMap<String, Object> map) {
+        map.put("planner", false); //Allows lauching of presentation
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("hashmap", map);
+
+        //Creates and launches info fragment
+        PlannerInfoFragment plannerInfoFragment = new PlannerInfoFragment();
+        plannerInfoFragment.setArguments(bundle);
+        plannerInfoFragment.show(getParentFragmentManager(), "Show recipe dialog fragment");
+    }
+
+
+
+    //Quick function to reset search menu functionality
+    private void setSearch() {
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                SearchQuery query = new SearchQuery( s, prefs);
+                openRecipeDialog(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+    }
+
+    //Opens list fragment on searching
+    private void openRecipeDialog(SearchQuery query) {
+        //Creates and launches fragment with required query
+        PlannerListFragment plannerListFragment = new PlannerListFragment(user);
+        plannerListFragment.setValue(query.getQuery());
+        plannerListFragment.setTargetFragment(this, 1);
+        plannerListFragment.show(getParentFragmentManager(), "search");
     }
 
     /**
