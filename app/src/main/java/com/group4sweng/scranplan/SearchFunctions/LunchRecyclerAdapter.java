@@ -1,41 +1,36 @@
 package com.group4sweng.scranplan.SearchFunctions;
 
-import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RatingBar;
-import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.group4sweng.scranplan.MealPlanner.LunchFragment;
 import com.group4sweng.scranplan.R;
-import com.group4sweng.scranplan.MealPlanner.BreakfastFragment;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class BreakfastRecyclerAdapter extends RecyclerView.Adapter<BreakfastRecyclerAdapter.ViewHolder> {
-
+public class LunchRecyclerAdapter extends RecyclerView.Adapter<LunchRecyclerAdapter.ViewHolder> {
     // Variables for database and fragment to be displayed in
-    private BreakfastFragment mBreakfastFragment;
-    private List<BreakfastRecyclerAdapter.BreakfastRecipePreviewData> mDataset;
+    private LunchFragment mLunchFragment;
+    private List<LunchRecyclerAdapter.LunchRecipePreviewData> mDataset;
 
     /**
      * The holder for the card with variables required
      */
-    public static class BreakfastRecipePreviewData {
+    public static class LunchRecipePreviewData {
 
         private String recipeID;
         private String imageURL;
         private DocumentSnapshot document;
 
-        public BreakfastRecipePreviewData(DocumentSnapshot doc, String recipeID, String imageURL) {
+        public LunchRecipePreviewData(DocumentSnapshot doc, String recipeID, String imageURL) {
             this.document = doc;
             this.recipeID = recipeID;
             this.imageURL = imageURL;
@@ -59,11 +54,11 @@ public class BreakfastRecyclerAdapter extends RecyclerView.Adapter<BreakfastRecy
 
     /**
      * Constructor to add all variables
-     * @param breakfastFragment
+     * @param lunchFragment
      * @param dataset
      */
-    public BreakfastRecyclerAdapter (BreakfastFragment breakfastFragment, List<BreakfastRecyclerAdapter.BreakfastRecipePreviewData> dataset) {
-        mBreakfastFragment = breakfastFragment;
+    public LunchRecyclerAdapter (LunchFragment lunchFragment, List<LunchRecyclerAdapter.LunchRecipePreviewData> dataset) {
+        mLunchFragment = lunchFragment;
         mDataset = dataset;
     }
 
@@ -74,10 +69,10 @@ public class BreakfastRecyclerAdapter extends RecyclerView.Adapter<BreakfastRecy
      * @param viewType
      * @return
      */
-    public BreakfastRecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public LunchRecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.home_image_recycler, parent, false);
-        return new BreakfastRecyclerAdapter.ViewHolder(v);
+        return new LunchRecyclerAdapter.ViewHolder(v);
     }
 
     /**
@@ -86,14 +81,14 @@ public class BreakfastRecyclerAdapter extends RecyclerView.Adapter<BreakfastRecy
      * @param position
      */
     @Override
-    public void onBindViewHolder(final BreakfastRecyclerAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(final LunchRecyclerAdapter.ViewHolder holder, int position) {
         Picasso.get().load(mDataset.get(position).imageURL).into(holder.imageView);
 
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mBreakfastFragment != null){
-                    mBreakfastFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
+                if (mLunchFragment != null){
+                    mLunchFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
                 }else{
                     Log.e("SEARCH RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
                 }

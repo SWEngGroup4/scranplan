@@ -5,25 +5,5 @@
     android:layout_height="match_parent"
     tools:context="com.group4sweng.scranplan.SearchFunctions.RecipeFragment">
 
-    <TextView
-        android:id="@+id/time_frame"
-        android:layout_width="match_parent"
-        android:layout_height="42dp"
-        android:text="Dinner"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
-
-    <ScrollView
-        android:id="@+id/timeFrame"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <LinearLayout
-            android:id="@+id/topLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-        </LinearLayout>
-    </ScrollView>
 
 </FrameLayout>

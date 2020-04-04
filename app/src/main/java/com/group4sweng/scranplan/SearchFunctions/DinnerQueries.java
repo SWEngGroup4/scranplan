@@ -7,8 +7,7 @@ import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.HashMap;
 
-public class BreakfastQueries {
-
+public class DinnerQueries {
     public HashMap getQueries() {
         return queries;
     }
@@ -23,9 +22,9 @@ public class BreakfastQueries {
 
 
     // Constructor to build all queries in the home page
-    public BreakfastQueries(UserInfoPrivate user){
+    public DinnerQueries(UserInfoPrivate user){
         queries = new HashMap();
-        queries.put("breakfast", buildQuery(user).whereEqualTo("breakfast", true).orderBy("score", Query.Direction.DESCENDING));
+        queries.put("dinner", buildQuery(user).whereEqualTo("dinner", true).orderBy("score", Query.Direction.DESCENDING));
     }
 
     // Function to build all queries to be saved in the constructor, taking user preferences and

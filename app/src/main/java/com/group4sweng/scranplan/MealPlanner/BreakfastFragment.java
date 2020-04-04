@@ -1,7 +1,5 @@
-package com.group4sweng.scranplan.TimelinePlanner;
+package com.group4sweng.scranplan.MealPlanner;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -24,12 +22,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.group4sweng.scranplan.R;
-import com.group4sweng.scranplan.RecipeFragment;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import com.group4sweng.scranplan.SearchFunctions.BreakfastQueries;
 import com.group4sweng.scranplan.SearchFunctions.BreakfastRecyclerAdapter;
-import com.group4sweng.scranplan.SearchFunctions.HomeQueries;
-import com.group4sweng.scranplan.SearchFunctions.HomeRecyclerAdapter;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.ArrayList;
@@ -57,6 +52,7 @@ public class BreakfastFragment extends Fragment {
 
     private Bundle mBundle;
     private Boolean planner;
+    private Boolean breakfast;
 
 
     @Override
@@ -90,7 +86,7 @@ public class BreakfastFragment extends Fragment {
             dataBreakfast = new ArrayList<>();
             final RecyclerView.Adapter rAdapterBreakfast = new BreakfastRecyclerAdapter(BreakfastFragment.this, dataBreakfast);
             recyclerViewBreakfast.setAdapter(rAdapterBreakfast);
-            final Query queryBreakfast = (Query) horizontalScrollQueries.getQueries().get("Breakfast");
+            final Query queryBreakfast = (Query) horizontalScrollQueries.getQueries().get("breakfast");
             if (queryBreakfast != null) {
                 Log.e(TAG, "User is searching the following query: " + queryBreakfast.toString());
 
@@ -216,6 +212,7 @@ public class BreakfastFragment extends Fragment {
 
             ArrayList faves = (ArrayList) document.get("favourite");
             mBundle.putBoolean("isFav", faves.contains(user.getUID()));
+            mBundle.putBoolean("breakfast", breakfast);
 
 
             RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
