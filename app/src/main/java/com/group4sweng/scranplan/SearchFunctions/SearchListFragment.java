@@ -110,42 +110,83 @@ public class SearchListFragment extends AppCompatDialogFragment {
 
                 if(objectID != null){
                     for (String object: objectID) {
-                        DocumentReference docRef = mDatabase.collection("recipes").document(object);
-                        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                            // Gets the DocumentSnapshot from the document ID
-                            @Override
-                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (!searchIndex.equals("SCRANPLAN_USERS")) {
+                            DocumentReference docRef = mDatabase.collection("recipes").document(object);
+                            docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                // Gets the DocumentSnapshot from the document ID
+                                @Override
+                                public void onSuccess(DocumentSnapshot documentSnapshot) {
                                     DocumentSnapshot document = documentSnapshot;
                                     if (document.exists()) {
                                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                                         documents.add(document);
                                     } else {
-                                        Log.d(TAG, "No such document");}
+                                        Log.d(TAG, "No such document");
+                                    }
 
                                     // For each document a new recipe preview view is generated
                                     if (documents.size() == objectID.size()) {
-                                            for (DocumentSnapshot documentSnap : documents) {
-                                                data.add(new SearchRecipePreviewData(
-                                                        documentSnap,
-                                                        documentSnap.getId(),
-                                                        documentSnap.get("Name").toString(),
-                                                        documentSnap.get("Description").toString(),
-                                                        documentSnap.get("imageURL").toString()
-                                                ));
-                                            }
-                                            isLastItemReached = true;
-
+                                        for (DocumentSnapshot documentSnap : documents) {
                                             data.add(new SearchRecipePreviewData(
-                                                    null,
-                                                    null,
-                                                    "No more results",
-                                                    "We have checked all over and there is nothing more to be found!",
-                                                    null
+                                                    documentSnap,
+                                                    documentSnap.getId(),
+                                                    documentSnap.get("Name").toString(),
+                                                    documentSnap.get("Description").toString(),
+                                                    documentSnap.get("imageURL").toString()
                                             ));
-                                            rAdapter.notifyDataSetChanged();
                                         }
+                                        isLastItemReached = true;
+
+                                        data.add(new SearchRecipePreviewData(
+                                                null,
+                                                null,
+                                                "No more results",
+                                                "We have checked all over and there is nothing more to be found!",
+                                                null
+                                        ));
+                                        rAdapter.notifyDataSetChanged();
+                                    }
                                 }
-                        });
+                            });
+                        }else if(searchIndex.equals("SCRANPLAN_USERS")){
+                            DocumentReference docRef = mDatabase.collection("users").document(object);
+                            docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                // Gets the DocumentSnapshot from the document ID
+                                @Override
+                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                    DocumentSnapshot document = documentSnapshot;
+                                    if (document.exists()) {
+                                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                                        documents.add(document);
+                                    } else {
+                                        Log.d(TAG, "No such document");
+                                    }
+
+                                    // For each document a new recipe preview view is generated
+                                    if (documents.size() == objectID.size()) {
+                                        for (DocumentSnapshot documentSnap : documents) {
+                                            data.add(new SearchRecipePreviewData(
+                                                    documentSnap,
+                                                    documentSnap.getId(),
+                                                    documentSnap.get("displayName").toString(),
+                                                    documentSnap.get("about").toString(),
+                                                    documentSnap.get("imageURL").toString()
+                                            ));
+                                        }
+                                        isLastItemReached = true;
+
+                                        data.add(new SearchRecipePreviewData(
+                                                null,
+                                                null,
+                                                "No more results",
+                                                "We have checked all over and there is nothing more to be found!",
+                                                null
+                                        ));
+                                        rAdapter.notifyDataSetChanged();
+                                    }
+                                }
+                            });
+                        }
                     }
                 }
                 // Displays no more results when no recipes are found
@@ -153,7 +194,7 @@ public class SearchListFragment extends AppCompatDialogFragment {
                     data.add(new SearchRecipePreviewData(
                             null,
                             null,
-                            "No more results",
+                            "No results found",
                             "We have checked all over and there is nothing more to be found!",
                             null
                     ));
