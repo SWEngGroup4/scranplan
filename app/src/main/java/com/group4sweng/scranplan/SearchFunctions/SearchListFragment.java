@@ -155,7 +155,7 @@ public class SearchListFragment extends AppCompatDialogFragment {
 
 
         // Check if query is found
-        if (query != null) {
+        if (query != null && searchIndex != null) {
             Log.e(TAG, "User is searching the following query: " + query.toString());
 
             Index scoreIndex = client.getIndex(searchIndex);
