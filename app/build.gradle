@@ -73,6 +73,7 @@ testImplementation 'junit:junit:4.12'
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
     implementation 'com.squareup.okhttp3:okhttp:4.4.0'
+    implementation 'com.algolia:algoliasearch-android:3.27.0'
 
     implementation 'com.github.aakira:expandable-layout:1.6.0@aar'
     implementation 'com.google.android.exoplayer:exoplayer-core:2.10.5'

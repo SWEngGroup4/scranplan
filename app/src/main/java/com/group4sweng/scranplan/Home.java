@@ -164,6 +164,7 @@ public class Home extends AppCompatActivity {
                 query = new SearchQuery( s, prefs);
                 SearchListFragment searchListFragment = new SearchListFragment(mUser);
                 searchListFragment.setValue(query.getQuery());
+                searchListFragment.setIndex(query.getIndex());
                 Log.e(TAG, "User opening search");
                 searchListFragment.show(fragmentManager, "search");
                 return false;
