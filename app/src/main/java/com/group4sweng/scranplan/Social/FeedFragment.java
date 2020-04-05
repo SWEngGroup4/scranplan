@@ -113,7 +113,10 @@ public class FeedFragment extends Fragment {
     TextView mAttachedRecipeTitle;
     TextView mAttachedRecipeInfo;
 
+    TextView mRecipeRatingText;
     RatingBar mAttachedRecipeReview;
+
+    private float getRating;
 
     //Fragment handlers
     private FragmentTransaction fragmentTransaction;
@@ -376,6 +379,7 @@ public class FeedFragment extends Fragment {
         mAttachedRecipeTitle = v.findViewById(R.id.postRecipeTitle);
         mAttachedRecipeInfo =  v.findViewById(R.id.postRecipeDescription);
         mAttachedRecipeReview = v.findViewById(R.id.postRecipeRating);
+        mRecipeRatingText = v.findViewById(R.id.recipeRate);
 
 
     }
@@ -503,10 +507,25 @@ public class FeedFragment extends Fragment {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (mPostReview.isChecked()) {
                     if(mAttachedRecipeReview.getVisibility() != View.VISIBLE){
-
+                        if(mPostRecipe.isChecked()){
+                            //Makes the star rating visible and stores the value of the given rating
+                            mRecipeRatingText.setVisibility(View.VISIBLE);
+                            mAttachedRecipeReview.setVisibility(View.VISIBLE);
+                            mAttachedRecipeReview.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+                                @Override
+                                public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+                                    getRating = mAttachedRecipeReview.getRating();
+                                }
+                            });
+                        }else{
+                            Log.e(TAG, "No recipe so no review");
+                            mPostReview.setChecked(false);
+                            Toast.makeText(getContext(),"You need to attach a recipe before you can review it.",Toast.LENGTH_SHORT).show();
+                        }
                     }
                 } else {
-
+                    mRecipeRatingText.setVisibility(View.GONE);
+                    mAttachedRecipeReview.setVisibility(View.GONE);
                 }
             }
         });
