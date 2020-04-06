@@ -1,5 +1,6 @@
 package com.group4sweng.scranplan.Presentation;
 
+import android.util.Log;
 import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -12,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class XmlParser {
+public class XmlParser {
 
     // TODO - Add handlers for multiple repeated tags
     // TODO - Add handlers for optional attributes (starttime, endtime etc.)
@@ -157,8 +158,9 @@ class XmlParser {
         String id = parser.getAttributeValue(null, "id");
         Integer duration = Integer.valueOf(parser.getAttributeValue(null, "duration"));
         Text text = null;
-        Line line = null;
-        Shape shape = null;
+        ArrayList<Line> lines = new ArrayList<>();
+        ArrayList<Shape> shapes = new ArrayList<>();
+        ArrayList<Triangle> triangles = new ArrayList<>();
         Audio audio = null;
         Audio audioLooping = null;
         Image image = null;
@@ -177,10 +179,13 @@ class XmlParser {
                     text = readText(parser);
                     break;
                 case "line":
-                    line = readLine(parser);
+                    lines.add(readLine(parser));
                     break;
                 case "shape":
-                    shape = readShape(parser);
+                    shapes.add(readShape(parser));
+                    break;
+                case "triangle":
+                    triangles.add(readTriangle(parser));
                     break;
                 case "audio":
                     /* Can read in up to 2 audio files. (one looping, one non-looping) Takes priority from highest to lowest.
@@ -213,7 +218,7 @@ class XmlParser {
             }
         }
 
-        return new Slide(id, duration, text, line, shape, audio, audioLooping, image, video, comments, timer);
+        return new Slide(id, duration, text, lines, shapes, triangles, audio, audioLooping, image, video, comments, timer);
     }
 
     // TODO - as b and i are elements might need loop check
@@ -282,19 +287,22 @@ class XmlParser {
         Float xStart = Float.valueOf(parser.getAttributeValue(null, "xstart"));
         Float yStart = Float.valueOf(parser.getAttributeValue(null, "ystart"));
         Float xEnd = Float.valueOf(parser.getAttributeValue(null, "xend"));
-        Float yEnd = Float.valueOf(parser.getAttributeValue(null, "yEnd"));
+        Float yEnd = Float.valueOf(parser.getAttributeValue(null, "yend"));
         String lineColor = parser.getAttributeValue(null, "linecolor");
         Integer startTime = Integer.valueOf(parser.getAttributeValue(null, "starttime"));
         Integer endTime = Integer.valueOf(parser.getAttributeValue(null, "endtime"));
 
-        parser.require(XmlPullParser.END_TAG, null, "line");
+//        parser.require(XmlPullParser.END_TAG, null, "line");
+        parser.nextTag();
 
         return new Line(xStart, yStart, xEnd, yEnd, lineColor, startTime, endTime);
     }
 
     // TODO - Put loop to check if reaches END_TAG or shading tag
     private Shape readShape(XmlPullParser parser) throws  IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, null, "shape");
+            parser.require(XmlPullParser.START_TAG, null, "shape");
+
+        Shading shading = null;
 
         String type = parser.getAttributeValue(null, "type");
         Float xStart = Float.valueOf(parser.getAttributeValue(null, "xstart"));
@@ -304,25 +312,49 @@ class XmlParser {
         String fillColor = parser.getAttributeValue(null, "fillcolor");
         Integer startTime = Integer.valueOf(parser.getAttributeValue(null, "starttime"));
         Integer endTime = Integer.valueOf(parser.getAttributeValue(null, "endtime"));
-        Shading shading = readShading(parser);
+//        Shading shading = readShading(parser);
 
-        parser.require(XmlPullParser.END_TAG, null, "shape");
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) {
+                continue;
+            }
+            if (parser.getName().equals("shading")) {
+                shading = readShading(parser);
+            }
+        }
 
         return new Shape(type, xStart, yStart, width, height, fillColor, startTime, endTime, shading);
     }
 
-    private Shading readShading(XmlPullParser parser) throws  IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, null, "shading");
+    private Triangle readTriangle(XmlPullParser parser) throws IOException, XmlPullParserException {
+        parser.require(XmlPullParser.START_TAG, null, "triangle");
 
-        Integer x1 = Integer.valueOf(parser.getAttributeValue(null, "x1"));
-        Integer y1 = Integer.valueOf(parser.getAttributeValue(null, "y1"));
-        Integer x2 = Integer.valueOf(parser.getAttributeValue(null, "x2"));
-        Integer y2 = Integer.valueOf(parser.getAttributeValue(null, "y2"));
+        Float xPos1 = Float.valueOf(parser.getAttributeValue(null, "xpos1"));
+        Float yPos1 = Float.valueOf(parser.getAttributeValue(null, "ypos1"));
+        Float xPos2 = Float.valueOf(parser.getAttributeValue(null, "xpos2"));
+        Float yPos2 = Float.valueOf(parser.getAttributeValue(null, "ypos2"));
+        Float xPos3 = Float.valueOf(parser.getAttributeValue(null, "xpos3"));
+        Float yPos3 = Float.valueOf(parser.getAttributeValue(null, "ypos3"));
+        String fillColor = parser.getAttributeValue(null, "fillcolor");
+        Integer startTime = Integer.valueOf(parser.getAttributeValue(null, "starttime"));
+        Integer endTime = Integer.valueOf(parser.getAttributeValue(null, "endtime"));
+        Shading shading = null;
+
+        parser.nextTag();
+
+        return new Triangle(xPos1, yPos1, xPos2, yPos2, xPos3, yPos3, fillColor, startTime, endTime, shading);
+    }
+
+    private Shading readShading(XmlPullParser parser) throws  IOException, XmlPullParserException {
+        Float x1 = Float.valueOf(parser.getAttributeValue(null, "x1"));
+        Float y1 = Float.valueOf(parser.getAttributeValue(null, "y1"));
+        Float x2 = Float.valueOf(parser.getAttributeValue(null, "x2"));
+        Float y2 = Float.valueOf(parser.getAttributeValue(null, "y2"));
         String color1 =  parser.getAttributeValue(null, "color1");
         String color2 = parser.getAttributeValue(null, "color2");
         Boolean cyclic = Boolean.valueOf(parser.getAttributeValue(null, "cyclic"));
 
-        parser.require(XmlPullParser.END_TAG, null, "shading");
+        parser.nextTag();
 
         return new Shading(x1, y1, x2, y2, color1, color2, cyclic);
     }
@@ -510,8 +542,9 @@ class XmlParser {
         final String id;
         final Integer duration;
         final Text text;
-        final Line line;
-        final Shape shape;
+        final ArrayList<Line> lines;
+        final ArrayList<Shape> shapes;
+        final ArrayList<Triangle> triangles;
         final Audio audio;
         final Audio audioLooping;
         final Image image;
@@ -519,13 +552,15 @@ class XmlParser {
         final List<Comment> comments;
         final Float timer;
 
-        private Slide(String id, Integer duration, Text text, Line line, Shape shape,
-                      Audio audio, Audio audioLooping, Image image, Video video, List<Comment> comments, Float timer) {
+        private Slide(String id, Integer duration, Text text, ArrayList<Line> lines, ArrayList<Shape> shapes,
+                      ArrayList<Triangle> triangles, Audio audio, Audio audioLooping, Image image, Video video,
+                      List<Comment> comments, Float timer) {
             this.id = id;
             this.duration = duration;
             this.text = text;
-            this.line = line;
-            this.shape = shape;
+            this.lines = lines;
+            this.shapes = shapes;
+            this.triangles = triangles;
             this.audio = audio;
             this.audioLooping = audioLooping;
             this.image = image;
@@ -631,17 +666,45 @@ class XmlParser {
         }
     }
 
-    public static class Shading {
-        final Integer x1;
-        final Integer y1;
-        final Integer x2;
-        final Integer y2;
-        final String color1;
-        final String color2;
-        final Boolean cyclic;
+    public static class Triangle {
+        final Float xPos1;
+        final Float yPos1;
+        final Float xPos2;
+        final Float yPos2;
+        final Float xPos3;
+        final Float yPos3;
+        final String fillColor;
+        final Integer startTime;
+        final Integer endTime;
+        final Shading shading;
 
-        private Shading(Integer x1, Integer y1, Integer x2, Integer y2,
-                        String color1, String color2, Boolean cyclic) {
+        private Triangle(Float xPos1, Float yPos1, Float xPos2, Float yPos2,
+                      Float xPos3, Float yPos3, String fillColor,
+                      Integer startTime, Integer endTime, Shading shading) {
+            this.xPos1 = xPos1;
+            this.yPos1 = yPos1;
+            this.xPos2 = xPos2;
+            this.yPos2 = yPos2;
+            this.xPos3 = xPos3;
+            this.yPos3 = yPos3;
+            this.fillColor = fillColor;
+            this.startTime = startTime;
+            this.endTime = endTime;
+            this.shading = shading;
+        }
+    }
+
+    public static class Shading {
+        public final Float x1;
+        public final Float y1;
+        public final Float x2;
+        public final Float y2;
+        public final String color1;
+        public final String color2;
+        public final Boolean cyclic;
+
+        Shading(Float x1, Float y1, Float x2, Float y2,
+                String color1, String color2, Boolean cyclic) {
             this.x1 = x1;
             this.y1 = y1;
             this.x2 = x2;

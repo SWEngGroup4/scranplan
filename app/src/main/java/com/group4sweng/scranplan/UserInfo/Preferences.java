@@ -50,15 +50,15 @@ public class Preferences implements Serializable, FilterType {
 
     //  Constructor for setting all of a users preferences.
     public Preferences(boolean allergy_celery,
-                boolean allergy_crustacean, boolean allergy_eggs, boolean allergy_fish,
-                boolean allergy_gluten, boolean allergy_milk, boolean allergy_mustard,
-                boolean allergy_nuts, boolean allergy_peanuts, boolean allergy_sesame,
-                boolean allergy_shellfish, boolean allergy_soya, boolean allergy_sulphide,
-                boolean diabetic, boolean halal, boolean high_protein, boolean kosher,
-                boolean lactose_free, boolean lactovegetarian, boolean low_carb,
-                boolean low_sodium, boolean no_alcohol, boolean no_pork,
-                boolean ovovegetarian, boolean pescatarian, boolean vegan,
-                boolean vegetarian){
+                       boolean allergy_crustacean, boolean allergy_eggs, boolean allergy_fish,
+                       boolean allergy_gluten, boolean allergy_milk, boolean allergy_mustard,
+                       boolean allergy_nuts, boolean allergy_peanuts, boolean allergy_sesame,
+                       boolean allergy_shellfish, boolean allergy_soya, boolean allergy_sulphide,
+                       boolean diabetic, boolean halal, boolean high_protein, boolean kosher,
+                       boolean lactose_free, boolean lactovegetarian, boolean low_carb,
+                       boolean low_sodium, boolean no_alcohol, boolean no_pork,
+                       boolean ovovegetarian, boolean pescatarian, boolean vegan,
+                       boolean vegetarian){
         this.allergy_celery = allergy_celery;
         this.allergy_crustacean = allergy_crustacean;
         this.allergy_eggs = allergy_eggs;

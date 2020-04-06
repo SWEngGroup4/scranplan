@@ -45,7 +45,6 @@ public class InitialUserCustomisation extends AppCompatActivity {
     CheckBox mSoyBox;
     CheckBox mPescatarianBox;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

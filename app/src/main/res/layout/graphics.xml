@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <com.group4sweng.scranplan.Drawing.CustomView
+        android:id="@+id/customView"
+        android:layout_width="match_parent"
+        app:square_color="@color/square_color"
+        app:square_size="@dimen/square_size"
+        android:layout_height="500dp" />
+
+    <Button
+        android:id="@+id/btn_swap_color"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/customView"
+        android:layout_marginLeft="600dp"
+        android:text="Swap Colour  " />
+
+    <Button
+        android:id="@+id/btn_add_circle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/customView"
+        android:layout_marginLeft="50dp"
+        android:text="    Add Circle     " />
+
+    <Button
+        android:id="@+id/btn_add_square"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/customView"
+        android:layout_marginLeft="200dp"
+        android:text="   Add Square     " />
+
+    <Button
+        android:id="@+id/btn_delete_circle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/customView"
+        android:layout_marginTop="50dp"
+        android:layout_marginLeft="50dp"
+        android:text="Delete Circle     " />
+
+    <Button
+        android:id="@+id/btn_delete_square"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/customView"
+        android:layout_marginTop="50dp"
+        android:layout_marginLeft="200dp"
+        android:text="Delete Square  " />
+
+    <Button
+        android:id="@+id/btn_hollow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/customView"
+        android:layout_marginTop="50dp"
+        android:layout_marginLeft="400dp"
+        android:text="Hollow" />
+
+    <Button
+        android:id="@+id/btn_fill"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/customView"
+        android:layout_marginTop="0dp"
+        android:layout_marginLeft="400dp"
+        android:text="Fill" />
+
+    <Button
+        android:id="@+id/btn_bigger"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/customView"
+        android:layout_marginTop="0dp"
+        android:layout_marginLeft="500dp"
+        android:text="+ " />
+
+    <Button
+        android:id="@+id/btn_smaller"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/customView"
+        android:layout_marginTop="50dp"
+        android:layout_marginLeft="500dp"
+        android:text="- " />
+
+    <Button
+        android:id="@+id/btn_draw"
+        android:layout_width="39dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/customView"
+        android:layout_marginLeft="350dp"
+        android:layout_marginTop="25dp"
+        android:text="/" />
+
+    <Button
+        android:id="@+id/btn_add_triangle"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/customView"
+        android:layout_marginLeft="250dp"
+        android:layout_marginTop="100dp"
+        android:text="Add triangle" />
+
+    <Button
+        android:id="@+id/btn_delete_triangle"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/customView"
+        android:layout_marginLeft="50dp"
+        android:layout_marginTop="100dp"
+        android:text="Delete triangle" />
+
+</RelativeLayout>

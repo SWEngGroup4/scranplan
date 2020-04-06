@@ -23,7 +23,7 @@ allprojects {
     repositories {
         google()
         jcenter()
-        
+
     }
 }
 
@@ -38,4 +38,3 @@ junitJacoco {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
-
