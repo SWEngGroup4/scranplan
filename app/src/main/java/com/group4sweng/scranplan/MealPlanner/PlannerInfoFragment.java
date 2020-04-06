@@ -105,10 +105,12 @@ public class PlannerInfoFragment extends RecipeInfoFragment {
 
 
         //Adds refrigerator information
+        mFridge.setVisibility(View.VISIBLE);
         mFridge.setText("Keep in Fridge: " + fridgeTime + " days");
 
         //If canFreeze boolean is set to true then the screen will display that the meal can be frozen
         mFreezer = layout.findViewById(R.id.freezer);
+        mFreezer.setVisibility(View.VISIBLE);
         if (canFreeze){
             mFreezer = layout.findViewById(R.id.freezer);
             mFreezer.setText("Can be frozen");
@@ -119,9 +121,11 @@ public class PlannerInfoFragment extends RecipeInfoFragment {
 
 
         //Sets reheat text
+        mReheatInformation.setVisibility(View.VISIBLE);
         mReheatInformation.setText("Reheat Information");
 
         //Sets the reheat information button to visible for the paying user
+        mReheatInformationButton.setVisibility(View.VISIBLE);
         mReheatInformationButton.setVisibility(View.VISIBLE);
     }
 

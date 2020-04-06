@@ -66,36 +66,22 @@
             app:layout_constraintTop_toBottomOf="@+id/Title" />
 
         <CheckBox
-            android:id="@+id/addFavoritePrior"
-            android:layout_width="47dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="40dp"
-            android:layout_marginTop="18dp"
-            android:layout_marginEnd="40dp"
-            android:scaleType="fitCenter"
-            android:button="@null"
-            android:checked="false"
+            android:id="@+id/addFavorite"
+            android:layout_width="wrap_content"
+            android:layout_height="55dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="10dp"
             android:layout_toStartOf="@+id/LetsCook"
             android:layout_toEndOf="@+id/ReturnButton"
             android:background="@drawable/click_favourite"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <CheckBox
-            android:id="@+id/addFavorite"
-            android:layout_width="30sp"
-            android:layout_height="75sp"
+            android:button="@null"
+            android:checked="false"
             android:maxWidth="20sp"
             android:maxHeight="60sp"
             android:scaleType="fitCenter"
-            android:button="@null"
-            android:checked="false"
-            android:layout_toStartOf="@+id/LetsCook"
-            android:layout_toEndOf="@+id/ReturnButton"
-            android:layout_marginTop="5dp"
-            android:background="@drawable/click_favourite"
-            app:layout_constraintTop_toTopOf="parent"
-            android:stateListAnimator="@animator/select"/>
+            android:stateListAnimator="@animator/select"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/recipeImage"
@@ -168,7 +154,7 @@
             android:layout_below="@+id/recipeImage"
             android:layout_centerHorizontal="true"
             android:layout_marginStart="5dp"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="55dp"
             android:layout_marginEnd="5dp"
             android:background="@color/colorPurpleLight"
             android:gravity="center"
