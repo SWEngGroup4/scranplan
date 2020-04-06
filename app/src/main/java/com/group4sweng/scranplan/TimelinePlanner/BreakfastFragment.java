@@ -63,7 +63,6 @@ public class BreakfastFragment extends Fragment {
     private Bundle mBundle;
     private Boolean planner;
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,6 +71,10 @@ public class BreakfastFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        if (getArguments() != null)
+            planner = getArguments().getBoolean("planner");
+        else planner = false;
 
         View view = inflater.inflate(R.layout.fragment_recipe, container, false);
 
@@ -85,7 +88,8 @@ public class BreakfastFragment extends Fragment {
 
         if(user != null) {
             BreakfastQueries horizontalScrollQueries = new BreakfastQueries(user);
-            /* Adding the save view as score but with highest votes as a new query
+
+            /* Adding the save view as score but with breakfast as a new query
             /  This has been done in the same manner but as there are too many variables to track
             /  this is not workable in any kind of loop. */
             final RecyclerView recyclerViewBreakfast = new RecyclerView(view.getContext());
@@ -184,6 +188,9 @@ public class BreakfastFragment extends Fragment {
                 Log.e(TAG, "Breakfast horizontal view added");
             }
 
+            /* Adding the save view as score but with user favourite recipes as a new query
+            /  This has been done in the same manner but as there are too many variables to track
+            /  this is not workable in any kind of loop. */
             final RecyclerView recyclerViewFave = new RecyclerView(view.getContext());
             RecyclerView.LayoutManager rManagerFave = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
             recyclerViewFave.setLayoutManager(rManagerFave);
