@@ -24,7 +24,17 @@ public class DinnerQueries {
     // Constructor to build all queries in the home page
     public DinnerQueries(UserInfoPrivate user){
         queries = new HashMap();
-        queries.put("dinner", buildQuery(user).whereEqualTo("dinner", true).orderBy("score", Query.Direction.DESCENDING));
+        queries.put("dinner", ref.whereEqualTo("dinner", true));
+        queries.put("favourite", ref.whereArrayContains("favourite", user.getUID()));
+        if(!user.getPreferences().isVegan()){
+            queries.put("topVegan", buildQuery(user).whereEqualTo("vegan", true).orderBy("score", Query.Direction.DESCENDING));
+            if(!user.getPreferences().isVegetarian()){
+                queries.put("topVegetarian", buildQuery(user).whereEqualTo("vegetarian", true).orderBy("score", Query.Direction.DESCENDING));
+                if(!user.getPreferences().isPescatarian()){
+                    queries.put("topPescatarian", buildQuery(user).whereEqualTo("pescatarian", true).orderBy("score", Query.Direction.DESCENDING));
+                }
+            }
+        }
     }
 
     // Function to build all queries to be saved in the constructor, taking user preferences and
