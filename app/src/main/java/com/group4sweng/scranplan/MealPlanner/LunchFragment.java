@@ -68,6 +68,10 @@ public class LunchFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        if (getArguments() != null)
+            planner = getArguments().getBoolean("planner");
+        else planner = false;
+
         View view = inflater.inflate(R.layout.fragment_recipe, container, false);
 
         // Grabs screen size for % layout TODO - change to density pixels + NullPointerException check
@@ -80,7 +84,8 @@ public class LunchFragment extends Fragment {
 
         if(user != null) {
             LunchQueries horizontalScrollQueries = new LunchQueries(user);
-            /* Adding the save view as score but with highest votes as a new query
+
+            /* Adding the save view as score but with lunch as a new query
             /  This has been done in the same manner but as there are too many variables to track
             /  this is not workable in any kind of loop. */
             final RecyclerView recyclerViewLunch = new RecyclerView(view.getContext());
@@ -179,6 +184,9 @@ public class LunchFragment extends Fragment {
                 Log.e(TAG, "Breakfast horizontal view added");
             }
 
+            /* Adding the save view as score but with user favourite recipes as a new query
+            /  This has been done in the same manner but as there are too many variables to track
+            /  this is not workable in any kind of loop. */
             final RecyclerView recyclerViewFave = new RecyclerView(view.getContext());
             RecyclerView.LayoutManager rManagerFave = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
             recyclerViewFave.setLayoutManager(rManagerFave);
@@ -312,8 +320,6 @@ public class LunchFragment extends Fragment {
 
         ArrayList faves = (ArrayList) document.get("favourite");
         mBundle.putBoolean("isFav", faves.contains(user.getUID()));
-        mBundle.putBoolean("lunch", lunch);
-
 
         RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
         recipeDialogFragment.setArguments(mBundle);

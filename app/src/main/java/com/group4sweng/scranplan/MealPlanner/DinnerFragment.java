@@ -56,7 +56,6 @@ public class DinnerFragment extends Fragment {
 
     private Bundle mBundle;
     private Boolean planner;
-    private Boolean dinner;
 
 
     @Override
@@ -67,6 +66,10 @@ public class DinnerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        if (getArguments() != null)
+            planner = getArguments().getBoolean("planner");
+        else planner = false;
 
         View view = inflater.inflate(R.layout.fragment_recipe, container, false);
 
@@ -80,7 +83,7 @@ public class DinnerFragment extends Fragment {
 
         if(user != null) {
             DinnerQueries horizontalScrollQueries = new DinnerQueries(user);
-            /* Adding the save view as score but with highest votes as a new query
+            /* Adding the save view as score but with dinner as a new query
             /  This has been done in the same manner but as there are too many variables to track
             /  this is not workable in any kind of loop. */
             final RecyclerView recyclerViewDinner = new RecyclerView(view.getContext());
@@ -178,6 +181,10 @@ public class DinnerFragment extends Fragment {
                 topLayout.addView(recyclerViewDinner);
                 Log.e(TAG, "Dinner horizontal view added");
             }
+
+            /* Adding the save view as score but with user favourite recipes as a new query
+            /  This has been done in the same manner but as there are too many variables to track
+            /  this is not workable in any kind of loop. */
             final RecyclerView recyclerViewFave = new RecyclerView(view.getContext());
             RecyclerView.LayoutManager rManagerFave = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
             recyclerViewFave.setLayoutManager(rManagerFave);
@@ -311,7 +318,6 @@ public class DinnerFragment extends Fragment {
 
         ArrayList faves = (ArrayList) document.get("favourite");
         mBundle.putBoolean("isFav", faves.contains(user.getUID()));
-        mBundle.putBoolean("dinner", dinner);
 
 
         RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
