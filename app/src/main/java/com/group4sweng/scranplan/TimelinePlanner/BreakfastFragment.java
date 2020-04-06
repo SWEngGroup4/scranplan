@@ -55,6 +55,11 @@ public class BreakfastFragment extends Fragment {
     private boolean isScrollingBreakfast = false;
     private boolean isLastItemReachedBreakfast = false;
 
+    List<BreakfastRecyclerAdapter.BreakfastRecipePreviewData> dataFave;
+    private DocumentSnapshot lastVisibleFave;
+    private boolean isScrollingFave = false;
+    private boolean isLastItemReachedFave = false;
+
     private Bundle mBundle;
     private Boolean planner;
 
@@ -177,6 +182,102 @@ public class BreakfastFragment extends Fragment {
                 topLayout.addView(textView);
                 topLayout.addView(recyclerViewBreakfast);
                 Log.e(TAG, "Breakfast horizontal view added");
+            }
+
+            final RecyclerView recyclerViewFave = new RecyclerView(view.getContext());
+            RecyclerView.LayoutManager rManagerFave = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+            recyclerViewFave.setLayoutManager(rManagerFave);
+            recyclerViewFave.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels / scrollViewSize));
+            dataFave = new ArrayList<>();
+            final RecyclerView.Adapter rAdapterFave = new BreakfastRecyclerAdapter(BreakfastFragment.this, dataFave);
+            recyclerViewFave.setAdapter(rAdapterFave);
+            final Query queryFave = (Query) horizontalScrollQueries.getQueries().get("favourite");
+            if (queryFave != null) {
+                Log.e(TAG, "User is searching the following query: " + queryFave.toString());
+
+                TextView textView = new TextView(view.getContext());
+                String testString = "My favourites";
+                textView.setTextSize(25);
+                textView.setPadding(20, 5, 5, 5);
+                textView.setTextColor(Color.WHITE);
+                textView.setShadowLayer(4, 0, 0, Color.BLACK);
+                textView.setText(testString);
+
+                queryFave
+                        .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (DocumentSnapshot document : task.getResult()) {
+                                dataFave.add(new BreakfastRecyclerAdapter.BreakfastRecipePreviewData(
+                                        document,
+                                        document.getId(),
+                                        document.get("imageURL").toString()
+                                ));
+                            }
+                            rAdapterFave.notifyDataSetChanged();
+                            if(task.getResult().size() != 0){
+                                lastVisibleFave = task.getResult().getDocuments().get(task.getResult().size() - 1);
+                            }else{
+                                isLastItemReachedFave = true;
+                            }
+
+                            RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+                                @Override
+                                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                                    super.onScrollStateChanged(recyclerView, newState);
+                                    if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                                        isScrollingFave = true;
+                                    }
+                                }
+
+                                @Override
+                                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                                    super.onScrolled(recyclerView, dx, dy);
+
+                                    LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
+                                    int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+                                    int visibleItemCount = linearLayoutManager.getChildCount();
+                                    int totalItemCount = linearLayoutManager.getItemCount();
+
+                                    if (isScrollingFave && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReachedFave) {
+                                        isScrollingFave = false;
+                                        Query nextQuery = queryFave.startAfter(lastVisibleFave);
+                                        nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> t) {
+                                                if (t.isSuccessful()) {
+                                                    for (DocumentSnapshot d : t.getResult()) {
+                                                        dataFave.add(new BreakfastRecyclerAdapter.BreakfastRecipePreviewData(
+                                                                d,
+                                                                d.getId(),
+                                                                d.get("imageURL").toString()
+                                                        ));
+                                                    }
+                                                    if(isLastItemReachedFave){
+                                                        // Add end here
+                                                    }
+                                                    rAdapterFave.notifyDataSetChanged();
+                                                    if (t.getResult().size() != 0) {
+                                                        lastVisibleFave = t.getResult().getDocuments().get(t.getResult().size() - 1);
+                                                    }
+
+                                                    if (t.getResult().size() < 10) {
+                                                        isLastItemReachedFave = true;
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    }
+                                }
+                            };
+                            recyclerViewFave.addOnScrollListener(onScrollListener);
+                        }
+                    }
+                });
+                topLayout.addView(textView);
+                topLayout.addView(recyclerViewFave);
+                Log.e(TAG, "Time horizontal view added");
             }
         }else{
             // If scroll views fail due to no user, this error is reported
