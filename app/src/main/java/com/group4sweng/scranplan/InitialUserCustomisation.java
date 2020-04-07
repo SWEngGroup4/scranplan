@@ -48,13 +48,14 @@ public class InitialUserCustomisation extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        Log.e(TAG, "Starting initial user customisation activity");
+
         super.onCreate(savedInstanceState);
         //sets the page to the initial filer page
         setContentView(R.layout.activity_initial_user_customisation);
 
         userDetails = (UserInfoPrivate) getIntent().getSerializableExtra("user");
-
-        Log.e(TAG, "I GET TO THIS POINT");
 
         if (userDetails != null) { //only if user details are retrieved
             preferences = userDetails.getPreferences();
@@ -66,8 +67,6 @@ public class InitialUserCustomisation extends AppCompatActivity {
 
         }
 
-        //getSupportActionBar().hide();
-        Log.e(TAG, "Starting initial user customisation activity");
 
     }
 

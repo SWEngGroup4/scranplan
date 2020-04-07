@@ -29,7 +29,7 @@ import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.HashMap;
 
-import kotlin.collections.IndexingIterable;
+
 
 public class popUpFirst extends AppCompatActivity {
 
@@ -52,8 +52,8 @@ public class popUpFirst extends AppCompatActivity {
         //sets the page to the initial filer page
         setContentView(R.layout.popup_firstscreen);
 
-
             initPageItems();
+
             getResources().getColor(R.color.colorBackground);
 
             initPageListeners();
@@ -74,9 +74,6 @@ public class popUpFirst extends AppCompatActivity {
         mgoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                //skip button takes user directly to the main page
-                Log.e(TAG, "Initial user returning to main activity");
 
                 Log.e(TAG,"Sending user to initial preference setup page");
                 Intent BackToMain = new Intent(getApplicationContext(), InitialUserCustomisation.class);
@@ -109,10 +106,8 @@ public class popUpFirst extends AppCompatActivity {
     }
 
 
+
     private void initFirebase() {
         mApp = FirebaseApp.getInstance();
         mAuth = FirebaseAuth.getInstance();
-    }
-
-
-}
+    }}
