@@ -151,7 +151,7 @@ public class PlannerFragment extends Fragment {
         plannerListFragment.show(getParentFragmentManager(), "search");
     }
 
-    // Sets default parameters for buttons
+    //Sets default parameters for buttons
     private void defaultButton(final ImageButton imageButton) {
         imageButton.setImageResource(R.drawable.add); //Default image
         imageButton.setOnClickListener(v -> {
@@ -172,6 +172,93 @@ public class PlannerFragment extends Fragment {
             searchView.setQuery("", false);
             searchView.setVisibility(View.VISIBLE);
             setSearch();
+        });
+
+        //Updates planner and user
+        plannerList.set(imageButton.getId(), null);
+        mUser.setMealPlanner(plannerList);
+        updateMealPlan();
+    }
+
+    //Sets breakfast parameters for buttons
+    private void breakfastButton(final ImageButton imageButton) {
+        imageButton.setImageResource(R.drawable.add); //Default image
+        imageButton.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putBoolean("planner", true); //Condition to let child fragments know access is from planner
+            currentSelection = imageButton; //Allows tracking of button pressed
+
+            //Creates and launches recipe fragment
+            breakfastFragment = new BreakfastFragment(mUser);
+            breakfastFragment.setArguments(bundle);
+            breakfastFragment.setTargetFragment(PlannerFragment.this, 1);
+            fragmentTransaction = getParentFragmentManager().beginTransaction();
+            fragmentTransaction.add(R.id.frameLayout, breakfastFragment); //Overlays fragment on existing one
+            fragmentTransaction.commitNow(); //Waits for fragment transaction to be completed
+            requireView().setVisibility(View.INVISIBLE); //Sets current fragment invisible
+
+            //Updates planner and user
+            plannerList.set(imageButton.getId(), null);
+            mUser.setMealPlanner(plannerList);
+            updateMealPlan();
+        });
+
+        //Updates planner and user
+        plannerList.set(imageButton.getId(), null);
+        mUser.setMealPlanner(plannerList);
+        updateMealPlan();
+    }
+
+    //Sets default parameters for buttons
+    private void lunchButton(final ImageButton imageButton) {
+        imageButton.setImageResource(R.drawable.add); //Default image
+        imageButton.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putBoolean("planner", true); //Condition to let child fragments know access is from planner
+            currentSelection = imageButton; //Allows tracking of button pressed
+
+            //Creates and launches recipe fragment
+            lunchFragment = new LunchFragment(mUser);
+            lunchFragment.setArguments(bundle);
+            lunchFragment.setTargetFragment(PlannerFragment.this, 1);
+            fragmentTransaction = getParentFragmentManager().beginTransaction();
+            fragmentTransaction.add(R.id.frameLayout, lunchFragment); //Overlays fragment on existing one
+            fragmentTransaction.commitNow(); //Waits for fragment transaction to be completed
+            requireView().setVisibility(View.INVISIBLE); //Sets current fragment invisible
+
+            //Updates planner and user
+            plannerList.set(imageButton.getId(), null);
+            mUser.setMealPlanner(plannerList);
+            updateMealPlan();
+        });
+
+        //Updates planner and user
+        plannerList.set(imageButton.getId(), null);
+        mUser.setMealPlanner(plannerList);
+        updateMealPlan();
+    }
+
+    //Sets default parameters for buttons
+    private void dinnerButton(final ImageButton imageButton) {
+        imageButton.setImageResource(R.drawable.add); //Default image
+        imageButton.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putBoolean("planner", true); //Condition to let child fragments know access is from planner
+            currentSelection = imageButton; //Allows tracking of button pressed
+
+            //Creates and launches recipe fragment
+            dinnerFragment = new DinnerFragment(mUser);
+            dinnerFragment.setArguments(bundle);
+            dinnerFragment.setTargetFragment(PlannerFragment.this, 1);
+            fragmentTransaction = getParentFragmentManager().beginTransaction();
+            fragmentTransaction.add(R.id.frameLayout, dinnerFragment); //Overlays fragment on existing one
+            fragmentTransaction.commitNow(); //Waits for fragment transaction to be completed
+            requireView().setVisibility(View.INVISIBLE); //Sets current fragment invisible
+
+            //Updates planner and user
+            plannerList.set(imageButton.getId(), null);
+            mUser.setMealPlanner(plannerList);
+            updateMealPlan();
         });
 
         //Updates planner and user

@@ -1,10 +1,14 @@
 package com.group4sweng.scranplan.SearchFunctions;
 
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RatingBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -12,8 +16,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.group4sweng.scranplan.R;
+import com.group4sweng.scranplan.MealPlanner.BreakfastFragment;
 import com.group4sweng.scranplan.RecipeFragment;
-import com.group4sweng.scranplan.TimelinePlanner.BreakfastFragment;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -30,12 +35,16 @@ public class BreakfastRecyclerAdapter extends RecyclerView.Adapter<BreakfastRecy
     public static class BreakfastRecipePreviewData {
 
         private String recipeID;
+        private String title;
+        private Float rating;
         private String imageURL;
         private DocumentSnapshot document;
 
-        public BreakfastRecipePreviewData(DocumentSnapshot doc, String recipeID, String imageURL) {
+        public BreakfastRecipePreviewData(DocumentSnapshot doc, String recipeID, String title, Float rating, String imageURL) {
             this.document = doc;
             this.recipeID = recipeID;
+            this.title = title;
+            this.rating = rating;
             this.imageURL = imageURL;
         }
     }
@@ -45,12 +54,18 @@ public class BreakfastRecyclerAdapter extends RecyclerView.Adapter<BreakfastRecy
      */
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
+        private LinearLayout linearLayout;
         private CardView cardView;
+        private TextView textView;
+        private RatingBar ratingBar;
         private ImageView imageView;
 
         private ViewHolder(View v) {
             super(v);
+            linearLayout = v.findViewById(R.id.recipeListContainer);
             cardView = v.findViewById(R.id.recipeListCardView);
+            textView = v.findViewById(R.id.recipeListTitle);
+            ratingBar = v.findViewById(R.id.recipeListRating);
             imageView = v.findViewById(R.id.recipeListImageView);
         }
     }
@@ -85,18 +100,38 @@ public class BreakfastRecyclerAdapter extends RecyclerView.Adapter<BreakfastRecy
      */
     @Override
     public void onBindViewHolder(final BreakfastRecyclerAdapter.ViewHolder holder, int position) {
-        Picasso.get().load(mDataset.get(position).imageURL).into(holder.imageView);
+        Integer padding = 10;
+        Float density = holder.cardView.getContext().getResources().getDisplayMetrics().density;
+        Integer paddingDP = (int)(padding * density);
 
-        holder.cardView.setOnClickListener(new View.OnClickListener() {
+        //Load image into ImageView
+        Picasso.get().load(mDataset.get(position).imageURL).into(holder.imageView, new Callback() {
             @Override
-            public void onClick(View v) {
-                if (mBreakfastFragment != null){
-                    mBreakfastFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
-                }else{
-                    Log.e("SEARCH RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
-                }
+            public void onSuccess() {
+                //Once image has been loaded, set up info for recipe display
+                holder.linearLayout.setVisibility(View.VISIBLE);
+                holder.linearLayout.setPadding(paddingDP, 0, paddingDP, 0);
+
+                holder.textView.setText(mDataset.get(position).title);
+                holder.textView.setBackgroundColor(Color.parseColor("#80FFFFFF"));
+
+                holder.ratingBar.setRating(mDataset.get(position).rating);
+                holder.ratingBar.setBackgroundColor(Color.parseColor("#80FFFFFF"));
+            }
+
+            @Override
+            public void onError(Exception e) {
 
             }
+        });
+
+        holder.cardView.setOnClickListener(v -> {
+            if (mBreakfastFragment != null){
+                mBreakfastFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
+            }else{
+                Log.e("SEARCH RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
+            }
+
         });
     }
 
