@@ -114,6 +114,8 @@ public class DinnerFragment extends Fragment {
                                 dataDinner.add(new DinnerRecyclerAdapter.DinnerRecipePreviewData(
                                         document,
                                         document.getId(),
+                                        document.get("Name").toString(),
+                                        Float.valueOf(document.get("score").toString()),
                                         document.get("imageURL").toString()
                                 ));
                             }
@@ -153,6 +155,8 @@ public class DinnerFragment extends Fragment {
                                                         dataDinner.add(new DinnerRecyclerAdapter.DinnerRecipePreviewData(
                                                                 d,
                                                                 d.getId(),
+                                                                d.get("Name").toString(),
+                                                                Float.valueOf(d.get("score").toString()),
                                                                 d.get("imageURL").toString()
                                                         ));
                                                     }
@@ -213,6 +217,8 @@ public class DinnerFragment extends Fragment {
                                 dataFave.add(new DinnerRecyclerAdapter.DinnerRecipePreviewData(
                                         document,
                                         document.getId(),
+                                        document.get("Name").toString(),
+                                        Float.valueOf(document.get("score").toString()),
                                         document.get("imageURL").toString()
                                 ));
                             }
@@ -252,6 +258,8 @@ public class DinnerFragment extends Fragment {
                                                         dataFave.add(new DinnerRecyclerAdapter.DinnerRecipePreviewData(
                                                                 d,
                                                                 d.getId(),
+                                                                d.get("Name").toString(),
+                                                                Float.valueOf(d.get("score").toString()),
                                                                 d.get("imageURL").toString()
                                                         ));
                                                     }

@@ -116,6 +116,8 @@ public class LunchFragment extends Fragment {
                                 dataLunch.add(new LunchRecyclerAdapter.LunchRecipePreviewData(
                                         document,
                                         document.getId(),
+                                        document.get("Name").toString(),
+                                        Float.valueOf(document.get("score").toString()),
                                         document.get("imageURL").toString()
                                 ));
                             }
@@ -155,6 +157,8 @@ public class LunchFragment extends Fragment {
                                                         dataLunch.add(new LunchRecyclerAdapter.LunchRecipePreviewData(
                                                                 d,
                                                                 d.getId(),
+                                                                d.get("Name").toString(),
+                                                                Float.valueOf(d.get("score").toString()),
                                                                 d.get("imageURL").toString()
                                                         ));
                                                     }
@@ -215,6 +219,8 @@ public class LunchFragment extends Fragment {
                                 dataFave.add(new LunchRecyclerAdapter.LunchRecipePreviewData(
                                         document,
                                         document.getId(),
+                                        document.get("Name").toString(),
+                                        Float.valueOf(document.get("score").toString()),
                                         document.get("imageURL").toString()
                                 ));
                             }
@@ -254,6 +260,8 @@ public class LunchFragment extends Fragment {
                                                         dataFave.add(new LunchRecyclerAdapter.LunchRecipePreviewData(
                                                                 d,
                                                                 d.getId(),
+                                                                d.get("Name").toString(),
+                                                                Float.valueOf(d.get("score").toString()),
                                                                 d.get("imageURL").toString()
                                                         ));
                                                     }
