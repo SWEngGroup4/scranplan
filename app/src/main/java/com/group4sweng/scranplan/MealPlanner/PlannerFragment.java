@@ -197,7 +197,7 @@ public class PlannerFragment extends Fragment {
         updateMealPlan();
     }
 
-    //Sets default paramters for buttons
+    //Sets breakfast parameters for buttons
     private void breakfastButton(final ImageButton imageButton) {
         imageButton.setImageResource(R.drawable.add); //Default image
         imageButton.setOnClickListener(v -> {
@@ -214,10 +214,10 @@ public class PlannerFragment extends Fragment {
             fragmentTransaction.commitNow(); //Waits for fragment transaction to be completed
             requireView().setVisibility(View.INVISIBLE); //Sets current fragment invisible
 
-            //Makes search bar icon visible
-            searchView.setQuery("", false);
-            searchView.setVisibility(View.VISIBLE);
-            setSearch();
+            //Updates planner and user
+            plannerList.set(imageButton.getId(), null);
+            mUser.setMealPlanner(plannerList);
+            updateMealPlan();
         });
 
         //Updates planner and user
@@ -226,7 +226,7 @@ public class PlannerFragment extends Fragment {
         updateMealPlan();
     }
 
-    //Sets default paramters for buttons
+    //Sets default parameters for buttons
     private void lunchButton(final ImageButton imageButton) {
         imageButton.setImageResource(R.drawable.add); //Default image
         imageButton.setOnClickListener(v -> {
@@ -243,10 +243,10 @@ public class PlannerFragment extends Fragment {
             fragmentTransaction.commitNow(); //Waits for fragment transaction to be completed
             requireView().setVisibility(View.INVISIBLE); //Sets current fragment invisible
 
-            //Makes search bar icon visible
-            searchView.setQuery("", false);
-            searchView.setVisibility(View.VISIBLE);
-            setSearch();
+            //Updates planner and user
+            plannerList.set(imageButton.getId(), null);
+            mUser.setMealPlanner(plannerList);
+            updateMealPlan();
         });
 
         //Updates planner and user
@@ -255,7 +255,7 @@ public class PlannerFragment extends Fragment {
         updateMealPlan();
     }
 
-    //Sets default paramters for buttons
+    //Sets default parameters for buttons
     private void dinnerButton(final ImageButton imageButton) {
         imageButton.setImageResource(R.drawable.add); //Default image
         imageButton.setOnClickListener(v -> {
@@ -272,10 +272,10 @@ public class PlannerFragment extends Fragment {
             fragmentTransaction.commitNow(); //Waits for fragment transaction to be completed
             requireView().setVisibility(View.INVISIBLE); //Sets current fragment invisible
 
-            //Makes search bar icon visible
-            searchView.setQuery("", false);
-            searchView.setVisibility(View.VISIBLE);
-            setSearch();
+            //Updates planner and user
+            plannerList.set(imageButton.getId(), null);
+            mUser.setMealPlanner(plannerList);
+            updateMealPlan();
         });
 
         //Updates planner and user

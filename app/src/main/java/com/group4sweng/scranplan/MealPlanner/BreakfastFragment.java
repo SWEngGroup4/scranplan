@@ -18,7 +18,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.group4sweng.scranplan.R;
@@ -54,6 +56,9 @@ public class BreakfastFragment extends Fragment {
     private DocumentSnapshot lastVisibleFave;
     private boolean isScrollingFave = false;
     private boolean isLastItemReachedFave = false;
+
+    private FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
+    private CollectionReference mColRef = mDatabase.collection("recipes");
 
     private Bundle mBundle;
     private Boolean planner;
@@ -115,6 +120,8 @@ public class BreakfastFragment extends Fragment {
                                 dataBreakfast.add(new BreakfastRecyclerAdapter.BreakfastRecipePreviewData(
                                         document,
                                         document.getId(),
+                                        document.get("Name").toString(),
+                                        Float.valueOf(document.get("score").toString()),
                                         document.get("imageURL").toString()
                                 ));
                             }
@@ -154,6 +161,8 @@ public class BreakfastFragment extends Fragment {
                                                         dataBreakfast.add(new BreakfastRecyclerAdapter.BreakfastRecipePreviewData(
                                                                 d,
                                                                 d.getId(),
+                                                                d.get("Name").toString(),
+                                                                Float.valueOf(d.get("score").toString()),
                                                                 d.get("imageURL").toString()
                                                         ));
                                                     }
@@ -214,6 +223,8 @@ public class BreakfastFragment extends Fragment {
                                 dataFave.add(new BreakfastRecyclerAdapter.BreakfastRecipePreviewData(
                                         document,
                                         document.getId(),
+                                        document.get("Name").toString(),
+                                        Float.valueOf(document.get("score").toString()),
                                         document.get("imageURL").toString()
                                 ));
                             }
@@ -253,6 +264,8 @@ public class BreakfastFragment extends Fragment {
                                                         dataFave.add(new BreakfastRecyclerAdapter.BreakfastRecipePreviewData(
                                                                 d,
                                                                 d.getId(),
+                                                                d.get("Name").toString(),
+                                                                Float.valueOf(d.get("score").toString()),
                                                                 d.get("imageURL").toString()
                                                         ));
                                                     }

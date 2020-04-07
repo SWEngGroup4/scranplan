@@ -25,7 +25,7 @@ public class LunchQueries {
     public LunchQueries(UserInfoPrivate user){
         queries = new HashMap();
         queries.put("lunch", ref.whereEqualTo("lunch", true));
-        queries.put("favourite", ref.whereArrayContains("favourite", user.getUID()));
+        queries.put("favourite", ref.whereArrayContains("favourite", user.getUID().hashCode()));
         if(!user.getPreferences().isVegan()){
             queries.put("topVegan", buildQuery(user).whereEqualTo("vegan", true).orderBy("score", Query.Direction.DESCENDING));
             if(!user.getPreferences().isVegetarian()){
