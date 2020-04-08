@@ -344,4 +344,13 @@ public class BreakfastFragment extends Fragment {
             recipeDialogFragment.setTargetFragment(this, 1);
             recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");
         }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == Activity.RESULT_OK) {
+            Intent i = new Intent();
+            i.putExtras(mBundle);
+            getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, i);
+        }
+    }
 }
