@@ -59,7 +59,8 @@ public class PlannerFragment extends Fragment {
     private SearchView searchView;
     private MenuItem sortButton;
 
-    private Integer recipeFragmentRequest = 1;
+    //Request Code
+    private int normalRequestCode = 1;
     private int breakfastRequestCode = 2;
     private int lunchRequestCode = 3;
     private int dinnerRequestCode = 4;
@@ -125,7 +126,7 @@ public class PlannerFragment extends Fragment {
                 imageButton.setPadding(10,10,10,10);
                 imageButton.setBackground(null);
 
-                //Sets listener for long clicks - resetting buttons to their default state
+                //Sets listener for long clicks - the first image goes to breakfast fragment; second to lunch; third to donner
                 int finalJ = j;
                 imageButton.setOnLongClickListener(v -> {
                     if(finalJ == 0){
@@ -211,6 +212,7 @@ public class PlannerFragment extends Fragment {
             breakfastFragment.setTargetFragment(PlannerFragment.this, 1);
             fragmentTransaction = getParentFragmentManager().beginTransaction();
             fragmentTransaction.add(R.id.frameLayout, breakfastFragment); //Overlays fragment on existing one
+            breakfastFragment.setTargetFragment(PlannerFragment.this,breakfastRequestCode);
             fragmentTransaction.commitNow(); //Waits for fragment transaction to be completed
             requireView().setVisibility(View.INVISIBLE); //Sets current fragment invisible
 
@@ -240,6 +242,7 @@ public class PlannerFragment extends Fragment {
             lunchFragment.setTargetFragment(PlannerFragment.this, 1);
             fragmentTransaction = getParentFragmentManager().beginTransaction();
             fragmentTransaction.add(R.id.frameLayout, lunchFragment); //Overlays fragment on existing one
+            lunchFragment.setTargetFragment(PlannerFragment.this,lunchRequestCode);
             fragmentTransaction.commitNow(); //Waits for fragment transaction to be completed
             requireView().setVisibility(View.INVISIBLE); //Sets current fragment invisible
 
@@ -255,7 +258,7 @@ public class PlannerFragment extends Fragment {
         updateMealPlan();
     }
 
-    //Sets default parameters for buttons
+    //Sets dinner parameters for buttons
     private void dinnerButton(final ImageButton imageButton) {
         imageButton.setImageResource(R.drawable.add); //Default image
         imageButton.setOnClickListener(v -> {
@@ -269,6 +272,7 @@ public class PlannerFragment extends Fragment {
             dinnerFragment.setTargetFragment(PlannerFragment.this, 1);
             fragmentTransaction = getParentFragmentManager().beginTransaction();
             fragmentTransaction.add(R.id.frameLayout, dinnerFragment); //Overlays fragment on existing one
+            dinnerFragment.setTargetFragment(PlannerFragment.this,dinnerRequestCode);
             fragmentTransaction.commitNow(); //Waits for fragment transaction to be completed
             requireView().setVisibility(View.INVISIBLE); //Sets current fragment invisible
 
@@ -379,6 +383,31 @@ public class PlannerFragment extends Fragment {
                     //Removes lunch fragment overlay and makes planner fragment visible
                     fragmentTransaction = getParentFragmentManager().beginTransaction();
                     fragmentTransaction.remove(lunchFragment).commitNow();
+                    requireView().setVisibility(View.VISIBLE);
+
+                    //Sets and updates user planner
+                    plannerList.set(currentSelection.getId(), map);
+                    mUser.setMealPlanner(plannerList);
+                    updateMealPlan();
+                }
+            }
+            else if (requestCode == dinnerRequestCode){
+                //Compiles bundle into a hashmap object for serialization
+                final HashMap<String, Object> map = new HashMap<>();
+                if (bundle != null) {
+                    for (String key : bundle.keySet()) {
+                        map.put(key, bundle.get(key));
+                    }
+
+                    //Sets new listener for inserted recipe to open info fragment
+                    currentSelection.setOnClickListener(v -> openRecipeInfo(map));
+
+                    //Loads recipe image
+                    Picasso.get().load(bundle.getString("imageURL")).into(currentSelection);
+
+                    //Removes dinner fragment overlay and makes planner fragment visible
+                    fragmentTransaction = getParentFragmentManager().beginTransaction();
+                    fragmentTransaction.remove(dinnerFragment).commitNow();
                     requireView().setVisibility(View.VISIBLE);
 
                     //Sets and updates user planner
