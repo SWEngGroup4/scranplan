@@ -75,6 +75,7 @@ public class PlannerFragment extends Fragment {
         final View view = inflater.inflate(R.layout.fragment_planner, container, false);
 
         //Grabs user and user's meal planner
+        mUser = (UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
         if (mUser != null) plannerList = mUser.getMealPlanner();
 
         Home home = (Home) getActivity();
