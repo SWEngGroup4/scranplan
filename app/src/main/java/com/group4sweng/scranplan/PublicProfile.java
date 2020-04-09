@@ -140,8 +140,8 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         } else {
             View profileAboutMeDesc = findViewById(R.id.public_profile_about_me_desc);
             View profileAboutMe = findViewById(R.id.profile_about_me);
-            profileAboutMe.setVisibility(View.INVISIBLE);
-            profileAboutMeDesc.setVisibility(View.INVISIBLE);
+            profileAboutMe.setVisibility(View.GONE);
+            profileAboutMeDesc.setVisibility(View.GONE);
         }
 
         if(retrieveImages) {
@@ -168,9 +168,9 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
             View allergyPressInfo = findViewById(R.id.allergyPressInfo);
             View profileSettingsAllergens = findViewById(R.id.profile_settings_allergens);
 
-            allergyLayout.setVisibility(View.INVISIBLE);
-            allergyPressInfo.setVisibility(View.INVISIBLE);
-            profileSettingsAllergens.setVisibility(View.INVISIBLE);
+            allergyLayout.setVisibility(View.GONE);
+            allergyPressInfo.setVisibility(View.GONE);
+            profileSettingsAllergens.setVisibility(View.GONE);
         }
     }
 
@@ -293,8 +293,8 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         } else {
             View profileAboutMeDesc = findViewById(R.id.public_profile_about_me_desc);
             View profileAboutMe = findViewById(R.id.profile_about_me);
-            profileAboutMe.setVisibility(View.INVISIBLE);
-            profileAboutMeDesc.setVisibility(View.INVISIBLE);
+            profileAboutMe.setVisibility(View.GONE);
+            profileAboutMeDesc.setVisibility(View.GONE);
         }
 
         if(retrieveUsername){ mUsername.setText(mUserProfile.getDisplayName()); }
@@ -331,9 +331,9 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
             View allergyPressInfo = findViewById(R.id.allergyPressInfo);
             View profileSettingsAllergens = findViewById(R.id.profile_settings_allergens);
 
-            allergyLayout.setVisibility(View.INVISIBLE);
-            allergyPressInfo.setVisibility(View.INVISIBLE);
-            profileSettingsAllergens.setVisibility(View.INVISIBLE);
+            allergyLayout.setVisibility(View.GONE);
+            allergyPressInfo.setVisibility(View.GONE);
+            profileSettingsAllergens.setVisibility(View.GONE);
         }
     }
 
