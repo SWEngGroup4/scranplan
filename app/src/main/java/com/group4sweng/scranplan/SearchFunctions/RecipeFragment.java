@@ -581,7 +581,7 @@ public class RecipeFragment extends Fragment {
         Map<String, Map<String, Object>> ingredients = (Map) document.getData().get("Ingredients");
         Iterator hmIterator = ingredients.entrySet().iterator();
 
-        HashMap<String, Float> ratingResults = (HashMap) document.getData().get("rating");
+        HashMap<String, Double> ratingResults = (HashMap) document.getData().get("rating");
 
         while (hmIterator.hasNext()) {
             Map.Entry mapElement = (Map.Entry) hmIterator.next();

@@ -36,11 +36,11 @@ public class RecipeReviewFragment extends FeedFragment {
     private TextView mRecipeRate;
     private String mrecipeID;
 
-    protected HashMap<String, Float> ratingMap;
+    protected HashMap<String, Double> ratingMap;
 
-    private float getNewRating;
-    private float newOverallRating;
-    private float newTotalRates;
+    private double getNewRating;
+    private double newOverallRating;
+    private double newTotalRates;
 
 
     public RecipeReviewFragment(UserInfoPrivate userSent) {
@@ -59,13 +59,14 @@ public class RecipeReviewFragment extends FeedFragment {
 
         View layout = inflater.inflate(R.layout.fragment_feed, null);
 
-        ratingMap = (HashMap<String, Float>) getArguments().getSerializable("ratingMap");
+        ratingMap = (HashMap<String, Double>) getArguments().getSerializable("ratingMap");
         mrecipeID = getArguments().getString("recipeID");
 
 
         initPageItems(layout);
         displayItems(layout);
-        calculateRating(layout);
+        calculateRating();
+        initPageListeners();
 
 
 
@@ -94,6 +95,7 @@ public class RecipeReviewFragment extends FeedFragment {
             @Override
             public void onClick(View view) {
 
+                calculateRating();
 
             }
         });
@@ -126,30 +128,25 @@ public class RecipeReviewFragment extends FeedFragment {
 
     }
 
-    private void calculateRating(View layout){
+    private void calculateRating(){
 
         final String TAG = "Data";
         Log.i(TAG, "Values: "+ ratingMap);
 
-//        ratingMap.put("overallRating", 5f);
-//        ratingMap.put("totalRates", 5f);
+        newTotalRates = ratingMap.get("totalRates") + 1;
 
-        newTotalRates = ratingMap.get("totalRates") + 1f;
-
-        newOverallRating = ((ratingMap.get("overallRating") * ratingMap.get("totalRates")) + 3f) / newTotalRates;
+        newOverallRating = ((ratingMap.get("overallRating") * ratingMap.get("totalRates")) + getNewRating) / newTotalRates;
 
         ratingMap.put("overallRating", newOverallRating);
         ratingMap.put("totalRates", newTotalRates);
 
-//        HashMap<String, Object> updateMap = new HashMap<>();
-//        CollectionReference ref = mDatabase.collection("recipes");
-//        DocumentReference documentReference = ref.document(mrecipeID);
-//        updateMap.put("rating", ratingMap);
-//        documentReference.update(updateMap);
+        HashMap<String, Object> updateMap = new HashMap<>();
+        CollectionReference ref = mDatabase.collection("recipes");
+        DocumentReference documentReference = ref.document(mrecipeID);
+        updateMap.put("rating", ratingMap);
+        documentReference.update(updateMap);
 
         Log.i(TAG, "Values: "+ ratingMap);
-
-
 
 
     }
