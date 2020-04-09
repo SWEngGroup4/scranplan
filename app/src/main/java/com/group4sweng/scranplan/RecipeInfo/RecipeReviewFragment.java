@@ -3,23 +3,28 @@ package com.group4sweng.scranplan.RecipeInfo;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.Social.FeedFragment;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 
 public class RecipeReviewFragment extends FeedFragment {
@@ -29,12 +34,23 @@ public class RecipeReviewFragment extends FeedFragment {
     private CheckBox mRecipeIcon;
     private CheckBox mReviewIcon;
     private TextView mRecipeRate;
+    private String mrecipeID;
 
-    private float getRating;
+    protected HashMap<String, Float> ratingMap;
+
+    private float getNewRating;
+    private float newOverallRating;
+    private float newTotalRates;
 
 
     public RecipeReviewFragment(UserInfoPrivate userSent) {
         super(userSent);
+    }
+
+    // Auto-generated super method
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
     }
 
     @Override
@@ -43,8 +59,13 @@ public class RecipeReviewFragment extends FeedFragment {
 
         View layout = inflater.inflate(R.layout.fragment_feed, null);
 
+        ratingMap = (HashMap<String, Float>) getArguments().getSerializable("ratingMap");
+        mrecipeID = getArguments().getString("recipeID");
+
+
         initPageItems(layout);
         displayItems(layout);
+        calculateRating(layout);
 
 
 
@@ -90,7 +111,7 @@ public class RecipeReviewFragment extends FeedFragment {
         mStars.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
             public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
-                getRating = mStars.getRating();
+                getNewRating = mStars.getRating();
             }
         });
 
@@ -104,4 +125,33 @@ public class RecipeReviewFragment extends FeedFragment {
         mRecipeRate.setVisibility(View.VISIBLE);
 
     }
+
+    private void calculateRating(View layout){
+
+        final String TAG = "Data";
+        Log.i(TAG, "Values: "+ ratingMap);
+
+//        ratingMap.put("overallRating", 5f);
+//        ratingMap.put("totalRates", 5f);
+
+        newTotalRates = ratingMap.get("totalRates") + 1f;
+
+        newOverallRating = ((ratingMap.get("overallRating") * ratingMap.get("totalRates")) + 3f) / newTotalRates;
+
+        ratingMap.put("overallRating", newOverallRating);
+        ratingMap.put("totalRates", newTotalRates);
+
+//        HashMap<String, Object> updateMap = new HashMap<>();
+//        CollectionReference ref = mDatabase.collection("recipes");
+//        DocumentReference documentReference = ref.document(mrecipeID);
+//        updateMap.put("rating", ratingMap);
+//        documentReference.update(updateMap);
+
+        Log.i(TAG, "Values: "+ ratingMap);
+
+
+
+
+    }
+
 }

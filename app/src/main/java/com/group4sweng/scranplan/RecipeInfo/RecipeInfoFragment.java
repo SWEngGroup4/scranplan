@@ -42,6 +42,7 @@ import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class RecipeInfoFragment extends AppCompatDialogFragment implements FilterType {
@@ -70,6 +71,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
     protected String xmlPresentation;
     protected String reheat;
     protected ArrayList<String> ingredientArray;
+    protected HashMap<String, Float> ratingMap;
     protected Boolean planner;
     protected ArrayList<String> favouriteRecipe;
     protected UserInfoPrivate mUser;
@@ -137,6 +139,8 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
 
         addFavourite(layout);
 
+
+
         return layout;
     }
 
@@ -195,6 +199,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         recipeDescription = bundle.getString("recipeDescription");
         chefName = bundle.getString("chefName");
         ingredientArray = bundle.getStringArrayList("ingredientList");
+        ratingMap =  (HashMap<String, Float>) bundle.getSerializable("ratingMap");
         recipeRating = bundle.getString("rating");
         xmlPresentation = bundle.getString("xmlURL");
         planner = bundle.getBoolean("planner");
@@ -318,6 +323,11 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
                         break;
                     case 1:
                         fragment = new RecipeReviewFragment(mUser);
+                        //creating new bundle to pass through relative information to the review fragment
+                        Bundle reviewBundle = new Bundle();
+                        reviewBundle.putSerializable("ratingMap", ratingMap);
+                        reviewBundle.putString("recipeID", recipeID);
+                        fragment.setArguments(reviewBundle);
                         break;
 
                 }

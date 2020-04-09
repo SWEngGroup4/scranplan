@@ -104,7 +104,7 @@ public class FeedFragment extends Fragment {
 
 
     // Database objects for accessing recipes
-    private FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
+    protected FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
     private CollectionReference mColRef = mDatabase.collection("followers");
     // Firebase user collection and storage references.
     CollectionReference mRef = mDatabase.collection("posts");

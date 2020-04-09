@@ -33,6 +33,7 @@ import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -574,11 +575,13 @@ public class RecipeFragment extends Fragment {
      */
     public void recipeSelected(DocumentSnapshot document) {
 
-        //Takes ingredient array from snap shot and reformats before being passed through to fragment
+        //Takes ingredient and recipe rating array from snap shot and reformats before being passed through to fragment
         ArrayList<String> ingredientArray = new ArrayList<>();
 
-        Map<String, Map<String, Object>> test = (Map) document.getData().get("Ingredients");
-        Iterator hmIterator = test.entrySet().iterator();
+        Map<String, Map<String, Object>> ingredients = (Map) document.getData().get("Ingredients");
+        Iterator hmIterator = ingredients.entrySet().iterator();
+
+        HashMap<String, Float> ratingResults = (HashMap) document.getData().get("rating");
 
         while (hmIterator.hasNext()) {
             Map.Entry mapElement = (Map.Entry) hmIterator.next();
@@ -586,9 +589,12 @@ public class RecipeFragment extends Fragment {
             ingredientArray.add(string);
         }
 
+
+
         //Creating a bundle so all data needed from firestore query snapshot can be passed through into fragment class
         mBundle = new Bundle();
         mBundle.putStringArrayList("ingredientList", ingredientArray);
+        mBundle.putSerializable("ratingMap", ratingResults);
         mBundle.putString("recipeID", document.getId());
         mBundle.putString("xmlURL", document.get("xml_url").toString());
         mBundle.putString("recipeTitle", document.get("Name").toString());
