@@ -298,17 +298,20 @@ public class Login extends AppCompatActivity{
                     map.put("firstMealPlannerLaunch", true);
                     map.put("kudos", (long) 0);
 
+                    map.put("privateProfileEnabled", false);
                     privacyPublic.put("display_username", true);
                     privacyPublic.put("display_about_me", true);
                     privacyPublic.put("display_recipes", false);
                     privacyPublic.put("display_profile_image", true);
                     privacyPublic.put("display_filters", false);
+                    privacyPublic.put("display_feed", false);
 
                     privacyPrivate.put("display_username", true);
                     privacyPrivate.put("display_about_me", true);
                     privacyPrivate.put("display_recipes", true);
                     privacyPrivate.put("display_profile_image", true);
                     privacyPrivate.put("display_filters", true);
+                    privacyPrivate.put("display_feed", true);
 
                     // Default user food preferences
                     preferences.put("allergy_celery", false);
@@ -429,6 +432,7 @@ public class Login extends AppCompatActivity{
                                             @SuppressWarnings("unchecked")
                                             HashMap<String, Object> preferences = (HashMap<String, Object>) document.get("preferences");
 
+                                            map.put("privateProfileEnabled", document.get("privateProfileEnabled"));
                                             @SuppressWarnings("unchecked")
                                             HashMap<String, Object> privacyPublic = (HashMap<String, Object>) document.get("privacyPublic");
                                             @SuppressWarnings("unchecked")

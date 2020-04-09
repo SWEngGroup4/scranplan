@@ -123,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
                                     map.put("firstPresentationLaunch", document.get("firstPresentationLaunch"));
                                     map.put("firstMealPlannerLaunch", document.get("firstMealPlannerLaunch"));
 
+                                    map.put("privateProfileEnabled", document.get("privateProfileEnabled"));
                                     @SuppressWarnings("unchecked")
                                     HashMap<String, Object> preferences = (HashMap<String, Object>) document.get("preferences");
 

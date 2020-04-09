@@ -7,7 +7,7 @@ import java.io.Serializable;
  * Used within UserInfo class to save specific preferences user wants to apply to all queries within
  * the application
  */
-public class Preferences implements Serializable, FilterType {
+public class Preferences implements Serializable, FilterType, Cloneable {
 
     // All preference variables
     private boolean allergy_celery;

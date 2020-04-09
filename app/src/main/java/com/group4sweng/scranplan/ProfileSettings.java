@@ -79,6 +79,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
     // Unique codes for image & permission request activity callbacks.
     private static final int IMAGE_REQUEST_CODE = 2;
+    private static final int PROFILE_SETTINGS_REQUEST_CODE = 1;
     private static final int PERMISSION_CODE = 1001;
 
     private static final int MAX_IMAGE_FILE_SIZE_IN_MB = 4; // Max storage image size for the profile picture.
@@ -99,7 +100,8 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
     private Uri mImageUri; // Unique image uri.
 
-    UserInfoPrivate mUserProfile; // Local user info data.
+    UserInfoPrivate mUserProfile; // Local user info data. Not edited directly, assigned on return from 'mTempUserProfile' if settings have been saved.
+    UserInfoPrivate mTempUserProfile; // Local User info. Accessible only within this Activity
 
     //  TODO - Add valid network connection checks.
 
@@ -108,12 +110,13 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
     TextView mUsername;
     TextView mAboutMe;
 
-    //  User privacy filters.
     Switch mDisplay_username;
     Switch mDisplay_about_me;
     Switch mDisplay_recipes;
     Switch mDisplay_profile_image;
     Switch mDisplay_filters;
+    Switch mDisplay_feed;
+    Switch mPrivateProfileEnabled;
 
     //  Input fields (Delete profile & Change password)
     EditText mPasswordConfirm;
@@ -169,36 +172,46 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
         mUserProfile = (UserInfoPrivate) getIntent().getSerializableExtra("user"); //Grabs serializable UserInfoPrivate data from main activity.
         if(mUserProfile != null){ //Checks if there is actually any Serializable data received.
+            mTempUserProfile = mUserProfile.deepClone();
+
             //  Preferences
             mPreferencesTabs = findViewById(R.id.preferences_tab_bar);
 
             //  Send initial serializable preferences data to the initial preferences checkbox fragment + initiate listeners for the tab bar for these fragments.
             sendSerializableToFragment();
+            initPreferencesFragmentsTabListener();
             initProfileVisibilityTabListener();
-            initTabFragmentListener();
-
 
             loadProfileData();
         }
     }
 
-    @Override
+    /*@Override
     protected void onRestart() {
         super.onRestart();
+
+        Log.e(TAG, "I'm REACHING HERE");
+
+        mUserProfile = (UserInfoPrivate) getIntent().getSerializableExtra("user");
+        mTempUserProfile = mUserProfile;
 
         if(mUserProfile != null){
             loadProfileData();
         }
-    }
+    }*/
 
 
     @Override
     public void onBackPressed() {
         //  Send back with intent and update the Home's UserInfoPrivate class with the new User Info.
-        Intent returnIntent = new Intent(this, Home.class);
+        Intent returnIntent = new Intent();
+
+        Log.e(TAG, "User profile before returning is: " + mUserProfile.getAbout());
+        Log.e(TAG, "User profile nut filter before returning is: " + mUserProfile.getPreferences().isAllergy_nuts());
+
         returnIntent.putExtra("user", mUserProfile);
         setResult(Activity.RESULT_OK, returnIntent);
-        startActivity(returnIntent);
+        finish();
     }
 
     /** Initiated on a 'Delete Profile' button press.
@@ -470,44 +483,62 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
     public void onSwitchClicked(View v){
         boolean switched = ((Switch) v).isChecked(); // Check if switch is on or not.
 
-        HashMap<String, Object> privacy = new HashMap<>();
-        HashMap<String, Object> privacyCompare = new HashMap<>();
+        HashMap<String, Object> tempPrivacy = new HashMap<>();
 
         switch(mProfileVisibilityTab.getSelectedTabPosition()){
             case 0:
-                privacy = mUserProfile.getPublicPrivacy();
-                privacyCompare = mUserProfile.getPrivacyFriends();
+                tempPrivacy = mTempUserProfile.getPublicPrivacy();
                 break;
             case 1:
-                privacy = mUserProfile.getPrivacyFriends();
+                tempPrivacy = mTempUserProfile.getPrivacyPrivate();
         }
 
         switch(v.getId()){ // Retrieve switches unique ID.
+
+            //  Checks the 'private profile' switch. Hides the tab bar if private is enabled & defaults the switches to the 'private' profile options.
+            //  Otherwise makes sure the profile privacy settings tab bar is shown.
+            /**case R.id.settings_private_toggle:
+                if(switched) {
+                    setPrivacyOptions(mTempUserProfile.getPrivacyPrivate());
+                    mProfileVisibilityTab.setVisibility(View.GONE);
+                } else {
+                    setPrivacyOptions(mTempUserProfile.getPublicPrivacy());
+                    TabLayout.Tab tab = mProfileVisibilityTab.getTabAt(0);
+                    assert tab != null;
+                    tab.select();
+                    mProfileVisibilityTab.setVisibility(View.VISIBLE);
+                }**/
+
             case R.id.settings_privacy_about_me:
                 if(switched)
-                    privacy.put("display_about_me", true);
+                    tempPrivacy.put("display_about_me", true);
                 else
-                    privacy.put("display_about_me", false);
+                    tempPrivacy.put("display_about_me", false);
             case R.id.settings_privacy_recipes:
                 if(switched)
-                    privacy.put("display_recipes", true);
+                    tempPrivacy.put("display_recipes", true);
                 else
-                    privacy.put("display_recipes", false);
+                    tempPrivacy.put("display_recipes", false);
             case R.id.settings_privacy_username:
                 if(switched)
-                    privacy.put("display_username", true);
+                    tempPrivacy.put("display_username", true);
                 else
-                    privacy.put("display_username", false);
+                    tempPrivacy.put("display_username", false);
             case R.id.settings_privacy_profile_image:
                 if(switched)
-                    privacy.put("display_profile_image", true);
+                    tempPrivacy.put("display_profile_image", true);
                 else
-                    privacy.put("display_profile_image", false);
+                    tempPrivacy.put("display_profile_image", false);
             case R.id.settings_privacy_filters:
                 if(switched)
-                    privacy.put("display_filters", true);
+                    tempPrivacy.put("display_filters", true);
                 else
-                    privacy.put("display_filters", false);
+                    tempPrivacy.put("display_filters", false);
+            case R.id.settings_privacy_feed:
+                if(switched)
+                    tempPrivacy.put("display_feed", true);
+                else
+                    tempPrivacy.put("display_feed", false);
         }
     }
 
@@ -518,7 +549,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         // Is the Checkbox Checked?
         boolean checked = ((CheckBox) v).isChecked();
 
-        Preferences preferences = mUserProfile.getPreferences();
+        Preferences preferences = mTempUserProfile.getPreferences();
 
         //  Check the type of filter. For example, dietary, religious.
         switch(currentFilterType){
@@ -618,9 +649,12 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         mDisplay_recipes = findViewById(R.id.settings_privacy_recipes);
         mDisplay_username = findViewById(R.id.settings_privacy_username);
         mDisplay_filters = findViewById(R.id.settings_privacy_filters);
+        mDisplay_feed = findViewById(R.id.settings_privacy_feed);
 
         //  Tabbed profile listener (Public/Private)
         mProfileVisibilityTab = findViewById(R.id.profile_visibility_tab_bar);
+
+        mPrivateProfileEnabled = findViewById(R.id.settings_private_toggle);
     }
 
     /** Method called when we click to change the users profile image.
@@ -762,6 +796,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 mImageStorage.getDownloadUrl().addOnSuccessListener(locationUri -> { // Successful upload.
                     mUserProfile.setImageURL(locationUri.toString()); // Update the UserInfoPrivate class with this new image URL.
+                    mTempUserProfile.setImageURL(locationUri.toString()); // Also update the temporary user profile.
                     IMAGE_IS_UPLOADING = false; // State we have finished uploading (a reference exists).
                 }).addOnFailureListener(e -> {
                     throw new RuntimeException("Unable to grab image URL from Firebase for image URL being uploaded currently. This shouldn't happen.");
@@ -772,12 +807,12 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
     /** Load basic firebase data & any data not present in fragments. **/
     private void loadProfileData(){
-        mUsername.setText(mUserProfile.getDisplayName());
-        mAboutMe.setText(mUserProfile.getAbout());
+        mUsername.setText(mTempUserProfile.getDisplayName());
+        mAboutMe.setText(mTempUserProfile.getAbout());
+        mPrivateProfileEnabled.setChecked(mTempUserProfile.isPrivateProfileEnabled());
 
         //  Load privacy switches.
-        setPrivacyOptions(mUserProfile.getPublicPrivacy());
-
+        setPrivacyOptions(mTempUserProfile.getPublicPrivacy());
     }
 
 
@@ -785,13 +820,12 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
      * @param privacy - HashMap of valid privacy options.
      */
     private void setPrivacyOptions(HashMap<String, Object> privacy){
-
         mDisplay_username.setChecked( (boolean) privacy.get("display_username"));
         mDisplay_about_me.setChecked( (boolean) privacy.get("display_about_me"));
         mDisplay_profile_image.setChecked( (boolean) privacy.get("display_profile_image"));
         mDisplay_recipes.setChecked( (boolean) privacy.get("display_recipes"));
         mDisplay_filters.setChecked( (boolean) privacy.get("display_filters"));
-
+        mDisplay_feed.setChecked( (boolean) privacy.get("display_feed"));
     }
 
     /** Update the server relative to the client on a valid 'Save Settings' button press
@@ -799,6 +833,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
      * cannot update relative to the client. This can occur when Wifi signal is lost.
      */
     private void updateFirebase() throws InvalidUserException, ProfileImageException {
+
         mApp = FirebaseApp.getInstance();
         mAuth = FirebaseAuth.getInstance(mApp);
         FirebaseUser user = mAuth.getCurrentUser();
@@ -844,16 +879,16 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
             map.put("UID", requireNonNull(mAuth.getCurrentUser()).getUid());
             map.put("email", usersEmail);
-            map.put("displayName", mUserProfile.getDisplayName());
-            map.put("imageURL", mUserProfile.getImageURL());
-            map.put("about", mUserProfile.getAbout());
-            map.put("mealPlan", mUserProfile.getMealPlanner());
-            map.put("shortPreferences", mUserProfile.getShortPreferences());
-            map.put("firstAppLaunch", mUserProfile.getFirstAppLaunch());
-            map.put("firstPresentationLaunch", mUserProfile.getFirstPresentationLaunch());
-            map.put("firstMealPlannerLaunch", mUserProfile.getFirstMealPlannerLaunch());
+            map.put("displayName", mTempUserProfile.getDisplayName());
+            map.put("imageURL", mTempUserProfile.getImageURL());
+            map.put("about", mTempUserProfile.getAbout());
+            map.put("mealPlan", mTempUserProfile.getMealPlanner());
+            map.put("shortPreferences", mTempUserProfile.getShortPreferences());
+            map.put("firstAppLaunch", mTempUserProfile.getFirstAppLaunch());
+            map.put("firstPresentationLaunch", mTempUserProfile.getFirstPresentationLaunch());
+            map.put("firstMealPlannerLaunch", mTempUserProfile.getFirstMealPlannerLaunch());
 
-            Preferences preferences = mUserProfile.getPreferences();
+            Preferences preferences = mTempUserProfile.getPreferences();
 
             prefMap.put("allergy_eggs", preferences.isAllergy_eggs());
             prefMap.put("allergy_gluten", preferences.isAllergy_gluten());
@@ -867,34 +902,42 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
             map.put("preferences", prefMap);
 
-            HashMap<String, Object> privacyPublicMap = mUserProfile.getPublicPrivacy();
-            HashMap<String, Object> privacyPrivateMap = mUserProfile.getPrivacyFriends();
+            HashMap<String, Object> privacyPublicMap = mTempUserProfile.getPublicPrivacy();
+            HashMap<String, Object> privacyPrivateMap = mTempUserProfile.getPrivacyPrivate();
 
             privacyPublic.put("display_username", privacyPublicMap.get("display_username"));
             privacyPublic.put("display_about_me", privacyPublicMap.get("display_about_me"));
             privacyPublic.put("display_recipes", privacyPublicMap.get("display_recipes"));
             privacyPublic.put("display_profile_image", privacyPublicMap.get("display_profile_image"));
             privacyPublic.put("display_filters", privacyPublicMap.get("display_filters"));
+            privacyPublic.put("display_feed", privacyPublicMap.get("display_feed"));
 
             privacyPrivate.put("display_username", privacyPrivateMap.get("display_username"));
             privacyPrivate.put("display_about_me", privacyPrivateMap.get("display_about_me"));
             privacyPrivate.put("display_recipes", privacyPrivateMap.get("display_recipes"));
             privacyPrivate.put("display_profile_image", privacyPrivateMap.get("display_profile_image"));
             privacyPrivate.put("display_filters", privacyPrivateMap.get("display_filters"));
+            privacyPrivate.put("display_feed", privacyPrivateMap.get("display_feed"));
 
+            map.put("privateProfileEnabled", mTempUserProfile.isPrivateProfileEnabled());
             map.put("privacyPublic", privacyPublic);
             map.put("privacyPrivate", privacyPrivate);
 
             // TODO - Sync public and private privacy.
             //syncVisibility(privacyPublic);
 
-            mUserProfile = new UserInfoPrivate(map, prefMap, privacyPrivate, privacyPublic); //Create a new local UserInfoPrivate class based upon our inputs.
-
             DocumentReference usersRef = mRef.document(user.getUid());
 
             //  Sync the Firebase info with the client info if successful.
             usersRef.update(map)
-                    .addOnSuccessListener(aVoid -> Toast.makeText(getApplicationContext(),"User Preferences Saved",Toast.LENGTH_SHORT).show())
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Toast.makeText(getApplicationContext(),"User Preferences Saved",Toast.LENGTH_SHORT).show();
+                            mUserProfile = new UserInfoPrivate(map, prefMap, privacyPrivate, privacyPublic); //Create a new local UserInfoPrivate class based upon our inputs.
+                            Log.e(TAG, "About me is: " + mUserProfile.getAbout());
+                        }
+                    })
                     .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Failed to save user preferences", Toast.LENGTH_SHORT).show());
 
         } else {
@@ -930,7 +973,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
         // Create a new bundle, complete with the users preferences to be set as arguments for the fragment.
         Bundle prefBundle = new Bundle();
-        prefBundle.putSerializable("preferences", mUserProfile.getPreferences());
+        prefBundle.putSerializable("preferences", mTempUserProfile.getPreferences());
         currentFragment.setArguments(prefBundle);
 
         //  Switch current checkbox table with our new fragment.
@@ -941,7 +984,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
     /** Listeners for preferences fragment.
      *  Check which tab is selected, load the associated fragment and send associated serializable preference data to accommodate.
      */
-    private void initProfileVisibilityTabListener(){
+    private void initPreferencesFragmentsTabListener(){
 
         mPreferencesTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -970,10 +1013,10 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         });
     }
 
-    /** Listeners for privacy public/friends tab.
+    /** Listeners for privacy public/private tab.
      *  Check which tab is selected, load associated data.
      */
-    private void initTabFragmentListener(){
+    private void initProfileVisibilityTabListener(){
 
         mProfileVisibilityTab.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -981,15 +1024,13 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
                 switch (tab.getPosition()) {
                     case 0: // Tab order in index. 0 = leftmost element.
-                            setPrivacyOptions(mUserProfile.getPublicPrivacy());
+                            setPrivacyOptions(mTempUserProfile.getPublicPrivacy());
                         break;
                     case 1:
-                            setPrivacyOptions(mUserProfile.getPrivacyFriends());
+                            setPrivacyOptions(mTempUserProfile.getPrivacyPrivate());
                         break;
-
                 }
             }
-
             @Override
             public void onTabUnselected(TabLayout.Tab tab) { /* Nothing here */ }
 
