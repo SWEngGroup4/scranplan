@@ -92,6 +92,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
     protected TextView mFreezer;
     protected TextView mReheatInformation;
     protected ImageButton mReheatInformationButton;
+    protected String starRating;
 
 
     private FirebaseFirestore mDatabase;
@@ -138,6 +139,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         tabFragments(layout);
 
         addFavourite(layout);
+
 
 
 
@@ -372,11 +374,16 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         //Sets the serving amount for each recipe
         mServing.setText("Serves: " + servingAmount);
 
+
+
+
         //Setting the recipe star rating
-        mStars.setRating(Float.parseFloat(recipeRating));
-        mStars.setIsIndicator(true);
-        mStars.setNumStars(5);
-        mStars.setStepSize(0.1F);
+        starRating = ratingMap.get("overallRating").toString();
+        updateStarRating(starRating);
+//        mStars.setRating(Float.parseFloat(starRating));
+//        mStars.setIsIndicator(true);
+//        mStars.setNumStars(5);
+//        mStars.setStepSize(0.1F);
 
         //setting the recipe title
         mTitle.setText(recipeName);
@@ -534,6 +541,16 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
                 });
             }
         }
+    }
+
+    public void updateStarRating(String newRating){
+
+        mStars.setRating(Float.parseFloat(newRating));
+        mStars.setIsIndicator(true);
+        mStars.setNumStars(5);
+        mStars.setStepSize(0.1F);
+        starRating = newRating;
+
     }
 
 

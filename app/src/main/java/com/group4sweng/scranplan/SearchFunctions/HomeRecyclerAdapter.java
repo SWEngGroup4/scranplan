@@ -19,6 +19,7 @@ import com.group4sweng.scranplan.R;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -43,13 +44,16 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
         private Float rating;
         private String imageURL;
         private DocumentSnapshot document;
+        private String ratingResults;
 
-        public HomeRecipePreviewData(DocumentSnapshot doc, String recipeID, String title, Float rating, String imageURL) {
+        public HomeRecipePreviewData(DocumentSnapshot doc, String recipeID, String title, Float rating, String imageURL, HashMap<String, Double> ratingResults) {
             this.document = doc;
             this.recipeID = recipeID;
             this.title = title;
-            this.rating = rating;
             this.imageURL = imageURL;
+            this.ratingResults = ratingResults.get("overallRating").toString();
+            this.rating = Float.parseFloat(this.ratingResults);
+            //this.rating = rating;
         }
     }
 
@@ -119,6 +123,7 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
                 holder.textView.setText(mDataset.get(position).title);
                 holder.textView.setBackgroundColor(Color.parseColor("#80FFFFFF"));
 
+                holder.ratingBar.setStepSize(0.1f);
                 holder.ratingBar.setRating(mDataset.get(position).rating);
                 holder.ratingBar.setBackgroundColor(Color.parseColor("#80FFFFFF"));
             }

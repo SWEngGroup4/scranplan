@@ -182,7 +182,8 @@ public class RecipeFragment extends Fragment {
                                         document.getId(),
                                         document.get("Name").toString(),
                                         Float.valueOf(document.get("score").toString()),
-                                        document.get("imageURL").toString()
+                                        document.get("imageURL").toString(),
+                                        (HashMap) document.getData().get("rating")
                                 ));
                             }
                             rAdapterScore.notifyDataSetChanged();
@@ -223,7 +224,8 @@ public class RecipeFragment extends Fragment {
                                                                 d.getId(),
                                                                 d.get("Name").toString(),
                                                                 Float.valueOf(d.get("score").toString()),
-                                                                d.get("imageURL").toString()
+                                                                d.get("imageURL").toString(),
+                                                                (HashMap) d.getData().get("rating")
                                                         ));
                                                     }
                                                     if(isLastItemReachedScore){
@@ -285,7 +287,8 @@ public class RecipeFragment extends Fragment {
                                         document.getId(),
                                         document.get("Name").toString(),
                                         Float.valueOf(document.get("score").toString()),
-                                        document.get("imageURL").toString()
+                                        document.get("imageURL").toString(),
+                                        (HashMap) document.getData().get("rating")
                                 ));
                             }
                             rAdapterVotes.notifyDataSetChanged();
@@ -326,7 +329,8 @@ public class RecipeFragment extends Fragment {
                                                                 d.getId(),
                                                                 d.get("Name").toString(),
                                                                 Float.valueOf(d.get("score").toString()),
-                                                                d.get("imageURL").toString()
+                                                                d.get("imageURL").toString(),
+                                                                (HashMap) d.getData().get("rating")
                                                         ));
                                                     }
                                                     if(isLastItemReachedVotes){
@@ -389,7 +393,8 @@ public class RecipeFragment extends Fragment {
                                         document.getId(),
                                         document.get("Name").toString(),
                                         Float.valueOf(document.get("score").toString()),
-                                        document.get("imageURL").toString()
+                                        document.get("imageURL").toString(),
+                                        (HashMap) document.getData().get("rating")
                                 ));
                             }
                             rAdapterTime.notifyDataSetChanged();
@@ -430,7 +435,8 @@ public class RecipeFragment extends Fragment {
                                                                 d.getId(),
                                                                 d.get("Name").toString(),
                                                                 Float.valueOf(d.get("score").toString()),
-                                                                d.get("imageURL").toString()
+                                                                d.get("imageURL").toString(),
+                                                                (HashMap) d.getData().get("rating")
                                                         ));
                                                     }
                                                     if(isLastItemReachedTime){
@@ -492,7 +498,8 @@ public class RecipeFragment extends Fragment {
                                         document.getId(),
                                         document.get("Name").toString(),
                                         Float.valueOf(document.get("score").toString()),
-                                        document.get("imageURL").toString()
+                                        document.get("imageURL").toString(),
+                                        (HashMap) document.getData().get("rating")
                                 ));
                             }
                             rAdapterFave.notifyDataSetChanged();
@@ -533,7 +540,8 @@ public class RecipeFragment extends Fragment {
                                                                 d.getId(),
                                                                 d.get("Name").toString(),
                                                                 Float.valueOf(d.get("score").toString()),
-                                                                d.get("imageURL").toString()
+                                                                d.get("imageURL").toString(),
+                                                                (HashMap) d.getData().get("rating")
                                                         ));
                                                     }
                                                     if(isLastItemReachedFave){

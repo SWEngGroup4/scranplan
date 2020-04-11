@@ -65,7 +65,6 @@ public class RecipeReviewFragment extends FeedFragment {
 
         initPageItems(layout);
         displayItems(layout);
-        calculateRating();
         initPageListeners();
 
 
@@ -96,6 +95,9 @@ public class RecipeReviewFragment extends FeedFragment {
             public void onClick(View view) {
 
                 calculateRating();
+
+                RecipeInfoFragment repInfo = (RecipeInfoFragment) getParentFragment();
+                repInfo.updateStarRating(ratingMap.get("overallRating").toString());
 
             }
         });
@@ -133,8 +135,10 @@ public class RecipeReviewFragment extends FeedFragment {
         final String TAG = "Data";
         Log.i(TAG, "Values: "+ ratingMap);
 
-        newTotalRates = ratingMap.get("totalRates") + 1;
+//        ratingMap.put("overallRating", 3f);
+//        ratingMap.put("totalRates", 2f);
 
+        newTotalRates = ratingMap.get("totalRates") + 1;
         newOverallRating = ((ratingMap.get("overallRating") * ratingMap.get("totalRates")) + getNewRating) / newTotalRates;
 
         ratingMap.put("overallRating", newOverallRating);
