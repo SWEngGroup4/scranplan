@@ -18,6 +18,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -84,6 +85,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
     private static final int MAX_IMAGE_FILE_SIZE_IN_MB = 4; // Max storage image size for the profile picture.
     private static boolean IMAGE_IS_UPLOADING = false; // Boolean to determine if the image is uploading currently.
+    private String currentImageURI = null;
 
     //  Default filter type enumeration. Types shown in 'FilterType' interface.
     static filterType currentFilterType = filterType.ALLERGENS;
@@ -97,6 +99,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
     CollectionReference mRef = mDatabase.collection("users");
     FirebaseStorage mStorage = FirebaseStorage.getInstance();
     StorageReference mStorageReference = mStorage.getReference();
+    UploadTask mImageUploadTask;
 
     private Uri mImageUri; // Unique image uri.
 
@@ -104,6 +107,9 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
     UserInfoPrivate mTempUserProfile; // Local User info. Accessible only within this Activity
 
     //  TODO - Add valid network connection checks.
+
+    ProgressBar mProgress;
+    TextView mProgressText;
 
     //  Basic user settings.
     ImageView mProfileImage;
@@ -173,7 +179,8 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         mUserProfile = (UserInfoPrivate) getIntent().getSerializableExtra("user"); //Grabs serializable UserInfoPrivate data from main activity.
         if(mUserProfile != null){ //Checks if there is actually any Serializable data received.
             mTempUserProfile = mUserProfile.deepClone();
-
+            mProgress.setVisibility(View.GONE);
+            mProgressText.setVisibility(View.GONE);
             //  Preferences
             mPreferencesTabs = findViewById(R.id.preferences_tab_bar);
 
@@ -203,15 +210,38 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
     @Override
     public void onBackPressed() {
-        //  Send back with intent and update the Home's UserInfoPrivate class with the new User Info.
         Intent returnIntent = new Intent();
-
-        Log.e(TAG, "User profile before returning is: " + mUserProfile.getAbout());
-        Log.e(TAG, "User profile nut filter before returning is: " + mUserProfile.getPreferences().isAllergy_nuts());
-
         returnIntent.putExtra("user", mUserProfile);
-        setResult(Activity.RESULT_OK, returnIntent);
-        finish();
+
+        if(IMAGE_IS_UPLOADING){
+            AlertDialog.Builder builder = new AlertDialog.Builder(ProfileSettings.this); //Create an alert.
+
+            //  Create a new linear layout which fits the proportions of the screen and descends vertically.
+            LinearLayout layout = new LinearLayout(this);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            layout.setOrientation(LinearLayout.VERTICAL);
+            layout.setLayoutParams(params);
+            builder.setView(layout);
+
+            builder.setMessage("Your profile image is still uploading. Are you sure you want to exit?");
+            builder.setPositiveButton("Yes", (dialog, which) -> { //  Send back with intent and update the Home's UserInfoPrivate class with the new User Info.
+                IMAGE_IS_UPLOADING = false;
+                mImageUploadTask.cancel();
+                setResult(Activity.RESULT_OK, returnIntent);
+                finish();
+            });
+            builder.setNegativeButton("No", (dialog, which) -> { //Allow the user to cancel the operation.
+                dialog.cancel();
+
+            });
+            AlertDialog alertDialog = builder.create();
+
+            alertDialog.show();
+        } else {
+            setResult(Activity.RESULT_OK, returnIntent);
+            finish();
+        }
+
     }
 
     /** Initiated on a 'Delete Profile' button press.
@@ -462,7 +492,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             //  Set all info not set in other proprietary methods.
             mUserProfile.setAbout(mAboutMe.getText().toString());
             mUserProfile.setDisplayName(mUsername.getText().toString());
-            //mUserProfile.setNumRecipes(Long.parseLong(mNumRecipes.getText().toString()));
 
             //  Update the server relative to the client or throw an exception if a valid user isn't found.
             try {
@@ -497,7 +526,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
             //  Checks the 'private profile' switch. Hides the tab bar if private is enabled & defaults the switches to the 'private' profile options.
             //  Otherwise makes sure the profile privacy settings tab bar is shown.
-            /**case R.id.settings_private_toggle:
+            case R.id.settings_private_toggle:
                 if(switched) {
                     setPrivacyOptions(mTempUserProfile.getPrivacyPrivate());
                     mProfileVisibilityTab.setVisibility(View.GONE);
@@ -507,39 +536,54 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                     assert tab != null;
                     tab.select();
                     mProfileVisibilityTab.setVisibility(View.VISIBLE);
-                }**/
+                }
 
             case R.id.settings_privacy_about_me:
                 if(switched)
                     tempPrivacy.put("display_about_me", true);
                 else
                     tempPrivacy.put("display_about_me", false);
+                break;
             case R.id.settings_privacy_recipes:
                 if(switched)
                     tempPrivacy.put("display_recipes", true);
                 else
                     tempPrivacy.put("display_recipes", false);
+                break;
             case R.id.settings_privacy_username:
                 if(switched)
                     tempPrivacy.put("display_username", true);
                 else
                     tempPrivacy.put("display_username", false);
+                break;
             case R.id.settings_privacy_profile_image:
                 if(switched)
                     tempPrivacy.put("display_profile_image", true);
                 else
                     tempPrivacy.put("display_profile_image", false);
+                break;
             case R.id.settings_privacy_filters:
                 if(switched)
                     tempPrivacy.put("display_filters", true);
                 else
                     tempPrivacy.put("display_filters", false);
+                break;
             case R.id.settings_privacy_feed:
                 if(switched)
                     tempPrivacy.put("display_feed", true);
                 else
                     tempPrivacy.put("display_feed", false);
+                break;
         }
+
+        /*
+        switch(mProfileVisibilityTab.getSelectedTabPosition()){
+            case 0:
+                mTempUserProfile.setPrivacyPublic(tempPrivacy);
+                break;
+            case 1:
+                mTempUserProfile.setPrivatePrivacy(tempPrivacy);
+        }*/
     }
 
     /** Activated on Filters checked
@@ -655,6 +699,9 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         mProfileVisibilityTab = findViewById(R.id.profile_visibility_tab_bar);
 
         mPrivateProfileEnabled = findViewById(R.id.settings_private_toggle);
+
+        mProgress = findViewById(R.id.settings_progress);
+        mProgressText = findViewById(R.id.settings_progress_text);
     }
 
     /** Method called when we click to change the users profile image.
@@ -720,19 +767,13 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                 mProfileImage.setImageResource(R.drawable.temp_settings_profile_image); // Set to a default image if image uploading fails.
 
                 mImageUri = data.getData();
+                currentImageURI = mImageUri.toString();
 
                 //  Use Glides image functionality to quickly load a circular, center cropped image.
                 Glide.with(this)
                         .load(mImageUri)
                         .apply(RequestOptions.circleCropTransform())
                         .into(mProfileImage);
-
-                try {
-                    uploadImage(mImageUri); // Attempt to upload the image in storage to Firebase.
-                } catch (ProfileImageException e) {
-                    e.printStackTrace();
-                    return;
-                }
             }
         }
     }
@@ -785,23 +826,42 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         checkImage(uri); // Check the image doesn't throw any exceptions
 
         IMAGE_IS_UPLOADING = true; // State that the image is still uploading and therefore we shouldn't save a reference on firebase to it yet.
+        mProgress.setVisibility(View.VISIBLE);
+        mProgressText.setVisibility(View.VISIBLE);
 
         /*  Create a unique reference of the format. 'image/profile/[UNIQUE UID]/profile_image.[EXTENSION].
             Whereby [UNIQUE UID] = the Unique id of the user, [EXTENSION] = file image extension. E.g. .jpg,.png. */
         StorageReference mImageStorage = mStorageReference.child("images/profile/" + mUserProfile.getUID() + "/profile_image." + extension);
 
+        mImageUploadTask = mImageStorage.putFile(uri);
+
         //  Check if the upload fails
-        mImageStorage.putFile(uri).addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Failed to upload profile image.", Toast.LENGTH_SHORT).show()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                mImageStorage.getDownloadUrl().addOnSuccessListener(locationUri -> { // Successful upload.
-                    mUserProfile.setImageURL(locationUri.toString()); // Update the UserInfoPrivate class with this new image URL.
-                    mTempUserProfile.setImageURL(locationUri.toString()); // Also update the temporary user profile.
-                    IMAGE_IS_UPLOADING = false; // State we have finished uploading (a reference exists).
-                }).addOnFailureListener(e -> {
-                    throw new RuntimeException("Unable to grab image URL from Firebase for image URL being uploaded currently. This shouldn't happen.");
-                });
-            }
+        mImageUploadTask
+                .addOnFailureListener(e -> {
+                        Toast.makeText(getApplicationContext(), "Failed to upload profile image.", Toast.LENGTH_SHORT).show();
+                        mProgress.setVisibility(View.GONE);
+                        mProgressText.setVisibility(View.GONE);
+                    })
+                .addOnSuccessListener(taskSnapshot -> mImageStorage.getDownloadUrl()
+                        .addOnSuccessListener(locationUri -> { // Successful upload.
+                            mUserProfile.setImageURL(locationUri.toString()); // Update the UserInfoPrivate class with this new image URL.
+                            IMAGE_IS_UPLOADING = false; // State we have finished uploading (a reference exists).
+                            currentImageURI = locationUri.toString();
+                        }).addOnFailureListener(e -> {
+                            mProgress.setVisibility(View.GONE);
+                            mProgressText.setVisibility(View.GONE);
+                            throw new RuntimeException("Unable to grab image URL from Firebase for image URL being uploaded currently. This shouldn't happen.");
+                        }))
+                .addOnProgressListener(taskSnapshot -> {
+                    double progressDouble = ((double) taskSnapshot.getBytesTransferred()/taskSnapshot.getTotalByteCount()) * 100;
+
+                    Log.e(TAG, "PROGRESS DOUBLE IS: " + progressDouble);
+
+                    int progressAmount = (int) progressDouble;
+                    mProgress.setProgress(progressAmount);
+
+                    String saveText = "Saving Image... " + progressAmount + "%";
+                    mProgressText.setText(saveText);
         });
     }
 
@@ -867,8 +927,15 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             }
 
             //  Return if image is not of a supported format & of the correct size. Else throw an exception and prevent saving of settings.
-            if(mImageUri != null){
+            if(mImageUri != null && !currentImageURI.equals(mUserProfile.getImageURL())){
+                Log.e(TAG, "I am checking and uploading the image image");
                 checkImage(mImageUri);
+                try {
+                    uploadImage(mImageUri); // Attempt to upload the image in storage to Firebase.
+                } catch (ProfileImageException e) {
+                    e.printStackTrace();
+                    return;
+                }
             }
 
             //  Create maps to store associated data.
@@ -1039,6 +1106,4 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
         });
     }
-
-
 }
