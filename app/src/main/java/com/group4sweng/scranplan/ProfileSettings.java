@@ -54,6 +54,8 @@ import com.group4sweng.scranplan.UserInfo.Preferences;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import static com.group4sweng.scranplan.Helper.ImageHelpers.getExtension;
 import static com.group4sweng.scranplan.Helper.ImageHelpers.getPrintableSupportedFormats;
@@ -75,6 +77,11 @@ import static java.util.Objects.requireNonNull;
  *  - Privacy options.
  */
 public class ProfileSettings extends AppCompatActivity implements FilterType, SupportedFormats {
+
+    private enum SyncType {
+        PRIVATE,
+        PUBLIC
+    }
 
     private final static String TAG = "ProfileSettings"; // Tag for 'Log'.
 
@@ -514,12 +521,16 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
         HashMap<String, Object> tempPrivacy = new HashMap<>();
 
-        switch(mProfileVisibilityTab.getSelectedTabPosition()){
+        int tabPosition = mProfileVisibilityTab.getSelectedTabPosition();
+
+        switch(tabPosition){
             case 0:
                 tempPrivacy = mTempUserProfile.getPublicPrivacy();
+                syncVisibility(SyncType.PUBLIC);
                 break;
             case 1:
                 tempPrivacy = mTempUserProfile.getPrivacyPrivate();
+                syncVisibility(SyncType.PRIVATE);
         }
 
         switch(v.getId()){ // Retrieve switches unique ID.
@@ -576,6 +587,13 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                 break;
         }
 
+        switch(tabPosition){
+            case 0:
+                syncVisibility(SyncType.PUBLIC);
+                break;
+            case 1:
+                syncVisibility(SyncType.PRIVATE);
+        }
         /*
         switch(mProfileVisibilityTab.getSelectedTabPosition()){
             case 0:
@@ -1014,24 +1032,38 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
     }
 
-    // TODO - Sync the private and public profile information.
-    /*
-    private void syncVisibility(HashMap<String, Object> privacyPublic){
-        HashMap<String, Object> friendsPrivacy = mUserProfile.getPrivacyFriends();
+    private void syncVisibility(SyncType st){
 
-        for (HashMap.Entry<String, Object> mapPair : privacyPublic.entrySet()) {
-            boolean friendsPrivacyValue = (boolean) friendsPrivacy.get(mapPair.getKey());
-            boolean publicPrivacyValue = (boolean) mapPair.getValue();
+        HashMap<String, Object> privacyPublic = mTempUserProfile.getPublicPrivacy();
+        HashMap<String, Object> privacyPrivate = mTempUserProfile.getPrivacyPrivate();
 
-            if(friendsPrivacyValue != publicPrivacyValue && publicPrivacyValue){
-                friendsPrivacy.put(mapPair.getKey(), true);
+        //  Construct an iterator.
+        Iterator publicIterator = privacyPublic.entrySet().iterator();
+        Iterator privateIterator = privacyPrivate.entrySet().iterator();
+
+        if(st == SyncType.PRIVATE){
+            while (privateIterator.hasNext()) {
+                Map.Entry privatePrivacyElement = (Map.Entry)privateIterator.next();
+
+                String key = (String) privatePrivacyElement.getKey();
+                boolean value = (boolean) privatePrivacyElement.getValue();
+
+                if(!value)
+                   privacyPublic.put(key, false);
             }
+        } else {
+            while (publicIterator.hasNext()) {
+                Map.Entry publicPrivacyElement = (Map.Entry)publicIterator.next();
 
-            if (friendsPrivacyValue != publicPrivacyValue && !friendsPrivacyValue){
-                mUserProfile.getPublicPrivacy().put(mapPair.getKey(), false);
+                String key = (String) publicPrivacyElement.getKey();
+                boolean value = (boolean) publicPrivacyElement.getValue();
+
+                if(value){
+                    privacyPrivate.put(key, true);
+                }
             }
         }
-    }*/
+    }
 
     /** Handle sending serializable data to tabbed fragments **/
     private void sendSerializableToFragment(){
