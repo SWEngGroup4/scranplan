@@ -69,10 +69,9 @@ dependencies {
     implementation 'com.google.android.gms:play-services-gcm:17.0.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'com.google.firebase:firebase-firestore:21.0.0'
-    implementation 'com.squareup.okhttp3:okhttp:4.0.0'
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
-    // Using older implementation with KitKat support. implementation 'com.squareup.okhttp3:okhttp:4.4.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.4.0'
     implementation 'com.algolia:algoliasearch-android:3.27.0'
 
     implementation 'com.github.aakira:expandable-layout:1.6.0@aar'
