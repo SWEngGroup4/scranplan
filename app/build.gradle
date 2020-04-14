@@ -6,7 +6,7 @@ android {
     buildToolsVersion "29.0.2"
     defaultConfig {
         applicationId "com.group4sweng.scranplan"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -52,10 +52,9 @@ dependencies {
 
     implementation 'io.sentry:sentry-android:2.0.2'
 
-
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-testImplementation 'junit:junit:4.12'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:2.7.22'
 
     androidTestImplementation 'org.mockito:mockito-android:2.7.22'
@@ -70,9 +69,10 @@ testImplementation 'junit:junit:4.12'
     implementation 'com.google.android.gms:play-services-gcm:17.0.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'com.google.firebase:firebase-firestore:21.0.0'
+    implementation 'com.squareup.okhttp3:okhttp:3.12.2'
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
-    implementation 'com.squareup.okhttp3:okhttp:4.4.0'
+    // Using older implementation with KitKat support. implementation 'com.squareup.okhttp3:okhttp:4.4.0'
     implementation 'com.algolia:algoliasearch-android:3.27.0'
 
     implementation 'com.github.aakira:expandable-layout:1.6.0@aar'
