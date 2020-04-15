@@ -62,6 +62,8 @@ public class ImageHelpers implements FilterType {
     public static boolean isImageFormatSupported(Context context, Uri uri){
         String extension = ImageHelpers.getExtension(context, uri);
 
+        System.out.println("FORMAT IS: " + extension);
+
         for(SupportedFormats.ImageFormats format : SupportedFormats.ImageFormats.values()){ //  Cycles through each format to check.
             if(extension.equals(format.toString())){
                 return true;

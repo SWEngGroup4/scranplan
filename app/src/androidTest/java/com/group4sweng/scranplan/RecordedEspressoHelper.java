@@ -32,6 +32,8 @@ class RecordedEspressoHelper {
      * these helper functions are only for fragments, elements without proper resource ids, or elements which don't have associated text.
      */
 
+    protected static boolean shouldSkip = false;
+
     //  Enumeration for the sidebar element.
     enum SideBarElement{
         PROFILE,
@@ -77,16 +79,19 @@ class RecordedEspressoHelper {
         }
 
         //  Test recorder output.
-        ViewInteraction appCompatImageButton = onView(
-                allOf(withContentDescription("Open Nav Drawer"),
-                        childAtPosition(
-                                allOf(withId(R.id.toolbar),
-                                        childAtPosition(
-                                                withClassName(is("com.google.android.material.appbar.AppBarLayout")),
-                                                0)),
-                                1),
-                        isDisplayed()));
-        appCompatImageButton.perform(click());
+        if(!shouldSkip){
+            ViewInteraction appCompatImageButton = onView(
+                    allOf(withContentDescription("Open Nav Drawer"),
+                            childAtPosition(
+                                    allOf(withId(R.id.toolbar),
+                                            childAtPosition(
+                                                    withClassName(is("com.google.android.material.appbar.AppBarLayout")),
+                                                    0)),
+                                    1),
+                            isDisplayed()));
+            appCompatImageButton.perform(click());
+        }
+
 
         ViewInteraction navigationMenuItemView = onView(
                 allOf(childAtPosition(
@@ -98,4 +103,5 @@ class RecordedEspressoHelper {
                         isDisplayed()));
         navigationMenuItemView.perform(click());
     }
+
 }

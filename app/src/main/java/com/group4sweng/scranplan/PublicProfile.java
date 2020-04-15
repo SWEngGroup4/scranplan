@@ -50,7 +50,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
     //  UID for the user in which we want to retrieve data from.
     private String UID;
-    private UserInfoPrivate mUserProfile;
+    protected UserInfoPrivate mUserProfile;
 
     //  Default filter type enumeration. Types shown in 'FilterType' interface.
     FilterType.filterType currentFilterType = ALLERGENS;
@@ -93,15 +93,23 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         mUserProfile = (UserInfoPrivate) getIntent().getSerializableExtra("user");
 
         if(mUserProfile != null){ // Check if local data is available to reference. Don't have to grab from firebase.
+            updatePublicProfile(FirebaseLoadType.PARTIAL);
+        } else if(UID != null){ // If not instead search for the profile via the associated UID and reference Firebase.
+            updatePublicProfile(FirebaseLoadType.FULL);
+        } else {
+            Log.e(TAG, "Unable to retrieve extra UID intent string. Cannot initialize profile.");
+        }
+    }
+
+    private void updatePublicProfile(FirebaseLoadType flt){
+        if(flt == FirebaseLoadType.PARTIAL){
             Log.i(TAG, "Loading local user data");
             loadInPrivacySettings(mUserProfile.getPublicPrivacy());
             loadLocalProfile();
             loadFirebase(FirebaseLoadType.PARTIAL);
-        } else if(UID != null){ // If not instead search for the profile via the associated UID and reference Firebase.
+        } else {
             Log.i(TAG, "Loading data from Firebase");
             loadFirebase(FirebaseLoadType.FULL);
-        } else {
-            Log.e(TAG, "Unable to retrieve extra UID intent string. Cannot initialize profile.");
         }
     }
 
