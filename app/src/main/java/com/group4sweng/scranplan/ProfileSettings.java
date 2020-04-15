@@ -78,6 +78,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class ProfileSettings extends AppCompatActivity implements FilterType, SupportedFormats {
 
+    //  Current Tab position type for privacy options.
     private enum SyncType {
         PRIVATE,
         PUBLIC
@@ -185,10 +186,9 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
         mUserProfile = (UserInfoPrivate) getIntent().getSerializableExtra("user"); //Grabs serializable UserInfoPrivate data from main activity.
         if(mUserProfile != null){ //Checks if there is actually any Serializable data received.
-            mTempUserProfile = mUserProfile.deepClone();
-            mProgress.setVisibility(View.GONE);
+            mTempUserProfile = mUserProfile.deepClone(); // Creates a replica of the UserInfoPrivate object. Prevents passing by reference.
+            mProgress.setVisibility(View.GONE); // Hide image upload progress bar.
             mProgressText.setVisibility(View.GONE);
-            //  Preferences
             mPreferencesTabs = findViewById(R.id.preferences_tab_bar);
 
             //  Send initial serializable preferences data to the initial preferences checkbox fragment + initiate listeners for the tab bar for these fragments.
@@ -200,26 +200,13 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         }
     }
 
-    /*@Override
-    protected void onRestart() {
-        super.onRestart();
-
-        Log.e(TAG, "I'm REACHING HERE");
-
-        mUserProfile = (UserInfoPrivate) getIntent().getSerializableExtra("user");
-        mTempUserProfile = mUserProfile;
-
-        if(mUserProfile != null){
-            loadProfileData();
-        }
-    }*/
-
-
     @Override
     public void onBackPressed() {
         Intent returnIntent = new Intent();
-        returnIntent.putExtra("user", mUserProfile);
+        returnIntent.putExtra("user", mUserProfile); // Send Serializable UserInfoPrivate class data back when leaving the activity.
 
+        //  If an image is still uploading create a dialog box that asks if the user wants to continue existing.
+        //  Otherise, ignore and simply return.
         if(IMAGE_IS_UPLOADING){
             AlertDialog.Builder builder = new AlertDialog.Builder(ProfileSettings.this); //Create an alert.
 
@@ -233,16 +220,16 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             builder.setMessage("Your profile image is still uploading. Are you sure you want to exit?");
             builder.setPositiveButton("Yes", (dialog, which) -> { //  Send back with intent and update the Home's UserInfoPrivate class with the new User Info.
                 IMAGE_IS_UPLOADING = false;
-                mImageUploadTask.cancel();
+                mImageUploadTask.cancel(); // Cancel the image upload.
                 setResult(Activity.RESULT_OK, returnIntent);
                 finish();
             });
             builder.setNegativeButton("No", (dialog, which) -> { //Allow the user to cancel the operation.
-                dialog.cancel();
-
+                dialog.cancel(); // Close dialog and return.
             });
-            AlertDialog alertDialog = builder.create();
 
+            //  Create and display the dialog.
+            AlertDialog alertDialog = builder.create(); //
             alertDialog.show();
         } else {
             setResult(Activity.RESULT_OK, returnIntent);
@@ -834,18 +821,18 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
     protected void uploadImage(Uri uri) throws ProfileImageException {
         String extension = getExtension(this, uri);
 
-        if(!isTesting){
+        if(!isTesting){ // Check if we are testing, if not check the image.
             checkImage(uri); // Check the image doesn't throw any exceptions
         }
 
         IMAGE_IS_UPLOADING = true; // State that the image is still uploading and therefore we shouldn't save a reference on firebase to it yet.
 
         if(isTesting){
-            runOnUiThread(() -> {
+            runOnUiThread(() -> { // Force onto UI thread when testing. By default picks the wrong thread.
                 mProgress.setVisibility(View.VISIBLE);
                 mProgressText.setVisibility(View.VISIBLE);
             });
-            return;
+            return; // Don't execute any extra code.
         } else {
             mProgress.setVisibility(View.VISIBLE);
             mProgressText.setVisibility(View.VISIBLE);
@@ -951,7 +938,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             //  Return if image is not of a supported format & of the correct size. Else throw an exception and prevent saving of settings.
             if(mImageUri != null && !currentImageURI.equals(mUserProfile.getImageURL())){
                 Log.e(TAG, "I am checking and uploading the image image");
-                checkImage(mImageUri);
+                checkImage(mImageUri); // Check the image URI object for it's file type and file size. Throw an error and exit if an issue is present.
                 try {
                     uploadImage(mImageUri); // Attempt to upload the image in storage to Firebase.
                 } catch (ProfileImageException e) {
@@ -1036,23 +1023,27 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
     }
 
+    /** Sync the Public and Private privacy settings. For e.g. if a user enabled an option in the public profile
+     *  by default it is enabled on the private profile privacy section as well.
+     * @param st - Current tab type. IE PRIVATE or PUBLIC.
+     */
     private void syncVisibility(SyncType st){
 
         HashMap<String, Object> privacyPublic = mTempUserProfile.getPublicPrivacy();
         HashMap<String, Object> privacyPrivate = mTempUserProfile.getPrivacyPrivate();
 
-        //  Construct an iterator.
+        //  Construct iterators for both HashMaps.
         Iterator publicIterator = privacyPublic.entrySet().iterator();
         Iterator privateIterator = privacyPrivate.entrySet().iterator();
 
-        if(st == SyncType.PRIVATE){
+        if(st == SyncType.PRIVATE){ //  If the current tab is set to 'PRIVATE continue'
             while (privateIterator.hasNext()) {
-                Map.Entry privatePrivacyElement = (Map.Entry)privateIterator.next();
+                Map.Entry privatePrivacyElement = (Map.Entry)privateIterator.next(); // Increment value.
 
                 String key = (String) privatePrivacyElement.getKey();
                 boolean value = (boolean) privatePrivacyElement.getValue();
 
-                if(!value)
+                if(!value) // If private privacy switch is off, set public switch to off.
                    privacyPublic.put(key, false);
             }
         } else {
@@ -1062,7 +1053,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                 String key = (String) publicPrivacyElement.getKey();
                 boolean value = (boolean) publicPrivacyElement.getValue();
 
-                if(value){
+                if(value){ // If public privacy switch is on, set public switch to on.
                     privacyPrivate.put(key, true);
                 }
             }
