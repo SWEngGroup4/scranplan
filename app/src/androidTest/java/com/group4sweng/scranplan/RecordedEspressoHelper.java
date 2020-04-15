@@ -32,7 +32,7 @@ class RecordedEspressoHelper {
      * these helper functions are only for fragments, elements without proper resource ids, or elements which don't have associated text.
      */
 
-    protected static boolean shouldSkip = false;
+    protected static boolean shouldSkip = false; // Should we skip pressing the sidebar button incase we don't need to open the sidebar.
 
     //  Enumeration for the sidebar element.
     enum SideBarElement{
