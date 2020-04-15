@@ -91,7 +91,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
     private static final int PERMISSION_CODE = 1001;
 
     private static final int MAX_IMAGE_FILE_SIZE_IN_MB = 4; // Max storage image size for the profile picture.
-    private static boolean IMAGE_IS_UPLOADING = false; // Boolean to determine if the image is uploading currently.
+    protected static boolean IMAGE_IS_UPLOADING = false; // Boolean to determine if the image is uploading currently.
     private String currentImageURI = null;
 
     //  Default filter type enumeration. Types shown in 'FilterType' interface.
@@ -497,8 +497,8 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         if(saveCountdownFinished || saveCountdownSecondsLeft == 0) {
 
             //  Set all info not set in other proprietary methods.
-            mUserProfile.setAbout(mAboutMe.getText().toString());
-            mUserProfile.setDisplayName(mUsername.getText().toString());
+            mTempUserProfile.setAbout(mAboutMe.getText().toString());
+            mTempUserProfile.setDisplayName(mUsername.getText().toString());
 
             //  Update the server relative to the client or throw an exception if a valid user isn't found.
             try {
@@ -594,14 +594,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             case 1:
                 syncVisibility(SyncType.PRIVATE);
         }
-        /*
-        switch(mProfileVisibilityTab.getSelectedTabPosition()){
-            case 0:
-                mTempUserProfile.setPrivacyPublic(tempPrivacy);
-                break;
-            case 1:
-                mTempUserProfile.setPrivatePrivacy(tempPrivacy);
-        }*/
+
     }
 
     /** Activated on Filters checked
@@ -802,7 +795,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
      *  @param uri - The unique uri of the image file location from the users storage.
      *  @throws ProfileImageException - Throws if the image file is too large or the format isn't a supported image format.
      */
-    private void checkImage(Uri uri) throws ProfileImageException {
+    protected void checkImage(Uri uri) throws ProfileImageException {
 
         //  If the image files size is greater than the max file size in mb converted to bytes throw an exception and return this issue to the user.
         if(getSize(this, uri) > MAX_IMAGE_FILE_SIZE_IN_MB * 1000000){
@@ -838,14 +831,25 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
      * @throws ProfileImageException - Thrown if URL cannot be retrieved. This will only fail if there is a reference to a blank file.
      *  In normal operation this shouldn't happen.
      */
-    private void uploadImage(Uri uri) throws ProfileImageException {
+    protected void uploadImage(Uri uri) throws ProfileImageException {
         String extension = getExtension(this, uri);
 
-        checkImage(uri); // Check the image doesn't throw any exceptions
+        if(!isTesting){
+            checkImage(uri); // Check the image doesn't throw any exceptions
+        }
 
         IMAGE_IS_UPLOADING = true; // State that the image is still uploading and therefore we shouldn't save a reference on firebase to it yet.
-        mProgress.setVisibility(View.VISIBLE);
-        mProgressText.setVisibility(View.VISIBLE);
+
+        if(isTesting){
+            runOnUiThread(() -> {
+                mProgress.setVisibility(View.VISIBLE);
+                mProgressText.setVisibility(View.VISIBLE);
+            });
+            return;
+        } else {
+            mProgress.setVisibility(View.VISIBLE);
+            mProgressText.setVisibility(View.VISIBLE);
+        }
 
         /*  Create a unique reference of the format. 'image/profile/[UNIQUE UID]/profile_image.[EXTENSION].
             Whereby [UNIQUE UID] = the Unique id of the user, [EXTENSION] = file image extension. E.g. .jpg,.png. */

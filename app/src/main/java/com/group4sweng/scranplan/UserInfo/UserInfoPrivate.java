@@ -13,8 +13,13 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 
+
 /**
  * UserInfoPrivate class
+ *  Author: LNewman
+ *  Edited by: JButler, JClawley
+ *  (c) CoDev 2020
+ *
  * Used to save the current users attributes locally on the device that will be used throughout the app for customisation.
  */
 public class UserInfoPrivate implements Serializable, Cloneable{
@@ -229,7 +234,7 @@ public class UserInfoPrivate implements Serializable, Cloneable{
         if (privacy.containsKey("display_username") && privacy.containsKey("display_profile_image") && privacy.containsKey("display_about_me") && privacy.containsKey("display_recipes") && privacy.containsKey("display_filters") && privacy.containsKey("display_feed")) {
             this.privacyPrivate = privacy;
         } else {
-            throw new RuntimeException("Tried to set privacy settings for friends with invalid or incomplete inputs");
+            throw new RuntimeException("Tried to set privacy settings for private profile with invalid or incomplete inputs");
         }
     }
 

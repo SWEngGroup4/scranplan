@@ -13,6 +13,6 @@ public interface SupportedFormats {
         tif,
         bmp,
         gif,
-        png;
+        png
     }
 }

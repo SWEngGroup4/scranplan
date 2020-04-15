@@ -34,7 +34,6 @@ public class AudioURLTest {
     }
 
 
-
     @Test
     public void testStoppingPlayingSounds() throws Exception{
         AudioURL mAudio = new AudioURL();
