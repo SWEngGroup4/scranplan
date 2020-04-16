@@ -1,6 +1,7 @@
 package com.group4sweng.scranplan.SearchFunctions;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,6 +24,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchRecyclerAdapter.SearchRecipePreviewData;
@@ -97,7 +99,7 @@ public class SearchListFragment extends AppCompatDialogFragment {
         recyclerView.setHasFixedSize(true);
         RecyclerView.LayoutManager rManager = new GridLayoutManager(getContext(), numberOfColumns);
         recyclerView.setLayoutManager(rManager);
-        final RecyclerView.Adapter rAdapter = new SearchRecyclerAdapter(SearchListFragment.this, data);
+        final RecyclerView.Adapter<SearchRecyclerAdapter.ViewHolder> rAdapter = new SearchRecyclerAdapter(SearchListFragment.this, data);
         recyclerView.setAdapter(rAdapter);
 
         // Completion Handler to parse the JSON incoming file and to display the results
@@ -165,12 +167,26 @@ public class SearchListFragment extends AppCompatDialogFragment {
                                     // For each document a new recipe preview view is generated
                                     if (documents.size() == objectID.size()) {
                                         for (DocumentSnapshot documentSnap : documents) {
+                                            if(documentSnap.get())
+                                            String displayName = null;
+                                            String about = null;
+                                            String imageUrl = null;
+
+                                            if(documentSnap.get("displayName") != null){
+                                                displayName = documentSnap.get("displayName").toString();
+                                            }
+                                            if(documentSnap.get("about") != null){
+                                                about = documentSnap.get("about").toString();
+                                            }
+                                            if(documentSnap.get("imageURL") != null){
+                                               imageUrl = documentSnap.get("imageURL").toString();
+                                            }
                                             data.add(new SearchRecipePreviewData(
                                                     documentSnap,
                                                     documentSnap.getId(),
-                                                    documentSnap.get("displayName").toString(),
-                                                    documentSnap.get("about").toString(),
-                                                    documentSnap.get("imageURL").toString()
+                                                    displayName,
+                                                    about,
+                                                    imageUrl
                                             ));
                                         }
                                         isLastItemReached = true;
@@ -244,6 +260,15 @@ public class SearchListFragment extends AppCompatDialogFragment {
         getDialog().getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
     }
 
+
+    public void profileSelected(DocumentSnapshot document){
+        Log.i("INFO", "Profile Selected");
+        Intent intentProfile = new Intent(getContext(), PublicProfile.class);
+
+        intentProfile.putExtra("UID", document.get("UID").toString());
+        //setResult(RESULT_OK, intentProfile);
+        startActivity(intentProfile);
+    }
 
     /**
      * On click of a recipe a new recipe info fragment is opened and the document is sent through

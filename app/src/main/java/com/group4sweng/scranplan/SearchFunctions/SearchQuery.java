@@ -115,7 +115,7 @@ public class SearchQuery {
         }else if(mNameBox){
             query = query.setRestrictSearchableAttributes("Name");
         }else if(mChefBox){
-           index = "SCRANPLAN_USERS";
+            index = "SCRANPLAN_USERS";
         }
     }
 }

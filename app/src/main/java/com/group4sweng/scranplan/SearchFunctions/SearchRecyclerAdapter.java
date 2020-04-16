@@ -116,16 +116,23 @@ public class SearchRecyclerAdapter extends RecyclerView.Adapter<SearchRecyclerAd
         String cap = mDataset.get(position).title;
         holder.title.setText(cap.substring(0, 1).toUpperCase() + cap.substring(1));
         holder.description.setText(mDataset.get(position).description);
-
+        if(mDataset.get(position).imageURL!= null && !mDataset.get(position).imageURL.isEmpty()){
+            Picasso.get().load(mDataset.get(position).imageURL).into(holder.imageView);
+        } else{
+            holder.imageView.setImageDrawable(null);
+        }
 
 
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(mSearchListFragment != null && mDataset.get(position).document != null){
-                    mSearchListFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
-                }else if(mProfileRecipes != null){
-                    mProfileRecipes.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
+                    if(!mSearchListFragment.searchIndex.equals("SCRANPLAN_USERS")){
+                    mSearchListFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);}
+                    else {
+                        // When profile is selected
+                        mSearchListFragment.profileSelected(mDataset.get(holder.getAdapterPosition()).document);
+                    }
                 }else{
                     Log.e("SEARCH RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
                 }
