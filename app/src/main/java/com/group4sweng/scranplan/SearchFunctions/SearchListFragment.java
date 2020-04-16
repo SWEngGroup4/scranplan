@@ -167,7 +167,6 @@ public class SearchListFragment extends AppCompatDialogFragment {
                                     // For each document a new recipe preview view is generated
                                     if (documents.size() == objectID.size()) {
                                         for (DocumentSnapshot documentSnap : documents) {
-                                            if(documentSnap.get())
                                             String displayName = null;
                                             String about = null;
                                             String imageUrl = null;
