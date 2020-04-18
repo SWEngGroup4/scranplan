@@ -2,7 +2,7 @@ package com.group4sweng.scranplan.Presentation;
 
 import android.os.CountDownTimer;
 
-import com.group4sweng.scranplan.Exceptions.AudioPlaybackError;
+import com.group4sweng.scranplan.Exceptions.AudioPlaybackException;
 import com.group4sweng.scranplan.SoundHandler.AudioURL;
 
 import java.util.Locale;
@@ -123,9 +123,9 @@ abstract class PresentationTimer extends CountDownTimer{
 
     /** Soft timer stop.
      *  Stops the timer when the timer playback duration has finished. Doesn't force all audio file playback to stop.
-     * @throws AudioPlaybackError - Error returned if the final audio URL fails to play.
+     * @throws AudioPlaybackException - Error returned if the final audio URL fails to play.
      */
-    void stopTimer() throws AudioPlaybackError {
+    void stopTimer() throws AudioPlaybackException {
         this.cancel();
 
         if(loopingAudio != null){
@@ -141,9 +141,9 @@ abstract class PresentationTimer extends CountDownTimer{
     /** Hard timer stop
      * Stop our timer before the timer has a chance to finish. Must be called when changing activity or pressing the top button.
      * @return - Time left (in milliseconds) on the countdown timer. Useful for restarting a timer after a pause.
-     * @throws AudioPlaybackError - Error returned when the player doesn't finish playing.
+     * @throws AudioPlaybackException - Error returned when the player doesn't finish playing.
      */
-    long forceStopTimer() throws AudioPlaybackError {
+    long forceStopTimer() throws AudioPlaybackException {
         //  Stop and remove the timer and stop any audio.
         this.cancel();
 
@@ -151,7 +151,7 @@ abstract class PresentationTimer extends CountDownTimer{
             if(finishAudio.getPlayer().isPlaying()){ // Check if audio was playing initially.
                 finishAudio.stopURLSound();
                 if(finishAudio.getPlayer().isPlaying()){ // Audio should have stopped playing. Throw exception if not
-                    throw new AudioPlaybackError("Audio playback failed to stop for file URL: " + finishAudio.getStoredURL());
+                    throw new AudioPlaybackException("Audio playback failed to stop for file URL: " + finishAudio.getStoredURL());
                 }
             }
         }
@@ -159,7 +159,7 @@ abstract class PresentationTimer extends CountDownTimer{
         if(loopingAudio != null) {
             loopingAudio.stopURLSound();
             if(loopingAudio.getPlayer().isPlaying()){
-                throw new AudioPlaybackError("Audio playback failed to stop for file URL: " + loopingAudio.getStoredURL());
+                throw new AudioPlaybackException("Audio playback failed to stop for file URL: " + loopingAudio.getStoredURL());
             }
         }
 

@@ -1,13 +1,12 @@
-package com.group4sweng.scranplan;
+package com.group4sweng.scranplan.SoundHandler;
 
 import android.media.MediaPlayer;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
-import com.group4sweng.scranplan.Exceptions.AudioPlaybackError;
-import com.group4sweng.scranplan.SoundHandler.AudioURL;
-import com.group4sweng.scranplan.SoundHandler.StockSounds;
+import com.group4sweng.scranplan.Exceptions.AudioPlaybackException;
+import com.group4sweng.scranplan.RecordedEspressoHelper;
 
 import org.junit.After;
 import org.junit.Before;
@@ -64,7 +63,7 @@ public class AudioTest extends RecordedEspressoHelper {
     public void testSoundLoads() throws InterruptedException {
         try {
             testAudio.playURLSound(SOUND_URL);
-        } catch (AudioPlaybackError e) {
+        } catch (AudioPlaybackException e) {
             e.printStackTrace();
         }
 
@@ -92,7 +91,7 @@ public class AudioTest extends RecordedEspressoHelper {
 
         try {
             testAudio.playURLSound(StockSounds.EGG_TIMER.getSoundURL());
-        } catch (AudioPlaybackError e){
+        } catch (AudioPlaybackException e){
             e.printStackTrace();
         }
         player.getDuration();
@@ -112,7 +111,7 @@ public class AudioTest extends RecordedEspressoHelper {
         try {
             testAudio.playURLSound(SOUND_URL_MP2);
             fail("Failed to throw exception when reading in an unsuported file media type.");
-        } catch (AudioPlaybackError e){
+        } catch (AudioPlaybackException e){
             assertEquals(e.getMessage(), "Tried to use an invalid audio format. Please resort to using the .mp3 format.");
         }
    }
@@ -125,7 +124,7 @@ public class AudioTest extends RecordedEspressoHelper {
         try {
             testAudio.playURLSound(SOUND_URL_FLAC);
             fail("Failed to throw exception when reading in an unsuported file media type.");
-        } catch (AudioPlaybackError e){
+        } catch (AudioPlaybackException e){
             assertEquals(e.getMessage(), "Tried to use an invalid audio format. Please resort to using the .mp3 format.");
         }
    }
@@ -137,7 +136,7 @@ public class AudioTest extends RecordedEspressoHelper {
         try {
             testAudio.playURLSound("fakeInput.mp3");
             fail("Failed to throw exception when reading in a fake input.");
-        } catch (AudioPlaybackError e){
+        } catch (AudioPlaybackException e){
             assertEquals(e.getMessage(), "Failed to play audio from URL: fakeInput.mp3");
         }
    }

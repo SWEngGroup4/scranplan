@@ -1,4 +1,4 @@
-package com.group4sweng.scranplan.RecipeInfo;
+package com.group4sweng.scranplan.MealPlanner;
 
 import com.group4sweng.scranplan.Exceptions.PortionConvertException;
 
@@ -119,7 +119,16 @@ public class PortionsTest {
         } catch (PortionConvertException e){
             assertEquals(e.getMessage(), "Unable to convert portions of food from 1.0 to 10.0. Amount is outside the range in which an acceptable estimate can be calculated.");
         }
+    }
 
+    @Test
+    public void testServesAmountsRetrieval() {
+        int[] amounts = new int[3];
+
+        Portions.getValidServesAmounts(4);
+        assertEquals(1, amounts[0]);
+        assertEquals(2, amounts[1]);
+        assertEquals(6, amounts[2]);
 
     }
 }

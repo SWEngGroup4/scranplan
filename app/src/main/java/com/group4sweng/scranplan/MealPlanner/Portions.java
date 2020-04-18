@@ -1,9 +1,10 @@
-package com.group4sweng.scranplan.RecipeInfo;
+package com.group4sweng.scranplan.MealPlanner;
 
 import android.util.Log;
 
 import com.group4sweng.scranplan.Exceptions.PortionConvertException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -11,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 class Portions {
+    private final static int[] servesAmounts = {1,2,4,6,10,20};
 
     private final static String[] commonAlcohol = {"pinot grigio","pinot gris","sauvignon blanc", "chardonnay", "sherry", "madeira", "vermouth", "vinsanto",
     "riesling", "cabernet sauvignon", "pinot noir", "syrah", "zinfandel", "pilsener", "witbier", "pale ale", "bitter ale", "brown ale", "cask ale",
@@ -159,8 +161,35 @@ class Portions {
         return 1.0f;
     }
 
+    static ArrayList<Integer> getValidServesAmounts(float currentServes){
+        float maxValue = currentServes * MAX_SERVINGS_MULTIPLIER;
+        float minValue = currentServes * 1/MAX_SERVINGS_MULTIPLIER;
+
+        int maxValueInt = (int) Math.floor(maxValue);
+        int minValueInt = (int) Math.floor(minValue);
+
+        ArrayList<Integer> amounts = new ArrayList<>();
+        //int[] amounts = new int[servesAmounts.length];
+
+        int amountsCounter = 0;
+        for (int servesAmount : servesAmounts) {
+            System.out.println("Serves amounts: " + servesAmount);
+            if (servesAmount <= maxValueInt && servesAmount >= minValueInt && servesAmount != currentServes) {
+                amounts.add(servesAmount);
+                amountsCounter++;
+            }
+        }
+
+        for(int amount : amounts){
+            System.out.println("Amounts: " + amount);
+        }
+
+        return amounts;
+    }
+
     // TODO - Use to convert measurements. Could use this later maybe.
     static String convertPortions(String measurementType, float value){
         return null;
     }
 }
+

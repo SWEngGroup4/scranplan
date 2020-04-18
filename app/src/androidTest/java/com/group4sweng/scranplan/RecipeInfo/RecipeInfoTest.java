@@ -1,15 +1,14 @@
-package com.group4sweng.scranplan;
+package com.group4sweng.scranplan.RecipeInfo;
 
 import android.os.Handler;
 import android.os.Looper;
+
+import androidx.fragment.app.testing.FragmentScenario;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import androidx.fragment.app.testing.FragmentScenario;
-
-import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 
 
 public class RecipeInfoTest {

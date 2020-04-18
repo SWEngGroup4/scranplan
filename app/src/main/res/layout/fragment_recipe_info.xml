@@ -54,7 +54,7 @@
             android:layout_below="@+id/Title"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="5dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="15dp"
             android:layout_marginEnd="5dp"
             android:layout_toEndOf="@+id/recipeImage"
             android:ems="10"
@@ -170,10 +170,24 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/chefName"
             android:layout_marginStart="5dp"
-            android:layout_marginTop="17dp"
+            android:layout_marginTop="15dp"
             android:layout_toEndOf="@+id/recipeImage"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/chefName" />
+
+        <Button
+            android:id="@+id/changePortions"
+            android:layout_width="150dp"
+            style="@style/Widget.AppCompat.Button.Small"
+            android:layout_height="35dp"
+            android:layout_below="@+id/serves"
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="5dp"
+            android:layout_toEndOf="@+id/recipeImage"
+            android:text="Change portions"
+            android:textSize="12sp"
+            android:textColor="#000000" />
+
 
         <TextView
             android:id="@+id/serves"
@@ -182,11 +196,14 @@
             android:layout_below="@+id/ratingBar"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="5dp"
-            android:layout_marginTop="17dp"
+            android:layout_marginTop="10dp"
             android:layout_marginEnd="5dp"
             android:layout_toEndOf="@+id/recipeImage"
             android:gravity="left"
             android:textSize="18sp"/>
+
+
+
 
         <TextView
             android:id="@+id/fridge"
@@ -255,9 +272,6 @@
             app:layout_constraintTop_toTopOf="parent"
             android:src="?attr/actionModeCloseDrawable" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"></androidx.constraintlayout.widget.ConstraintLayout>
 
         <LinearLayout
             android:layout_marginStart="10sp"
@@ -268,7 +282,7 @@
             android:layout_above="@+id/description"
             android:layout_below="@+id/recipeImage"
             android:layout_alignParentStart="true"
-            android:layout_marginTop="1dp"
+            android:layout_marginTop="5dp"
             app:layout_constraintTop_toBottomOf="@+id/recipeImage"
             android:layout_marginBottom="-50dp"
             android:orientation="horizontal">

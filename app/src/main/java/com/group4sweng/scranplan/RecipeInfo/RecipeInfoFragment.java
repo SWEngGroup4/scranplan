@@ -55,7 +55,6 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
     private ImageView mRecipeImage;
     private ImageButton mFavourite;
     private RatingBar mStars;
-    private TextView mServing;
 
     //Variables to hold the data being passed through into the fragment
     protected String recipeID;
@@ -87,7 +86,8 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
     protected TextView mFreezer;
     protected TextView mReheatInformation;
     protected ImageButton mReheatInformationButton;
-
+    protected Button mChangePortions;
+    protected TextView mServing;
 
     private FirebaseFirestore mDatabase;
     private CollectionReference mDataRef;
@@ -185,7 +185,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         mRecipeFrameLayout = layout.findViewById(R.id.RecipeFrameLayout);
 
         //For the Ingredient array
-       listViewIngredients = layout.findViewById(R.id.listViewText);
+        listViewIngredients = layout.findViewById(R.id.listViewText);
 
         //5 star rating bar
         mStars = layout.findViewById(R.id.ratingBar);
@@ -219,6 +219,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         mVegan = bundle.getBoolean("vegan");
         mVegetarian = bundle.getBoolean("vegetarian");
         servingAmount = bundle.getString("peopleServes");
+
         canFreeze = bundle.getBoolean("canFreeze");
         fridgeTime = bundle.getString("fridgeDays");
 
@@ -357,6 +358,9 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         mChefName = layout.findViewById(R.id.chefName);
         mDescription = layout.findViewById(R.id.description);
         mRecipeImage = layout.findViewById(R.id.recipeImage);
+        mChangePortions = layout.findViewById(R.id.changePortions);
+        mChangePortions.setVisibility(View.GONE);
+
         final int adapterCount = arrayAdapter.getCount();
 
         for (int i = 0; i < adapterCount; i++) {

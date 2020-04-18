@@ -44,7 +44,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.group4sweng.scranplan.Exceptions.AudioPlaybackError;
+import com.group4sweng.scranplan.Exceptions.AudioPlaybackException;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.SoundHandler.AudioURL;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
@@ -635,8 +635,8 @@ public class Presentation extends AppCompatActivity {
             if(audioEnabled){
                 try {
                     timer.forceStopTimer(); //Attempt to force the timer to stop.
-                } catch (AudioPlaybackError audioPlaybackError) {
-                    audioPlaybackError.printStackTrace();
+                } catch (AudioPlaybackException audioPlaybackException) {
+                    audioPlaybackException.printStackTrace();
                 }
             } else {
                 timer.cancel(); //Attempt to force the timer to stop.
@@ -675,7 +675,7 @@ public class Presentation extends AppCompatActivity {
         if(timer != null){
             try {
                 timer.forceStopTimer();
-            } catch (AudioPlaybackError e){
+            } catch (AudioPlaybackException e){
                 e.printStackTrace();
             }
             timerIsPlaying = false;
@@ -700,8 +700,8 @@ public class Presentation extends AppCompatActivity {
         if(audioEnabled){
             try {
                 timer.stopTimer();
-            } catch (AudioPlaybackError audioPlaybackError) {
-                audioPlaybackError.printStackTrace();
+            } catch (AudioPlaybackException audioPlaybackException) {
+                audioPlaybackException.printStackTrace();
             }
         }
         playPause.setCompoundDrawablesWithIntrinsicBounds(R.drawable.exo_icon_play, 0, 0, 0); //
