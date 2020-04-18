@@ -197,7 +197,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:adjustViewBounds="true"
-                        android:scaleType="fitCenter"
+                        android:scaleType="centerCrop"
+                        android:layout_gravity="center_horizontal"
                         android:layout_centerInParent="true"
                         android:src="@drawable/scran"
                         android:visibility="gone"
@@ -217,7 +218,8 @@
                         android:layout_height="wrap_content"
                         android:maxHeight="250sp"
                         android:maxWidth="250sp"
-                        android:scaleType="fitCenter"
+                        android:layout_gravity="center_horizontal"
+                        android:scaleType="centerCrop"
                         android:layout_centerInParent="true"
                         android:adjustViewBounds="true"
                         android:src="@drawable/scran"
@@ -232,7 +234,6 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/recipePostInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -313,6 +314,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/postsList"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
         </LinearLayout>
     </ScrollView>
 </FrameLayout>
