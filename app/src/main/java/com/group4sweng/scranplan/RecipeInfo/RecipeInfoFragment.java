@@ -235,7 +235,9 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         mReturnButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 dismiss();
+
             }
         });
 
@@ -324,7 +326,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
                         fragment = new RecipeIngredientFragment();
                         break;
                     case 1:
-                        fragment = new RecipeReviewFragment(mUser);
+                        fragment = new RecipeReviewFragment();
                         //creating new bundle to pass through relative information to the review fragment
                         Bundle reviewBundle = new Bundle();
                         reviewBundle.putSerializable("ratingMap", ratingMap);

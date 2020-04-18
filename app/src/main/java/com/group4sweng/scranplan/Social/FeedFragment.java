@@ -104,7 +104,7 @@ public class FeedFragment extends Fragment {
     private RecipeFragment recipeFragment;
 
     //User information
-    private com.group4sweng.scranplan.UserInfo.UserInfoPrivate user;
+    protected com.group4sweng.scranplan.UserInfo.UserInfoPrivate user;
     private SearchPrefs prefs;
 
     //Menu items
@@ -143,6 +143,7 @@ public class FeedFragment extends Fragment {
         // Procedurally fills topLayout with imageButton content
         LinearLayout topLayout = view.findViewById(R.id.topLayout);
 
+
         initPageItems(view);
         initPageListeners();
 
@@ -158,7 +159,7 @@ public class FeedFragment extends Fragment {
 
                 sortButton.setVisible(false);
                 searchView.setVisibility(View.INVISIBLE);
-                setSearch();
+                //setSearch();
 
 
 

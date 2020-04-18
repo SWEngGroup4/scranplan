@@ -17,6 +17,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.Social.FeedFragment;
@@ -34,17 +35,17 @@ public class RecipeReviewFragment extends FeedFragment {
     private CheckBox mRecipeIcon;
     private CheckBox mReviewIcon;
     private TextView mRecipeRate;
-    private String mrecipeID;
+    private String mRecipeID;
 
     protected HashMap<String, Double> ratingMap;
 
     private double getNewRating;
     private double newOverallRating;
     private double newTotalRates;
+    final String TAG = "Data";
 
-
-    public RecipeReviewFragment(UserInfoPrivate userSent) {
-        super(userSent);
+    public RecipeReviewFragment() {
+        super();
     }
 
     // Auto-generated super method
@@ -60,13 +61,17 @@ public class RecipeReviewFragment extends FeedFragment {
         View layout = inflater.inflate(R.layout.fragment_feed, null);
 
         ratingMap = (HashMap<String, Double>) getArguments().getSerializable("ratingMap");
-        mrecipeID = getArguments().getString("recipeID");
+        mRecipeID = getArguments().getString("recipeID");
 
+        user = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
+
+        Log.e(TAG, "id name " + user.getUID());
+        Log.e(TAG, "id name " + mRecipeID);
+        Log.e(TAG, "id name " + user.getUID()+ mRecipeID);
 
         initPageItems(layout);
         displayItems(layout);
         initPageListeners();
-
 
 
         return layout;
@@ -94,13 +99,39 @@ public class RecipeReviewFragment extends FeedFragment {
             @Override
             public void onClick(View view) {
 
-                calculateRating();
+                //String title = mPostTitleInput.getText().toString();
+                String body = mPostBodyInput.getText().toString();
+                boolean isPic = false;
+                //TODO set these variables from the addition of these items
 
+
+                //mPostTitleInput.getText().clear();
+                mPostBodyInput.getText().clear();
+
+                CollectionReference ref = mDatabase.collection("reviews");
+                Log.e(TAG, "Added new post ");
+                // Saving the comment as a new document
+
+                HashMap<String, Object> map = new HashMap<>();
+                map.put("reviewID", user.getUID()+mRecipeID);
+                //map.put("title", title);
+                map.put("body", body);
+                map.put("timestamp", FieldValue.serverTimestamp());
+                map.put("isPic", isPic);
+                if(isPic){
+
+                }
+                // Saving default user to Firebase Firestore database
+                ref.add(map);
+
+
+                calculateRating();
                 RecipeInfoFragment repInfo = (RecipeInfoFragment) getParentFragment();
                 repInfo.updateStarRating(ratingMap.get("overallRating").toString());
 
             }
         });
+
 
     }
 
@@ -132,7 +163,7 @@ public class RecipeReviewFragment extends FeedFragment {
 
     private void calculateRating(){
 
-        final String TAG = "Data";
+
         Log.i(TAG, "Values: "+ ratingMap);
 
 //        ratingMap.put("overallRating", 3f);
@@ -146,7 +177,7 @@ public class RecipeReviewFragment extends FeedFragment {
 
         HashMap<String, Object> updateMap = new HashMap<>();
         CollectionReference ref = mDatabase.collection("recipes");
-        DocumentReference documentReference = ref.document(mrecipeID);
+        DocumentReference documentReference = ref.document(mRecipeID);
         updateMap.put("rating", ratingMap);
         documentReference.update(updateMap);
 
