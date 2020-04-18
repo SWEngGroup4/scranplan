@@ -4,10 +4,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -19,14 +22,18 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.R;
+import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+
+import static androidx.test.InstrumentationRegistry.getContext;
 
 /**
  *  Class holding the recycler adapter for the home page, each card will represent the view
@@ -39,6 +46,9 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
     // Variables for database and fragment to be displayed in
     private FeedFragment mFeedFragment;
     private List<FeedPostPreviewData> mDataset;
+    private UserInfoPrivate user;
+
+
 
     /**  Firebase **/
     FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
@@ -47,7 +57,6 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
      * The holder for the card with variables required
      */
     public static class FeedPostPreviewData {
-
         private String postID;
         private String authorUID;
         private String timeStamp;
@@ -65,7 +74,7 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
 
         public FeedPostPreviewData(HashMap<String, Object> doc) {
             this.document = doc;
-            this.postID = (String) document.get("postID");
+            this.postID = (String) document.get("docID");
             Timestamp time = (Timestamp) document.get("timestamp");
             this.timeStamp = time.toDate().toString();
             this.isRecipe = (boolean) document.get("isRecipe");
@@ -105,7 +114,11 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
         private TextView recipeTitle;
         private TextView recipeDescription;
 
-        private TextView
+        private TextView numLikes;
+        private TextView numComments;
+        private CheckBox likedOrNot;
+
+        private boolean likedB4;
 
         private RatingBar recipeRating;
 
@@ -121,6 +134,9 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
             recipeDescription = v.findViewById(R.id.postRecipeDescriptionAdapter);
             timeStamp = v.findViewById(R.id.postTimeStamp);
             recipeRating = v.findViewById(R.id.postRecipeRatingAdapter);
+            numLikes = v.findViewById(R.id.postNumLike);
+            numComments = v.findViewById(R.id.postNumComments);
+            likedOrNot = v.findViewById(R.id.likeIcon);
 
         }
     }
@@ -132,9 +148,10 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
      * @param feedFragment
      * @param dataset
      */
-    public FeedRecyclerAdapter(FeedFragment feedFragment, List<FeedPostPreviewData> dataset) {
+    public FeedRecyclerAdapter(FeedFragment feedFragment, List<FeedPostPreviewData> dataset ,UserInfoPrivate user) {
         mFeedFragment = feedFragment;
         mDataset = dataset;
+        this.user = user;
     }
 
 
@@ -200,7 +217,64 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
                 holder.recipeRating.setRating(mDataset.get(position).review);
             }
         }
+        Log.e("FdRc", "searching for post: " + mDataset.get(position).postID);
+        mDatabase.collection("posts").document(mDataset.get(position).postID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    holder.numLikes.setText(task.getResult().get("likes").toString());
+                    holder.numComments.setText(task.getResult().get("comments").toString());
+                }else {
+                    Log.e("FdRc", "User details retrieval : Unable to retrieve user document in Firestore ");
+                }
+            }
+        });
+        mDatabase.collection("likes").document(mDataset.get(position).postID + "-" + user.getUID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    if(task.getResult().exists()){
+                        holder.likedB4 = true;
+                        holder.likedOrNot.setChecked((boolean)task.getResult().get("liked"));
+                    }else{
+                        holder.likedB4 = false;
+                        holder.likedOrNot.setChecked(false);
+                    }
+                    holder.likedOrNot.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                        @Override
+                        public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                            if (holder.likedOrNot.isChecked()) {
+                                Log.e("FERC", "liked post");
+                                if(holder.likedB4){
+                                    mDatabase.collection("likes").document(mDataset.get(position).postID + "-" + user.getUID()).update("liked", true);
+                                }else{
+                                    holder.likedB4 = true;
+                                    HashMap<String, Object> likePost = new HashMap<>();
+                                    likePost.put("liked", true);
+                                    likePost.put("user", user.getUID());
+                                    likePost.put("post", mDataset.get(position).postID);
+                                    mDatabase.collection("likes").document(mDataset.get(position).postID + "-" + user.getUID()).set(likePost);
+                                }
+                                mDatabase.collection("posts").document(mDataset.get(position).postID).update("likes", FieldValue.increment(1));
+                                int newLiked = Integer.parseInt((String) holder.numLikes.getText())+1;
+                                String test = String.valueOf(newLiked);
+                                holder.numLikes.setText(test);
 
+                            } else {
+                                Log.e("FERC", "unliked post");
+                                mDatabase.collection("likes").document(mDataset.get(position).postID + "-" + user.getUID()).update("liked", false);
+                                mDatabase.collection("posts").document(mDataset.get(position).postID).update("likes", FieldValue.increment(-1));
+                                int newLiked = Integer.parseInt((String) holder.numLikes.getText())-1;
+                                String test = String.valueOf(newLiked);
+                                holder.numLikes.setText(test);
+                            }
+                        }
+                    });
+                }else {
+                    Log.e("FdRc", "User details retrieval : Unable to retrieve user document in Firestore ");
+                }
+            }
+        });
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -230,7 +230,7 @@ android:paddingTop="5sp">
             <LinearLayout
                 android:id="@+id/openCommentsLinearLayout"
                 android:layout_width="match_parent"
-                android:layout_height="30sp"
+                android:layout_height="40sp"
                 android:layout_alignParentBottom="true"
                 android:layout_marginBottom="10sp">
 
@@ -245,17 +245,17 @@ android:paddingTop="5sp">
                         android:layout_height="wrap_content"
                         android:singleLine="true"
                         android:textStyle="bold"
-                        android:text="10"
+                        android:text="0"
                         android:paddingHorizontal="5sp"/>
 
 
 
                     <CheckBox
                         android:id="@+id/likeIcon"
-                        android:layout_width="30sp"
-                        android:layout_height="30sp"
-                        android:maxWidth="30sp"
-                        android:maxHeight="30sp"
+                        android:layout_width="40sp"
+                        android:layout_height="40sp"
+                        android:maxWidth="40sp"
+                        android:maxHeight="40sp"
                         android:scaleType="fitCenter"
                         android:button="@null"
                         android:checked="false"
@@ -268,15 +268,15 @@ android:paddingTop="5sp">
                         android:layout_height="wrap_content"
                         android:singleLine="true"
                         android:textStyle="bold"
-                        android:text="5"
+                        android:text="0"
                         android:paddingHorizontal="5sp"/>
 
                     <ImageView
                         android:id="@+id/commentIcon"
-                        android:layout_width="30sp"
-                        android:layout_height="30sp"
-                        android:maxWidth="30sp"
-                        android:maxHeight="30sp"
+                        android:layout_width="40sp"
+                        android:layout_height="40sp"
+                        android:maxWidth="40sp"
+                        android:maxHeight="40sp"
                         android:scaleType="fitCenter"
                         android:background="@drawable/comment"/>
 

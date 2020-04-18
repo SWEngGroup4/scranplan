@@ -219,7 +219,7 @@ public class FeedFragment extends Fragment {
         //recyclerView.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels));
         // Array to score downloaded data
         data = new ArrayList<>();
-        final RecyclerView.Adapter rAdapter = new FeedRecyclerAdapter(FeedFragment.this, data);
+        final RecyclerView.Adapter rAdapter = new FeedRecyclerAdapter(FeedFragment.this, data, user);
         recyclerView.setAdapter(rAdapter);
         query = mColRef.whereArrayContains("users", user.getUID()).orderBy("lastPost", Query.Direction.DESCENDING).limit(10);
         // Ensure query exists and builds view with query
@@ -455,8 +455,8 @@ public class FeedFragment extends Fragment {
                 // Saving the comment as a new document
                 HashMap<String, Object> map = new HashMap<>();
                 HashMap<String, Object> extras = new HashMap<>();
-                map.put("comments", 0);
-                map.put("likes", 0);
+                extras.put("comments", 0);
+                extras.put("likes", 0);
                 map.put("author", user.getUID());
                 map.put("body", body);
                 map.put("timestamp", FieldValue.serverTimestamp());
@@ -585,6 +585,7 @@ public class FeedFragment extends Fragment {
                         }
                     }
                     // Saving default user to Firebase Firestore database
+                    extras.putAll(map);
                     ref.add(extras).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                                                               @Override
                                                               public void onComplete(@NonNull Task<DocumentReference> task) {
