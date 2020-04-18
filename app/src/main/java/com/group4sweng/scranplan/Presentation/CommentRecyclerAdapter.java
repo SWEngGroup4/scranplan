@@ -103,8 +103,10 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<com.group4sweng
             @Override
             public void onClick(View v) {
                 if(presentation != null){
-                   presentation.commentSelected(mDataset.get(holder.getAdapterPosition()).document, holder.cardView, currentSlide);
-                    Log.e("COMMENT RECYCLER", "Add send to profile on click");
+                    if(mDataset.get(holder.getAdapterPosition()).document != null){
+                        presentation.commentSelected(mDataset.get(holder.getAdapterPosition()).document, holder.cardView, currentSlide);
+                        Log.e("COMMENT RECYCLER", "Add send to profile on click");
+                    }
                 }else{
                     Log.e("COMMENT RECYCLER", "Issue with no component in onBindViewHolder");
                 }
