@@ -90,7 +90,7 @@ public class FeedFragment extends Fragment {
     private static final int PERMISSION_CODE = 1001;
 
     private static final int MAX_IMAGE_FILE_SIZE_IN_MB = 4; // Max storage image size for the profile picture.
-    private static boolean POST_IS_UPLOADING = false; // Boolean to determine if the image is uploading currently.
+    protected static boolean POST_IS_UPLOADING = false; // Boolean to determine if the image is uploading currently.
 
     private Uri mImageUri; // Unique image uri.
     ImageView mUploadedImage;
@@ -101,7 +101,7 @@ public class FeedFragment extends Fragment {
 
     // Width size of each scroll view, dictating size of images on home screen
     final int scrollViewSize = 5;
-    LoadingDialog loadingDialog;
+    protected LoadingDialog loadingDialog;
 
     //Score scroll info
     List<FeedRecyclerAdapter.FeedPostPreviewData> data;
@@ -110,17 +110,17 @@ public class FeedFragment extends Fragment {
     private boolean isLastItemReached = false;
 
     protected Button mPostButton;
-    CheckBox mPostRecipe;
-    CheckBox mPostReview;
-    CheckBox mPostPic;
-    EditText mPostBodyInput;
-    Space mPicSpacer;
+    protected CheckBox mPostRecipe;
+    protected CheckBox mPostReview;
+    protected CheckBox mPostPic;
+    protected EditText mPostBodyInput;
+    protected Space mPicSpacer;
 
-    ImageView mAttachedRecipeImage;
-    TextView mAttachedRecipeTitle;
-    TextView mAttachedRecipeInfo;
-    String attachedRecipeURL;
-    String recipeID;
+    protected ImageView mAttachedRecipeImage;
+    protected TextView mAttachedRecipeTitle;
+    protected TextView mAttachedRecipeInfo;
+    protected String attachedRecipeURL;
+    protected String recipeID;
 
     View mainView;
 
@@ -128,29 +128,18 @@ public class FeedFragment extends Fragment {
     RatingBar mAttachedRecipeReview;
 
     //Fragment handlers
-    private FragmentTransaction fragmentTransaction;
-    private RecipeFragment recipeFragment;
+    protected FragmentTransaction fragmentTransaction;
+    protected RecipeFragment recipeFragment;
 
     //User information
-    private com.group4sweng.scranplan.UserInfo.UserInfoPrivate user;
-    private SearchPrefs prefs;
+    protected com.group4sweng.scranplan.UserInfo.UserInfoPrivate user;
+    protected SearchPrefs prefs;
 
     //Menu items
     private SearchView searchView;
     private MenuItem sortButton;
 
     Query query;
-
-    private RecipeFragment recipeFragment;
-
-    //User information
-    protected com.group4sweng.scranplan.UserInfo.UserInfoPrivate user;
-    private SearchPrefs prefs;
-
-    //Menu items
-    private SearchView searchView;
-    private MenuItem sortButton;
-
 
 
     // Database objects for accessing recipes
@@ -205,12 +194,6 @@ public class FeedFragment extends Fragment {
                 sortButton.setVisible(false);
                 searchView.setVisibility(View.INVISIBLE);
                 //setSearch();
-
-
-
-                //Gets search preferences from home class
-                prefs = home.getSearchPrefs();
-            }
 
 
 

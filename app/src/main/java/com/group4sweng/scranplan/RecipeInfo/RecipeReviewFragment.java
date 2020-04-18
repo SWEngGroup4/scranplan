@@ -81,7 +81,7 @@ public class RecipeReviewFragment extends FeedFragment {
     public void initPageItems(View layout){
         super.initPageItems(layout);
 
-        mStars = layout.findViewById(R.id.rating);
+        mStars = layout.findViewById(R.id.postRecipeRating);
         mImageIcon = layout.findViewById(R.id.imageIcon);
         mRecipeIcon = layout.findViewById(R.id.recipeIcon);
         mReviewIcon = layout.findViewById(R.id.reviewIcon);
@@ -99,9 +99,9 @@ public class RecipeReviewFragment extends FeedFragment {
             @Override
             public void onClick(View view) {
 
-                //String title = mPostTitleInput.getText().toString();
+                POST_IS_UPLOADING = true;
+                loadingDialog.startLoadingDialog();
                 String body = mPostBodyInput.getText().toString();
-                boolean isPic = false;
                 //TODO set these variables from the addition of these items
 
 
@@ -117,10 +117,7 @@ public class RecipeReviewFragment extends FeedFragment {
                 //map.put("title", title);
                 map.put("body", body);
                 map.put("timestamp", FieldValue.serverTimestamp());
-                map.put("isPic", isPic);
-                if(isPic){
 
-                }
                 // Saving default user to Firebase Firestore database
                 ref.add(map);
 
