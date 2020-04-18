@@ -58,7 +58,7 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class ProfileSettingsTest extends RecordedEspressoHelper {
+public class ProfileSettingsTest extends RecordedEspressoHelper implements Credentials {
 
     enum PrivacyType {
         PRIVATE,
@@ -69,11 +69,7 @@ public class ProfileSettingsTest extends RecordedEspressoHelper {
     private String TAG = "profileSettingsTest";
 
     private UserInfoPrivate testUser;
-    ProfileSettings activityResult;
-
-    //  Default test values.
-    private static final String TEST_EMAIL = "jb2200@york.ac.uk";
-    private static String TEST_PASSWORD = "password";
+    private ProfileSettings activityResult;
 
     //  How long we should sleep when waiting for Firebase information to update. Increase this value if you have a slower machine or emulator.
     private static final int THREAD_SLEEP_TIME = 3000;

@@ -1,4 +1,4 @@
-package com.group4sweng.scranplan;
+package com.group4sweng.scranplan.MealPlanner;
 
 import android.util.Log;
 import android.view.KeyEvent;
@@ -6,8 +6,14 @@ import android.widget.SearchView;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.Espresso;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
+
+import com.group4sweng.scranplan.Credentials;
+import com.group4sweng.scranplan.Home;
+import com.group4sweng.scranplan.Login;
+import com.group4sweng.scranplan.R;
 
 import org.junit.After;
 import org.junit.Before;
@@ -28,7 +34,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.group4sweng.scranplan.HomeTest.typeSearchViewText;
 
 @RunWith(AndroidJUnit4.class)
-public class PlannerFragmentTest {
+public class PlannerFragmentTest implements Credentials {
 
     @Rule
     public ActivityTestRule<Home> mActivityTestRule = new ActivityTestRule<>(Home.class);
@@ -43,9 +49,9 @@ public class PlannerFragmentTest {
         Log.d(TAG, "Starting tests");
         ActivityScenario.launch(Login.class);
 
-        onView(withId(R.id.loginButton)).perform(click());
-        onView(withId(R.id.emailEditText)).perform(typeText("jamesclawley@gmail.com"));
-        onView(withId(R.id.passwordEditText)).perform(typeText("password"));
+        onView(ViewMatchers.withId(R.id.loginButton)).perform(click());
+        onView(withId(R.id.emailEditText)).perform(typeText(TEST_EMAIL));
+        onView(withId(R.id.passwordEditText)).perform(typeText(TEST_PASSWORD));
         Espresso.closeSoftKeyboard();
 
         onView(withId(R.id.loginButton)).perform(click());

@@ -18,15 +18,12 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
-public class SideMenuTest {
+public class SideMenuTest implements Credentials{
     private MainActivity mMainActivity = null;
     FirebaseApp testApp;
     FirebaseAuth testAuth;
     Context mContext;
-
-
-    private static  final String TEST_EMAIL = "ncab500+test@york.ac.uk";
-    private static String TEST_PASSWORD = "password";
+    
     private static final int THREAD_SLEEP_TIME = 9000;
 
     @Rule

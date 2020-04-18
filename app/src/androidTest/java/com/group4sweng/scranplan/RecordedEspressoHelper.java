@@ -25,17 +25,17 @@ import static org.hamcrest.Matchers.is;
  * Author: JButler
  * (c) CoDev 2020
  **/
-class RecordedEspressoHelper {
+public class RecordedEspressoHelper {
 
     /** All helper functions where generated using the built in Espresso test recorder from 'Run Espresso Test'.
      * The functions are relatively un-readable and the tests take a long time to complete so
      * these helper functions are only for fragments, elements without proper resource ids, or elements which don't have associated text.
      */
 
-    protected static boolean shouldSkip = false; // Should we skip pressing the sidebar button incase we don't need to open the sidebar.
+    public static boolean shouldSkip = false; // Should we skip pressing the sidebar button incase we don't need to open the sidebar.
 
     //  Enumeration for the sidebar element.
-    enum SideBarElement{
+    public enum SideBarElement{
         PROFILE,
         EDIT_PROFILE,
         LOGOUT;
@@ -63,7 +63,7 @@ class RecordedEspressoHelper {
 
     //  Opens the correct side menu element based on an enumeration which is translated into the corresponding side menu row.
     //  to be used by the test recorder output.
-    static void openSideBar(SideBarElement element){
+    public static void openSideBar(SideBarElement element){
         int ROW_ID = 1; //By default make this the top element in the side menu.
 
         switch(element) {
