@@ -10,9 +10,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -67,6 +70,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     TextView mNumRecipes;
     TextView mKudos;
     ImageView mKudosIcon;
+    TabLayout mStreamTabs;
 
     //  Whether we should retrieve different information for the user. E.g. username, about me etc...
     private boolean retrieveAboutMe = false, retrieveUsername = false,
@@ -112,6 +116,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         mUsername = findViewById(R.id.profile_username);
         mKudos = findViewById(R.id.profile_kudos);
         mKudosIcon = findViewById(R.id.profile_kudos_icon);
+        mStreamTabs = findViewById(R.id.profileStreamTabs);
     }
 
     @Override
@@ -135,13 +140,10 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
     //  Load all the data grabbed from the Firebase document snapshot.
     private void loadProfile(DocumentSnapshot profile) {
-        if(retrieveAboutMe) { //  If we are allowed to retrieve this data. do so.
+        if(retrieveAboutMe && !profile.get("about").equals("")) { //  If we are allowed to retrieve this data. do so.
             mAboutMe.setText((String) profile.get("about"));
-        } else {
-            View profileAboutMeDesc = findViewById(R.id.public_profile_about_me_desc);
-            View profileAboutMe = findViewById(R.id.profile_about_me);
-            profileAboutMe.setVisibility(View.INVISIBLE);
-            profileAboutMeDesc.setVisibility(View.INVISIBLE);
+            LinearLayout aboutLayout = findViewById(R.id.aboutMeLayout);
+            aboutLayout.setVisibility(View.VISIBLE);
         }
 
         if(retrieveImages) {
@@ -158,19 +160,15 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
         if(retrieveUsername){ mUsername.setText((String) profile.get("displayName")); }
 
+
         if(retrieveFilters){
             @SuppressWarnings("unchecked")
             HashMap<String, Object> filters = (HashMap<String, Object>) profile.get("preferences");
             initFiltersIcons(ALLERGENS, filters);
             initFiltersIcons(DIETARY, filters);
-        } else { // Remove all checkboxes if filters are hidden.
-            LinearLayout allergyLayout = findViewById(R.id.allergyLayout);
-            View allergyPressInfo = findViewById(R.id.allergyPressInfo);
-            View profileSettingsAllergens = findViewById(R.id.profile_settings_allergens);
+            LinearLayout dietLayout = findViewById(R.id.dietLayout);
+            dietLayout.setVisibility(View.VISIBLE);
 
-            allergyLayout.setVisibility(View.INVISIBLE);
-            allergyPressInfo.setVisibility(View.INVISIBLE);
-            profileSettingsAllergens.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -290,11 +288,8 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     private void loadLocalProfile() {
         if (retrieveAboutMe) { //  If we are allowed to retrieve this data. do so.
             mAboutMe.setText(mUserProfile.getAbout());
-        } else {
-            View profileAboutMeDesc = findViewById(R.id.public_profile_about_me_desc);
-            View profileAboutMe = findViewById(R.id.profile_about_me);
-            profileAboutMe.setVisibility(View.INVISIBLE);
-            profileAboutMeDesc.setVisibility(View.INVISIBLE);
+            LinearLayout aboutLayout = findViewById(R.id.aboutMeLayout);
+            aboutLayout.setVisibility(View.VISIBLE);
         }
 
         if(retrieveUsername){ mUsername.setText(mUserProfile.getDisplayName()); }
@@ -325,15 +320,9 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
             initFiltersIcons(ALLERGENS, filters);
             initFiltersIcons(DIETARY, filters);
+            LinearLayout dietLayout = findViewById(R.id.dietLayout);
+            dietLayout.setVisibility(View.VISIBLE);
 
-        } else { // Remove preferences icons if required.
-            LinearLayout allergyLayout = findViewById(R.id.allergyLayout);
-            View allergyPressInfo = findViewById(R.id.allergyPressInfo);
-            View profileSettingsAllergens = findViewById(R.id.profile_settings_allergens);
-
-            allergyLayout.setVisibility(View.INVISIBLE);
-            allergyPressInfo.setVisibility(View.INVISIBLE);
-            profileSettingsAllergens.setVisibility(View.INVISIBLE);
         }
     }
 

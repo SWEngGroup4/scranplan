@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Rotating method
-    public void rotateImageClockwise(View view) {
+    public static void rotateImageClockwise(View view) {
         ObjectAnimator rotate = ObjectAnimator.ofFloat(view, "rotation", 0f, 360f);
         rotate.setRepeatCount(999);
         rotate.setDuration(1000);
@@ -122,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
                                     map.put("firstAppLaunch", document.get("firstAppLaunch"));
                                     map.put("firstPresentationLaunch", document.get("firstPresentationLaunch"));
                                     map.put("firstMealPlannerLaunch", document.get("firstMealPlannerLaunch"));
+                                    map.put("posts", document.get("posts"));
 
                                     @SuppressWarnings("unchecked")
                                     HashMap<String, Object> preferences = (HashMap<String, Object>) document.get("preferences");

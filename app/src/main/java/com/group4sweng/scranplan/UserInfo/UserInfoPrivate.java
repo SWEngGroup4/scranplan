@@ -22,6 +22,7 @@ public class UserInfoPrivate implements Serializable{
     private String imageURL;
     private String about;
     private String email;
+    private long posts;
     private List<HashMap<String, Object>> mealPlanner;
     private boolean shortPreferences = true;
     private boolean firstAppLaunch = true;
@@ -46,6 +47,7 @@ public class UserInfoPrivate implements Serializable{
      * @param privacyFriends - A HashMap of the users privacy settings determining what is viewable by friends.
      */
     public UserInfoPrivate(HashMap<String, Object> map, HashMap<String, Object> prefs, HashMap<String, Object> privacyFriends, HashMap<String, Object> privacyPublic) {
+        this.posts = (long) map.get("posts");
         this.email = (String) map.get("email");
         this.UID = (String) map.get("UID");
         this.displayName = (String) map.get("displayName");
@@ -124,6 +126,14 @@ public class UserInfoPrivate implements Serializable{
         editor.apply();
     }
     */
+
+    public long getPosts() {
+        return posts;
+    }
+
+    public void setPosts(long posts) {
+        this.posts = posts;
+    }
 
     public String getEmail() {
         return email;

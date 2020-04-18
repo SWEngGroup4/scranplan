@@ -78,7 +78,7 @@ public class RecipeReviewFragment extends FeedFragment {
     }
 
     //Defining all relevant members of page
-    protected void initPageItems(View layout){
+    public void initPageItems(View layout){
         super.initPageItems(layout);
 
         mStars = layout.findViewById(R.id.rating);
