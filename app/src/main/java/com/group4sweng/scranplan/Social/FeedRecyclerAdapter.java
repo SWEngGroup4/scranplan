@@ -1,5 +1,6 @@
 package com.group4sweng.scranplan.Social;
 
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,10 +25,12 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.PostPage;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -45,6 +48,7 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
 
     // Variables for database and fragment to be displayed in
     private FeedFragment mFeedFragment;
+    private ProfilePosts mProfilePosts;
     private List<FeedPostPreviewData> mDataset;
     private UserInfoPrivate user;
 
@@ -90,7 +94,8 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
                 this.recipeTitle = (String) document.get("recipeTitle");
                 this.recipeDescription = (String) document.get("recipeDescription");
                 if(isReview){
-                    this.review = (float) document.get("recipeReview");
+                    double toFloat = (double) document.get("recipeReview");
+                    this.review = (float)toFloat;
                 }
             }
 
@@ -101,7 +106,8 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
      * Building the card and image view
      */
     public static class ViewHolder extends RecyclerView.ViewHolder {
-
+        private String authorName;
+        private String authorPicURL;
 
         private CardView cardView;
         private TextView author;
@@ -154,6 +160,17 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
         this.user = user;
     }
 
+    /**
+     * Constructor to add all variables
+     * @param profilePosts
+     * @param dataset
+     */
+    public FeedRecyclerAdapter(ProfilePosts profilePosts, List<FeedPostPreviewData> dataset ,UserInfoPrivate user) {
+        mProfilePosts = profilePosts;
+        mDataset = dataset;
+        this.user = user;
+    }
+
 
     /**
      * Building and inflating the view within its parent
@@ -179,6 +196,8 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                     if (task.isSuccessful()) {
+                        holder.authorName = (String)task.getResult().get("displayName");
+                        holder.authorPicURL = (String)task.getResult().get("imageURL");
                         holder.author.setText((String)task.getResult().get("displayName"));
                         if(task.getResult().get("imageURL") != null){
                             Glide.with(holder.authorPic.getContext())
@@ -278,8 +297,52 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mFeedFragment != null){
-                    mFeedFragment.itemSelected(mDataset.get(holder.getAdapterPosition()).document);
+                if (mFeedFragment != null || mProfilePosts != null){
+                    Bundle mBundle = new Bundle();
+                    mBundle.putString("postID", mDataset.get(position).postID);
+                    mBundle.putString("authorName", holder.authorName);
+                    mBundle.putString("authorPicURL", holder.authorPicURL);
+                    mBundle.putBoolean("likedB4", holder.likedB4);
+                    mBundle.putString("body", mDataset.get(position).body);
+                    mBundle.putBoolean("isRecipe", mDataset.get(position).isRecipe);
+                    if(mDataset.get(position).isRecipe){
+                        mBundle.putString("recipeTitle", mDataset.get(position).recipeTitle);
+                        mBundle.putString("recipeDescription", mDataset.get(position).recipeDescription);
+                        mBundle.putString("recipeImageURL", mDataset.get(position).recipeImageURL);
+                        if(mDataset.get(position).isReview){
+                            mBundle.putFloat("recipeReview", mDataset.get(position).review);
+                        }
+                    }
+                    if(mDataset.get(position).isPic) {
+                        mBundle.putString("uploadedImageURL", mDataset.get(position).uploadedImageURL);
+                    }
+                    mBundle.putString("timestamp", mDataset.get(position).timeStamp);
+
+                    if(mFeedFragment != null){
+                        mFeedFragment.itemSelected(mDataset.get(holder.getAdapterPosition()).document, mBundle, holder.numLikes, holder.likedOrNot, holder.numComments);
+                    }else{
+                        mProfilePosts.itemSelected(mDataset.get(holder.getAdapterPosition()).document, mBundle, holder.numLikes, holder.likedOrNot, holder.numComments);
+                    }
+
+
+
+                    mDatabase.collection("likes").document(mDataset.get(position).postID + "-" + user.getUID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                if(task.getResult().exists()){
+                                    holder.likedB4 = true;
+                                    holder.likedOrNot.setChecked((boolean)task.getResult().get("liked"));
+                                }else{
+                                    holder.likedB4 = false;
+                                    holder.likedOrNot.setChecked(false);
+                                }
+                            }else {
+                                Log.e("FdRc", "User details retrieval : Unable to retrieve user document in Firestore ");
+                            }
+                        }
+                    });
+
                 }else{
                     Log.e("FEED RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
                 }

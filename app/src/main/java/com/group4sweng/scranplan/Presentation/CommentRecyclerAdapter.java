@@ -14,6 +14,7 @@ package com.group4sweng.scranplan.Presentation;
         import androidx.recyclerview.widget.RecyclerView;
 
         import com.google.firebase.firestore.DocumentSnapshot;
+        import com.group4sweng.scranplan.PostPage;
         import com.group4sweng.scranplan.R;
 
         import java.util.List;
@@ -27,6 +28,7 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<com.group4sweng
 
     // Variables for database and fragment to be displayed in
     private Presentation presentation;
+    private PostPage postPage;
     private List<com.group4sweng.scranplan.Presentation.CommentRecyclerAdapter.CommentData> mDataset;
     private  String currentSlide;
 
@@ -78,6 +80,16 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<com.group4sweng
     }
 
     /**
+     * Constructor to add all variables
+     * @param postPage
+     * @param dataset
+     */
+    public CommentRecyclerAdapter (PostPage postPage, List<com.group4sweng.scranplan.Presentation.CommentRecyclerAdapter.CommentData> dataset) {
+        this.postPage = postPage;
+        mDataset = dataset;
+    }
+
+    /**
      * Building and inflating the view within its parent
      * @param parent
      * @param viewType
@@ -102,9 +114,14 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<com.group4sweng
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(presentation != null){
-                    if(mDataset.get(holder.getAdapterPosition()).document != null){
+                if (presentation != null) {
+                    if (mDataset.get(holder.getAdapterPosition()).document != null) {
                         presentation.commentSelected(mDataset.get(holder.getAdapterPosition()).document, holder.cardView, currentSlide);
+                        Log.e("COMMENT RECYCLER", "Add send to profile on click");
+                    }
+                }else if(postPage != null){
+                    if(mDataset.get(holder.getAdapterPosition()).document != null){
+                        postPage.commentSelected(mDataset.get(holder.getAdapterPosition()).document, holder.cardView);
                         Log.e("COMMENT RECYCLER", "Add send to profile on click");
                     }
                 }else{

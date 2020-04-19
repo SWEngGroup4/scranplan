@@ -54,6 +54,7 @@ import com.group4sweng.scranplan.Home;
 import com.group4sweng.scranplan.LoadingDialog;
 import com.group4sweng.scranplan.MealPlanner.PlannerInfoFragment;
 import com.group4sweng.scranplan.MealPlanner.PlannerListFragment;
+import com.group4sweng.scranplan.PostPage;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
@@ -944,7 +945,12 @@ public class FeedFragment extends Fragment {
      * On click of a recipe a new recipe info fragment is opened and the document is sent through
      * This saves on downloading the data again from the database
      */
-    public void itemSelected(Map<String, Object> document) {
+    public void itemSelected(Map<String, Object> document, Bundle mBundle,TextView likes, CheckBox likedOrNot, TextView numComments) {
+
+        PostPage postDialogFragment = new PostPage(likes, likedOrNot, numComments);
+        postDialogFragment.setArguments(mBundle);
+        postDialogFragment.setTargetFragment(this, 1);
+        postDialogFragment.show(getFragmentManager(), "Show post dialog fragment");
 
         //Takes ingredient array from snap shot and reformats before being passed through to fragment
 //        ArrayList<String> ingredientArray = new ArrayList<>();

@@ -61,15 +61,6 @@
                 app:layout_constraintTop_toBottomOf="@+id/profile_kudos" />
 
 
-
-
-
-
-
-
-
-
-
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guideline3"
                 android:layout_width="wrap_content"
@@ -104,19 +95,20 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/public_profile_image"
-                android:orientation="vertical">
+                app:layout_constraintTop_toBottomOf="@+id/public_profile_image">
 
                 <LinearLayout
                     android:id="@+id/statsFollowLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@color/colorPrimaryLight"
                     android:orientation="horizontal"
-                    android:paddingHorizontal="10sp"
-                    android:background="@color/colorPrimaryLight">
+                    android:paddingHorizontal="10sp">
+
                     <LinearLayout
                         android:layout_width="50sp"
                         android:layout_height="match_parent"
@@ -127,11 +119,11 @@
                             android:id="@+id/postsNum"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:paddingTop="5sp"
-                            android:layout_weight="2"
                             android:layout_gravity="center_horizontal"
-                            android:textStyle="bold"
-                            android:text="0" />
+                            android:layout_weight="2"
+                            android:paddingTop="5sp"
+                            android:text="0"
+                            android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/postsWord"
@@ -153,11 +145,11 @@
                             android:id="@+id/followersNum"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:paddingTop="5sp"
-                            android:layout_weight="2"
                             android:layout_gravity="center_horizontal"
-                            android:textStyle="bold"
-                            android:text="0" />
+                            android:layout_weight="2"
+                            android:paddingTop="5sp"
+                            android:text="0"
+                            android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/FollowersWord"
@@ -178,21 +170,21 @@
 
                         <TextView
                             android:id="@+id/followingNum"
-                            android:paddingTop="5sp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
                             android:layout_weight="2"
-                            android:textStyle="bold"
-                            android:text="0" />
+                            android:paddingTop="5sp"
+                            android:text="0"
+                            android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/followingWord"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
-                            android:paddingBottom="10sp"
                             android:layout_weight="1"
+                            android:paddingBottom="10sp"
                             android:text="Following" />
                     </LinearLayout>
 
@@ -209,8 +201,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:visibility="gone"
-                    android:paddingTop="10sp">
+                    android:paddingTop="10sp"
+                    android:visibility="gone">
 
                     <TextView
                         android:id="@+id/profile_about_me"
@@ -252,17 +244,17 @@
                         android:background="@color/colorPrimaryLight"
                         android:padding="5sp"
                         android:text="Dietary Preferences &amp; Allergens"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                        />
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
                     <TextView
                         android:id="@+id/allergyPressInfo"
                         android:layout_width="match_parent"
                         android:layout_height="25sp"
-                        android:background="@color/colorBackgroundPrimary"
                         android:layout_marginStart="10dp"
                         android:layout_marginEnd="10dp"
-                        android:text="(Press on an icon for more info)"
-                        android:padding="3sp"/>
+                        android:background="@color/colorBackgroundPrimary"
+                        android:padding="3sp"
+                        android:text="(Press on an icon for more info)" />
 
                     <LinearLayout
                         android:id="@+id/allergyLayout"
@@ -378,8 +370,6 @@
                 </LinearLayout>
 
 
-
-
                 <com.google.android.material.tabs.TabLayout
                     android:id="@+id/profileStreamTabs"
                     android:layout_width="match_parent"
@@ -401,18 +391,14 @@
                         android:icon="@drawable/stream_food_icon" />
 
                 </com.google.android.material.tabs.TabLayout>
-                <LinearLayout
-                    android:id="@+id/profileStream"
+
+                <FrameLayout
+                    android:id="@+id/profileFrameLayout"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-
-                </LinearLayout>
+                    android:layout_height="510dp"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
             </LinearLayout>
-
-
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

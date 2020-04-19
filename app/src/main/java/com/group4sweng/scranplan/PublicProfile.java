@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -12,6 +13,9 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -21,6 +25,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.MealPlanner.PlannerFragment;
+import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
+import com.group4sweng.scranplan.Social.FeedFragment;
+import com.group4sweng.scranplan.Social.ProfilePosts;
 import com.group4sweng.scranplan.UserInfo.FilterType;
 import com.group4sweng.scranplan.UserInfo.Kudos;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
@@ -54,6 +62,12 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     //  UID for the user in which we want to retrieve data from.
     private String UID;
     private UserInfoPrivate mUserProfile;
+
+    Fragment fragment;
+    FrameLayout frameLayout;
+    FragmentManager fragmentManager = getSupportFragmentManager();
+    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+    private String searchers;
 
     //  Default filter type enumeration. Types shown in 'FilterType' interface.
     FilterType.filterType currentFilterType = ALLERGENS;
@@ -101,12 +115,18 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
             loadInPrivacySettings(mUserProfile.getPublicPrivacy());
             loadLocalProfile();
             loadFirebase(FirebaseLoadType.PARTIAL);
+            searchers = mUserProfile.getUID();
         } else if(UID != null){ // If not instead search for the profile via the associated UID and reference Firebase.
             Log.i(TAG, "Loading data from Firebase");
             loadFirebase(FirebaseLoadType.FULL);
+            searchers = UID;
         } else {
             Log.e(TAG, "Unable to retrieve extra UID intent string. Cannot initialize profile.");
         }
+        fragment = new ProfilePosts(searchers);
+        fragmentTransaction.replace(R.id.profileFrameLayout, fragment);
+        fragmentTransaction.commit ();
+        initPageListeners();
     }
 
     private void initPageItems(){
@@ -117,6 +137,49 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         mKudos = findViewById(R.id.profile_kudos);
         mKudosIcon = findViewById(R.id.profile_kudos_icon);
         mStreamTabs = findViewById(R.id.profileStreamTabs);
+
+        frameLayout = findViewById(R.id.profileFrameLayout);
+
+    }
+
+    private void initPageListeners(){
+        // Listener for layout tab selection
+        mStreamTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                Log.d("Test", String.valueOf(fragment));
+                switch (tab.getPosition()) {
+                    case 0:
+                        fragment = new ProfilePosts(searchers);
+                        fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
+                        break;
+                    case 1:
+                        if (fragment.getClass() == RecipeFragment.class) fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                        else fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
+                        fragment = new ProfilePosts(searchers);
+                        break;
+                    case 2:
+                        fragment = new ProfilePosts(searchers);
+                        fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                        break;
+                }
+                fragmentTransaction.replace(R.id.frameLayout, fragment);
+                fragmentTransaction.commit();
+
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
     }
 
     @Override
