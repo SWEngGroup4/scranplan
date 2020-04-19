@@ -258,7 +258,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                 if(document.exists()){ // Check a document exists.
                     if(fltFinal == FirebaseLoadType.FULL){
                         @SuppressWarnings("unchecked")
-                        HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacy");
+                        HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacyPublic");
                         loadInPrivacySettings(privacy); // Load in privacy settings first (always)
                         loadProfile(document); // Then we load the public users profile.
                     }
