@@ -18,19 +18,19 @@ public class Line extends Shape {
         this.paint.setStrokeWidth(5f);
     }
 
-    Integer getxStart() {
+    public Integer getxStart() {
         return xStart;
     }
 
-    Integer getyStart() {
+    public Integer getyStart() {
         return yStart;
     }
 
-    Integer getxEnd() {
+    public Integer getxEnd() {
         return xEnd;
     }
 
-    Integer getyEnd() {
+    public Integer getyEnd() {
         return yEnd;
     }
 }

@@ -5,7 +5,6 @@ import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.RadialGradient;
 import android.graphics.Shader;
-import com.group4sweng.scranplan.Presentation.XmlParser;
 
 public class Shape {
 
@@ -27,7 +26,7 @@ public class Shape {
         return paint.getColor();
     }
 
-    Integer getColour() {
+    public Integer getColour() {
         return colour;
     }
 

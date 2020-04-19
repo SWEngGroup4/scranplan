@@ -81,7 +81,7 @@ public class BasicInfo extends Fragment {
     }
 
     private void initPageItems(View view) {
-        mRecipeImage = view.findViewById(R.id.createRecipeImage);
+        mRecipeImage = view.findViewById(R.id.recipeStepMedia);
         mRecipeName = view.findViewById(R.id.createRecipeName);
         mRecipeServes = view.findViewById(R.id.createRecipeServes);
         mRecipeDesc = view.findViewById(R.id.createRecipeDesc);
@@ -198,7 +198,7 @@ public class BasicInfo extends Fragment {
                     e.printStackTrace();
                 }
 
-                Picasso.get().load(image).into(mRecipeImage);
+                Picasso.get().load(image).fit().centerCrop().into(mRecipeImage);
                 imageSet = true;
             }
     }

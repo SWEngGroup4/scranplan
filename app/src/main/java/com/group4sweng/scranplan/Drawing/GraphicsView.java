@@ -42,10 +42,18 @@ public class GraphicsView extends View {
         postInvalidate();
     }
 
+    public ArrayList<Line> getLines() {
+        return lines;
+    }
+
     public void addOval(Rectangle shape, Integer startTime, Integer endTime) {
         ovals.add(shape);
         setTimers(shape, startTime, endTime);
         postInvalidate();
+    }
+
+    public ArrayList<Rectangle> getOvals() {
+        return ovals;
     }
 
     public void addRectangle(Rectangle shape, Integer startTime, Integer endTime) {
@@ -54,10 +62,24 @@ public class GraphicsView extends View {
         postInvalidate();
     }
 
+    public ArrayList<Rectangle> getRectangles() {
+        return rectangles;
+    }
+
+    public ArrayList<Rectangle> getShapes() {
+        ArrayList<Rectangle> shapes = ovals;
+        shapes.addAll(rectangles);
+        return shapes;
+    }
+
     public void addTriangle(Triangle triangle, Integer startTime, Integer endTime) {
         triangles.add(triangle);
         setTimers(triangle, startTime, endTime);
         postInvalidate();
+    }
+
+    public ArrayList<Triangle> getTriangles() {
+        return triangles;
     }
 
     private void setTimers(Shape shape, Integer startTime, Integer endTime) {

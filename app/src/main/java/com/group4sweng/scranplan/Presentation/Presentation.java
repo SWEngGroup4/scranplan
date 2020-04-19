@@ -48,6 +48,7 @@ import com.group4sweng.scranplan.Exceptions.AudioPlaybackError;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.SoundHandler.AudioURL;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
+import com.group4sweng.scranplan.Xml.XmlParser;
 
 import org.xmlpull.v1.XmlPullParserException;
 

@@ -1,4 +1,4 @@
-package com.group4sweng.scranplan.Presentation;
+package com.group4sweng.scranplan.Xml;
 
 import android.util.Log;
 import android.util.Xml;
@@ -21,7 +21,7 @@ public class XmlParser {
     private Defaults defaults;
     final static String TAG = "XmlParser";
 
-    Map<String, Object> parse(InputStream in) throws XmlPullParserException, IOException {
+    public Map<String, Object> parse(InputStream in) throws XmlPullParserException, IOException {
 
         // Initialises parser to process nulls using provided InputStream and invokes readFeed method
         try {
@@ -165,7 +165,6 @@ public class XmlParser {
         Audio audioLooping = null;
         Image image = null;
         Video video = null;
-        List<Comment> comments = null;
         Float timer = null;
 
         // TODO - parser trips up on tags without an end tag e.g. <image ... />. NEEDS FIX
@@ -206,9 +205,6 @@ public class XmlParser {
                 case "video":
                     video = readVideo(parser);
                     break;
-                case "comments":
-                    comments = readComments(parser);
-                    break;
                 case "timer":
                     timer = readFloat(parser);
                     break;
@@ -218,7 +214,7 @@ public class XmlParser {
             }
         }
 
-        return new Slide(id, duration, text, lines, shapes, triangles, audio, audioLooping, image, video, comments, timer);
+        return new Slide(id, duration, text, lines, shapes, triangles, audio, audioLooping, image, video, timer);
     }
 
     // TODO - as b and i are elements might need loop check
@@ -410,41 +406,6 @@ public class XmlParser {
         return new Video(urlName, startTime, loop, xStart, yStart);
     }
 
-    private List<Comment> readComments(XmlPullParser parser) throws  IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, null, "comments");
-
-        List<Comment> comments = new ArrayList<>();
-
-        while (parser.next() != XmlPullParser.END_TAG) {
-            if (parser.getEventType() != XmlPullParser.START_TAG) {
-                continue;
-            }
-            String name = parser.getName();
-            if ("comment".equals(name)) {
-                comments.add(readComment(parser));
-            } else {
-                skip(parser);
-            }
-        }
-
-        parser.require(XmlPullParser.END_TAG, null, "comments");
-
-        return comments;
-    }
-
-    private Comment readComment(XmlPullParser parser) throws IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, null, "comment");
-
-        String userID = parser.getAttributeValue(null, "userID");
-        parser.nextTag();
-        Text text = readText(parser);
-        parser.nextTag();
-
-        parser.require(XmlPullParser.END_TAG, null, "comment");
-
-        return new Comment(userID, text);
-    }
-
     private String readString(XmlPullParser parser) throws IOException, XmlPullParserException {
         String result = "";
         if (parser.next() == XmlPullParser.TEXT) {
@@ -498,14 +459,14 @@ public class XmlParser {
     //TODO - worth moving these into their own class files/different folder/nesting them in a different class?
 
     public static class DocumentInfo {
-        final String author;
-        final String dateModified;
-        final Float version;
-        final Integer totalSlides;
-        final String comment;
+        public final String author;
+        public final String dateModified;
+        public final Float version;
+        public final Integer totalSlides;
+        public final String comment;
 
-        DocumentInfo(String author, String dateModified, Float version,
-                     Integer totalSlides, String comment) {
+        public DocumentInfo(String author, String dateModified, Float version,
+                            Integer totalSlides, String comment) {
             this.author = author;
             this.dateModified = dateModified;
             this.version = version;
@@ -514,19 +475,19 @@ public class XmlParser {
         }
     }
 
-    static class Defaults {
-        final String backgroundColor;
-        final String font;
-        final Integer fontSize;
-        final String fontColor;
-        final String lineColor;
-        final String fillColor;
-        final Integer slideWidth;
-        final Integer slideHeight;
+    public static class Defaults {
+        public final String backgroundColor;
+        public final String font;
+        public final Integer fontSize;
+        public final String fontColor;
+        public final String lineColor;
+        public final String fillColor;
+        public final Integer slideWidth;
+        public final Integer slideHeight;
 
-        private Defaults(String backgroundColor, String font, Integer fontSize,
-                         String fontColor, String lineColor, String fillColor,
-                         Integer slideWidth, Integer slideHeight) {
+        public Defaults(String backgroundColor, String font, Integer fontSize,
+                        String fontColor, String lineColor, String fillColor,
+                        Integer slideWidth, Integer slideHeight) {
             this.backgroundColor = backgroundColor;
             this.font = font;
             this.fontSize = fontSize;
@@ -538,23 +499,23 @@ public class XmlParser {
         }
     }
 
-    static class Slide {
-        final String id;
-        final Integer duration;
-        final Text text;
-        final ArrayList<Line> lines;
-        final ArrayList<Shape> shapes;
-        final ArrayList<Triangle> triangles;
-        final Audio audio;
-        final Audio audioLooping;
-        final Image image;
-        final Video video;
-        final List<Comment> comments;
-        final Float timer;
+    public static class Slide {
+        public String id;
+        public Integer duration;
+        public Text text;
+        public ArrayList<Line> lines;
+        public ArrayList<Shape> shapes;
+        public ArrayList<Triangle> triangles;
+        public Audio audio;
+        public Audio audioLooping;
+        public Image image;
+        public Video video;
+        public Float timer;
 
-        private Slide(String id, Integer duration, Text text, ArrayList<Line> lines, ArrayList<Shape> shapes,
-                      ArrayList<Triangle> triangles, Audio audio, Audio audioLooping, Image image, Video video,
-                      List<Comment> comments, Float timer) {
+        public Slide() {}
+
+        public Slide(String id, Integer duration, Text text, ArrayList<Line> lines, ArrayList<Shape> shapes,
+                     ArrayList<Triangle> triangles, Audio audio, Audio audioLooping, Image image, Video video, Float timer) {
             this.id = id;
             this.duration = duration;
             this.text = text;
@@ -565,27 +526,26 @@ public class XmlParser {
             this.audioLooping = audioLooping;
             this.image = image;
             this.video = video;
-            this.comments = comments;
             this.timer = timer;
         }
     }
 
-    static class Text {
-        String text;
-        final String font;
-        final Integer fontSize;
-        final String fontColor;
-        final Integer fontWeight;
-        final Float xPos;
-        final Float yPos;
-        final Float height;
-        final Float width;
-        final Integer startTime;
-        final Integer endTime;
-        final String b;
-        final String i;
+    public static class Text {
+        public String text;
+        public final String font;
+        public final Integer fontSize;
+        public final String fontColor;
+        public final Integer fontWeight;
+        public final Float xPos;
+        public final Float yPos;
+        public final Float height;
+        public final Float width;
+        public final Integer startTime;
+        public final Integer endTime;
+        public final String b;
+        public final String i;
 
-        Text(String text, Defaults defaults) {
+        public Text(String text, Defaults defaults) {
             this.text = text;
             this.font = defaults.font;
             this.fontSize = defaults.fontSize;
@@ -601,7 +561,7 @@ public class XmlParser {
             this.i = "";
         }
 
-        private Text(String text, String font, Integer fontSize, String fontColor, Integer fontWeight, Float xPos,
+        public Text(String text, String font, Integer fontSize, String fontColor, Integer fontWeight, Float xPos,
                      Float yPos, Float height, Float width, Integer startTime, Integer endTime, String b, String i) {
             this.text = text;
             this.font = font;
@@ -620,16 +580,16 @@ public class XmlParser {
     }
 
     public static class Line {
-        final Float xStart;
-        final Float yStart;
-        final Float xEnd;
-        final Float yEnd;
-        final String lineColor;
-        final Integer startTime;
-        final Integer endTime;
+        public final Float xStart;
+        public final Float yStart;
+        public final Float xEnd;
+        public final Float yEnd;
+        public final String lineColor;
+        public final Integer startTime;
+        public final Integer endTime;
 
-        private Line(Float xStart, Float yStart, Float xEnd, Float yEnd,
-                     String lineColor, Integer startTime, Integer endTime) {
+        public Line(Float xStart, Float yStart, Float xEnd, Float yEnd,
+                    String lineColor, Integer startTime, Integer endTime) {
             this.xStart = xStart;
             this.yStart = yStart;
             this.xEnd = xEnd;
@@ -641,19 +601,19 @@ public class XmlParser {
     }
 
     public static class Shape {
-        final String type; //TODO - the type for this is "'oval'|'rectangle'" so needs changing from String
-        final Float xStart;
-        final Float yStart;
-        final Float width;
-        final Float height;
-        final String fillColor;
-        final Integer startTime;
-        final Integer endTime;
-        final Shading shading;
+        public final String type; //TODO - the type for this is "'oval'|'rectangle'" so needs changing from String
+        public final Float xStart;
+        public final Float yStart;
+        public final Float width;
+        public final Float height;
+        public final String fillColor;
+        public final Integer startTime;
+        public final Integer endTime;
+        public final Shading shading;
 
-        private Shape(String type, Float xStart, Float yStart, Float width,
-                      Float height, String fillColor, Integer startTime,
-                      Integer endTime, Shading shading) {
+        public Shape(String type, Float xStart, Float yStart, Float width,
+                     Float height, String fillColor, Integer startTime,
+                     Integer endTime, Shading shading) {
             this.type = type;
             this.xStart = xStart;
             this.yStart = yStart;
@@ -667,20 +627,20 @@ public class XmlParser {
     }
 
     public static class Triangle {
-        final Float xPos1;
-        final Float yPos1;
-        final Float xPos2;
-        final Float yPos2;
-        final Float xPos3;
-        final Float yPos3;
-        final String fillColor;
-        final Integer startTime;
-        final Integer endTime;
-        final Shading shading;
+        public final Float xPos1;
+        public final Float yPos1;
+        public final Float xPos2;
+        public final Float yPos2;
+        public final Float xPos3;
+        public final Float yPos3;
+        public final String fillColor;
+        public final Integer startTime;
+        public final Integer endTime;
+        public final Shading shading;
 
-        private Triangle(Float xPos1, Float yPos1, Float xPos2, Float yPos2,
-                      Float xPos3, Float yPos3, String fillColor,
-                      Integer startTime, Integer endTime, Shading shading) {
+        public Triangle(Float xPos1, Float yPos1, Float xPos2, Float yPos2,
+                        Float xPos3, Float yPos3, String fillColor,
+                        Integer startTime, Integer endTime, Shading shading) {
             this.xPos1 = xPos1;
             this.yPos1 = yPos1;
             this.xPos2 = xPos2;
@@ -703,8 +663,8 @@ public class XmlParser {
         public final String color2;
         public final Boolean cyclic;
 
-        Shading(Float x1, Float y1, Float x2, Float y2,
-                String color1, String color2, Boolean cyclic) {
+        public Shading(Float x1, Float y1, Float x2, Float y2,
+                       String color1, String color2, Boolean cyclic) {
             this.x1 = x1;
             this.y1 = y1;
             this.x2 = x2;
@@ -720,11 +680,11 @@ public class XmlParser {
      *  an optional 'looping' audio file can also be played as a timer sound. IE the default is an Egg timer.
      */
     public static class Audio {
-        final String urlName; //Direct URL of the audio to be played.
-        final Integer startTime; //Position in time to start audio from (Default = 0).
-        final Boolean loop; //Should the audio player loop?
+        public final String urlName; //Direct URL of the audio to be played.
+        public final Integer startTime; //Position in time to start audio from (Default = 0).
+        public final Boolean loop; //Should the audio player loop?
 
-        private Audio (String urlName, Integer startTime, Boolean loop) {
+        public Audio(String urlName, Integer startTime, Boolean loop) {
             this.urlName = urlName;
             this.startTime = startTime;
             this.loop = loop;
@@ -732,16 +692,16 @@ public class XmlParser {
     }
 
     public static class Image {
-        final String urlName;
-        final Float xStart;
-        final Float yStart;
-        final Float width;
-        final Float height;
-        final Integer startTime;
-        final Integer endTime;
+        public final String urlName;
+        public final Float xStart;
+        public final Float yStart;
+        public final Float width;
+        public final Float height;
+        public final Integer startTime;
+        public final Integer endTime;
 
-        private Image(String urlName, Float xStart, Float yStart, Float width,
-                      Float height, Integer startTime, Integer endTime) {
+        public Image(String urlName, Float xStart, Float yStart, Float width,
+                     Float height, Integer startTime, Integer endTime) {
             this.urlName = urlName;
             this.xStart = xStart;
             this.yStart = yStart;
@@ -753,29 +713,19 @@ public class XmlParser {
     }
 
     public static class Video {
-        final String urlName;
-        final Integer startTime;
-        final Boolean loop;
-        final Float xStart;
-        final Float yStart;
+        public final String urlName;
+        public final Integer startTime;
+        public final Boolean loop;
+        public final Float xStart;
+        public final Float yStart;
 
-        private Video(String urlName, Integer startTime, Boolean loop,
-                      Float xStart, Float yStart) {
+        public Video(String urlName, Integer startTime, Boolean loop,
+                     Float xStart, Float yStart) {
             this.urlName = urlName;
             this.startTime = startTime;
             this.loop = loop;
             this.xStart = xStart;
             this.yStart = yStart;
-        }
-    }
-
-    public static class Comment {
-        final String userID;
-        final Text text;
-
-        private Comment(String userID, Text text) {
-            this.userID = userID;
-            this.text = text;
         }
     }
 }

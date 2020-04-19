@@ -170,9 +170,6 @@ public class PresentationTextView extends ScrollView {
         catch (Exception e) {
             e.printStackTrace();
         }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     // Used for asynchronous retrieval of fonts from google API

@@ -1,9 +1,8 @@
 package com.group4sweng.scranplan.Drawing;
 
-import android.graphics.Paint;
 import android.graphics.Path;
 
-import com.group4sweng.scranplan.Presentation.XmlParser;
+import com.group4sweng.scranplan.Xml.XmlParser;
 
 public class Triangle extends Shape {
 
@@ -34,4 +33,27 @@ public class Triangle extends Shape {
         return path;
     }
 
+    public Integer getxPos1() {
+        return xPos1;
+    }
+
+    public Integer getxPos2() {
+        return xPos2;
+    }
+
+    public Integer getxPos3() {
+        return xPos3;
+    }
+
+    public Integer getyPos1() {
+        return yPos1;
+    }
+
+    public Integer getyPos2() {
+        return yPos2;
+    }
+
+    public Integer getyPos3() {
+        return yPos3;
+    }
 }

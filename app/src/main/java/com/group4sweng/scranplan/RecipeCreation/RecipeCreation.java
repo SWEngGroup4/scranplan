@@ -40,7 +40,8 @@ public class RecipeCreation extends AppCompatActivity {
         frameLayout = findViewById(R.id.createRecipeFrame);
         fragment = new BasicInfo();
         fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.createRecipeFrame, fragment).commitNow();
+        fragmentManager.beginTransaction().replace(R.id.createRecipeFrame, new RecipeSteps()).
+                setCustomAnimations(R.anim.exit_to_right, R.anim.enter_from_left).commitNow();
         spinner.setVisibility(View.INVISIBLE);
     }
 
@@ -53,11 +54,11 @@ public class RecipeCreation extends AppCompatActivity {
             case BASIC_INFO_FLAG:
                 fragment = new RecipeSteps();
                 fragmentManager.beginTransaction().replace(R.id.createRecipeFrame, fragment).
-                        setCustomAnimations(R.anim.exit_to_right, R.anim.enter_from_left).commit();
+                        setCustomAnimations(R.anim.exit_to_right, R.anim.enter_from_left).commitNow();
 
             case RECIPE_STEPS_FLAG:
                 //TODO - Upload the data to firebase
-                finish();
+//                finish();
         }
     }
 }

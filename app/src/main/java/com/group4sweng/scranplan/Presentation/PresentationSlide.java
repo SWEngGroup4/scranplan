@@ -13,6 +13,7 @@ import com.group4sweng.scranplan.Presentation.Views.PresentationImageView;
 import com.group4sweng.scranplan.Presentation.Views.PresentationPlayerView;
 import com.group4sweng.scranplan.Presentation.Views.PresentationTextView;
 import com.group4sweng.scranplan.R;
+import com.group4sweng.scranplan.Xml.XmlParser;
 
 import java.util.ArrayList;
 

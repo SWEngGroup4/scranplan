@@ -6,7 +6,7 @@ import android.graphics.RadialGradient;
 import android.graphics.RectF;
 import android.graphics.Shader;
 
-import com.group4sweng.scranplan.Presentation.XmlParser;
+import com.group4sweng.scranplan.Xml.XmlParser;
 
 public class Rectangle extends Shape {
 
@@ -41,5 +41,21 @@ public class Rectangle extends Shape {
                 centreY - (height / 2),
                 centreX + (width / 2),
                 centreY + (height / 2));
+    }
+
+    public Float getXStart() {
+        return centreX - (width / 2);
+    }
+
+    public Float getYStart() {
+        return centreY - (height / 2);
+    }
+
+    public Float getWidth() {
+        return width;
+    }
+
+    public Float getHeight() {
+        return height;
     }
 }

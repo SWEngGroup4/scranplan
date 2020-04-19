@@ -30,6 +30,23 @@ public class IngredientRecyclerAdapter extends RecyclerView.Adapter<IngredientRe
             this.measurement = measurement;
         }
 
+        protected IngredientData(Parcel in) {
+            ingredient = in.readString();
+            measurement = in.readString();
+        }
+
+        public static final Creator<IngredientData> CREATOR = new Creator<IngredientData>() {
+            @Override
+            public IngredientData createFromParcel(Parcel in) {
+                return new IngredientData(in);
+            }
+
+            @Override
+            public IngredientData[] newArray(int size) {
+                return new IngredientData[size];
+            }
+        };
+
         @Override
         public int describeContents() {
             return 0;
@@ -37,7 +54,8 @@ public class IngredientRecyclerAdapter extends RecyclerView.Adapter<IngredientRe
 
         @Override
         public void writeToParcel(Parcel dest, int flags) {
-
+            dest.writeString(ingredient);
+            dest.writeString(measurement);
         }
     }
 
