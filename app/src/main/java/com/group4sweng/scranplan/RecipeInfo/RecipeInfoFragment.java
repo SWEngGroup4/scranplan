@@ -198,6 +198,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
     /**
      * Arguments from the bundle passed into the fragment that contains data for the info page from the firestore
      */
+    @SuppressWarnings({"unchecked", "ConstantConditions"})
     private void initBundleItems(View layout, Bundle bundle) {
 
         recipeID = bundle.getString("recipeID");
@@ -206,6 +207,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         recipeDescription = bundle.getString("recipeDescription");
         chefName = bundle.getString("chefName");
         ingredientArray = bundle.getStringArrayList("ingredientList");
+        ingredientHashMap = (HashMap<String, String>) getArguments().getSerializable("ingredientListHashMap");
         recipeRating = bundle.getString("rating");
         xmlPresentation = bundle.getString("xmlURL");
         planner = bundle.getBoolean("planner");
