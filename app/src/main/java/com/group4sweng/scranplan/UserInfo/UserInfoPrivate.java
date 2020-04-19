@@ -1,20 +1,31 @@
 package com.group4sweng.scranplan.UserInfo;
 
-import android.os.Bundle;
+import android.util.Log;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 
 /**
  * UserInfoPrivate class
+ *  Author: LNewman
+ *  Edited by: JButler, JClawley
+ *  (c) CoDev 2020
+ *
  * Used to save the current users attributes locally on the device that will be used throughout the app for customisation.
  */
-public class UserInfoPrivate implements Serializable{
+public class UserInfoPrivate implements Serializable, Cloneable{
 
     //  Unique Log TAG ID.
-    final static String TAG = "UserInfo";
+    private final static String TAG = "UserInfo";
 
     //  User information
     private String UID;
@@ -23,14 +34,16 @@ public class UserInfoPrivate implements Serializable{
     private String about;
     private String email;
     private List<HashMap<String, Object>> mealPlanner;
-    private boolean shortPreferences = true;
-    private boolean firstAppLaunch = true;
-    private boolean firstPresentationLaunch = true;
+    private boolean shortPreferences;
+    private boolean firstAppLaunch;
+    private boolean firstPresentationLaunch;
+    private boolean firstMealPlannerLaunch;
 
-    //  HashMap privacy values are Boolean values of: 'display_username', 'display_about_me', 'display_recipes' & 'display_profile_image'.
-    private HashMap<String, Object> privacy;
-    private double chefRating;
-    private long numRecipes;
+    //  HashMap privacy values are Boolean values of: 'display_username', 'display_about_me', 'display_recipes', 'display_profile_image' & 'display_feed'.
+    private HashMap<String, Object> privacyPublic;
+    private HashMap<String, Object> privacyPrivate;
+    //  Which type of profile should the user have. If true the profile is by default hidden.
+    private boolean isPrivateProfileEnabled;
 
     /*TODO
         Add saved recipes here. Check UML profile diagram and Recipe diagram for more information.
@@ -42,27 +55,29 @@ public class UserInfoPrivate implements Serializable{
     /** Initiate a users private profile.
      * @param map - Basic user information. E.g. UID, display name. (HashMap, String) pair
      * @param prefs - The users preferences found within the 'Preferences' class. (HashMap, Boolean) pair
-     * @param privacy - A HashMap of the users privacy settings. (HashMap, Boolean) pair.
+     * @param privacyPublic - A HashMap of the users public privacy settings. (HashMap, Boolean) pair.
+     * @param privacyPrivate - A HashMap of the users privacy settings determining what is viewable by followers.
      */
-    public UserInfoPrivate(HashMap<String, Object> map, HashMap<String, Object> prefs, HashMap<String, Object> privacy) {
+    public UserInfoPrivate(HashMap<String, Object> map, HashMap<String, Object> prefs, HashMap<String, Object> privacyPrivate, HashMap<String, Object> privacyPublic) {
         this.email = (String) map.get("email");
         this.UID = (String) map.get("UID");
         this.displayName = (String) map.get("displayName");
         this.imageURL = (String) map.get("imageURL");
-        this.chefRating = (double) map.get("chefRating");
-        this.numRecipes =  (long) map.get("numRecipes");
         this.about = (String) map.get("about");
         this.mealPlanner = (List<HashMap<String, Object>>) map.get("mealPlan");
         this.shortPreferences = (boolean) map.get("shortPreferences");
         this.firstAppLaunch = (boolean) map.get("firstAppLaunch");
         this.firstPresentationLaunch = (boolean) map.get("firstPresentationLaunch");
+        this.firstMealPlannerLaunch = (boolean) map.get("firstMealPlannerLaunch");
 
         if(shortPreferences){
             this.preferences = new Preferences((boolean) prefs.get("allergy_nuts"),
                     (boolean) prefs.get("allergy_eggs"), (boolean) prefs.get("allergy_milk"),
                     (boolean) prefs.get("allergy_shellfish"), (boolean)prefs.get("allergy_soya"),
-                    (boolean) prefs.get("allergy_gluten"));
+                    (boolean) prefs.get("allergy_gluten"), (boolean)prefs.get("vegetarian"),
+                    (boolean) prefs.get("vegan"), (boolean) prefs.get("pescatarian"));
         } else {
+            Log.e(TAG, "REACHING LONG PREFERENCES FOR SOME WEIRD REASON");
             this.preferences = new Preferences((boolean) prefs.get("allergy_celery"),
                     (boolean) prefs.get("allergy_crustacean"), (boolean) prefs.get("allergy_eggs"),
                     (boolean) prefs.get("allergy_fish"), (boolean) prefs.get("allergy_gluten"),
@@ -78,8 +93,29 @@ public class UserInfoPrivate implements Serializable{
                     (boolean) prefs.get("ovovegetarian"), (boolean) prefs.get("pescatarian"),
                     (boolean) prefs.get("vegan"), (boolean) prefs.get("vegetarian"));
         }
-        this.privacy = privacy;
 
+        this.isPrivateProfileEnabled = (boolean) map.get("privateProfileEnabled");
+        this.privacyPrivate = privacyPrivate;
+        this.privacyPublic = privacyPublic;
+    }
+
+    public UserInfoPrivate deepClone() {
+        try {
+            ByteArrayOutputStream byteArrayOut = new ByteArrayOutputStream();
+            ObjectOutputStream objectOutStream = new ObjectOutputStream(byteArrayOut);
+            objectOutStream.writeObject(this);
+
+            ByteArrayInputStream byteArrayIn = new ByteArrayInputStream(byteArrayOut.toByteArray());
+            ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayIn);
+            return (UserInfoPrivate) objectInputStream.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            return null;
+        }
+    }
+
+    @NotNull
+    public Object clone()throws CloneNotSupportedException{
+        return super.clone();
     }
 
     /*TODO
@@ -162,20 +198,6 @@ public class UserInfoPrivate implements Serializable{
         this.imageURL = imageURL;
     }
 
-    public double getChefRating() {
-        return chefRating;
-    }
-
-    public void setChefRating(double chefRating )  { this.chefRating = chefRating; }
-
-    public long getNumRecipes() {
-        return numRecipes;
-    }
-
-    public void setNumRecipes(long numRecipes )   {
-        this.numRecipes = numRecipes;
-    }
-
     public String getAbout() {
         return about;
     }
@@ -190,14 +212,29 @@ public class UserInfoPrivate implements Serializable{
         this.preferences = preferences;
     }
 
-    public HashMap<String, Object> getPrivacy() { return privacy; }
+    public HashMap<String, Object> getPublicPrivacy() { return privacyPublic; }
 
-    public void setPrivacy(HashMap<String, Object> privacy) {
+    public HashMap<String, Object> getPrivacyPrivate() { return privacyPrivate; }
+
+    public boolean isPrivateProfileEnabled() { return isPrivateProfileEnabled; }
+
+    public void setIsPrivateProfileEnabled(boolean isPrivateProfileEnabled ){ this.isPrivateProfileEnabled = isPrivateProfileEnabled; }
+
+    public void setPrivacyPublic(HashMap<String, Object> privacy) {
         //  Check the HashMap has been properly initialized with all valid privacy parameters., otherwise return a runtime exception.
-        if (privacy.containsKey("display_username") && privacy.containsKey("display_profile_image") && privacy.containsKey("display_about_me") && privacy.containsKey("display_recipes") && privacy.containsKey("display_filters")) {
-            this.privacy = privacy;
+        if (privacy.containsKey("display_username") && privacy.containsKey("display_profile_image") && privacy.containsKey("display_about_me") && privacy.containsKey("display_recipes") && privacy.containsKey("display_filters") && privacy.containsKey("display_feed")) {
+            this.privacyPublic = privacy;
         } else {
-            throw new RuntimeException("Tried to set privacy settings with invalid or incomplete inputs");
+            throw new RuntimeException("Tried to set privacy settings for public profile with invalid or incomplete inputs");
+        }
+    }
+
+    public void setPrivatePrivacy(HashMap<String, Object> privacy) {
+        //  Check the HashMap has been properly initialized with all valid privacy parameters., otherwise return a runtime exception.
+        if (privacy.containsKey("display_username") && privacy.containsKey("display_profile_image") && privacy.containsKey("display_about_me") && privacy.containsKey("display_recipes") && privacy.containsKey("display_filters") && privacy.containsKey("display_feed")) {
+            this.privacyPrivate = privacy;
+        } else {
+            throw new RuntimeException("Tried to set privacy settings for private profile with invalid or incomplete inputs");
         }
     }
 
@@ -218,4 +255,12 @@ public class UserInfoPrivate implements Serializable{
     public boolean getFirstPresentationLaunch() {
         return firstPresentationLaunch;
     }
+
+    public void setFirstMealPlannerLaunch(boolean firstLaunch) {firstMealPlannerLaunch = firstLaunch; }
+
+    public boolean getFirstMealPlannerLaunch() {
+        return firstMealPlannerLaunch;
+    }
+
+
 }

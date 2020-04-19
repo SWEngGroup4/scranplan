@@ -27,4 +27,9 @@
         <item name="colorAccent">@color/colorBlueButton</item>
     </style>
 
+    <style name="RatingBar" parent="Theme.AppCompat">
+        <item name="colorControlNormal">@color/colorRatingGrey</item>
+        <item name="colorControlActivated">@color/colorRatingGold</item>
+    </style>
+
 </resources>

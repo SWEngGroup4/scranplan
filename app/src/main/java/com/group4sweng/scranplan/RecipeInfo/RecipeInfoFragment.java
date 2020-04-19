@@ -31,15 +31,17 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.Helper.ImageHelpers;
 import com.group4sweng.scranplan.Presentation.Presentation;
 import com.group4sweng.scranplan.R;
+import com.group4sweng.scranplan.UserInfo.FilterType;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
 
-public class RecipeInfoFragment extends AppCompatDialogFragment {
+public class RecipeInfoFragment extends AppCompatDialogFragment implements FilterType {
 
     // Variables for the xml layout so data from firebase can be properly assigned
     protected ImageButton mReturnButton;
@@ -428,7 +430,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         mFavourite = layout.findViewById(R.id.addFavorite);
         mDataRef = mDatabase.collection("recipes");
         final DocumentReference docRef = mDataRef.document(recipeID);
-        final String user = mUser.getUID();
+        final int user = mUser.getUID().hashCode();
 
         /*
          * After each operation, it will show the text "Added to favourites!" or "Removed from favourites!".
@@ -466,14 +468,73 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
      * and creates an ImageView that displays on a recipe so the user knows what allergy it contains.
      */
     protected void allergyDisplay(View layout) {
+        initFiltersIcons(layout, filterType.ALLERGENS);
+        initFiltersIcons(layout, filterType.DIETARY);
 
-        allergyIconCreation(layout);
-        eatingAdviceIconCreation(layout);
+        //allergyIconCreation(layout);
+        //eatingAdviceIconCreation(layout);
     }
+
+    private void initFiltersIcons(View layout, FilterType.filterType type){
+        ArrayList<Boolean> filterValues = new ArrayList<>();
+        ArrayList<ImageView> filterIcons = new ArrayList<>();
+        ArrayList<String> filterMessages = ImageHelpers.getFilterIconsHoverMessage(type);
+        final String title;
+
+        switch(type){
+            case ALLERGENS:
+                title = "Allergy";
+                filterValues.add(noEggs);
+                filterValues.add(noMilk);
+                filterValues.add(noNuts);
+                filterValues.add(noShellfish);
+                filterValues.add(noSoy);
+                filterValues.add(noWheat);
+
+                filterIcons.add(layout.findViewById(R.id.recipeInfoEggs));
+                filterIcons.add(layout.findViewById(R.id.recipeInfoMilk));
+                filterIcons.add(layout.findViewById(R.id.recipeInfoNuts));
+                filterIcons.add(layout.findViewById(R.id.recipeInfoShellfish));
+                filterIcons.add(layout.findViewById(R.id.recipeInfoSoy));
+                filterIcons.add(layout.findViewById(R.id.recipeInfoWheat));
+                break;
+            case DIETARY:
+                title = "Dietary";
+                filterValues.add(mPescatarian);
+                filterValues.add(mVegan);
+                filterValues.add(mVegetarian);
+
+                filterIcons.add(layout.findViewById(R.id.recipeInfoPesc));
+                filterIcons.add(layout.findViewById(R.id.recipeInfoVegan));
+                filterIcons.add(layout.findViewById(R.id.recipeInfoVeggie));
+                break;
+            default:
+                title = "";
+        }
+
+
+        for(int i = 0; i < filterIcons.size(); i++){
+            if (!filterValues.get(i)) {
+                ImageView icon = filterIcons.get(i);
+                String message = filterMessages.get(i);
+
+                icon.setVisibility(View.VISIBLE);
+                icon.setOnClickListener(v -> {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    AlertDialog dialog = builder.create();
+                    dialog.setTitle(title);
+                    dialog.setMessage(message);
+                    dialog.show();
+                });
+            }
+        }
+    }
+
 
     /**
      * Method that allows for the creation of the allergies icons and displays them onto the recipe information screen
      */
+    /*
     private void allergyIconCreation(View layout){
 
     //Arrays that hold the boolean values and imageView id's for the allergy ingredients
@@ -485,13 +546,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         allergyValue.add(noSoy);
         allergyValue.add(noWheat);
 
-    ArrayList<String> allergyMessage = new ArrayList<>();
-        allergyMessage.add("Contains Eggs");
-        allergyMessage.add("Contains Lactose");
-        allergyMessage.add("Contains Nuts");
-        allergyMessage.add("Contains Shellfish");
-        allergyMessage.add("Contains Soy");
-        allergyMessage.add("Contains Gluten");
+        ArrayList<String> allergyMessage = ImageHelpers.getFilterIconsHoverMessage(FilterType.filterType.ALLERGENS);
 
     ArrayList<ImageView> list = new ArrayList<>();
         list.add(layout.findViewById(R.id.recipeInfoEggs));
@@ -531,11 +586,12 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
     }
 
 
-}
+}*/
 
     /**
      * Method that allows for the creation of the eating preference icons and displays them onto the recipe information screen
      */
+    /*
     private void eatingAdviceIconCreation(View layout) {
 
         //Arrays that hold the boolean values and ImageView id's for the eating preference
@@ -544,10 +600,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         EatingHabitValue.add(mVegan);
         EatingHabitValue.add(mVegetarian);
 
-        ArrayList<String> EatingHabitMessage = new ArrayList<>();
-        EatingHabitMessage.add("Suitable for Pescatarian's");
-        EatingHabitMessage.add("Suitable for Vegans");
-        EatingHabitMessage.add("Suitable for Vegetarians");
+        ArrayList<String> EatingHabitMessage = ImageHelpers.getFilterIconsHoverMessage(FilterType.filterType.DIETARY);
 
         ArrayList<ImageView> EatingHabit = new ArrayList<>();
         EatingHabit.add(layout.findViewById(R.id.recipeInfoPesc));
@@ -581,6 +634,6 @@ public class RecipeInfoFragment extends AppCompatDialogFragment {
         }
 
 
-    }
+    }*/
 
 }

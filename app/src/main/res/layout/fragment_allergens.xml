@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".PreferencesTabs.AllergensFragment">
+
+    <TableLayout
+        android:id="@+id/settings_checkbox_table"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="16sp"
+        android:layout_marginEnd="16sp"
+        android:background="#cecce0"
+        tools:layout_editor_absoluteY="285dp">
+
+        <TableRow
+            android:layout_height="wrap_content"
+            android:padding="3sp">
+
+            <CheckBox
+                android:id="@+id/allergy_nuts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="onCheckboxClicked"
+                android:text="Nuts"
+                android:textSize="13sp"
+                tools:ignore="OnClick" />
+
+            <CheckBox
+                android:id="@+id/allergy_milk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="onCheckboxClicked"
+                android:text="Milk"
+                android:textSize="13sp"
+                tools:ignore="OnClick" />
+
+
+        </TableRow>
+
+        <TableRow android:padding="3sp">
+
+            <CheckBox
+                android:id="@+id/allergy_shellfish"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="onCheckboxClicked"
+                android:text="Shellfish"
+                android:textSize="13sp"
+                tools:ignore="OnClick"/>
+
+            <CheckBox
+                android:id="@+id/allergy_soy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="onCheckboxClicked"
+                android:text="Soy"
+                android:textSize="13sp"
+                tools:ignore="OnClick"/>
+
+
+        </TableRow>
+
+        <TableRow android:padding="3sp">
+
+            <CheckBox
+                android:id="@+id/allergy_wheat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="onCheckboxClicked"
+                android:text="Wheat"
+                android:textSize="13sp"
+                tools:ignore="OnClick"/>
+
+            <CheckBox
+                android:id="@+id/allergy_eggs"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="onCheckboxClicked"
+                android:text="Eggs"
+                android:textSize="13sp"
+                tools:ignore="OnClick"/>
+
+        </TableRow>
+
+
+    </TableLayout>
+
+</FrameLayout>

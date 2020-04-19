@@ -7,7 +7,7 @@ import java.io.Serializable;
  * Used within UserInfo class to save specific preferences user wants to apply to all queries within
  * the application
  */
-public class Preferences implements Serializable, FilterType {
+public class Preferences implements Serializable, FilterType, Cloneable {
 
     // All preference variables
     private boolean allergy_celery;
@@ -39,13 +39,17 @@ public class Preferences implements Serializable, FilterType {
     private boolean vegetarian;
 
     //  Basic constructor for setting a users allergy preferences. (6 allegerns)
-    public Preferences(boolean allergy_nuts, boolean allergy_eggs, boolean allergy_milk, boolean allergy_shellfish, boolean allergy_soya, boolean allergy_gluten){
+    public Preferences(boolean allergy_nuts, boolean allergy_eggs, boolean allergy_milk, boolean allergy_shellfish, boolean allergy_soya, boolean allergy_gluten,
+                       boolean vegetarian, boolean vegan, boolean pescatarian){
         this.allergy_nuts = allergy_nuts;
         this.allergy_eggs = allergy_eggs;
         this.allergy_shellfish = allergy_shellfish;
         this.allergy_soya = allergy_soya;
         this.allergy_milk = allergy_milk;
         this.allergy_gluten = allergy_gluten;
+        this.vegan = vegan;
+        this.vegetarian = vegetarian;
+        this.pescatarian = pescatarian;
     }
 
     //  Constructor for setting all of a users preferences.

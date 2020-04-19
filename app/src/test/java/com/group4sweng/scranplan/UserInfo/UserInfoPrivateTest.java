@@ -1,52 +1,74 @@
-package com.group4sweng.scranplan;
+package com.group4sweng.scranplan.UserInfo;
 
-import com.group4sweng.scranplan.UserInfo.Preferences;
-import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
+import android.os.Bundle;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import io.sentry.core.Sentry;
 
 import static com.google.firebase.firestore.util.Assert.fail;
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertFalse;
 
 /**
  * Unit tests for testing local private user info is able to be stored and retrieved.
  * Author: JButler
- * Edited by: ...
+ * Edited by: NBillis, JButler
  * (c) CoDev 2020
  **/
 public class UserInfoPrivateTest {
 
-    UserInfoPrivate testInfo;
+    private UserInfoPrivate testInfo;
 
     //  Initial test preferences. Same as default upon user registration.
     @Before
     public void initTestPreferences(){
+        // Setting up default user profileView on database with email and display name
         HashMap<String, Object> map = new HashMap<>();
         HashMap<String, Object> preferences = new HashMap<>();
-        HashMap<String, Object> privacy = new HashMap<>();
+        HashMap<String, Object> privacyPublic = new HashMap<>();
+        HashMap<String, Object> privacyPrivate = new HashMap<>();
+
+        // Add empty MealPlan list
+        List<Bundle> mealPlan = new ArrayList<>();
+        for (int i = 0; i < 21; i++) {
+            mealPlan.add(null);
+        }
 
         map.put("UID", "testUID");
         map.put("email", "email@testuser.com");
         map.put("displayName", "testName");
         map.put("imageURL", "");
-        map.put("chefRating", (double) 0);
         map.put("numRecipes", (long) 0);
         map.put("about", "");
-        map.put("shortPreferences",false);
-        map.put("firstAppLaunch",false);
-        map.put("firstPresentationLaunch",false);
+        map.put("mealPlan", mealPlan);
+        map.put("shortPreferences", true);
+        map.put("firstAppLaunch", true);
+        map.put("firstPresentationLaunch", true);
+        map.put("firstMealPlannerLaunch", true);
+        map.put("kudos", (long) 0);
 
-        privacy.put("display_username", true);
-        privacy.put("display_about_me", true);
-        privacy.put("display_recipes", false);
-        privacy.put("display_profile_image", true);
+        map.put("privateProfileEnabled", false);
+        privacyPublic.put("display_username", true);
+        privacyPublic.put("display_about_me", true);
+        privacyPublic.put("display_recipes", false);
+        privacyPublic.put("display_profile_image", true);
+        privacyPublic.put("display_filters", false);
+        privacyPublic.put("display_feed", false);
+
+        privacyPrivate.put("display_username", true);
+        privacyPrivate.put("display_about_me", true);
+        privacyPrivate.put("display_recipes", true);
+        privacyPrivate.put("display_profile_image", true);
+        privacyPrivate.put("display_filters", true);
+        privacyPrivate.put("display_feed", true);
 
         // Default user food preferences
         preferences.put("allergy_celery", false);
@@ -77,8 +99,12 @@ public class UserInfoPrivateTest {
         preferences.put("vegan", false);
         preferences.put("vegetarian", false);
 
+        map.put("preferences", preferences);
+        map.put("privacyPublic", privacyPublic);
+        map.put("privacyPrivate", privacyPrivate);
 
-        testInfo = new UserInfoPrivate(map, preferences, privacy);
+        // Generate our UserInfoPrivate object.
+        testInfo = new UserInfoPrivate(map, preferences, privacyPrivate, privacyPublic);
     }
 
     @Test
@@ -92,23 +118,38 @@ public class UserInfoPrivateTest {
     @Test
     public void testOtherBasicInfoCanBeSet(){
         testInfo.setAbout("newAbout");
-        testInfo.setChefRating(3.60);
-        testInfo.setNumRecipes(360);
         testInfo.setImageURL("NewImageURL.com");
         testInfo.setDisplayName("newName");
+        testInfo.setMealPlanner(null);
+        testInfo.setShortPreferences(false);
+        testInfo.setIsPrivateProfileEnabled(true);
 
         assertEquals(testInfo.getAbout(), "newAbout");
-        assertEquals(testInfo.getChefRating(), 3.60);
-        assertEquals(testInfo.getNumRecipes(), 360);
         assertEquals(testInfo.getImageURL(), "NewImageURL.com");
         assertEquals(testInfo.getDisplayName(), "newName");
+        assertNull(testInfo.getMealPlanner());
+        assertFalse(testInfo.getShortPreferences());
+        assertTrue(testInfo.isPrivateProfileEnabled());
     }
 
-    //  Test all allegerns can be set from a basic preferences constructor for the 6 main allegerns.
+    @Test
+    public void testInitialInfoCanBeSet(){
+        testInfo.setFirstPresentationLaunch(false);
+        testInfo.setFirstAppLaunch(false);
+        testInfo.setFirstMealPlannerLaunch(false);
+
+        assertFalse(testInfo.getFirstAppLaunch());
+        assertFalse(testInfo.getFirstPresentationLaunch());
+        assertFalse(testInfo.getFirstMealPlannerLaunch());
+    }
+
+    //  Test all allergens can be set from a basic preferences constructor for the 6 main allergens.
+    //  All set to true to make sure every allergy & dietary preference can be changed from false > true.
     @Test
     public void testBasicAllergyPreferencesCanBeSet() {
-        Preferences testPref = new Preferences(true, true, true, true, true, true);
-        testInfo.setPreferences(testPref);
+        //  Create a new 'short' preferences object.
+        Preferences testPref = new Preferences(true, true, true, true, true, true, true, true, true);
+        testInfo.setPreferences(testPref); // Set our preferences to this new object.
 
         assertTrue(testInfo.getPreferences().isAllergy_nuts());
         assertTrue(testInfo.getPreferences().isAllergy_eggs());
@@ -116,6 +157,9 @@ public class UserInfoPrivateTest {
         assertTrue(testInfo.getPreferences().isAllergy_shellfish());
         assertTrue(testInfo.getPreferences().isAllergy_soya());
         assertTrue(testInfo.getPreferences().isAllergy_gluten());
+        assertTrue(testInfo.getPreferences().isVegetarian());
+        assertTrue(testInfo.getPreferences().isVegan());
+        assertTrue(testInfo.getPreferences().isPescatarian());
     }
 
     //  Test a runtime exception is thrown if our privacy settings HashMap is missing a value or has incorrect key-value pairs.
@@ -126,12 +170,21 @@ public class UserInfoPrivateTest {
         privacy.put("display_username", true);
         privacy.put("display_about_me", true);
         privacy.put("display_recipes", false);
+        privacy.put("display_profile_image", false);
+        privacy.put("display_feed", false);
 
         try{
-            testInfo.setPrivacy(privacy);
-            fail("Failed to return valid runtime exception message for an incomplete Privacy HashMap entry");
+            testInfo.setPrivatePrivacy(privacy);
+            fail("Failed to return valid runtime exception message for an incomplete Private Privacy HashMap entry");
         } catch (RuntimeException e){
-            assertEquals(e.getMessage(), "Tried to set privacy settings with invalid or incomplete inputs");
+            assertEquals(e.getMessage(), "Tried to set privacy settings for private profile with invalid or incomplete inputs");
+        }
+
+        try {
+            testInfo.setPrivacyPublic(privacy);
+            fail("Failed to return valid runtime exception message for an incomplete Public Privacy HashMap entry");
+        } catch (RuntimeException e){
+            assertEquals(e.getMessage(), "Tried to set privacy settings for public profile with invalid or incomplete inputs");
         }
     }
 
@@ -145,18 +198,22 @@ public class UserInfoPrivateTest {
         privacy.put("display_recipes", true);
         privacy.put("display_profile_image", false);
         privacy.put("display_filters", false);
+        privacy.put("display_feed", true);
 
         try {
-            testInfo.setPrivacy(privacy);
+            testInfo.setPrivatePrivacy(privacy);
         } catch (RuntimeException e){
             Sentry.captureException(e);
-            fail("Should not return an exception with valid Privacy input parameters");
+            fail("Should not return an exception with valid Private Privacy input parameters");
         }
 
-        assertFalse((boolean) testInfo.getPrivacy().get("display_username"));
-        assertFalse((boolean) testInfo.getPrivacy().get("display_about_me"));
-        assertTrue((boolean) testInfo.getPrivacy().get("display_recipes"));
-        assertFalse((boolean) testInfo.getPrivacy().get("display_profile_image"));
+        try {
+            testInfo.setPrivacyPublic(privacy);
+        } catch (RuntimeException e){
+            Sentry.captureException(e);
+            fail("Should not return an exception with valid Public Privacy input parameters");
+        }
+
     }
 
 }

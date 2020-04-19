@@ -13,6 +13,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 
 import com.group4sweng.scranplan.Exceptions.AudioPlaybackError;
+import com.group4sweng.scranplan.SupportedFormats;
 
 import java.io.IOException;
 
@@ -56,13 +57,13 @@ public class AudioURL implements SupportedFormats
         //  Isn't a massive issue since if the input is not readable by Android an AudioPlaybackError will still be thrown later.
 
         //  Cycles through all available formats to check if the extension outlined matches.
-        for(int i = 0; i < Formats.values().length; i++ ){
-            if(!soundURL.contains("." + Formats.values()[i])){
+        for(int i = 0; i < AudioFormats.values().length; i++ ){
+            if(!soundURL.contains("." + AudioFormats.values()[i])){
                 counter++; //Counter is log everytime a format isn't found.
             }
         }
 
-        if(counter == Formats.values().length){ //If no supported formats are found the counter will equal the length of the formats enumeration.
+        if(counter == AudioFormats.values().length){ //If no supported formats are found the counter will equal the length of the formats enumeration.
             throw new AudioPlaybackError("Tried to use an invalid audio format. Please resort to using the .mp3 format.");
         }
 

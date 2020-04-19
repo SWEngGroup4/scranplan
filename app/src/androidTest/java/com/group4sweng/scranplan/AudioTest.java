@@ -142,30 +142,6 @@ public class AudioTest extends RecordedEspressoHelper {
         }
    }
 
-   /* TODO - Move to TimerTest... ?
-   @Test
-   public void testAudioPlaybackTimer() throws InterruptedException {
-        testAudio.setLooping(true);
-
-        Looper.prepare();
-        PresentationTimer timer = new PresentationTimer(4000, 1000, SOUND_URL) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-
-            }
-
-            @Override
-            public void onFinish() {
-
-            }
-        };
-        player = testAudio.getPlayer();
-        assertFalse(player.isPlaying());
-
-        Thread.sleep(10000);
-        //assertTrue(player.isPlaying());
-   }*/
-
    @After
    public void tearDown(){
         player.stop();
