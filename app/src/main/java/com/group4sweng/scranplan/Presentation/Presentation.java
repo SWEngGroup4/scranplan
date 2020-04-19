@@ -62,6 +62,11 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
+ * Class for displaying the main presentation.
+ * Author(s): JClawley
+ * Edited By: LNewman (comments), JButler (timers)
+ * (c) CoDev 2020
+ *
  *  All parts of the presentation, taking the XML document and separating it out into its slide that
  *  are then conveniently displayed for the user. User can go forward and backwards along with
  *  navigating to any particular slide. User can also add comments and view existing comments to
