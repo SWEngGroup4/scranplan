@@ -169,14 +169,11 @@ class Portions {
         int minValueInt = (int) Math.floor(minValue);
 
         ArrayList<Integer> amounts = new ArrayList<>();
-        //int[] amounts = new int[servesAmounts.length];
 
-        int amountsCounter = 0;
         for (int servesAmount : servesAmounts) {
             System.out.println("Serves amounts: " + servesAmount);
             if (servesAmount <= maxValueInt && servesAmount >= minValueInt && servesAmount != currentServes) {
                 amounts.add(servesAmount);
-                amountsCounter++;
             }
         }
 

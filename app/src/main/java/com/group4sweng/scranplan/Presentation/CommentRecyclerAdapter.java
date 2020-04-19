@@ -1,22 +1,18 @@
 package com.group4sweng.scranplan.Presentation;
 
-        import android.content.Context;
         import android.util.Log;
-        import android.view.LayoutInflater;
-        import android.view.MenuItem;
-        import android.view.View;
-        import android.view.ViewGroup;
-        import android.widget.PopupMenu;
-        import android.widget.TextView;
-        import android.widget.Toast;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
-        import androidx.cardview.widget.CardView;
-        import androidx.recyclerview.widget.RecyclerView;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.RecyclerView;
 
-        import com.google.firebase.firestore.DocumentSnapshot;
-        import com.group4sweng.scranplan.R;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.group4sweng.scranplan.R;
 
-        import java.util.List;
+import java.util.List;
 /**
  *  Class holding the recycler adapter for the search functionality, each card will represent the view
  *  of one recipe. All recipe info is stored in this card.
@@ -44,7 +40,6 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<com.group4sweng
             this.docID = authorID;
             this.author = author;
             this.comment = comment;
-
         }
     }
 
