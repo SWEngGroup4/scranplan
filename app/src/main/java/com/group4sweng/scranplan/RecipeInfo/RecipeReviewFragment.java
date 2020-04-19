@@ -23,8 +23,8 @@ import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.Social.FeedFragment;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -38,6 +38,7 @@ public class RecipeReviewFragment extends FeedFragment {
     private String mRecipeID;
 
     protected HashMap<String, Double> ratingMap;
+
 
     private double getNewRating;
     private double newOverallRating;
@@ -99,32 +100,33 @@ public class RecipeReviewFragment extends FeedFragment {
             @Override
             public void onClick(View view) {
 
-                POST_IS_UPLOADING = true;
-                loadingDialog.startLoadingDialog();
-                String body = mPostBodyInput.getText().toString();
-                //TODO set these variables from the addition of these items
-
-
-                //mPostTitleInput.getText().clear();
-                mPostBodyInput.getText().clear();
-
-                CollectionReference ref = mDatabase.collection("reviews");
-                Log.e(TAG, "Added new post ");
-                // Saving the comment as a new document
-
-                HashMap<String, Object> map = new HashMap<>();
-                map.put("reviewID", user.getUID()+mRecipeID);
-                //map.put("title", title);
-                map.put("body", body);
-                map.put("timestamp", FieldValue.serverTimestamp());
-
-                // Saving default user to Firebase Firestore database
-                ref.add(map);
-
-
                 calculateRating();
                 RecipeInfoFragment repInfo = (RecipeInfoFragment) getParentFragment();
                 repInfo.updateStarRating(ratingMap.get("overallRating").toString());
+
+
+//                POST_IS_UPLOADING = true;
+//                loadingDialog.startLoadingDialog();
+                String body = mPostBodyInput.getText().toString();
+                //TODO set these variables from the addition of these items
+
+                mPostBodyInput.getText().clear();
+
+                //Document ID for review post
+                String docID = user.getUID() + "-" + mRecipeID;
+
+                HashMap<String, Object> map = new HashMap<>();
+                map.put("body", body);
+                map.put("overallRating", getNewRating);
+                map.put("timestamp", FieldValue.serverTimestamp());
+                map.put("author", user.getUID());
+                map.put("reviewed", true);
+
+
+                //Saving review map to the firestore with custom document ID
+                DocumentReference ref = mDatabase.collection("reviews").document(docID);
+                Log.e(TAG, "Added new post ");
+                ref.set(map);
 
             }
         });
