@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -110,6 +111,16 @@ public class RecipeFragment extends Fragment {
         if (getArguments() != null)
             planner = getArguments().getBoolean("planner");
         else planner = false;
+
+        if (planner) {
+            TextView title = view.findViewById(R.id.recipeFragmentTitle);
+            ImageButton returnButton = view.findViewById(R.id.recipeFragmentReturnButton);
+            title.setVisibility(View.VISIBLE);
+            returnButton.setVisibility(View.VISIBLE);
+            returnButton.setOnClickListener(v ->
+                    getTargetFragment().onActivityResult(getTargetRequestCode(),
+                            Activity.RESULT_CANCELED, null));
+        }
 
         Home home = (Home) getActivity();
         if (home != null) {
