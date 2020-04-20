@@ -50,47 +50,49 @@ public class ShoppingList extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_shoppinglist);
+        setContentView(R.layout.activity_shoppingList);
 
         //initialize text view object
         TextView tv = (TextView) findViewById(R.id.textView2);
+        if (getIntent().getSerializableExtra("user") != null) {
+            mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) getIntent().getSerializableExtra("user");
+        }
 
-        AddIngredients();
-            for(HashMap<String, Object> ingredients: ShoppingList){
-               tv.append((CharSequence) mUser.getIngredientList());
-            }
-
-            }
-
-    @Override
-    public void onBackPressed() {
-        Intent returnIntent = new Intent(this, Home.class);
-        returnIntent.putExtra("user", mUserProfile);
-        startActivity(returnIntent);
-        finish(); //    We don't need to send anything back but do need to destroy the current activity.
-    }
-
-    public void AddIngredients() {
-
-        mUser = (UserInfoPrivate) getIntent().getSerializableExtra("user");
         if (mUser != null) {
-            HashMap<String, Object> ShoppingList = new HashMap<>();
-            if (mUser.getMealPlanner() != null) {
-                for(int x = 0; x <= 200; x++){
-                    PlannerList.get(x).get("ingredients");
-                    ShoppingList.put("ingredient", mUser.getIngredientList());
-                    mUser.setIngredients((List<HashMap<String, Object>>) ShoppingList);
+            ShoppingList = mUser.getMealPlanner();
+            AddIngredients();
+        }
+
+        }
+
+        @Override
+        public void onBackPressed () {
+            Intent returnIntent = new Intent(this, Home.class);
+            returnIntent.putExtra("user", mUserProfile);
+            startActivity(returnIntent);
+            finish(); //    We don't need to send anything back but do need to destroy the current activity.
+        }
+
+        public void AddIngredients(){
+
+
+            if (mUser != null) {
+
+                for (int x = 0; x <= mUser.getMealPlanner().size(); x++) {
+                    ShoppingList.get(x).get("ingredients");
+
+                    HashMap<String, Object> updateIngredientList = new HashMap<>();
+
+                    updateIngredientList.put("ingredient", mUser.getIngredientList());
+
+                    TextView tv = (TextView) findViewById(R.id.textView2);
+                    for (HashMap<String, Object> ingredients : ShoppingList) {
+                        tv.append("updateIngredientList");
+
+
+                    }
+                }
             }
-
         }
 
-
-        }
-
-
-
-
-    }
 }
-
-
