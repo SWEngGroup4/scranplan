@@ -167,6 +167,7 @@ public class SearchListFragment extends AppCompatDialogFragment {
                                     // For each document a new recipe preview view is generated
                                     if (documents.size() == objectID.size()) {
                                         for (DocumentSnapshot documentSnap : documents) {
+                                            // todo check if user can be searched
                                             String displayName = null;
                                             String about = null;
                                             String imageUrl = null;
@@ -261,6 +262,7 @@ public class SearchListFragment extends AppCompatDialogFragment {
 
 
     public void profileSelected(DocumentSnapshot document){
+        // todo check with user privicy stuff
         Log.i("INFO", "Profile Selected");
         Intent intentProfile = new Intent(getContext(), PublicProfile.class);
 
