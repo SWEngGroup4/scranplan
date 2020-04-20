@@ -1,122 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/createPres"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recipeStepRecyler"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_centerInParent="true"
-        android:layout_marginVertical="5dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:theme="@style/CardView.Light"
-        app:cardCornerRadius="2dp"
-        app:layout_constraintBottom_toTopOf="@+id/recipeStepGraphics"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/recipeStepSubmit"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline8"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_percent="0.5" />
-
-            <com.group4sweng.scranplan.Drawing.GraphicsView
-                android:id="@+id/recipeStepGraphicsView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:layout_editor_absoluteX="0dp"
-                tools:layout_editor_absoluteY="0dp" />
-
-            <TextView
-                android:id="@+id/recipeStepID"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="16dp"
-                android:text="Step 1"
-                android:textSize="18sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <ImageButton
-                android:id="@+id/recipeStepMedia"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_margin="16dp"
-                android:layout_marginStart="32dp"
-                android:layout_marginTop="32dp"
-                android:layout_marginEnd="32dp"
-                android:layout_marginBottom="32dp"
-                android:adjustViewBounds="true"
-                android:background="#00FFFFFF"
-                android:padding="10dp"
-                android:scaleType="fitCenter"
-                app:layout_constraintBottom_toTopOf="@+id/guideline8"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/recipeStepID"
-                app:srcCompat="@drawable/add" />
-
-            <EditText
-                android:id="@+id/recipeStepText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:ems="10"
-                android:gravity="start|top"
-                android:inputType="textMultiLine"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/guideline8" />
-
-            <Switch
-                android:id="@+id/recipeStepTimer"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginEnd="24dp"
-                android:text="Switch"
-                android:textSize="14sp"
-                app:layout_constraintEnd_toStartOf="@+id/recipeStepTimerValue"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/recipeStepText" />
-
-            <EditText
-                android:id="@+id/recipeStepTimerValue"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="128dp"
-                android:layout_marginEnd="8dp"
-                android:ems="10"
-                android:inputType="numberDecimal"
-                app:layout_constraintBaseline_toBaselineOf="@+id/recipeStepTimer"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </androidx.cardview.widget.CardView>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/recipeStepAdd"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_below="@id/createPres"
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="8dp"
         android:text="Add step"
@@ -134,33 +39,12 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <Button
-        android:id="@+id/recipeStepGraphics"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:text="Add graphics"
-        app:layout_constraintBottom_toTopOf="@+id/recipeStepSubmit"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <Button
-        android:id="@+id/recipeStepAudio"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:text="Add audio"
-        app:layout_constraintBaseline_toBaselineOf="@+id/recipeStepGraphics"
-        app:layout_constraintEnd_toStartOf="@+id/recipeStepGraphics" />
-
-    <Button
         android:id="@+id/recipeStepDefaults"
-        android:layout_width="0dp"
+        android:layout_width="131dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:text="Recipe format"
-        app:layout_constraintBaseline_toBaselineOf="@+id/recipeStepGraphics"
-        app:layout_constraintEnd_toStartOf="@+id/recipeStepAudio"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintBaseline_toBaselineOf="@+id/recipeStepSubmit"
+        app:layout_constraintEnd_toStartOf="@+id/recipeStepAdd" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

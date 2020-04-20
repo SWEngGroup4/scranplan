@@ -399,7 +399,6 @@ public class Home extends AppCompatActivity {
                 }
             default:
                 Log.e(TAG, "I am not returning anything. Should return new profile settings from Profile Settings Activity.");
-            }
         }
     }
 

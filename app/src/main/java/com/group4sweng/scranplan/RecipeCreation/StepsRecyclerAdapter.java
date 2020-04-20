@@ -5,6 +5,8 @@ import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -15,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.group4sweng.scranplan.R;
 import java.util.List;
 
-public class IngredientRecyclerAdapter extends RecyclerView.Adapter<IngredientRecyclerAdapter.ViewHolder> {
+public class StepsRecyclerAdapter extends RecyclerView.Adapter<StepsRecyclerAdapter.ViewHolder> {
 
     private List<IngredientData> mData;
 
@@ -58,25 +60,25 @@ public class IngredientRecyclerAdapter extends RecyclerView.Adapter<IngredientRe
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        private CardView cardView;
-        private TextView ingredientName;
-        private TextView ingredientMeasurement;
+        private ImageButton stepImage;
+        private EditText stepText;
+        private EditText stepTimer;
 
         private ViewHolder(View v) {
             super(v);
-            cardView = v.findViewById(R.id.ingredientCardView);
-            ingredientName = v.findViewById(R.id.ingredientName);
-            ingredientMeasurement = v.findViewById(R.id.ingredientMeasurement);
+            stepImage = v.findViewById(R.id.recipeStepMedia);
+            stepText = v.findViewById(R.id.recipeStepText);
+            stepTimer = v.findViewById(R.id.recipeStepTimerValue);
         }
     }
 
-    IngredientRecyclerAdapter(List<IngredientData> data) {
+    StepsRecyclerAdapter(List<IngredientData> data) {
         mData = data;
     }
 
     @NonNull
     @Override
-    public IngredientRecyclerAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public StepsRecyclerAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.ingredient_list, parent, false);
@@ -85,20 +87,8 @@ public class IngredientRecyclerAdapter extends RecyclerView.Adapter<IngredientRe
     }
 
     @Override
-    public void onBindViewHolder(@NonNull IngredientRecyclerAdapter.ViewHolder holder, int position) {
-        holder.ingredientName.setText(mData.get(position).ingredient);
-        holder.ingredientMeasurement.setText(mData.get(position).measurement);
+    public void onBindViewHolder(@NonNull StepsRecyclerAdapter.ViewHolder holder, int position) {
 
-        holder.cardView.setOnClickListener(v -> {
-            Toast.makeText(holder.cardView.getContext(), "Hold to delete", Toast.LENGTH_SHORT).show();
-        });
-
-        holder.cardView.setOnLongClickListener(v -> {
-            mData.remove(position);
-            notifyItemRemoved(position);
-            notifyItemRangeChanged(position, mData.size());
-            return true;
-        });
     }
 
     @Override
