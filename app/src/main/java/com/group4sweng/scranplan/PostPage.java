@@ -189,31 +189,31 @@ public class PostPage extends AppCompatDialogFragment {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (likedOrNot.isChecked()) {
                     Log.e("FERC", "liked post");
-                    if(likedB4){
-                        mDatabase.collection("likes").document(postID + "-" + mUser.getUID()).update("liked", true);
-                    }else{
-                        likedB4 = true;
-                        HashMap<String, Object> likePost = new HashMap<>();
-                        likePost.put("liked", true);
-                        likePost.put("user", mUser.getUID());
-                        likePost.put("post", postID);
-                        mDatabase.collection("likes").document(postID + "-" + mUser.getUID()).set(likePost);
-                    }
-                    mDatabase.collection("posts").document(postID).update("likes", FieldValue.increment(1));
+//                    if(likedB4){
+//                        mDatabase.collection("likes").document(postID + "-" + mUser.getUID()).update("liked", true);
+//                    }else{
+//                        likedB4 = true;
+//                        HashMap<String, Object> likePost = new HashMap<>();
+//                        likePost.put("liked", true);
+//                        likePost.put("user", mUser.getUID());
+//                        likePost.put("post", postID);
+//                        mDatabase.collection("likes").document(postID + "-" + mUser.getUID()).set(likePost);
+//                    }
+//                    mDatabase.collection("posts").document(postID).update("likes", FieldValue.increment(+1));
                     int newLiked = Integer.parseInt((String) numLikes.getText())+1;
                     String test = String.valueOf(newLiked);
                     numLikes.setText(test);
 
                 } else {
                     Log.e("FERC", "unliked post");
-                    mDatabase.collection("likes").document(postID + "-" + mUser.getUID()).update("liked", false);
-                    mDatabase.collection("posts").document(postID).update("likes", FieldValue.increment(-1));
+//                    mDatabase.collection("likes").document(postID + "-" + mUser.getUID()).update("liked", false);
+//                    mDatabase.collection("posts").document(postID).update("likes", FieldValue.increment(-1));
                     int newLiked = Integer.parseInt((String) numLikes.getText())-1;
                     String likeString = String.valueOf(newLiked);
                     numLikes.setText(likeString);
                 }
                 lastPageLikedOrNot.setChecked(likedOrNot.isChecked());
-                lastPageLikes.setText(numLikes.getText());
+//                lastPageLikes.setText(numLikes.getText());
             }
         });
 
@@ -267,7 +267,7 @@ public class PostPage extends AppCompatDialogFragment {
         recipeRating = layout.findViewById(R.id.postRecipeRatingAdapter);
         numLikes = layout.findViewById(R.id.postNumLike);
         numComments = layout.findViewById(R.id.postNumComments);
-        likedOrNot = layout.findViewById(R.id.likeIcon);
+        likedOrNot = layout.findViewById(R.id.likeIconPost);
 
     }
 

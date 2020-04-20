@@ -161,6 +161,7 @@ public class ProfilePosts extends Fragment {
 
     private void addPosts(View view){
         final RecyclerView recyclerView = view.findViewById(R.id.postsList);
+        recyclerView.setNestedScrollingEnabled(false);
         // Set out the layout of this horizontal view
         RecyclerView.LayoutManager rManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(rManager);

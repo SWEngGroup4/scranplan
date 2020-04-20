@@ -274,7 +274,7 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
                                     likePost.put("post", mDataset.get(position).postID);
                                     mDatabase.collection("likes").document(mDataset.get(position).postID + "-" + user.getUID()).set(likePost);
                                 }
-                                mDatabase.collection("posts").document(mDataset.get(position).postID).update("likes", FieldValue.increment(1));
+                                mDatabase.collection("posts").document(mDataset.get(position).postID).update("likes", FieldValue.increment(+1));
                                 int newLiked = Integer.parseInt((String) holder.numLikes.getText())+1;
                                 String test = String.valueOf(newLiked);
                                 holder.numLikes.setText(test);

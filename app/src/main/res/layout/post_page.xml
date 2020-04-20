@@ -275,7 +275,7 @@
 
 
                                     <CheckBox
-                                        android:id="@+id/likeIcon"
+                                        android:id="@+id/likeIconPost"
                                         android:layout_width="40sp"
                                         android:layout_height="40sp"
                                         android:maxWidth="40sp"

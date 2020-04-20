@@ -165,7 +165,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                         fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         break;
                 }
-                fragmentTransaction.replace(R.id.frameLayout, fragment);
+                fragmentTransaction.replace(R.id.profileFrameLayout, fragment);
                 fragmentTransaction.commit();
 
             }
