@@ -19,6 +19,9 @@ import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.android.gms.ads.formats.UnifiedNativeAdView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.group4sweng.scranplan.Adverts.AdViewHolder;
+import com.group4sweng.scranplan.MealPlanner.BreakfastFragment;
+import com.group4sweng.scranplan.MealPlanner.DinnerFragment;
+import com.group4sweng.scranplan.MealPlanner.LunchFragment;
 import com.group4sweng.scranplan.R;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -38,7 +41,15 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
 
     // Variables for database and fragment to be displayed in
     private RecipeFragment mRecipeFragment;
-    private List<Object> mDataset;
+    private BreakfastFragment mBreakfastFragment;
+    private LunchFragment mLunchFragment;
+    private DinnerFragment mDinnerFragment;
+
+
+    private List<HomeRecipePreviewData> mDataset;
+    private List<HomeRecipePreviewData> mDataBreakfast;
+    private List<HomeRecipePreviewData> mDataLunch;
+    private List<HomeRecipePreviewData> mDataDinner;
 
     private static final int RECIPE_PREVIEW_ITEM_VIEW_TYPE = 0;
     private static final int UNIFIED_NATIVE_AD_VIEW_TYPE = 1;
@@ -95,6 +106,35 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
         mDataset = dataset;
     }
 
+    /**
+            * Constructor to add all variables
+     * @param breakfastFragment
+     * @param dataset
+     */
+    public HomeRecyclerAdapter (BreakfastFragment breakfastFragment, List<HomeRecyclerAdapter.HomeRecipePreviewData> dataset) {
+        mBreakfastFragment = breakfastFragment;
+        mDataset = dataset;
+    }
+
+    /**
+     * Constructor to add all variables
+     * @param lunchFragment
+     * @param dataset
+     */
+    public HomeRecyclerAdapter (LunchFragment lunchFragment, List<HomeRecyclerAdapter.HomeRecipePreviewData> dataset) {
+        mLunchFragment = lunchFragment;
+        mDataset = dataset;
+    }
+
+    /**
+     * Constructor to add all variables
+     * @param dinnerFragment
+     * @param dataset
+     */
+    public HomeRecyclerAdapter (DinnerFragment dinnerFragment, List<HomeRecyclerAdapter.HomeRecipePreviewData> dataset) {
+        mDinnerFragment = dinnerFragment;
+        mDataset = dataset;
+    }
 
     /**
      * Building and inflating the view within its parent
@@ -123,103 +163,56 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
      */
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        int viewType = getItemViewType(position);
-        switch (viewType) {
-            case UNIFIED_NATIVE_AD_VIEW_TYPE:
-                UnifiedNativeAd nativeAd = (UnifiedNativeAd)mDataset.get(position);
-                populateNativeAdView(nativeAd, ((AdViewHolder) holder).getAdView());
-                break;
-            case RECIPE_PREVIEW_ITEM_VIEW_TYPE:
-                // do nothing
-            default:
-            Integer padding = 10;
-            Float density = holder.cardView.getContext().getResources().getDisplayMetrics().density;
-            Integer paddingDP = (int) (padding * density);
-            HomeRecipePreviewData homeRecipePreviewData = (HomeRecipePreviewData) mDataset.get(position);
+        Integer padding = 10;
+        Float density = holder.cardView.getContext().getResources().getDisplayMetrics().density;
+        Integer paddingDP = (int)(padding * density);
 
-            //Load image into ImageView
-            Picasso.get().load(homeRecipePreviewData.imageURL).into(holder.imageView, new Callback() {
-                @Override
-                public void onSuccess() {
-                    //Once image has been loaded, set up info for recipe display
-                    holder.linearLayout.setVisibility(View.VISIBLE);
-                    holder.linearLayout.setPadding(paddingDP, 0, paddingDP, 0);
+        //Load image into ImageView
+        Picasso.get().load(mDataset.get(position).imageURL).into(holder.imageView, new Callback() {
+            @Override
+            public void onSuccess() {
+                //Once image has been loaded, set up info for recipe display
+                holder.linearLayout.setVisibility(View.VISIBLE);
+                holder.linearLayout.setPadding(paddingDP, 0, paddingDP, 0);
 
-                    holder.textView.setText(homeRecipePreviewData.title);
-                    holder.textView.setBackgroundColor(Color.parseColor("#80FFFFFF"));
+                holder.textView.setText(mDataset.get(position).title);
+                holder.textView.setBackgroundColor(Color.parseColor("#80FFFFFF"));
 
-                    holder.ratingBar.setRating(homeRecipePreviewData.rating);
-                    holder.ratingBar.setBackgroundColor(Color.parseColor("#80FFFFFF"));
-                }
+                holder.ratingBar.setRating(mDataset.get(position).rating);
+                holder.ratingBar.setBackgroundColor(Color.parseColor("#80FFFFFF"));
+            }
 
-                @Override
-                public void onError(Exception e) {
+            @Override
+            public void onError(Exception e) {
 
-                }
-            });
+            }
+        });
 
-            holder.cardView.setOnClickListener(v -> {
-                if (mRecipeFragment != null) {
-                    HomeRecipePreviewData recipeSelected = (HomeRecipePreviewData) mDataset.get(holder.getAdapterPosition());
-                    mRecipeFragment.recipeSelected(recipeSelected.document);
-                } else {
-                    Log.e("SEARCH RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
-                }
+        holder.cardView.setOnClickListener(v -> {
+            if (mRecipeFragment != null){
+                mRecipeFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
+            }else{
+                Log.e("SEARCH RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
+            }
 
-            });
-        }
-    }
+            if (mBreakfastFragment != null){
+                mBreakfastFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
+            }else{
+                Log.e("SEARCH RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
+            }
 
-    // Populate the adView
-    private void populateNativeAdView(UnifiedNativeAd nativeAd,
-                                      UnifiedNativeAdView adView) {
-        // Some assets are guaranteed to be in every UnifiedNativeAd.
-        ((TextView) adView.getHeadlineView()).setText(nativeAd.getHeadline());
-        ((TextView) adView.getBodyView()).setText(nativeAd.getBody());
-        ((Button) adView.getCallToActionView()).setText(nativeAd.getCallToAction());
+            if (mLunchFragment != null){
+                mLunchFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
+            }else{
+                Log.e("SEARCH RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
+            }
 
-        // These assets aren't guaranteed to be in every UnifiedNativeAd, so it's important to
-        // check before trying to display them.
-        NativeAd.Image icon = nativeAd.getIcon();
-
-        if (icon == null) {
-            adView.getIconView().setVisibility(View.INVISIBLE);
-        } else {
-            ((ImageView) adView.getIconView()).setImageDrawable(icon.getDrawable());
-            adView.getIconView().setVisibility(View.VISIBLE);
-        }
-
-        if (nativeAd.getPrice() == null) {
-            adView.getPriceView().setVisibility(View.INVISIBLE);
-        } else {
-            adView.getPriceView().setVisibility(View.VISIBLE);
-            ((TextView) adView.getPriceView()).setText(nativeAd.getPrice());
-        }
-
-        if (nativeAd.getStore() == null) {
-            adView.getStoreView().setVisibility(View.INVISIBLE);
-        } else {
-            adView.getStoreView().setVisibility(View.VISIBLE);
-            ((TextView) adView.getStoreView()).setText(nativeAd.getStore());
-        }
-
-        if (nativeAd.getStarRating() == null) {
-            adView.getStarRatingView().setVisibility(View.INVISIBLE);
-        } else {
-            ((RatingBar) adView.getStarRatingView())
-                    .setRating(nativeAd.getStarRating().floatValue());
-            adView.getStarRatingView().setVisibility(View.VISIBLE);
-        }
-
-        if (nativeAd.getAdvertiser() == null) {
-            adView.getAdvertiserView().setVisibility(View.INVISIBLE);
-        } else {
-            ((TextView) adView.getAdvertiserView()).setText(nativeAd.getAdvertiser());
-            adView.getAdvertiserView().setVisibility(View.VISIBLE);
-        }
-
-        // Assign native ad object to the native view.
-        adView.setNativeAd(nativeAd);
+            if (mDinnerFragment != null){
+                mDinnerFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
+            }else{
+                Log.e("SEARCH RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
+            }
+        });
     }
 
     // Getting dataset size

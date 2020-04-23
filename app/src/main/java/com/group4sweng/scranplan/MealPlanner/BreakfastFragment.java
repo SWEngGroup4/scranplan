@@ -26,10 +26,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.group4sweng.scranplan.R;
+import com.group4sweng.scranplan.RecipeFragment;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
-import com.group4sweng.scranplan.SearchFunctions.MealTimescaleRecyclerAdapter;
-import com.group4sweng.scranplan.SearchFunctions.MealTimescaleQueries;
-import com.group4sweng.scranplan.SearchFunctions.MealTimescaleRecyclerAdapter;
+import com.group4sweng.scranplan.SearchFunctions.HomeQueries;
+import com.group4sweng.scranplan.SearchFunctions.HomeRecyclerAdapter;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.ArrayList;
@@ -39,10 +39,9 @@ import java.util.Map;
 
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
-public class MealTimescaleFragment extends Fragment {
-
+public class BreakfastFragment extends Fragment {
     UserInfoPrivate user;
-    public MealTimescaleFragment(UserInfoPrivate userSent){
+    public BreakfastFragment(UserInfoPrivate userSent){
         user = userSent;
     }
 
@@ -50,22 +49,32 @@ public class MealTimescaleFragment extends Fragment {
     private String imageURL;
     private DocumentSnapshot document;
 
-    List<MealTimescaleRecyclerAdapter.MealTimescaleRecipePreviewData> dataBreakfast;
+    List<HomeRecyclerAdapter.HomeRecipePreviewData> dataBreakfast;
     private DocumentSnapshot lastVisibleBreakfast;
     private boolean isScrollingBreakfast = false;
     private boolean isLastItemReachedBreakfast = false;
 
-    List<MealTimescaleRecyclerAdapter.MealTimescaleRecipePreviewData> dataLunch;
-    private DocumentSnapshot lastVisibleLunch;
-    private boolean isScrollingLunch = false;
-    private boolean isLastItemReachedLunch = false;
+    //Score scroll info
+    List<HomeRecyclerAdapter.HomeRecipePreviewData> dataScore;
+    private DocumentSnapshot lastVisibleScore;
+    private boolean isScrollingScore = false;
+    private boolean isLastItemReachedScore = false;
 
-    List<MealTimescaleRecyclerAdapter.MealTimescaleRecipePreviewData> dataDinner;
-    private DocumentSnapshot lastVisibleDinner;
-    private boolean isScrollingDinner = false;
-    private boolean isLastItemReachedDinner = false;
 
-    List<MealTimescaleRecyclerAdapter.MealTimescaleRecipePreviewData> dataFave;
+    //Votes scroll info
+    List<HomeRecyclerAdapter.HomeRecipePreviewData> dataVotes;
+    private DocumentSnapshot lastVisibleVotes;
+    private boolean isScrollingVotes = false;
+    private boolean isLastItemReachedVotes = false;
+
+    //Timestamp scroll info
+    List<HomeRecyclerAdapter.HomeRecipePreviewData> dataTime;
+    private DocumentSnapshot lastVisibleTime;
+    private boolean isScrollingTime = false;
+    private boolean isLastItemReachedTime = false;
+
+    //Favourites scroll info
+    List<HomeRecyclerAdapter.HomeRecipePreviewData> dataFave;
     private DocumentSnapshot lastVisibleFave;
     private boolean isScrollingFave = false;
     private boolean isLastItemReachedFave = false;
@@ -99,8 +108,8 @@ public class MealTimescaleFragment extends Fragment {
 
         final int scrollViewSize = 5;
 
-        if(user != null) {
-            MealTimescaleQueries horizontalScrollQueries = new MealTimescaleQueries(user);
+        if (user != null) {
+            HomeQueries horizontalScrollQueries = new HomeQueries(user);
 
             /* Adding the save view as score but with breakfast as a new query
             /  This has been done in the same manner but as there are too many variables to track
@@ -110,7 +119,7 @@ public class MealTimescaleFragment extends Fragment {
             recyclerViewBreakfast.setLayoutManager(rBreakfast);
             recyclerViewBreakfast.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels / scrollViewSize));
             dataBreakfast = new ArrayList<>();
-            final RecyclerView.Adapter rAdapterBreakfast = new MealTimescaleRecyclerAdapter(MealTimescaleFragment.this, dataBreakfast);
+            final RecyclerView.Adapter rAdapterBreakfast = new HomeRecyclerAdapter(BreakfastFragment.this, dataBreakfast);
             recyclerViewBreakfast.setAdapter(rAdapterBreakfast);
             final Query queryBreakfast = (Query) horizontalScrollQueries.getQueries().get("breakfast");
             if (queryBreakfast != null) {
@@ -130,7 +139,7 @@ public class MealTimescaleFragment extends Fragment {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (DocumentSnapshot document : task.getResult()) {
-                                dataBreakfast.add(new MealTimescaleRecyclerAdapter.MealTimescaleRecipePreviewData(
+                                dataBreakfast.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                         document,
                                         document.getId(),
                                         document.get("Name").toString(),
@@ -171,7 +180,7 @@ public class MealTimescaleFragment extends Fragment {
                                             public void onComplete(@NonNull Task<QuerySnapshot> t) {
                                                 if (t.isSuccessful()) {
                                                     for (DocumentSnapshot d : t.getResult()) {
-                                                        dataBreakfast.add(new MealTimescaleRecyclerAdapter.MealTimescaleRecipePreviewData(
+                                                        dataBreakfast.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                                                 d,
                                                                 d.getId(),
                                                                 d.get("Name").toString(),
@@ -205,35 +214,36 @@ public class MealTimescaleFragment extends Fragment {
                 Log.e(TAG, "Breakfast horizontal view added");
             }
 
-             /* Adding the save view as score but with lunch as a new query
-            /  This has been done in the same manner but as there are too many variables to track
-            /  this is not workable in any kind of loop. */
-            final RecyclerView recyclerViewLunch = new RecyclerView(view.getContext());
-            RecyclerView.LayoutManager rType = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
-            recyclerViewLunch.setLayoutManager(rType);
-            recyclerViewLunch.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels / scrollViewSize));
-            dataLunch = new ArrayList<>();
-            final MealTimescaleRecyclerAdapter rAdapterLunch = new MealTimescaleRecyclerAdapter(MealTimescaleFragment.this, dataLunch);
-            recyclerViewLunch.setAdapter(rAdapterLunch);
-            final Query queryLunch = (Query) horizontalScrollQueries.getQueries().get("lunch");
-            if (queryLunch != null) {
-                Log.e(TAG, "User is searching the following query: " + queryLunch.toString());
-
+            // Build a horizontal scroll built around organising the recipes via highest rated
+            final RecyclerView recyclerViewScore = new RecyclerView(view.getContext());
+            // Set out the layout of this horizontal view
+            RecyclerView.LayoutManager rManagerScore = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+            recyclerViewScore.setLayoutManager(rManagerScore);
+            recyclerViewScore.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels / scrollViewSize));
+            // Array to score downloaded data
+            dataScore = new ArrayList<>();
+            final RecyclerView.Adapter rAdapterScore = new HomeRecyclerAdapter(BreakfastFragment.this, dataScore);
+            recyclerViewScore.setAdapter(rAdapterScore);
+            final Query queryScore = (Query) horizontalScrollQueries.getQueries().get("score");
+            // Ensure query exists and builds view with query
+            if (queryScore != null) {
+                Log.e(TAG, "User is searching the following query: " + queryScore.toString());
+                // Give the view a title
                 TextView textView = new TextView(view.getContext());
-                String testString = "Lunch";
+                String testString = "Top picks";
                 textView.setTextSize(25);
                 textView.setPadding(20, 5, 5, 5);
                 textView.setTextColor(Color.WHITE);
                 textView.setShadowLayer(4, 0, 0, Color.BLACK);
                 textView.setText(testString);
-
-                queryLunch
+                // Query listener to add data to view
+                queryScore
                         .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (DocumentSnapshot document : task.getResult()) {
-                                dataLunch.add(new MealTimescaleRecyclerAdapter.MealTimescaleRecipePreviewData(
+                                dataScore.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                         document,
                                         document.getId(),
                                         document.get("Name").toString(),
@@ -241,22 +251,22 @@ public class MealTimescaleFragment extends Fragment {
                                         document.get("imageURL").toString()
                                 ));
                             }
-                            rAdapterLunch.notifyDataSetChanged();
-                            if (task.getResult().size() != 0) {
-                                lastVisibleLunch = task.getResult().getDocuments().get(task.getResult().size() - 1);
-                            } else {
-                                isLastItemReachedLunch = true;
+                            rAdapterScore.notifyDataSetChanged();
+                            if(task.getResult().size() != 0){
+                                lastVisibleScore = task.getResult().getDocuments().get(task.getResult().size() - 1);
+                            }else{
+                                isLastItemReachedScore = true;
                             }
-
+                            // Track users location to check if new data download is required
                             RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
                                 @Override
                                 public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                                     super.onScrollStateChanged(recyclerView, newState);
                                     if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
-                                        isScrollingLunch = true;
+                                        isScrollingScore = true;
                                     }
                                 }
-
+                                // If scrolled to end then download new data and check if we are out of data
                                 @Override
                                 public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                                     super.onScrolled(recyclerView, dx, dy);
@@ -266,15 +276,15 @@ public class MealTimescaleFragment extends Fragment {
                                     int visibleItemCount = linearLayoutManager.getChildCount();
                                     int totalItemCount = linearLayoutManager.getItemCount();
 
-                                    if (isScrollingLunch && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReachedBreakfast) {
-                                        isScrollingLunch = false;
-                                        Query nextQuery = queryLunch.startAfter(lastVisibleLunch);
+                                    if (isScrollingScore && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReachedScore) {
+                                        isScrollingScore = false;
+                                        Query nextQuery = queryScore.startAfter(lastVisibleScore);
                                         nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                             @Override
                                             public void onComplete(@NonNull Task<QuerySnapshot> t) {
                                                 if (t.isSuccessful()) {
                                                     for (DocumentSnapshot d : t.getResult()) {
-                                                        dataBreakfast.add(new MealTimescaleRecyclerAdapter.MealTimescaleRecipePreviewData(
+                                                        dataScore.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                                                 d,
                                                                 d.getId(),
                                                                 d.get("Name").toString(),
@@ -282,119 +292,16 @@ public class MealTimescaleFragment extends Fragment {
                                                                 d.get("imageURL").toString()
                                                         ));
                                                     }
-                                                    if (isLastItemReachedLunch) {
+                                                    if(isLastItemReachedScore){
                                                         // Add end here
                                                     }
-                                                    rAdapterLunch.notifyDataSetChanged();
+                                                    rAdapterScore.notifyDataSetChanged();
                                                     if (t.getResult().size() != 0) {
-                                                        lastVisibleLunch = t.getResult().getDocuments().get(t.getResult().size() - 1);
-                                                    }
-
-                                                    if (t.getResult().size() < 10) {
-                                                        isLastItemReachedLunch = true;
-                                                    }
-                                                }
-                                            }
-                                        });
-                                    }
-                                }
-                            };
-                            recyclerViewLunch.addOnScrollListener(onScrollListener);
-                        }
-                    }
-                });
-                topLayout.addView(textView);
-                topLayout.addView(recyclerViewLunch);
-                Log.e(TAG, "Breakfast horizontal view added");
-            }
-
-            /* Adding the save view as score but with dinner as a new query
-            /  This has been one in the same manner but as there are too many variables to track
-            /  this is not workable in any kind of loop. */
-            final RecyclerView recyclerViewDinner = new RecyclerView(view.getContext());
-            RecyclerView.LayoutManager rDinner = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
-            recyclerViewDinner.setLayoutManager(rDinner);
-            recyclerViewDinner.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels / scrollViewSize));
-            dataDinner = new ArrayList<>();
-            final RecyclerView.Adapter rAdapterDinner = new MealTimescaleRecyclerAdapter(MealTimescaleFragment.this, dataDinner);
-            recyclerViewDinner.setAdapter(rAdapterDinner);
-            final Query queryDinner = (Query) horizontalScrollQueries.getQueries().get("dinner");
-            if (queryDinner != null) {
-                Log.e(TAG, "User is searching the following query: " + queryDinner.toString());
-
-                TextView textView = new TextView(view.getContext());
-                String testString = "Dinner";
-                textView.setTextSize(25);
-                textView.setPadding(20, 5, 5, 5);
-                textView.setTextColor(Color.WHITE);
-                textView.setShadowLayer(4, 0, 0, Color.BLACK);
-                textView.setText(testString);
-
-                queryDinner
-                        .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (DocumentSnapshot document : task.getResult()) {
-                                dataDinner.add(new MealTimescaleRecyclerAdapter.MealTimescaleRecipePreviewData(
-                                        document,
-                                        document.getId(),
-                                        document.get("Name").toString(),
-                                        Float.valueOf(document.get("score").toString()),
-                                        document.get("imageURL").toString()
-                                ));
-                            }
-                            rAdapterDinner.notifyDataSetChanged();
-                            if (task.getResult().size() != 0) {
-                                lastVisibleDinner = task.getResult().getDocuments().get(task.getResult().size() - 1);
-                            } else {
-                                isLastItemReachedDinner = true;
-                            }
-
-                            RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
-                                @Override
-                                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                                    super.onScrollStateChanged(recyclerView, newState);
-                                    if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
-                                        isScrollingDinner = true;
-                                    }
-                                }
-
-                                @Override
-                                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                                    super.onScrolled(recyclerView, dx, dy);
-
-                                    LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
-                                    int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
-                                    int visibleItemCount = linearLayoutManager.getChildCount();
-                                    int totalItemCount = linearLayoutManager.getItemCount();
-
-                                    if (isScrollingDinner && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReachedDinner) {
-                                        isScrollingDinner = false;
-                                        Query nextQuery = queryDinner.startAfter(lastVisibleDinner);
-                                        nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<QuerySnapshot> t) {
-                                                if (t.isSuccessful()) {
-                                                    for (DocumentSnapshot d : t.getResult()) {
-                                                        dataDinner.add(new MealTimescaleRecyclerAdapter.MealTimescaleRecipePreviewData(
-                                                                d,
-                                                                d.getId(),
-                                                                d.get("Name").toString(),
-                                                                Float.valueOf(d.get("score").toString()),
-                                                                d.get("imageURL").toString()
-                                                        ));
-                                                    }
-                                                    if (isLastItemReachedDinner) {
-                                                        // Add end here
-                                                    }
-                                                    rAdapterDinner.notifyDataSetChanged();
-                                                    if (t.getResult().size() != 0) {
-                                                        lastVisibleDinner = t.getResult().getDocuments().get(t.getResult().size() - 1);
+                                                        lastVisibleScore = t.getResult().getDocuments().get(t.getResult().size() - 1);
                                                     }
 
                                                     if (t.getResult().size() < 5) {
-                                                        isLastItemReachedDinner = true;
+                                                        isLastItemReachedScore = true;
                                                     }
                                                 }
                                             }
@@ -402,15 +309,222 @@ public class MealTimescaleFragment extends Fragment {
                                     }
                                 }
                             };
-                            recyclerViewDinner.addOnScrollListener(onScrollListener);
+                            recyclerViewScore.addOnScrollListener(onScrollListener);
+                        }
+                    }
+                });
+                // Add view to page
+                topLayout.addView(textView);
+                topLayout.addView(recyclerViewScore);
+                Log.e(TAG, "Score horizontal row added");
+            }
+
+             /* Adding the save view as score but with highest votes as a new query
+            /  This has been done in the same manner but as there are too many variables to track
+            /  this is not workable in any kind of loop. */
+            final RecyclerView recyclerViewVotes = new RecyclerView(view.getContext());
+            RecyclerView.LayoutManager rManagerVotes = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+            recyclerViewVotes.setLayoutManager(rManagerVotes);
+            recyclerViewVotes.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels / scrollViewSize));
+            dataVotes = new ArrayList<>();
+            final RecyclerView.Adapter rAdapterVotes = new HomeRecyclerAdapter(BreakfastFragment.this, dataVotes);
+            recyclerViewVotes.setAdapter(rAdapterVotes);
+            final Query queryVotes = (Query) horizontalScrollQueries.getQueries().get("votes");
+            if (queryVotes != null) {
+                Log.e(TAG, "User is searching the following query: " + queryVotes.toString());
+
+                TextView textView = new TextView(view.getContext());
+                String testString = "Trending";
+                textView.setTextSize(25);
+                textView.setPadding(20, 5, 5, 5);
+                textView.setTextColor(Color.WHITE);
+                textView.setShadowLayer(4, 0, 0, Color.BLACK);
+                textView.setText(testString);
+
+                queryVotes
+                        .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (DocumentSnapshot document : task.getResult()) {
+                                dataVotes.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
+                                        document,
+                                        document.getId(),
+                                        document.get("Name").toString(),
+                                        Float.valueOf(document.get("score").toString()),
+                                        document.get("imageURL").toString()
+                                ));
+                            }
+                            rAdapterVotes.notifyDataSetChanged();
+                            if(task.getResult().size() != 0){
+                                lastVisibleVotes = task.getResult().getDocuments().get(task.getResult().size() - 1);
+                            }else{
+                                isLastItemReachedVotes = true;
+                            }
+
+                            RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+                                @Override
+                                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                                    super.onScrollStateChanged(recyclerView, newState);
+                                    if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                                        isScrollingVotes = true;
+                                    }
+                                }
+
+                                @Override
+                                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                                    super.onScrolled(recyclerView, dx, dy);
+
+                                    LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
+                                    int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+                                    int visibleItemCount = linearLayoutManager.getChildCount();
+                                    int totalItemCount = linearLayoutManager.getItemCount();
+
+                                    if (isScrollingVotes && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReachedVotes) {
+                                        isScrollingVotes = false;
+                                        Query nextQuery = queryVotes.startAfter(lastVisibleVotes);
+                                        nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> t) {
+                                                if (t.isSuccessful()) {
+                                                    for (DocumentSnapshot d : t.getResult()) {
+                                                        dataVotes.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
+                                                                d,
+                                                                d.getId(),
+                                                                d.get("Name").toString(),
+                                                                Float.valueOf(d.get("score").toString()),
+                                                                d.get("imageURL").toString()
+                                                        ));
+                                                    }
+                                                    if(isLastItemReachedVotes){
+                                                        // Add end here
+                                                    }
+                                                    rAdapterVotes.notifyDataSetChanged();
+                                                    if (t.getResult().size() != 0) {
+                                                        lastVisibleVotes = t.getResult().getDocuments().get(t.getResult().size() - 1);
+                                                    }
+
+                                                    if (t.getResult().size() < 5) {
+                                                        isLastItemReachedVotes = true;
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    }
+                                }
+                            };
+                            recyclerViewVotes.addOnScrollListener(onScrollListener);
                         }
                     }
                 });
                 topLayout.addView(textView);
-                topLayout.addView(recyclerViewDinner);
-                Log.e(TAG, "Dinner horizontal view added");
+                topLayout.addView(recyclerViewVotes);
+                Log.e(TAG, "Votes horizontal view added");
             }
 
+
+            /* Adding the save view as score but with newest recipes added as a new query
+            /  This has been done in the same manner but as there are too many variables to track
+            /  this is not workable in any kind of loop. */
+            final RecyclerView recyclerViewTime = new RecyclerView(view.getContext());
+            RecyclerView.LayoutManager rManagerTime = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+            recyclerViewTime.setLayoutManager(rManagerTime);
+            recyclerViewTime.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels / scrollViewSize));
+            dataTime = new ArrayList<>();
+            final RecyclerView.Adapter rAdapterTime = new HomeRecyclerAdapter(BreakfastFragment.this, dataTime);
+            recyclerViewTime.setAdapter(rAdapterTime);
+            final Query queryTime = (Query) horizontalScrollQueries.getQueries().get("timestamp");
+            if (queryTime != null) {
+                Log.e(TAG, "User is searching the following query: " + queryTime.toString());
+
+                TextView textView = new TextView(view.getContext());
+                String testString = "New tastes";
+                textView.setTextSize(25);
+                textView.setPadding(20, 5, 5, 5);
+                textView.setTextColor(Color.WHITE);
+                textView.setShadowLayer(4, 0, 0, Color.BLACK);
+                textView.setText(testString);
+
+                queryTime
+                        .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (DocumentSnapshot document : task.getResult()) {
+                                dataTime.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
+                                        document,
+                                        document.getId(),
+                                        document.get("Name").toString(),
+                                        Float.valueOf(document.get("score").toString()),
+                                        document.get("imageURL").toString()
+                                ));
+                            }
+                            rAdapterTime.notifyDataSetChanged();
+                            if(task.getResult().size() != 0){
+                                lastVisibleTime = task.getResult().getDocuments().get(task.getResult().size() - 1);
+                            }else{
+                                isLastItemReachedTime = true;
+                            }
+
+                            RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+                                @Override
+                                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                                    super.onScrollStateChanged(recyclerView, newState);
+                                    if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                                        isScrollingTime = true;
+                                    }
+                                }
+
+                                @Override
+                                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                                    super.onScrolled(recyclerView, dx, dy);
+
+                                    LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
+                                    int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+                                    int visibleItemCount = linearLayoutManager.getChildCount();
+                                    int totalItemCount = linearLayoutManager.getItemCount();
+
+                                    if (isScrollingTime && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReachedTime) {
+                                        isScrollingTime = false;
+                                        Query nextQuery = queryTime.startAfter(lastVisibleTime);
+                                        nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> t) {
+                                                if (t.isSuccessful()) {
+                                                    for (DocumentSnapshot d : t.getResult()) {
+                                                        dataTime.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
+                                                                d,
+                                                                d.getId(),
+                                                                d.get("Name").toString(),
+                                                                Float.valueOf(d.get("score").toString()),
+                                                                d.get("imageURL").toString()
+                                                        ));
+                                                    }
+                                                    if(isLastItemReachedTime){
+                                                        // Add end here
+                                                    }
+                                                    rAdapterTime.notifyDataSetChanged();
+                                                    if (t.getResult().size() != 0) {
+                                                        lastVisibleTime = t.getResult().getDocuments().get(t.getResult().size() - 1);
+                                                    }
+
+                                                    if (t.getResult().size() < 5) {
+                                                        isLastItemReachedTime = true;
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    }
+                                }
+                            };
+                            recyclerViewTime.addOnScrollListener(onScrollListener);
+                        }
+                    }
+                });
+                topLayout.addView(textView);
+                topLayout.addView(recyclerViewTime);
+                Log.e(TAG, "Time horizontal view added");
+            }
 
             /* Adding the save view as score but with user favourite recipes as a new query
             /  This has been done in the same manner but as there are too many variables to track
@@ -420,7 +534,7 @@ public class MealTimescaleFragment extends Fragment {
             recyclerViewFave.setLayoutManager(rManagerFave);
             recyclerViewFave.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels / scrollViewSize));
             dataFave = new ArrayList<>();
-            final RecyclerView.Adapter rAdapterFave = new MealTimescaleRecyclerAdapter(MealTimescaleFragment.this, dataFave);
+            final RecyclerView.Adapter rAdapterFave = new HomeRecyclerAdapter(BreakfastFragment.this, dataFave);
             recyclerViewFave.setAdapter(rAdapterFave);
             final Query queryFave = (Query) horizontalScrollQueries.getQueries().get("favourite");
             if (queryFave != null) {
@@ -440,7 +554,7 @@ public class MealTimescaleFragment extends Fragment {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (DocumentSnapshot document : task.getResult()) {
-                                dataFave.add(new MealTimescaleRecyclerAdapter.MealTimescaleRecipePreviewData(
+                                dataFave.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                         document,
                                         document.getId(),
                                         document.get("Name").toString(),
@@ -481,7 +595,7 @@ public class MealTimescaleFragment extends Fragment {
                                             public void onComplete(@NonNull Task<QuerySnapshot> t) {
                                                 if (t.isSuccessful()) {
                                                     for (DocumentSnapshot d : t.getResult()) {
-                                                        dataFave.add(new MealTimescaleRecyclerAdapter.MealTimescaleRecipePreviewData(
+                                                        dataFave.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                                                 d,
                                                                 d.getId(),
                                                                 d.get("Name").toString(),
@@ -497,7 +611,7 @@ public class MealTimescaleFragment extends Fragment {
                                                         lastVisibleFave = t.getResult().getDocuments().get(t.getResult().size() - 1);
                                                     }
 
-                                                    if (t.getResult().size() < 10) {
+                                                    if (t.getResult().size() < 5) {
                                                         isLastItemReachedFave = true;
                                                     }
                                                 }
@@ -520,58 +634,59 @@ public class MealTimescaleFragment extends Fragment {
         }
         return view;
     }
-        /**
-         * On click of a recipe a new recipe info fragment is opened and the document is sent through
-         * This saves on downloading the data again from the database
-         */
-        public void recipeSelected (DocumentSnapshot document){
 
-            //Takes ingredient array from snap shot and reformats before being passed through to fragment
-            ArrayList<String> ingredientArray = new ArrayList<>();
+    /**
+     * On click of a recipe a new recipe info fragment is opened and the document is sent through
+     * This saves on downloading the data again from the database
+     */
+    public void recipeSelected (DocumentSnapshot document){
 
-            Map<String, Map<String, Object>> test = (Map) document.getData().get("Ingredients");
-            Iterator hmIterator = test.entrySet().iterator();
+        //Takes ingredient array from snap shot and reformats before being passed through to fragment
+        ArrayList<String> ingredientArray = new ArrayList<>();
 
-            while (hmIterator.hasNext()) {
-                Map.Entry mapElement = (Map.Entry) hmIterator.next();
-                String string = mapElement.getKey().toString() + ": " + mapElement.getValue().toString();
-                ingredientArray.add(string);
-            }
+        Map<String, Map<String, Object>> test = (Map) document.getData().get("Ingredients");
+        Iterator hmIterator = test.entrySet().iterator();
 
-            //Creating a bundle so all data needed from firestore query snapshot can be passed through into fragment class
-            mBundle = new Bundle();
-            mBundle.putStringArrayList("ingredientList", ingredientArray);
-            mBundle.putString("recipeID", document.getId());
-            mBundle.putString("xmlURL", document.get("xml_url").toString());
-            mBundle.putString("recipeTitle", document.get("Name").toString());
-            mBundle.putString("rating", document.get("score").toString());
-            mBundle.putString("imageURL", document.get("imageURL").toString());
-            mBundle.putString("recipeDescription", document.get("Description").toString());
-            mBundle.putString("chefName", document.get("Chef").toString());
-            mBundle.putBoolean("planner", planner);
-            mBundle.putBoolean("canFreeze", document.getBoolean("freezer"));
-            mBundle.putString("peopleServes", document.get("serves").toString());
-            mBundle.putString("fridgeDays", document.get("fridge").toString());
-            mBundle.putString("reheat", document.get("reheat").toString());
-            mBundle.putBoolean("noEggs", document.getBoolean("noEggs"));
-            mBundle.putBoolean("noMilk", document.getBoolean("noMilk"));
-            mBundle.putBoolean("noNuts", document.getBoolean("noNuts"));
-            mBundle.putBoolean("noShellfish", document.getBoolean("noShellfish"));
-            mBundle.putBoolean("noSoy", document.getBoolean("noSoy"));
-            mBundle.putBoolean("noWheat", document.getBoolean("noWheat"));
-            mBundle.putBoolean("pescatarian", document.getBoolean("pescatarian"));
-            mBundle.putBoolean("vegan", document.getBoolean("vegan"));
-            mBundle.putBoolean("vegetarian", document.getBoolean("vegetarian"));
-
-            ArrayList faves = (ArrayList) document.get("favourite");
-            mBundle.putBoolean("isFav", faves.contains(user.getUID().hashCode()));
-
-
-            RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
-            recipeDialogFragment.setArguments(mBundle);
-            recipeDialogFragment.setTargetFragment(this, 1);
-            recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");
+        while (hmIterator.hasNext()) {
+            Map.Entry mapElement = (Map.Entry) hmIterator.next();
+            String string = mapElement.getKey().toString() + ": " + mapElement.getValue().toString();
+            ingredientArray.add(string);
         }
+
+        //Creating a bundle so all data needed from firestore query snapshot can be passed through into fragment class
+        mBundle = new Bundle();
+        mBundle.putStringArrayList("ingredientList", ingredientArray);
+        mBundle.putString("recipeID", document.getId());
+        mBundle.putString("xmlURL", document.get("xml_url").toString());
+        mBundle.putString("recipeTitle", document.get("Name").toString());
+        mBundle.putString("rating", document.get("score").toString());
+        mBundle.putString("imageURL", document.get("imageURL").toString());
+        mBundle.putString("recipeDescription", document.get("Description").toString());
+        mBundle.putString("chefName", document.get("Chef").toString());
+        mBundle.putBoolean("planner", planner);
+        mBundle.putBoolean("canFreeze", document.getBoolean("freezer"));
+        mBundle.putString("peopleServes", document.get("serves").toString());
+        mBundle.putString("fridgeDays", document.get("fridge").toString());
+        mBundle.putString("reheat", document.get("reheat").toString());
+        mBundle.putBoolean("noEggs", document.getBoolean("noEggs"));
+        mBundle.putBoolean("noMilk", document.getBoolean("noMilk"));
+        mBundle.putBoolean("noNuts", document.getBoolean("noNuts"));
+        mBundle.putBoolean("noShellfish", document.getBoolean("noShellfish"));
+        mBundle.putBoolean("noSoy", document.getBoolean("noSoy"));
+        mBundle.putBoolean("noWheat", document.getBoolean("noWheat"));
+        mBundle.putBoolean("pescatarian", document.getBoolean("pescatarian"));
+        mBundle.putBoolean("vegan", document.getBoolean("vegan"));
+        mBundle.putBoolean("vegetarian", document.getBoolean("vegetarian"));
+
+        ArrayList faves = (ArrayList) document.get("favourite");
+        mBundle.putBoolean("isFav", faves.contains(user.getUID().hashCode()));
+
+
+        RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
+        recipeDialogFragment.setArguments(mBundle);
+        recipeDialogFragment.setTargetFragment(this, 1);
+        recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
