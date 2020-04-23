@@ -50,10 +50,8 @@ public class ShoppingList extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_shoppingList);
+        setContentView(R.layout.activity_shoppinglist);
 
-        //initialize text view object
-        TextView tv = (TextView) findViewById(R.id.textView2);
         if (getIntent().getSerializableExtra("user") != null) {
             mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) getIntent().getSerializableExtra("user");
         }
@@ -79,16 +77,13 @@ public class ShoppingList extends AppCompatActivity {
             if (mUser != null) {
 
                 for (int x = 0; x <= mUser.getMealPlanner().size(); x++) {
+
                     ShoppingList.get(x).get("ingredients");
-
                     HashMap<String, Object> updateIngredientList = new HashMap<>();
-
                     updateIngredientList.put("ingredient", mUser.getIngredientList());
-
                     TextView tv = (TextView) findViewById(R.id.textView2);
                     for (HashMap<String, Object> ingredients : ShoppingList) {
                         tv.append("updateIngredientList");
-
 
                     }
                 }
