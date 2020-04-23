@@ -7,7 +7,8 @@ import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.HashMap;
 
-public class LunchQueries {
+public class MealTimescaleQueries {
+
     public HashMap getQueries() {
         return queries;
     }
@@ -22,9 +23,11 @@ public class LunchQueries {
 
 
     // Constructor to build all queries in the home page
-    public LunchQueries(UserInfoPrivate user){
+    public MealTimescaleQueries(UserInfoPrivate user){
         queries = new HashMap();
+        queries.put("breakfast", ref.whereEqualTo("breakfast", true));
         queries.put("lunch", ref.whereEqualTo("lunch", true));
+        queries.put("dinner", ref.whereEqualTo("dinner", true));
         queries.put("favourite", ref.whereArrayContains("favourite", user.getUID().hashCode()));
         if(!user.getPreferences().isVegan()){
             queries.put("topVegan", buildQuery(user).whereEqualTo("vegan", true).orderBy("score", Query.Direction.DESCENDING));

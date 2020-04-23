@@ -47,9 +47,7 @@ public class PlannerFragment extends Fragment {
     //Fragment handlers
     private FragmentTransaction fragmentTransaction;
     private RecipeFragment recipeFragment;
-    private BreakfastFragment breakfastFragment;
-    private LunchFragment lunchFragment;
-    private DinnerFragment dinnerFragment;
+    private MealTimescaleFragment mealTimescaleFragment;
 
     //User information
     private com.group4sweng.scranplan.UserInfo.UserInfoPrivate mUser;
@@ -61,9 +59,7 @@ public class PlannerFragment extends Fragment {
 
     //Request Code
     private int normalRequestCode = 1;
-    private int breakfastRequestCode = 2;
-    private int lunchRequestCode = 3;
-    private int dinnerRequestCode = 4;
+    private int mealTimescaleRequestCode = 2;
 
     public PlannerFragment(UserInfoPrivate userSent){mUser = userSent;}
 
@@ -126,24 +122,18 @@ public class PlannerFragment extends Fragment {
                 imageButton.setPadding(10,10,10,10);
                 imageButton.setBackground(null);
 
-                //Sets listener for long clicks - the first image goes to breakfast fragment; second to lunch; third to donner
-                int finalJ = j;
-                imageButton.setOnLongClickListener(v -> {
-                    if(finalJ == 0){
-                        breakfastButton(imageButton);
-                    }
-                    if(finalJ == 1){
-                        lunchButton(imageButton);
-                    }
-                    if(finalJ == 2){
-                        dinnerButton(imageButton);
-                    }
-                    return false;
-                });
-
                 //If the planner doesn't have a meal entry for the time period
                 if (plannerList.get(id) == null) {
                     defaultButton(imageButton); //Default state
+
+                    //Sets listener for long clicks - go to Meal Timescale Fragment
+                    imageButton.setOnLongClickListener(new View.OnLongClickListener() {
+                        @Override
+                        public boolean onLongClick(View v) {
+                            mealTimescaleButton(imageButton);
+                            return false;
+                        }
+                    });
                 } else {
                     //Loads image of recipe and sets click action to open the recipe info dialog
                     Picasso.get().load(Objects.requireNonNull(plannerList.get(id).get("imageURL")).toString()).into(imageButton);
@@ -198,8 +188,8 @@ public class PlannerFragment extends Fragment {
         updateMealPlan();
     }
 
-    //Sets breakfast parameters for buttons
-    private void breakfastButton(final ImageButton imageButton) {
+    //Sets meal Timescale parameters for buttons
+    private void mealTimescaleButton(final ImageButton imageButton) {
         imageButton.setImageResource(R.drawable.add); //Default image
         imageButton.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
@@ -207,72 +197,12 @@ public class PlannerFragment extends Fragment {
             currentSelection = imageButton; //Allows tracking of button pressed
 
             //Creates and launches recipe fragment
-            breakfastFragment = new BreakfastFragment(mUser);
-            breakfastFragment.setArguments(bundle);
-            breakfastFragment.setTargetFragment(PlannerFragment.this, 1);
+            mealTimescaleFragment = new MealTimescaleFragment(mUser);
+            mealTimescaleFragment.setArguments(bundle);
+            mealTimescaleFragment.setTargetFragment(PlannerFragment.this, 1);
             fragmentTransaction = getParentFragmentManager().beginTransaction();
-            fragmentTransaction.add(R.id.frameLayout, breakfastFragment); //Overlays fragment on existing one
-            breakfastFragment.setTargetFragment(PlannerFragment.this,breakfastRequestCode);
-            fragmentTransaction.commitNow(); //Waits for fragment transaction to be completed
-            requireView().setVisibility(View.INVISIBLE); //Sets current fragment invisible
-
-            //Updates planner and user
-            plannerList.set(imageButton.getId(), null);
-            mUser.setMealPlanner(plannerList);
-            updateMealPlan();
-        });
-
-        //Updates planner and user
-        plannerList.set(imageButton.getId(), null);
-        mUser.setMealPlanner(plannerList);
-        updateMealPlan();
-    }
-
-    //Sets default parameters for buttons
-    private void lunchButton(final ImageButton imageButton) {
-        imageButton.setImageResource(R.drawable.add); //Default image
-        imageButton.setOnClickListener(v -> {
-            Bundle bundle = new Bundle();
-            bundle.putBoolean("planner", true); //Condition to let child fragments know access is from planner
-            currentSelection = imageButton; //Allows tracking of button pressed
-
-            //Creates and launches recipe fragment
-            lunchFragment = new LunchFragment(mUser);
-            lunchFragment.setArguments(bundle);
-            lunchFragment.setTargetFragment(PlannerFragment.this, 1);
-            fragmentTransaction = getParentFragmentManager().beginTransaction();
-            fragmentTransaction.add(R.id.frameLayout, lunchFragment); //Overlays fragment on existing one
-            lunchFragment.setTargetFragment(PlannerFragment.this,lunchRequestCode);
-            fragmentTransaction.commitNow(); //Waits for fragment transaction to be completed
-            requireView().setVisibility(View.INVISIBLE); //Sets current fragment invisible
-
-            //Updates planner and user
-            plannerList.set(imageButton.getId(), null);
-            mUser.setMealPlanner(plannerList);
-            updateMealPlan();
-        });
-
-        //Updates planner and user
-        plannerList.set(imageButton.getId(), null);
-        mUser.setMealPlanner(plannerList);
-        updateMealPlan();
-    }
-
-    //Sets dinner parameters for buttons
-    private void dinnerButton(final ImageButton imageButton) {
-        imageButton.setImageResource(R.drawable.add); //Default image
-        imageButton.setOnClickListener(v -> {
-            Bundle bundle = new Bundle();
-            bundle.putBoolean("planner", true); //Condition to let child fragments know access is from planner
-            currentSelection = imageButton; //Allows tracking of button pressed
-
-            //Creates and launches recipe fragment
-            dinnerFragment = new DinnerFragment(mUser);
-            dinnerFragment.setArguments(bundle);
-            dinnerFragment.setTargetFragment(PlannerFragment.this, 1);
-            fragmentTransaction = getParentFragmentManager().beginTransaction();
-            fragmentTransaction.add(R.id.frameLayout, dinnerFragment); //Overlays fragment on existing one
-            dinnerFragment.setTargetFragment(PlannerFragment.this,dinnerRequestCode);
+            fragmentTransaction.add(R.id.frameLayout, mealTimescaleFragment); //Overlays fragment on existing one
+            mealTimescaleFragment.setTargetFragment(PlannerFragment.this,mealTimescaleRequestCode);
             fragmentTransaction.commitNow(); //Waits for fragment transaction to be completed
             requireView().setVisibility(View.INVISIBLE); //Sets current fragment invisible
 
@@ -340,8 +270,7 @@ public class PlannerFragment extends Fragment {
                     mUser.setMealPlanner(plannerList);
                     updateMealPlan();
                 }
-            }
-            else if (requestCode == breakfastRequestCode){
+            } else {
                 //Compiles bundle into a hashmap object for serialization
                 final HashMap<String, Object> map = new HashMap<>();
                 if (bundle != null) {
@@ -355,59 +284,9 @@ public class PlannerFragment extends Fragment {
                     //Loads recipe image
                     Picasso.get().load(bundle.getString("imageURL")).into(currentSelection);
 
-                    //Removes breakfast fragment overlay and makes planner fragment visible
+                    //Removes meal Timescale fragment overlay and makes planner fragment visible
                     fragmentTransaction = getParentFragmentManager().beginTransaction();
-                    fragmentTransaction.remove(breakfastFragment).commitNow();
-                    requireView().setVisibility(View.VISIBLE);
-
-                    //Sets and updates user planner
-                    plannerList.set(currentSelection.getId(), map);
-                    mUser.setMealPlanner(plannerList);
-                    updateMealPlan();
-                }
-            }
-            else if (requestCode == lunchRequestCode){
-                //Compiles bundle into a hashmap object for serialization
-                final HashMap<String, Object> map = new HashMap<>();
-                if (bundle != null) {
-                    for (String key : bundle.keySet()) {
-                        map.put(key, bundle.get(key));
-                    }
-
-                    //Sets new listener for inserted recipe to open info fragment
-                    currentSelection.setOnClickListener(v -> openRecipeInfo(map));
-
-                    //Loads recipe image
-                    Picasso.get().load(bundle.getString("imageURL")).into(currentSelection);
-
-                    //Removes lunch fragment overlay and makes planner fragment visible
-                    fragmentTransaction = getParentFragmentManager().beginTransaction();
-                    fragmentTransaction.remove(lunchFragment).commitNow();
-                    requireView().setVisibility(View.VISIBLE);
-
-                    //Sets and updates user planner
-                    plannerList.set(currentSelection.getId(), map);
-                    mUser.setMealPlanner(plannerList);
-                    updateMealPlan();
-                }
-            }
-            else if (requestCode == dinnerRequestCode){
-                //Compiles bundle into a hashmap object for serialization
-                final HashMap<String, Object> map = new HashMap<>();
-                if (bundle != null) {
-                    for (String key : bundle.keySet()) {
-                        map.put(key, bundle.get(key));
-                    }
-
-                    //Sets new listener for inserted recipe to open info fragment
-                    currentSelection.setOnClickListener(v -> openRecipeInfo(map));
-
-                    //Loads recipe image
-                    Picasso.get().load(bundle.getString("imageURL")).into(currentSelection);
-
-                    //Removes dinner fragment overlay and makes planner fragment visible
-                    fragmentTransaction = getParentFragmentManager().beginTransaction();
-                    fragmentTransaction.remove(dinnerFragment).commitNow();
+                    fragmentTransaction.remove(mealTimescaleFragment).commitNow();
                     requireView().setVisibility(View.VISIBLE);
 
                     //Sets and updates user planner

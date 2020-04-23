@@ -14,24 +14,24 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.group4sweng.scranplan.MealPlanner.MealTimescaleFragment;
 import com.group4sweng.scranplan.R;
-import com.group4sweng.scranplan.MealPlanner.BreakfastFragment;
 import com.group4sweng.scranplan.RecipeFragment;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class BreakfastRecyclerAdapter extends RecyclerView.Adapter<BreakfastRecyclerAdapter.ViewHolder> {
+public class MealTimescaleRecyclerAdapter extends RecyclerView.Adapter<MealTimescaleRecyclerAdapter.ViewHolder> {
 
     // Variables for database and fragment to be displayed in
-    private BreakfastFragment mBreakfastFragment;
-    private List<BreakfastRecyclerAdapter.BreakfastRecipePreviewData> mDataset;
+    private MealTimescaleFragment mMealTimescaleFragment;
+    private List<MealTimescaleRecyclerAdapter.MealTimescaleRecipePreviewData> mDataset;
 
     /**
      * The holder for the card with variables required
      */
-    public static class BreakfastRecipePreviewData {
+    public static class MealTimescaleRecipePreviewData {
 
         private String recipeID;
         private String title;
@@ -39,7 +39,7 @@ public class BreakfastRecyclerAdapter extends RecyclerView.Adapter<BreakfastRecy
         private String imageURL;
         private DocumentSnapshot document;
 
-        public BreakfastRecipePreviewData(DocumentSnapshot doc, String recipeID, String title, Float rating, String imageURL) {
+        public MealTimescaleRecipePreviewData(DocumentSnapshot doc, String recipeID, String title, Float rating, String imageURL) {
             this.document = doc;
             this.recipeID = recipeID;
             this.title = title;
@@ -71,11 +71,11 @@ public class BreakfastRecyclerAdapter extends RecyclerView.Adapter<BreakfastRecy
 
     /**
      * Constructor to add all variables
-     * @param breakfastFragment
+     * @param mealTimescaleFragment
      * @param dataset
      */
-    public BreakfastRecyclerAdapter (BreakfastFragment breakfastFragment, List<BreakfastRecyclerAdapter.BreakfastRecipePreviewData> dataset) {
-        mBreakfastFragment = breakfastFragment;
+    public MealTimescaleRecyclerAdapter (MealTimescaleFragment mealTimescaleFragment, List<MealTimescaleRecyclerAdapter.MealTimescaleRecipePreviewData> dataset) {
+        mMealTimescaleFragment = mealTimescaleFragment;
         mDataset = dataset;
     }
 
@@ -86,10 +86,10 @@ public class BreakfastRecyclerAdapter extends RecyclerView.Adapter<BreakfastRecy
      * @param viewType
      * @return
      */
-    public BreakfastRecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public MealTimescaleRecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.home_image_recycler, parent, false);
-        return new BreakfastRecyclerAdapter.ViewHolder(v);
+        return new MealTimescaleRecyclerAdapter.ViewHolder(v);
     }
 
     /**
@@ -98,7 +98,7 @@ public class BreakfastRecyclerAdapter extends RecyclerView.Adapter<BreakfastRecy
      * @param position
      */
     @Override
-    public void onBindViewHolder(final BreakfastRecyclerAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(final MealTimescaleRecyclerAdapter.ViewHolder holder, int position) {
         Integer padding = 10;
         Float density = holder.cardView.getContext().getResources().getDisplayMetrics().density;
         Integer paddingDP = (int)(padding * density);
@@ -125,8 +125,8 @@ public class BreakfastRecyclerAdapter extends RecyclerView.Adapter<BreakfastRecy
         });
 
         holder.cardView.setOnClickListener(v -> {
-            if (mBreakfastFragment != null){
-                mBreakfastFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
+            if (mMealTimescaleFragment != null){
+                mMealTimescaleFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
             }else{
                 Log.e("SEARCH RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
             }
