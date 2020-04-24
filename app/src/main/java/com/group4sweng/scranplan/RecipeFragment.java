@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -111,6 +112,16 @@ public class RecipeFragment extends Fragment {
             planner = getArguments().getBoolean("planner");
         else planner = false;
 
+        if (planner) {
+            TextView title = view.findViewById(R.id.recipeFragmentTitle);
+            ImageButton returnButton = view.findViewById(R.id.recipeFragmentReturnButton);
+            title.setVisibility(View.VISIBLE);
+            returnButton.setVisibility(View.VISIBLE);
+            returnButton.setOnClickListener(v ->
+                    getTargetFragment().onActivityResult(getTargetRequestCode(),
+                            Activity.RESULT_CANCELED, null));
+        }
+
         Home home = (Home) getActivity();
         if (home != null) {
             searchView = home.getSearchView();
@@ -181,6 +192,8 @@ public class RecipeFragment extends Fragment {
                                 dataScore.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                         document,
                                         document.getId(),
+                                        document.get("Name").toString(),
+                                        Float.valueOf(document.get("score").toString()),
                                         document.get("imageURL").toString()
                                 ));
                             }
@@ -220,6 +233,8 @@ public class RecipeFragment extends Fragment {
                                                         dataScore.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                                                 d,
                                                                 d.getId(),
+                                                                d.get("Name").toString(),
+                                                                Float.valueOf(d.get("score").toString()),
                                                                 d.get("imageURL").toString()
                                                         ));
                                                     }
@@ -280,6 +295,8 @@ public class RecipeFragment extends Fragment {
                                 dataVotes.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                         document,
                                         document.getId(),
+                                        document.get("Name").toString(),
+                                        Float.valueOf(document.get("score").toString()),
                                         document.get("imageURL").toString()
                                 ));
                             }
@@ -319,6 +336,8 @@ public class RecipeFragment extends Fragment {
                                                         dataVotes.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                                                 d,
                                                                 d.getId(),
+                                                                d.get("Name").toString(),
+                                                                Float.valueOf(d.get("score").toString()),
                                                                 d.get("imageURL").toString()
                                                         ));
                                                     }
@@ -380,6 +399,8 @@ public class RecipeFragment extends Fragment {
                                 dataTime.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                         document,
                                         document.getId(),
+                                        document.get("Name").toString(),
+                                        Float.valueOf(document.get("score").toString()),
                                         document.get("imageURL").toString()
                                 ));
                             }
@@ -419,6 +440,8 @@ public class RecipeFragment extends Fragment {
                                                         dataTime.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                                                 d,
                                                                 d.getId(),
+                                                                d.get("Name").toString(),
+                                                                Float.valueOf(d.get("score").toString()),
                                                                 d.get("imageURL").toString()
                                                         ));
                                                     }
@@ -479,6 +502,8 @@ public class RecipeFragment extends Fragment {
                                 dataFave.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                         document,
                                         document.getId(),
+                                        document.get("Name").toString(),
+                                        Float.valueOf(document.get("score").toString()),
                                         document.get("imageURL").toString()
                                 ));
                             }
@@ -518,6 +543,8 @@ public class RecipeFragment extends Fragment {
                                                         dataFave.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                                                 d,
                                                                 d.getId(),
+                                                                d.get("Name").toString(),
+                                                                Float.valueOf(d.get("score").toString()),
                                                                 d.get("imageURL").toString()
                                                         ));
                                                     }
@@ -598,7 +625,7 @@ public class RecipeFragment extends Fragment {
         mBundle.putBoolean("vegetarian", document.getBoolean("vegetarian"));
 
         ArrayList faves = (ArrayList) document.get("favourite");
-        mBundle.putBoolean("isFav", faves.contains(user.getUID()));
+        mBundle.putBoolean("isFav", faves.contains(user.getUID().hashCode()));
 
 
         RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();

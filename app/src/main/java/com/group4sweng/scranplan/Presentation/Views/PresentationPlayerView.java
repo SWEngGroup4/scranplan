@@ -1,4 +1,4 @@
-package com.group4sweng.scranplan.Presentation;
+package com.group4sweng.scranplan.Presentation.Views;
 
 import android.content.Context;
 import android.net.Uri;

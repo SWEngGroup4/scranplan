@@ -18,4 +18,6 @@
     <color name="colorPurpleDark">#36675B7A</color>
     <color name="colorPurpleLight">#cecce0</color>
     <color name="colorDangerRed">#F44336</color>
+    <color name="colorRatingGold">#FFD700</color>
+    <color name="colorRatingGrey">#696969</color>
 </resources>

@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/recipeListContainer"
     android:orientation="vertical"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:padding="10dp">
+    android:visibility="gone">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/recipeListCardView"
@@ -14,7 +16,7 @@
         android:background="@color/colorBackground"
         android:foreground="?android:attr/selectableItemBackground">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -26,7 +28,25 @@
                 android:adjustViewBounds="true"
                 android:src="@drawable/scran"/>
 
-        </LinearLayout>
+            <TextView
+                android:id="@+id/recipeListTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignEnd="@id/recipeListImageView"
+                android:layout_alignParentTop="true"/>
+
+            <RatingBar
+                android:id="@+id/recipeListRating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/recipeListImageView"
+                android:numStars="5"
+                android:stepSize="0.1"
+                android:isIndicator="true"
+                android:theme="@style/RatingBar"
+                style="?android:attr/ratingBarStyleSmall"/>
+
+        </RelativeLayout>
 
     </androidx.cardview.widget.CardView>
 

@@ -59,6 +59,8 @@ public class PlannerFragment extends Fragment {
     private MenuItem sortButton;
     Button mShoppingList;
 
+    private Integer recipeFragmentRequest = 1;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -163,7 +165,7 @@ public class PlannerFragment extends Fragment {
             //Creates and launches recipe fragment
             recipeFragment = new RecipeFragment(mUser);
             recipeFragment.setArguments(bundle);
-            recipeFragment.setTargetFragment(PlannerFragment.this, 1);
+            recipeFragment.setTargetFragment(PlannerFragment.this, recipeFragmentRequest);
             fragmentTransaction = getParentFragmentManager().beginTransaction();
             fragmentTransaction.add(R.id.frameLayout, recipeFragment); //Overlays fragment on existing one
             fragmentTransaction.commitNow(); //Waits for fragment transaction to be completed
@@ -196,40 +198,41 @@ public class PlannerFragment extends Fragment {
     //Handles child fragment exit results
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK) {
-            Bundle bundle = data.getExtras();
+        if (requestCode == recipeFragmentRequest) {
+            if (resultCode == Activity.RESULT_OK) {
+                Bundle bundle = data.getExtras();
 
-            //Hides menu options
-            sortButton.setVisible(false);
+                //Hides menu options
+                sortButton.setVisible(false);
 
-            //Clears search view
-            searchView.clearFocus();
-            searchView.onActionViewCollapsed();
-            searchView.setVisibility(View.INVISIBLE);
+                //Clears search view
+                searchView.clearFocus();
+                searchView.onActionViewCollapsed();
+                searchView.setVisibility(View.INVISIBLE);
 
-            //Compiles bundle into a hashmap object for serialization
-            final HashMap<String, Object> map = new HashMap<>();
-            if (bundle != null) {
-                for (String key : bundle.keySet()) {
-                    map.put(key, bundle.get(key));
+                //Compiles bundle into a hashmap object for serialization
+                final HashMap<String, Object> map = new HashMap<>();
+                if (bundle != null) {
+                    for (String key : bundle.keySet()) {
+                        map.put(key, bundle.get(key));
+                    }
+
+                    //Sets new listener for inserted recipe to open info fragment
+                    currentSelection.setOnClickListener(v -> openRecipeInfo(map));
+
+                    //Loads recipe image
+                    Picasso.get().load(bundle.getString("imageURL")).into(currentSelection);
+
+                    //Sets and updates user planner
+                    plannerList.set(currentSelection.getId(), map);
+                    mUser.setMealPlanner(plannerList);
+                    updateMealPlan();
                 }
-
-                //Sets new listener for inserted recipe to open info fragment
-                currentSelection.setOnClickListener(v -> openRecipeInfo(map));
-
-                //Loads recipe image
-                Picasso.get().load(bundle.getString("imageURL")).into(currentSelection);
-
-                //Removes recipe fragment overlay and makes planner fragment visible
-                fragmentTransaction = getParentFragmentManager().beginTransaction();
-                fragmentTransaction.remove(recipeFragment).commitNow();
-                requireView().setVisibility(View.VISIBLE);
-
-                //Sets and updates user planner
-                plannerList.set(currentSelection.getId(), map);
-                mUser.setMealPlanner(plannerList);
-                updateMealPlan();
             }
+            //Removes recipe fragment overlay and makes planner fragment visible
+            fragmentTransaction = getParentFragmentManager().beginTransaction();
+            fragmentTransaction.remove(recipeFragment).commitNow();
+            requireView().setVisibility(View.VISIBLE);
         }
     }
 

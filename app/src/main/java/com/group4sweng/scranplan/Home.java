@@ -50,7 +50,7 @@ public class Home extends AppCompatActivity {
     final static int PROFILE_SETTINGS_REQUEST_CODE = 1;
 
     // User variable for all preferences saved to device
-    com.group4sweng.scranplan.UserInfo.UserInfoPrivate mUser;
+    private UserInfoPrivate mUser;
 
     // Firebase variables
     FirebaseAuth mAuth;
@@ -164,6 +164,7 @@ public class Home extends AppCompatActivity {
                 query = new SearchQuery( s, prefs);
                 SearchListFragment searchListFragment = new SearchListFragment(mUser);
                 searchListFragment.setValue(query.getQuery());
+                searchListFragment.setIndex(query.getIndex());
                 Log.e(TAG, "User opening search");
                 searchListFragment.show(fragmentManager, "search");
                 return false;
@@ -335,17 +336,17 @@ public class Home extends AppCompatActivity {
      */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
 
-        switch(requestCode) {
-            case (PROFILE_SETTINGS_REQUEST_CODE):
-                if (resultCode == RESULT_OK) {
-                    mUser = (UserInfoPrivate) getIntent().getSerializableExtra("user");
-                }
-                break;
-            default:
+        if (requestCode == PROFILE_SETTINGS_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                mUser = (UserInfoPrivate) data.getSerializableExtra("user");
+                Log.e(TAG, "ABOUT INFO IS: " + mUser.getAbout());
+            } else {
                 Log.e(TAG, "I am not returning anything. Should return new profile settings from Profile Settings Activity.");
+            }
         }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     /**

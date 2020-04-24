@@ -89,14 +89,26 @@ android:
 before_script:
   - mkdir -p "$ANDROID_HOME/licenses"
   - cp ./google-licenses/* "$ANDROID_HOME/licenses/"
+jobs:
+  include:
+    - name: Run Tests
+      script:
+      - ./gradlew assembleAndroidTest
+      #  - $ANDROID_HOME/emulator/emulator -avd test -no-window &
+      #  - bash android-wait-for-emulator
+      #  - adb shell input keyevent 82
+      #  - ./gradlew connectedAndroidTest
+      - ./gradlew jacocoTestReportDebug
 
-script:
-  - ./gradlew assembleAndroidTest
-#  - $ANDROID_HOME/emulator/emulator -avd test -no-window &
-#  - bash android-wait-for-emulator
-#  - adb shell input keyevent 82
-#  - ./gradlew connectedAndroidTest
-  - ./gradlew jacocoTestReportDebug
+    - name: Create Sentry Release on push to master
+      if: (type = push AND branch = master)
+      env: SENTRY_ORG=nbillis SENTRY_PROJECT=scranplan
+      script: |
+        curl -sL https://sentry.io/get-cli/ | bash
+        export SENTRY_RELEASE=$(sentry-cli releases propose-version)
+        sentry-cli releases new -p $SENTRY_PROJECT $SENTRY_RELEASE
+        sentry-cli releases set-commits --auto $SENTRY_RELEASE
+        sentry-cli releases finalize $SENTRY_RELEASE
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
