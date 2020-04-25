@@ -307,6 +307,7 @@ public class RecipeFragment extends Fragment {
                 topLayout.addView(recyclerViewScore);
                 Log.e(TAG, "Score horizontal row added");
             }
+
             /* Adding the save view as score but with highest votes as a new query
             /  This has been done in the same manner but as there are too many variables to track
             /  this is not workable in any kind of loop. */

@@ -79,11 +79,11 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
         Log.d(TAG, "Testing add breakfast");
 
         onView(withText("Meal Planner")).perform(click());
-        onView(withId(0)).perform(longClick());
+        onView(withText("soup")).perform(click());
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        onView(withText("hearty pasta soup")).perform(click());
+        onView(withId(0)).perform(click());
         onView(withText("Add")).perform(click());
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
@@ -95,11 +95,11 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
         Log.d(TAG, "Testing add lunch");
 
         onView(withText("Meal Planner")).perform(click());
-        onView(withId(1)).perform(longClick());
+        onView(withId(1)).perform(click());
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        onView(withText("chicken noodle soup")).perform(click());
+        onView(withText("One-pot chicken")).perform(click());
         onView(withText("Add")).perform(click());
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
@@ -111,7 +111,7 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
         Log.d(TAG, "Testing add dinner");
 
         onView(withText("Meal Planner")).perform(click());
-        onView(withId(2)).perform(longClick());
+        onView(withId(2)).perform(click());
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 

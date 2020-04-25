@@ -7,10 +7,12 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.LinearLayout;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -25,10 +27,14 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.group4sweng.scranplan.Home;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import com.group4sweng.scranplan.SearchFunctions.HomeQueries;
 import com.group4sweng.scranplan.SearchFunctions.HomeRecyclerAdapter;
+import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
+import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
+import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.ArrayList;
@@ -39,14 +45,12 @@ import java.util.Map;
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class LunchFragment extends Fragment {
+
+    final String TAG = "Lunch horizontal queries";
     UserInfoPrivate user;
     public LunchFragment(UserInfoPrivate userSent){
         user = userSent;
     }
-
-    private String recipeID;
-    private String imageURL;
-    private DocumentSnapshot document;
 
     List<HomeRecyclerAdapter.HomeRecipePreviewData> dataLunch;
     private DocumentSnapshot lastVisibleLunch;
@@ -81,6 +85,10 @@ public class LunchFragment extends Fragment {
     private FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
     private CollectionReference mColRef = mDatabase.collection("recipes");
 
+    private SearchView searchView;
+    private MenuItem sortView;
+    private SearchPrefs prefs;
+
     private Bundle mBundle;
     private Boolean planner;
 
@@ -96,6 +104,35 @@ public class LunchFragment extends Fragment {
         if (getArguments() != null)
             planner = getArguments().getBoolean("planner");
         else planner = false;
+
+        Home home = (Home) getActivity();
+        if (home != null) {
+            searchView = home.getSearchView();
+            sortView = home.getSortView();
+            if (sortView != null) sortView.setVisible(true);
+            if (searchView != null) searchView.setVisibility(View.VISIBLE);
+            prefs = home.getSearchPrefs();
+            if (searchView != null && prefs != null) {
+
+                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String s) {
+                        // Search function
+                        SearchQuery query = new SearchQuery(s, prefs);
+                        SearchListFragment searchListFragment = new SearchListFragment(user);
+                        searchListFragment.setValue(query.getQuery());
+                        Log.e(TAG, "User opening search");
+                        searchListFragment.show(getFragmentManager(), "search");
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        return false;
+                    }
+                });
+            }
+        }
 
         View view = inflater.inflate(R.layout.fragment_recipe, container, false);
 

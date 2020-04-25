@@ -53,7 +53,7 @@ public class PlannerListFragment extends SearchListFragment {
     //Runs on completion of info fragment activity
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Launches activity result method on target fragment
+        //Launches activity result method on target fragment
         if (resultCode == Activity.RESULT_OK) {
             Intent i = new Intent();
             i.putExtras(mBundle);
