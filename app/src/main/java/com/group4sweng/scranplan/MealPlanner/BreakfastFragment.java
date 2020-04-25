@@ -46,7 +46,6 @@ import java.util.Map;
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class BreakfastFragment extends Fragment {
-    final String TAG = "Breakfast horizontal queries";
     UserInfoPrivate user;
     public BreakfastFragment(UserInfoPrivate userSent){
         user = userSent;

@@ -46,7 +46,6 @@ import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class LunchFragment extends Fragment {
 
-    final String TAG = "Lunch horizontal queries";
     UserInfoPrivate user;
     public LunchFragment(UserInfoPrivate userSent){
         user = userSent;
