@@ -3,6 +3,7 @@ package com.group4sweng.scranplan.MealPlanner;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,10 +23,12 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.Home;
+import com.group4sweng.scranplan.InitialUserCustomisation;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
+import com.group4sweng.scranplan.ShoppingList;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -72,9 +75,24 @@ public class PlannerFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_planner, container, false);
 
+
+
         //Grabs user and user's meal planner
         mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
         if (mUser != null) plannerList = mUser.getMealPlanner();
+            View mShoppingList = view.findViewById(R.id.shoppingListButton);
+
+        if (mUser != null) {
+            mShoppingList.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent toShoppingList = new Intent(getActivity(), ShoppingList.class);
+                    toShoppingList.putExtra("user", mUser);
+                    startActivity(toShoppingList);
+                }
+
+            });
+        }
 
         Home home = (Home) getActivity();
         if (home != null) {
@@ -259,4 +277,10 @@ public class PlannerFragment extends Fragment {
         updateMap.put("mealPlan", plannerList);
         documentReference.update(updateMap);
     }
-}
+
+
+    }
+
+
+
+

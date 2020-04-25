@@ -12,6 +12,8 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.MealPlanner.PlannerFragment;
+import com.group4sweng.scranplan.MealPlanner.PlannerInfoFragment;
 import com.group4sweng.scranplan.MealPlanner.PlannerListFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
@@ -32,8 +34,6 @@ public class ShoppingList extends AppCompatActivity {
 
     //List for storing current ingredients
     private List<HashMap<String, Object>> updateIngredientList = new ArrayList<>();
-    //Used for hardcoded string generation
-
 
     //User information
     private com.group4sweng.scranplan.UserInfo.UserInfoPrivate mUser;
@@ -42,9 +42,7 @@ public class ShoppingList extends AppCompatActivity {
     TextView mShoppingList;
     private String UID;
     private UserInfoPrivate mUserProfile;
-    Button mShoppingListButton;
     private List<HashMap<String, Object>> ShoppingList = new ArrayList<>();
-    private List<HashMap<String, Object>> PlannerList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,13 +50,14 @@ public class ShoppingList extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shoppinglist);
 
-        if (getIntent().getSerializableExtra("user") != null) {
-            mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) getIntent().getSerializableExtra("user");
-        }
+        mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) getIntent().getSerializableExtra("user");
 
         if (mUser != null) {
-            ShoppingList = mUser.getMealPlanner();
             AddIngredients();
+            TextView tv = (TextView) findViewById(R.id.textView2);
+            for (HashMap<String, Object> ingredients : ShoppingList) {
+                tv.append((CharSequence) updateIngredientList);
+            }
         }
 
         }
@@ -66,28 +65,28 @@ public class ShoppingList extends AppCompatActivity {
         @Override
         public void onBackPressed () {
             Intent returnIntent = new Intent(this, Home.class);
-            returnIntent.putExtra("user", mUserProfile);
+            returnIntent.putExtra("user", mUser);
             startActivity(returnIntent);
             finish(); //    We don't need to send anything back but do need to destroy the current activity.
         }
 
         public void AddIngredients(){
 
-
             if (mUser != null) {
-
-                for (int x = 0; x <= mUser.getMealPlanner().size(); x++) {
-
-                    ShoppingList.get(x).get("ingredients");
-                    HashMap<String, Object> updateIngredientList = new HashMap<>();
-                    updateIngredientList.put("ingredient", mUser.getIngredientList());
-                    TextView tv = (TextView) findViewById(R.id.textView2);
-                    for (HashMap<String, Object> ingredients : ShoppingList) {
-                        tv.append("updateIngredientList");
-
+                ShoppingList = mUser.getMealPlanner();
+                HashMap<String, Object> updateIngredientList = new HashMap<>();
+                    for (int x = 0; x <= mUser.getMealPlanner().size(); x++) {
+                        if (ShoppingList != null) {
+                            ShoppingList.get(x).get("ingredientList");
+                            updateIngredientList.put("ingredientList", mUser.getIngredientList());
+                        } else {
+                            TextView tv = (TextView) findViewById(R.id.textView2);
+                            tv.append("Nothing in shopping list");
+                        }
                     }
-                }
+
             }
         }
+
 
 }

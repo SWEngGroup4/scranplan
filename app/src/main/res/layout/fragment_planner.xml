@@ -65,10 +65,6 @@
             android:layout_gravity="center"
             android:layout_weight="1"
             android:gravity="center"
-
-            android:text="@string/planner_dinner"/>
-
-
             android:text="@string/planner_dinner"
             android:textColor="@color/colorWhiteText" />
 
@@ -76,11 +72,8 @@
 
     <ScrollView
         android:id="@+id/plannerScrollView"
-        android:layout_width="match_parent"
-        android:layout_height="691dp"
-        android:layout_marginTop="40sp">
-
-
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -93,11 +86,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-        </LinearLayout>
-    </ScrollView>
 
-
-</FrameLayout>
 
             <Button
                 android:id="@+id/shoppingListButton"

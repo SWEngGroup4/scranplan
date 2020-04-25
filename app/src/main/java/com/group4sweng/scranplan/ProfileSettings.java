@@ -958,8 +958,8 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
             map.put("displayName", mUserProfile.getDisplayName());
             map.put("imageURL", mUserProfile.getImageURL());
-            map.put("chefRating", mUserProfile.getChefRating());
-            map.put("numRecipes", mUserProfile.getNumRecipes());
+            //map.put("chefRating", mUserProfile.getChefRating());
+           // map.put("numRecipes", mUserProfile.getNumRecipes());
             map.put("about", mUserProfile.getAbout());
             map.put("mealPlan", mUserProfile.getMealPlanner());
             map.put("ingredientList" , mUserProfile.getIngredientList());

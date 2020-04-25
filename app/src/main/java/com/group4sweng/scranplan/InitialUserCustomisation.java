@@ -66,8 +66,6 @@ public class InitialUserCustomisation extends AppCompatActivity {
         //getSupportActionBar().hide();
         Log.e(TAG, "Starting initial user customisation activity");
 
-
-
     }
 
     private void initFirebase() {
