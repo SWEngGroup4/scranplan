@@ -29,7 +29,6 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.group4sweng.scranplan.Home;
 import com.group4sweng.scranplan.R;
-import com.group4sweng.scranplan.RecipeFragment;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import com.group4sweng.scranplan.SearchFunctions.HomeQueries;
 import com.group4sweng.scranplan.SearchFunctions.HomeRecyclerAdapter;

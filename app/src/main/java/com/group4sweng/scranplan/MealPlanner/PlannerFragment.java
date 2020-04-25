@@ -20,7 +20,6 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.Home;
 import com.group4sweng.scranplan.R;
-import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
@@ -46,7 +45,6 @@ public class PlannerFragment extends Fragment {
 
     //Fragment handlers
     private FragmentTransaction fragmentTransaction;
-    private RecipeFragment recipeFragment;
     private BreakfastFragment breakfastFragment;
     private LunchFragment lunchFragment;
     private DinnerFragment dinnerFragment;

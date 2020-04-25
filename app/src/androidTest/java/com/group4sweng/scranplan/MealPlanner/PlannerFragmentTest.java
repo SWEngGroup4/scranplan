@@ -73,52 +73,19 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
                 matches(isDisplayed()));
     }
 
-    //Check breakfast fragment appears and the recipe in it can be added successfully to the meal plan
+
+    //Checks adding breakfast to the planner is performed correctly
     @Test
-    public void AddBreakfast() throws InterruptedException {
-        Log.d(TAG, "Testing add breakfast");
+    public void BreakfastAddToPlanner() throws InterruptedException {
+        Log.d(TAG, "Testing searching");
 
         onView(withText("Meal Planner")).perform(click());
-        onView(withId(1)).perform(click());
+        onView(withId(0)).perform(click());
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        onView(withText("soup")).perform(click());
+        onView(withText("Soup")).perform(click());
         onView(withText("Add")).perform(click());
-
-        Thread.sleep(THREAD_SLEEP_TIME/4);
-    }
-
-    //Check lunch fragment appears and the recipe in it can be added successfully to the meal plan
-    @Test
-    public void checkAddLunch() throws InterruptedException {
-        Log.d(TAG, "Testing add lunch");
-
-        onView(withText("Meal Planner")).perform(click());
-        onView(withId(1)).perform(click());
-
-        Thread.sleep(THREAD_SLEEP_TIME/4);
-
-        onView(withText("One-pot chicken")).perform(click());
-        onView(withText("Add")).perform(click());
-
-        Thread.sleep(THREAD_SLEEP_TIME/4);
-    }
-
-    //Check dinner fragment appears and the recipe in it can be added successfully to the meal plan
-    @Test
-    public void checkAddDinner() throws InterruptedException {
-        Log.d(TAG, "Testing add dinner");
-
-        onView(withText("Meal Planner")).perform(click());
-        onView(withId(2)).perform(click());
-
-        Thread.sleep(THREAD_SLEEP_TIME/4);
-
-        onView(withText("slow cooker spiced root and lentil casserole")).perform(click());
-        onView(withText("Add")).perform(click());
-
-        Thread.sleep(THREAD_SLEEP_TIME/4);
     }
 
     //Checks searching for a recipe and adding it to the planner is performed correctly
