@@ -47,9 +47,6 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
 
 
     private List<HomeRecipePreviewData> mDataset;
-    private List<HomeRecipePreviewData> mDataBreakfast;
-    private List<HomeRecipePreviewData> mDataLunch;
-    private List<HomeRecipePreviewData> mDataDinner;
 
     private static final int RECIPE_PREVIEW_ITEM_VIEW_TYPE = 0;
     private static final int UNIFIED_NATIVE_AD_VIEW_TYPE = 1;

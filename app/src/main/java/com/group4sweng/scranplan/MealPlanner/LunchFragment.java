@@ -258,7 +258,7 @@ public class LunchFragment extends Fragment {
             dataScore = new ArrayList<>();
             final RecyclerView.Adapter rAdapterScore = new HomeRecyclerAdapter(LunchFragment.this, dataScore);
             recyclerViewScore.setAdapter(rAdapterScore);
-            final Query queryScore = (Query) horizontalScrollQueries.getQueries().get("score");
+            final Query queryScore = (Query) horizontalScrollQueries.getQueries().get("lunchScore");
             // Ensure query exists and builds view with query
             if (queryScore != null) {
                 Log.e(TAG, "User is searching the following query: " + queryScore.toString());
@@ -364,7 +364,7 @@ public class LunchFragment extends Fragment {
             dataVotes = new ArrayList<>();
             final RecyclerView.Adapter rAdapterVotes = new HomeRecyclerAdapter(LunchFragment.this, dataVotes);
             recyclerViewVotes.setAdapter(rAdapterVotes);
-            final Query queryVotes = (Query) horizontalScrollQueries.getQueries().get("votes");
+            final Query queryVotes = (Query) horizontalScrollQueries.getQueries().get("lunchVotes");
             if (queryVotes != null) {
                 Log.e(TAG, "User is searching the following query: " + queryVotes.toString());
 
@@ -468,7 +468,7 @@ public class LunchFragment extends Fragment {
             dataTime = new ArrayList<>();
             final RecyclerView.Adapter rAdapterTime = new HomeRecyclerAdapter(LunchFragment.this, dataTime);
             recyclerViewTime.setAdapter(rAdapterTime);
-            final Query queryTime = (Query) horizontalScrollQueries.getQueries().get("timestamp");
+            final Query queryTime = (Query) horizontalScrollQueries.getQueries().get("lunchTimestamp");
             if (queryTime != null) {
                 Log.e(TAG, "User is searching the following query: " + queryTime.toString());
 
@@ -571,7 +571,7 @@ public class LunchFragment extends Fragment {
             dataFave = new ArrayList<>();
             final RecyclerView.Adapter rAdapterFave = new HomeRecyclerAdapter(LunchFragment.this, dataFave);
             recyclerViewFave.setAdapter(rAdapterFave);
-            final Query queryFave = (Query) horizontalScrollQueries.getQueries().get("favourite");
+            final Query queryFave = (Query) horizontalScrollQueries.getQueries().get("lunchFavourite");
             if (queryFave != null) {
                 Log.e(TAG, "User is searching the following query: " + queryFave.toString());
 

@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
@@ -258,7 +259,7 @@ public class BreakfastFragment extends Fragment {
             dataScore = new ArrayList<>();
             final RecyclerView.Adapter rAdapterScore = new HomeRecyclerAdapter(BreakfastFragment.this, dataScore);
             recyclerViewScore.setAdapter(rAdapterScore);
-            final Query queryScore = (Query) horizontalScrollQueries.getQueries().get("score");
+            final Query queryScore = (Query) horizontalScrollQueries.getQueries().get("breakfastScore");
             // Ensure query exists and builds view with query
             if (queryScore != null) {
                 Log.e(TAG, "User is searching the following query: " + queryScore.toString());
@@ -363,7 +364,7 @@ public class BreakfastFragment extends Fragment {
             dataVotes = new ArrayList<>();
             final RecyclerView.Adapter rAdapterVotes = new HomeRecyclerAdapter(BreakfastFragment.this, dataVotes);
             recyclerViewVotes.setAdapter(rAdapterVotes);
-            final Query queryVotes = (Query) horizontalScrollQueries.getQueries().get("votes");
+            final Query queryVotes = (Query) horizontalScrollQueries.getQueries().get("breakfastVotes");
             if (queryVotes != null) {
                 Log.e(TAG, "User is searching the following query: " + queryVotes.toString());
 
@@ -467,7 +468,7 @@ public class BreakfastFragment extends Fragment {
             dataTime = new ArrayList<>();
             final RecyclerView.Adapter rAdapterTime = new HomeRecyclerAdapter(BreakfastFragment.this, dataTime);
             recyclerViewTime.setAdapter(rAdapterTime);
-            final Query queryTime = (Query) horizontalScrollQueries.getQueries().get("timestamp");
+            final Query queryTime = (Query) horizontalScrollQueries.getQueries().get("breakfastTimestamp");
             if (queryTime != null) {
                 Log.e(TAG, "User is searching the following query: " + queryTime.toString());
 
@@ -564,16 +565,19 @@ public class BreakfastFragment extends Fragment {
             /  This has been done in the same manner but as there are too many variables to track
             /  this is not workable in any kind of loop. */
             final RecyclerView recyclerViewFave = new RecyclerView(view.getContext());
+            // Set out the layout of this horizontal view
             RecyclerView.LayoutManager rManagerFave = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
             recyclerViewFave.setLayoutManager(rManagerFave);
             recyclerViewFave.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels / scrollViewSize));
+            // Array to score downloaded data
             dataFave = new ArrayList<>();
             final RecyclerView.Adapter rAdapterFave = new HomeRecyclerAdapter(BreakfastFragment.this, dataFave);
             recyclerViewFave.setAdapter(rAdapterFave);
-            final Query queryFave = (Query) horizontalScrollQueries.getQueries().get("favourite");
+            final Query queryFave = (Query) horizontalScrollQueries.getQueries().get("breakfastFavourite");
+            // Ensure query exists and builds view with query
             if (queryFave != null) {
                 Log.e(TAG, "User is searching the following query: " + queryFave.toString());
-
+                // Give the view a title
                 TextView textView = new TextView(view.getContext());
                 String testString = "My favourites";
                 textView.setTextSize(25);
@@ -581,7 +585,7 @@ public class BreakfastFragment extends Fragment {
                 textView.setTextColor(Color.WHITE);
                 textView.setShadowLayer(4, 0, 0, Color.BLACK);
                 textView.setText(testString);
-
+                // Query listener to add data to view
                 queryFave
                         .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -602,7 +606,7 @@ public class BreakfastFragment extends Fragment {
                             }else{
                                 isLastItemReachedFave = true;
                             }
-
+                            // Track users location to check if new data download is required
                             RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
                                 @Override
                                 public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -612,6 +616,7 @@ public class BreakfastFragment extends Fragment {
                                     }
                                 }
 
+                                // If scrolled to end then download new data and check if we are out of data
                                 @Override
                                 public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                                     super.onScrolled(recyclerView, dx, dy);
