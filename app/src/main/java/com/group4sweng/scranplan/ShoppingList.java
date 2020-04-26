@@ -51,9 +51,11 @@ public class ShoppingList extends AppCompatActivity {
         mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) getIntent().getSerializableExtra("user");
 
         if (mUser != null) {
-            AddIngredients(2);
+            for (int a = 1; a < 20; a++){
+                    AddIngredients(a);
+                }
         }
-        }
+    }
 
         @Override
         public void onBackPressed () {
@@ -71,11 +73,14 @@ public class ShoppingList extends AppCompatActivity {
                 HashMap<String, Object> updateIngredientList = new HashMap<>();
 
                             Object newIngredient = ShoppingList.get(x).get("ingredientList");
-                            updateIngredientList.put("ingredient", newIngredient);
-                            System.out.println(updateIngredientList);
-                            TextView tv = (TextView) findViewById(R.id.textView2);
-                            tv.setText(updateIngredientList.toString());
-
+                            if(newIngredient == updateIngredientList.get(newIngredient)){
+                                System.out.println("ALREDY HERE");
+                            }
+                            else {
+                                updateIngredientList.put("ingredient", newIngredient);
+                                TextView tv = (TextView) findViewById(R.id.textView2);
+                                tv.setText(updateIngredientList.toString());
+                            }
             }
         }
 
