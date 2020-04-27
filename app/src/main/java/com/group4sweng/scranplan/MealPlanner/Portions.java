@@ -204,12 +204,15 @@ class Portions {
         int minValueInt = (int) Math.floor(minValue);
 
         ArrayList<Integer> amounts = new ArrayList<>();
+        //int[] amounts = new int[servesAmounts.length];
 
+        int amountsCounter = 0;
         for (int servesAmount : servesAmounts) {
             System.out.println("Serves amounts: " + servesAmount);
             //  Check if new serving amount is within max/min values and isn't equal to previous serving amount.
             if (servesAmount <= maxValueInt && servesAmount >= minValueInt && servesAmount != currentServes) {
                 amounts.add(servesAmount);
+                amountsCounter++;
             }
         }
 

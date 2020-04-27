@@ -39,7 +39,6 @@ import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 
 public class RecipeInfoFragment extends AppCompatDialogFragment implements FilterType {
@@ -96,7 +95,6 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
 
     // Define a String ArrayList for the ingredients
     protected ArrayList<String> ingredientList = new ArrayList<>();
-    protected HashMap<String, String> ingredientHashMap = new HashMap<>();
 
     // Define a ListView to display the data
     protected LinearLayout listViewIngredients;
@@ -113,7 +111,6 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
 
 
     @Override
-    @SuppressWarnings({"unchecked", "ConstantConditions"})
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -126,13 +123,13 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         recipeDescription = getArguments().getString("recipeDescription");
         chefName = getArguments().getString("chefName");
         ingredientArray = getArguments().getStringArrayList("ingredientList");
-        ingredientHashMap = (HashMap<String, String>) getArguments().getSerializable("ingredientListHashMap");
         recipeRating = getArguments().getString("rating");
         xmlPresentation = getArguments().getString("xmlURL");
         planner = getArguments().getBoolean("planner");
         favouriteRecipe = getArguments().getStringArrayList("favourite");
         mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
         isFavourite = getArguments().getBoolean("isFav");
+
 
         builder.setView(layout);
 
