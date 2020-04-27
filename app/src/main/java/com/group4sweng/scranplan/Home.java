@@ -321,15 +321,19 @@ public class Home extends AppCompatActivity {
 
     /**
      * Getting serializable data from other activities
-    */
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if (requestCode == PROFILE_SETTINGS_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 mUser = (UserInfoPrivate) data.getSerializableExtra("user");
+                Log.e(TAG, "ABOUT INFO IS: " + mUser.getAbout());
             } else {
-                Log.e(TAG, "Not returning anything. Should return new profile settings from Profile Settings Activity.");
+                Log.e(TAG, "I am not returning anything. Should return new profile settings from Profile Settings Activity.");
             }
         }
 

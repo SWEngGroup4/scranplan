@@ -82,6 +82,8 @@ public class PlannerFragment extends Fragment {
             searchView.setVisibility(View.INVISIBLE);
             setSearch();
 
+
+
             //Gets search preferences from home class
             prefs = home.getSearchPrefs();
         }
@@ -146,7 +148,7 @@ public class PlannerFragment extends Fragment {
         plannerListFragment.show(getParentFragmentManager(), "search");
     }
 
-    //Sets default parameters for buttons
+    //Sets default paramters for buttons
     private void defaultButton(final ImageButton imageButton) {
         imageButton.setImageResource(R.drawable.add); //Default image
         imageButton.setOnClickListener(v -> {
@@ -177,7 +179,7 @@ public class PlannerFragment extends Fragment {
 
     //Opens info dialog for selected recipe
     private void openRecipeInfo(HashMap<String, Object> map) {
-        map.put("planner", false); //Allows launching of presentation
+        map.put("planner", false); //Allows lauching of presentation
         Bundle bundle = new Bundle();
         bundle.putSerializable("hashmap", map);
 
