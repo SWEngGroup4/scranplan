@@ -82,45 +82,6 @@ abstract class PresentationTimer extends CountDownTimer{
 
     }
 
-    // TODO - (optional). See if we can implement a countdown timer with intervals included + messages to be displayed at each interval.
-    //  Useful for long videos or steps that require multiple timers.
-    /*
-    public PresentationTimer(int[] multipleCountDownTimers, String[] countDownTimesMessages, int interval){
-        Arrays.sort(multipleCountDownTimers); //Make sure intervals are in order from lowest to highest.
-
-        for(int i : multipleCountDownTimers) { //Repeat the countdown for all time objects in the array,
-            timer = new CountDownTimer(multipleCountDownTimers[i], interval) {
-                @Override
-                public void onTick(long millisUntilFinished) {
-                    millisRemaining = millisUntilFinished;
-                    minutes = TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished);
-                    seconds = TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished);
-                }
-
-                @Override
-                public void onFinish() {
-                    if (soundEnabled) {
-                        audio = new AudioURL();
-                        try {
-                            audio.playURLSound(soundURLs[i]);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    String timeLeft = String.format(Locale.ENGLISH, "%02d:%02d", minutes, seconds);
-                    //TODO - Add a call that allows us to print the output of our input messages to the presentation once each individual counter finishes.
-                }
-            }.start();
-        }
-    }*/
-
-    // TODO - Replica of above but with more constructor input fields.
-    /*
-    public PresentationTimer(int[] multipleCountDownTimers, String[] countDownTimesMessages, int interval, String[] soundURLs){
-        this(multipleCountDownTimers, countDownTimesMessages, interval);
-        this.soundURLs = soundURLs;
-    }*/
-
     /** Soft timer stop.
      *  Stops the timer when the timer playback duration has finished. Doesn't force all audio file playback to stop.
      * @throws AudioPlaybackException - Error returned if the final audio URL fails to play.
@@ -170,10 +131,13 @@ abstract class PresentationTimer extends CountDownTimer{
      * @return - Returns the time in a printable format for the presentation.
      * format: [MINS]:[SECONDS]
      */
-    static String printOutputTime(long millisRemaining) {
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(millisRemaining);
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(millisRemaining);
+    static String printOutputTime(long currentMillis) {
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(currentMillis);
 
+        //  Seconds are the current time in seconds (from milliseconds) - time in minutes > to seconds that has passed.
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(currentMillis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(currentMillis));
+
+        //  Display in a format that allows for a '0' in-front of single number characters. IE 09:05.
         return String.format(Locale.ENGLISH, "%02d:%02d", minutes, seconds);
     }
 
