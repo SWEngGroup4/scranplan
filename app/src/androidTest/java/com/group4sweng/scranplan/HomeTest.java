@@ -40,6 +40,11 @@ import static org.junit.Assert.assertNotEquals;
 /** Test the Home Activity.
  *  Tests are included to make sure information is displayed, user can successfully after search
  *  parameters and search for the meals they want.
+ *
+ *  Contains Tests for searching using Algolia, for recipes.
+ *  -- USER STORY TESTS LINKED WITH ---
+ *  C6, C7, C18
+ *  //TODO add search by user tests
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -92,7 +97,7 @@ public class HomeTest implements Credentials{
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        onView(withText("Bacon Sandwich"))
+        onView(withText("Braised peas with bacon, lentils and cod"))
                 .check(matches(isDisplayed()));
 
         Espresso.pressBack();
