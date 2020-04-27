@@ -114,10 +114,15 @@ public class EspressoHelper {
         navigationMenuItemView.perform(click());
     }
 
+    /** Navigate to a specific recipe through the search bar during an Espresso test.
+     * @param recipeName - Exact name of the recipe you want to search for. E.g. 'Ultimate spaghetti carbonara recipe'.
+     *                   Has to be the 'exact' name and cannot be an abbreviation.
+     */
     public static void navigateToRecipe(String recipeName) throws InterruptedException {
         onView(withId(R.id.menuSortButton))
                 .perform(click());
 
+        //  Switches to 'name' sort instead of the default 'ingredient' sort.
         onView(withId(R.id.nameCheckBox))
                 .check(matches(isNotChecked()))
                 .perform(click());
@@ -128,10 +133,12 @@ public class EspressoHelper {
         onView(withId(R.id.menuSearch))
                 .perform(click());
 
+        //  Searches for the recipe within the designated view.
         onView(isAssignableFrom(SearchView.class))
                 .perform(typeSearchViewText(recipeName))
                 .perform(pressKey(KeyEvent.KEYCODE_ENTER));
 
+        //  Wait for the recipe to load.
         Thread.sleep(SEARCH_WAIT_TIME);
 
         onView(withText(recipeName))
