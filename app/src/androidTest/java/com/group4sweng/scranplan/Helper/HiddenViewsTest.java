@@ -49,7 +49,7 @@ public class HiddenViewsTest implements Credentials {
 
         Thread.sleep(THREAD_SLEEP_TIME);
 
-        RecordedEspressoHelper.openSideBar(RecordedEspressoHelper.SideBarElement.EDIT_PROFILE);
+        EspressoHelper.openSideBar(EspressoHelper.SideBarElement.EDIT_PROFILE);
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 

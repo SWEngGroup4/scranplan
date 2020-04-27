@@ -20,7 +20,7 @@ import static org.junit.Assert.fail;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class AudioTest extends RecordedEspressoHelper {
+public class AudioTest extends EspressoHelper {
 
     /**
      * Instrumentation tests for audio.
@@ -34,18 +34,23 @@ public class AudioTest extends RecordedEspressoHelper {
      * - Audio stops when timer runs out of time
      * - Audio 'force' stops when slide is changed
      * - Audio 'force' stops when the stop button is pressed.
-     * - Audio dosen't play on a slide with audio XML tags not included
+     * - Audio dosen't play on a slide with audio XML tags not included.
      * - Audio XML data is loaded properly & only 1 of each (looping + non-looping) is loaded in.
      */
 
     //  Our test 'ding' sound.
-    private String SOUND_URL = "https://bigsoundbank.com/UPLOAD/mp3/1631.mp3";
+    private final String SOUND_URL = "https://bigsoundbank.com/UPLOAD/mp3/1631.mp3";
 
     //  A test 'ticking' sound. Wrong format (completely un-supported)
-    private String SOUND_URL_MP2 = "https://firebasestorage.googleapis.com/v0/b/scran-plan-bc521.appspot.com/o/sounds%2Ftest_wrong_format_eggtimer.mp2?alt=media&token=a34e8c38-16d4-4d9c-85b3-85da48bdd542";
+    private final String SOUND_URL_MP2 = "https://firebasestorage.googleapis.com/v0/b/scran-plan-bc521.appspot.com/o/sounds%2Ftest_wrong_format_eggtimer.mp2?alt=media&token=a34e8c38-16d4-4d9c-85b3-85da48bdd542";
 
     //  Same file, format supported by Android but not by this app.
-    private String SOUND_URL_FLAC = "https://firebasestorage.googleapis.com/v0/b/scran-plan-bc521.appspot.com/o/sounds%2Ftest_wrong_format_eggtimer.flac?alt=media&token=66be31ab-f20b-49b4-8ddc-a2edeae71512";
+    private final String SOUND_URL_FLAC = "https://firebasestorage.googleapis.com/v0/b/scran-plan-bc521.appspot.com/o/sounds%2Ftest_wrong_format_eggtimer.flac?alt=media&token=66be31ab-f20b-49b4-8ddc-a2edeae71512";
+
+    //  Name of the test recipe we want to navigate to.
+    private final String TEST_RECIPE_NAME = "Ultimate spaghetti carbonara";
+
+
     private int THREAD_SLEEP_TIME = 3000;
 
     //  Corresponding audio URL and player objects to test.

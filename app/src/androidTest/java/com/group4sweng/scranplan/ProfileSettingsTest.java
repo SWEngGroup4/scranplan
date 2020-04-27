@@ -58,7 +58,7 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class ProfileSettingsTest extends RecordedEspressoHelper implements Credentials {
+public class ProfileSettingsTest extends EspressoHelper {
 
     enum PrivacyType {
         PRIVATE,
@@ -80,7 +80,7 @@ public class ProfileSettingsTest extends RecordedEspressoHelper implements Crede
     //  Login with the associated test credentials before testing, wait for Firebase to update and enter profile settings.
     @Before
     public void setUp() throws InterruptedException {
-        RecordedEspressoHelper.shouldSkip = false;
+        EspressoHelper.shouldSkip = false;
 
         ActivityScenario.launch(Login.class); //Launch the login screen
 
@@ -242,7 +242,7 @@ public class ProfileSettingsTest extends RecordedEspressoHelper implements Crede
         Espresso.pressBack();
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        RecordedEspressoHelper.shouldSkip = true; // Declares that we should skip pressing the button that opens the sidebar.
+        EspressoHelper.shouldSkip = true; // Declares that we should skip pressing the button that opens the sidebar.
 
         openSideBar(SideBarElement.LOGOUT); // Logout
 
@@ -300,7 +300,7 @@ public class ProfileSettingsTest extends RecordedEspressoHelper implements Crede
         Espresso.pressBack();
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        RecordedEspressoHelper.shouldSkip = true;
+        EspressoHelper.shouldSkip = true;
 
         openSideBar(SideBarElement.LOGOUT);
 
@@ -453,7 +453,7 @@ public class ProfileSettingsTest extends RecordedEspressoHelper implements Crede
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        RecordedEspressoHelper.shouldSkip = true;
+        EspressoHelper.shouldSkip = true;
 
         openSideBar(SideBarElement.EDIT_PROFILE);
 
@@ -723,7 +723,7 @@ public class ProfileSettingsTest extends RecordedEspressoHelper implements Crede
 
     @After
     public void finishOff() {
-        RecordedEspressoHelper.shouldSkip = false;
+        EspressoHelper.shouldSkip = false;
         activityResult.isTesting = false;
         activityResult = null;
     }
