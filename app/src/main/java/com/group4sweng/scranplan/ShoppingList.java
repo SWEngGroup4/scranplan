@@ -51,9 +51,8 @@ public class ShoppingList extends AppCompatActivity {
         mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) getIntent().getSerializableExtra("user");
 
         if (mUser != null) {
-            for (int a = 1; a < 20; a++){
-                    AddIngredients(a);
-                }
+                    AddIngredients();
+
         }
     }
 
@@ -65,24 +64,25 @@ public class ShoppingList extends AppCompatActivity {
             finish(); //    We don't need to send anything back but do need to destroy the current activity.
         }
 
-        public void AddIngredients(int x){
+        public void AddIngredients() {
+            for (int a = 0; a < 20; a++) {
+                if (mUser != null) {
+                    ShoppingList = mUser.getMealPlanner();
 
-            if (mUser != null) {
-                ShoppingList = mUser.getMealPlanner();
+                    HashMap<String, Object> updateIngredientList = new HashMap<>();
 
-                HashMap<String, Object> updateIngredientList = new HashMap<>();
-
-                            Object newIngredient = ShoppingList.get(x).get("ingredientList");
-                            if(newIngredient == updateIngredientList.get(newIngredient)){
-                                System.out.println("ALREDY HERE");
-                            }
-                            else {
-                                updateIngredientList.put("ingredient", newIngredient);
-                                TextView tv = (TextView) findViewById(R.id.textView2);
-                                tv.setText(updateIngredientList.toString());
-                            }
+                    Object newIngredient = ShoppingList.get(a).get("ingredientList");
+                    if (updateIngredientList.containsKey(newIngredient)) {
+                        System.out.println("ALREDY HERE");
+                    } else {
+                        updateIngredientList.put("Recipie 1", newIngredient);
+                        TextView tv = (TextView) findViewById(R.id.textView2);
+                        tv.setTextSize(25);
+                        tv.setText(updateIngredientList.toString());
+                        System.out.println("HERE");
+                    }
+                }
             }
+
         }
-
-
 }
