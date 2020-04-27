@@ -29,7 +29,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
  *  =====MANUAL TESTS=====
  *  Tests for if data is able to be properly retrieved for multiple users. Also included tests that an appropriate image is displayed
  *  when the user updates this in there profile settings.*/
-public class PublicProfileTest extends RecordedEspressoHelper implements Credentials{
+public class PublicProfileTest extends EspressoHelper implements Credentials{
 
     //  Default test values.
     private static final int THREAD_SLEEP_TIME = 4000; //How long Espresso should wait for Firebase data to update.
