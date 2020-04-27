@@ -58,7 +58,7 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class ProfileSettingsTest extends EspressoHelper {
+public class ProfileSettingsTest extends EspressoHelper implements Credentials {
 
     enum PrivacyType {
         PRIVATE,
