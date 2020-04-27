@@ -5,8 +5,8 @@ import android.media.MediaPlayer;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
+import com.group4sweng.scranplan.EspressoHelper;
 import com.group4sweng.scranplan.Exceptions.AudioPlaybackException;
-import com.group4sweng.scranplan.RecordedEspressoHelper;
 
 import org.junit.After;
 import org.junit.Before;

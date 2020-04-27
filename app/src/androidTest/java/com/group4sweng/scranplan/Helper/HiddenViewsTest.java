@@ -7,9 +7,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
 import com.group4sweng.scranplan.Credentials;
+import com.group4sweng.scranplan.EspressoHelper;
 import com.group4sweng.scranplan.Login;
 import com.group4sweng.scranplan.R;
-import com.group4sweng.scranplan.RecordedEspressoHelper;
 
 import org.junit.Before;
 import org.junit.Test;
