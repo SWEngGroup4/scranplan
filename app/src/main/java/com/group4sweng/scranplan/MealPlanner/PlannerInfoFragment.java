@@ -6,11 +6,9 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
-import com.group4sweng.scranplan.Exceptions.PortionConvertException;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
@@ -18,17 +16,16 @@ import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 public class PlannerInfoFragment extends RecipeInfoFragment{
 
     @Override
-    @SuppressWarnings({"unchecked", "ConstantConditions"})
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         View layout = inflater.inflate(R.layout.fragment_recipe_info, null);
         HashMap<String, Object> map = (HashMap<String, Object>) getArguments().getSerializable("hashmap");
+
 
         initPlannerItems(layout, map);
         initPageItems(layout);
@@ -46,7 +43,6 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
      * Method that takes all the data out of the map needed for the information screen and assigns it to
      * the relevant variables
      */
-    @SuppressWarnings({"unchecked"})
     private void initPlannerItems(View layout, HashMap <String,Object> map){
 
         this.recipeID = (String) map.get("recipeID");
@@ -74,12 +70,7 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
         this.mPescatarian = (Boolean) map.get("pescatarian");
         this.mVegan = (Boolean) map.get("vegan");
         this.mVegetarian = (Boolean) map.get("vegetarian");
-        this.ingredientHashMap = (HashMap<String, String>) map.get("Ingredients");
 
-        for (Map.Entry<String, String> stringStringEntry : ingredientHashMap.entrySet()) {
-            String string = ((Map.Entry) stringStringEntry).getKey().toString() + ": " + ((Map.Entry) stringStringEntry).getValue().toString();
-            System.out.println("HASHMAP CONTENTS: " +  string);
-        }
     }
 
     /*
@@ -123,23 +114,9 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
                 button.setGravity(Gravity.CENTER);
 
                 int finalSAmountCounter = sAmountCounter;
+
                 button.setOnClickListener(v12 -> {
-                    try {
-                        HashMap<String, String> newIngredientsList = Portions.convertPortions(ingredientHashMap, Float.parseFloat(servingAmount), servingAmounts.get(finalSAmountCounter));
-                    } catch (PortionConvertException e) {
-                        e.printStackTrace();
-                    }
 
-                    //Getting ingredients array and assigning it to the linear layout view
-                    arrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, ingredientList);
-                    arrayAdapter.addAll(ingredientArray);
-
-                    final int adapterCount = arrayAdapter.getCount();
-
-                    for (int i = 0; i < adapterCount; i++) {
-                        View item = arrayAdapter.getView(i, null, null);
-                        listViewIngredients.addView(item);
-                    }
                 });
 
                 alertLayout.addView(button);
