@@ -28,6 +28,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.group4sweng.scranplan.Helper.RecipeHelpers;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import com.group4sweng.scranplan.SearchFunctions.HomeQueries;
 import com.group4sweng.scranplan.SearchFunctions.HomeRecyclerAdapter;
@@ -39,7 +40,6 @@ import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This class builds the horizontal scrolls of custom preference recipe selection for the user on the
@@ -591,11 +591,8 @@ public class RecipeFragment extends Fragment {
         ArrayList<String> ingredientArray = new ArrayList<>();
         HashMap<String, String> ingredientHashMap = (HashMap<String, String>) document.getData().get("Ingredients");
 
-        for (Map.Entry<String, String> stringStringEntry : ingredientHashMap.entrySet()) {
-            Map.Entry mapElement = stringStringEntry;
-            String string = mapElement.getKey().toString() + ": " + mapElement.getValue().toString();
-            ingredientArray.add(string);
-        }
+        //  Convert the Firebase ingredientList HashMap into a readable ArrayList format that can be displayed to the user.
+        ingredientArray = RecipeHelpers.convertToIngredientListFormat(ingredientHashMap);
 
         //Creating a bundle so all data needed from firestore query snapshot can be passed through into fragment class
         mBundle = new Bundle();

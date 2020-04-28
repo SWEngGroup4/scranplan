@@ -207,6 +207,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         chefName = bundle.getString("chefName");
 
         ingredientArray = bundle.getStringArrayList("ingredientList");
+        ingredientHashMap = (HashMap<String, String>) bundle.getSerializable("ingredientHashMap");
         recipeRating = bundle.getString("rating");
         xmlPresentation = bundle.getString("xmlURL");
         planner = bundle.getBoolean("planner");
