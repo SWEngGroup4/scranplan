@@ -196,6 +196,8 @@ public class PlannerFragment extends Fragment {
             if (resultCode == Activity.RESULT_OK) {
                 Bundle bundle = data.getExtras();
 
+                HashMap<String, String> testMap = (HashMap<String, String>) bundle.getSerializable("ingredientHashMap");
+
                 //Hides menu options
                 sortButton.setVisible(false);
 
@@ -210,6 +212,10 @@ public class PlannerFragment extends Fragment {
                     for (String key : bundle.keySet()) {
                         map.put(key, bundle.get(key));
                     }
+
+                    //  Adds the ingredient Hash Map
+                    HashMap<String, String> ingredientHashMap = (HashMap<String, String>) bundle.getSerializable("ingredientHashMap");
+                    map.put("ingredientHashMap", ingredientHashMap);
 
                     //Sets new listener for inserted recipe to open info fragment
                     currentSelection.setOnClickListener(v -> openRecipeInfo(map));
