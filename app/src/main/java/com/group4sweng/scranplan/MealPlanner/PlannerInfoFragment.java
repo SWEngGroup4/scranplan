@@ -51,6 +51,7 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
         this.recipeDescription = (String) map.get("recipeDescription");
         this.chefName = (String) map.get("chefName");
         this.ingredientArray = (ArrayList<String>) map.get("ingredientList");
+        this.ingredientHashMap = (HashMap<String, String>) map.get("ingredientHashMap");
         this.recipeRating = (String) map.get("rating");
         this.xmlPresentation = (String) map.get("xmlURL");
         this.planner = (Boolean) map.get("planner");
@@ -70,7 +71,6 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
         this.mPescatarian = (Boolean) map.get("pescatarian");
         this.mVegan = (Boolean) map.get("vegan");
         this.mVegetarian = (Boolean) map.get("vegetarian");
-
     }
 
     /*

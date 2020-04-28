@@ -37,7 +37,7 @@ import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -589,18 +589,17 @@ public class RecipeFragment extends Fragment {
 
         //Takes ingredient array from snap shot and reformats before being passed through to fragment
         ArrayList<String> ingredientArray = new ArrayList<>();
+        HashMap<String, String> ingredientHashMap = (HashMap<String, String>) document.getData().get("Ingredients");
 
-        Map<String, Map<String, Object>> test = (Map) document.getData().get("Ingredients");
-        Iterator hmIterator = test.entrySet().iterator();
-
-        while (hmIterator.hasNext()) {
-            Map.Entry mapElement = (Map.Entry) hmIterator.next();
+        for (Map.Entry<String, String> stringStringEntry : ingredientHashMap.entrySet()) {
+            Map.Entry mapElement = stringStringEntry;
             String string = mapElement.getKey().toString() + ": " + mapElement.getValue().toString();
             ingredientArray.add(string);
         }
 
         //Creating a bundle so all data needed from firestore query snapshot can be passed through into fragment class
         mBundle = new Bundle();
+        mBundle.putSerializable("ingredientHashMap", ingredientHashMap);
         mBundle.putStringArrayList("ingredientList", ingredientArray);
         mBundle.putString("recipeID", document.getId());
         mBundle.putString("xmlURL", document.get("xml_url").toString());
@@ -626,7 +625,6 @@ public class RecipeFragment extends Fragment {
 
         ArrayList faves = (ArrayList) document.get("favourite");
         mBundle.putBoolean("isFav", faves.contains(user.getUID().hashCode()));
-
 
         RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
         recipeDialogFragment.setArguments(mBundle);
