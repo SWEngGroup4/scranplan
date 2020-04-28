@@ -331,6 +331,8 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
                         Bundle reviewBundle = new Bundle();
                         reviewBundle.putSerializable("ratingMap", ratingMap);
                         reviewBundle.putString("recipeID", recipeID);
+                        reviewBundle.putString("recipeDescription", recipeDescription);
+                        reviewBundle.putString("recipeTitle",recipeName);
                         fragment.setArguments(reviewBundle);
                         break;
 

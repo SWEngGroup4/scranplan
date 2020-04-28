@@ -104,10 +104,10 @@ public class FeedFragment extends Fragment {
     protected LoadingDialog loadingDialog;
 
     //Score scroll info
-    List<FeedRecyclerAdapter.FeedPostPreviewData> data;
-    private DocumentSnapshot lastVisible;
-    private boolean isScrolling = false;
-    private boolean isLastItemReached = false;
+    private List<FeedRecyclerAdapter.FeedPostPreviewData> data;
+    protected DocumentSnapshot lastVisible;
+    protected boolean isScrolling = false;
+    protected boolean isLastItemReached = false;
 
     protected Button mPostButton;
     protected CheckBox mPostRecipe;
@@ -139,12 +139,12 @@ public class FeedFragment extends Fragment {
     private SearchView searchView;
     private MenuItem sortButton;
 
-    Query query;
+    protected Query query;
 
 
     // Database objects for accessing recipes
     protected FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
-    private CollectionReference mColRef = mDatabase.collection("followers");
+    protected CollectionReference mColRef = mDatabase.collection("followers");
     // Firebase user collection and storage references.
     CollectionReference mRef = mDatabase.collection("posts");
     FirebaseStorage mStorage = FirebaseStorage.getInstance();
@@ -214,7 +214,7 @@ public class FeedFragment extends Fragment {
         return view;
     }
 
-    private void addPosts(View view){
+    protected void addPosts(View view){
         final RecyclerView recyclerView = view.findViewById(R.id.postsList);
         // Set out the layout of this horizontal view
         RecyclerView.LayoutManager rManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
@@ -843,7 +843,7 @@ public class FeedFragment extends Fragment {
      *  @param uri - The unique uri of the image file location from the users storage.
      *  @throws ImageException - Throws if the image file is too large or the format isn't a supported image format.
      */
-    private void checkImage(Uri uri) throws ImageException {
+    protected void checkImage(Uri uri) throws ImageException {
 
         //  If the image files size is greater than the max file size in mb converted to bytes throw an exception and return this issue to the user.
         if(getSize(this.getContext(), uri) > MAX_IMAGE_FILE_SIZE_IN_MB * 1000000){
