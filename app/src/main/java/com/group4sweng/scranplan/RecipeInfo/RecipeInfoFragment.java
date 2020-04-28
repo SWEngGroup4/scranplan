@@ -39,6 +39,7 @@ import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class RecipeInfoFragment extends AppCompatDialogFragment implements FilterType {
@@ -66,6 +67,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
     protected String xmlPresentation;
     protected String reheat;
     protected ArrayList<String> ingredientArray;
+    protected HashMap<String, String> ingredientHashMap;
     protected Boolean planner;
     protected ArrayList<String> favouriteRecipe;
     protected UserInfoPrivate mUser;
@@ -122,6 +124,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         recipeImage = getArguments().getString("imageURL");
         recipeDescription = getArguments().getString("recipeDescription");
         chefName = getArguments().getString("chefName");
+        ingredientHashMap = (HashMap<String, String>) getArguments().getSerializable("ingredientHashMap");
         ingredientArray = getArguments().getStringArrayList("ingredientList");
         recipeRating = getArguments().getString("rating");
         xmlPresentation = getArguments().getString("xmlURL");
@@ -202,6 +205,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         recipeImage = bundle.getString("imageURL");
         recipeDescription = bundle.getString("recipeDescription");
         chefName = bundle.getString("chefName");
+
         ingredientArray = bundle.getStringArrayList("ingredientList");
         recipeRating = bundle.getString("rating");
         xmlPresentation = bundle.getString("xmlURL");
