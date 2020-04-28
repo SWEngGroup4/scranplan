@@ -21,6 +21,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -38,7 +39,6 @@ import com.group4sweng.scranplan.Social.FeedFragment;
 import com.group4sweng.scranplan.Social.FeedRecyclerAdapter;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -285,10 +285,10 @@ public class RecipeReviewFragment extends FeedFragment {
         RecyclerView.LayoutManager rManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(rManager);
         data = new ArrayList<>();
-        final RecyclerView.Adapter rAdapter = new recipeReviewRecyclerAdapter(RecipeReviewFragment.this, data);
+        final RecyclerView.Adapter rAdapter = new recipeReviewRecyclerAdapter(RecipeReviewFragment.this, data, user);
         recyclerView.setAdapter(rAdapter);
-        query = postRef.whereEqualTo("recipeID", recipeID).whereEqualTo("isReview", true).orderBy("timestamp", Query.Direction.DESCENDING).limit(10);
-
+        query = postRef.whereEqualTo("recipeID", mRecipeID).whereEqualTo("isReview", true).orderBy("timestamp", Query.Direction.DESCENDING).limit(10);
+        Log.e(TAG, "RECIPE ID" + mRecipeID);
         // Once the data has been returned, dataset populated and components build
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -301,10 +301,11 @@ public class RecipeReviewFragment extends FeedFragment {
                         for (DocumentSnapshot document : task.getResult()) {
                             //Pass all data from document
                             data.add(new recipeReviewRecyclerAdapter.reviewData(
-                                    document.getId(),
+                                    document.get("body").toString(),
                                     document.get("author").toString(),
                                     document.get("overallRating").toString(),
-                                    document.get("timestamp").toString()
+                                    (Timestamp) document.get("timestamp"),
+                                    document.getId()
                             ));
                         }
                         rAdapter.notifyDataSetChanged();
@@ -345,10 +346,11 @@ public class RecipeReviewFragment extends FeedFragment {
                                                 for (DocumentSnapshot d : t.getResult()) {
                                                     //Pass all data from document
                                                     data.add(new recipeReviewRecyclerAdapter.reviewData(
-                                                            d.getId(),
+                                                            d.get("body").toString(),
                                                             d.get("author").toString(),
                                                             d.get("overallRating").toString(),
-                                                            d.get("timestamp").toString()
+                                                            (Timestamp) d.get("timestamp"),
+                                                            d.getId()
                                                     ));
                                                 }
                                                 if(isLastItemReached){

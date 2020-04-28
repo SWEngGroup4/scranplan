@@ -194,29 +194,18 @@
                         android:layout_weight="1" >
                     </Space>
 
-                    <TextView
-                        android:id="@+id/recipeRate"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="20sp"
-                        android:layout_marginTop="10sp"
-                        android:text="Rating:"
-                        android:visibility="gone"
-                        android:textStyle="bold"/>
-
                     <RatingBar
-                        android:id="@+id/postRecipeRatingAdapter"
-                        style="?android:attr/ratingBarStyleIndicator"
-                        android:layout_width="wrap_content"
+                        android:id="@+id/ratingBar2"
+                        style="@style/Widget.AppCompat.RatingBar.Indicator"
+                        android:layout_width="190dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10sp"
-                        android:layout_marginBottom="10sp"
-                        android:progressTint="@color/colorRatingGold"
-                        android:secondaryProgressTint="@android:color/transparent"
-                        android:isIndicator="false"
+                        android:layout_marginTop="12sp"
                         android:numStars="5"
-                        android:stepSize="0.1"
-                        android:visibility="gone"/>
+                        android:padding="5dp"
+                        android:progressTint="@color/colorRatingGold"
+                        android:scaleType="fitCenter"
+                        android:secondaryProgressTint="@android:color/transparent" />
+
                     <Space
                         android:layout_width="0dp"
                         android:layout_height="1dp"
@@ -261,19 +250,6 @@
                             android:checked="false"
                             android:background="@drawable/like"
                             android:stateListAnimator="@animator/select"/>
-
-                        <RatingBar
-                            android:id="@+id/ratingBar2"
-                            style="?android:attr/ratingBarStyleSmall"
-                            android:scaleType="fitCenter"
-                            android:layout_marginStart="10sp"
-                            android:layout_marginTop="12sp"
-                            android:layout_width="wrap_content"
-                            android:progressTint="@color/colorRatingGold"
-                            android:secondaryProgressTint="@android:color/transparent"
-                            android:numStars="5"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1" />
 
                     </LinearLayout>
 
