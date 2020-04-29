@@ -11,7 +11,6 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -53,13 +52,6 @@ public class SideMenuTest implements Credentials{
 
         Thread.sleep(THREAD_SLEEP_TIME);
     }
-
-    @Test
-    public void openToolBarTest() throws InterruptedException {
-        //       openContextualActionModeOverflowMenu();
-        // openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getInstrumentation().getContext());
-        //    onView(withId(R.id.nav_profile)).perform(click());
-    }
-
+    
 
 }
