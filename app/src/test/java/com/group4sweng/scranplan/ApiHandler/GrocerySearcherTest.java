@@ -1,4 +1,4 @@
-package com.group4sweng.scranplan.APIHandler;
+package com.group4sweng.scranplan.ApiHandler;
 
 import org.junit.Before;
 import org.junit.Test;
