@@ -28,6 +28,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.group4sweng.scranplan.Helper.RecipeHelpers;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import com.group4sweng.scranplan.SearchFunctions.HomeQueries;
 import com.group4sweng.scranplan.SearchFunctions.HomeRecyclerAdapter;
@@ -37,9 +38,8 @@ import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This class builds the horizontal scrolls of custom preference recipe selection for the user on the
@@ -589,18 +589,14 @@ public class RecipeFragment extends Fragment {
 
         //Takes ingredient array from snap shot and reformats before being passed through to fragment
         ArrayList<String> ingredientArray = new ArrayList<>();
+        HashMap<String, String> ingredientHashMap = (HashMap<String, String>) document.getData().get("Ingredients");
 
-        Map<String, Map<String, Object>> test = (Map) document.getData().get("Ingredients");
-        Iterator hmIterator = test.entrySet().iterator();
-
-        while (hmIterator.hasNext()) {
-            Map.Entry mapElement = (Map.Entry) hmIterator.next();
-            String string = mapElement.getKey().toString() + ": " + mapElement.getValue().toString();
-            ingredientArray.add(string);
-        }
+        //  Convert the Firebase ingredientList HashMap into a readable ArrayList format that can be displayed to the user.
+        ingredientArray = RecipeHelpers.convertToIngredientListFormat(ingredientHashMap);
 
         //Creating a bundle so all data needed from firestore query snapshot can be passed through into fragment class
         mBundle = new Bundle();
+        mBundle.putSerializable("ingredientHashMap", ingredientHashMap);
         mBundle.putStringArrayList("ingredientList", ingredientArray);
         mBundle.putString("recipeID", document.getId());
         mBundle.putString("xmlURL", document.get("xml_url").toString());
@@ -626,7 +622,6 @@ public class RecipeFragment extends Fragment {
 
         ArrayList faves = (ArrayList) document.get("favourite");
         mBundle.putBoolean("isFav", faves.contains(user.getUID().hashCode()));
-
 
         RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
         recipeDialogFragment.setArguments(mBundle);

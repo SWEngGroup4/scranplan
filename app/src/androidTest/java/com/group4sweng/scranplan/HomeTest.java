@@ -43,16 +43,12 @@ import static org.junit.Assert.assertNotEquals;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class HomeTest{
+public class HomeTest implements Credentials{
 
     //  Android Log tag.
     String TAG = "homeTest";
 
     private UserInfoPrivate testUser;
-
-    //  Default test values.
-    private static final String TEST_EMAIL = "ncab500+april@york.ac.uk";
-    private static String TEST_PASSWORD = "password";
 
     //  How long we should sleep when waiting for Firebase information to update. Increase this value if you have a slower machine or emulator.
     private static final int THREAD_SLEEP_TIME = 4000;

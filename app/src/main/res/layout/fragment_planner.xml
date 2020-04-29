@@ -80,12 +80,12 @@
         app:layout_constraintTop_toTopOf="@+id/plannerGuidlines3">
 
 
+
         <LinearLayout
             android:id="@+id/plannerLinearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-
 
 
             <Button
@@ -99,5 +99,8 @@
                 app:layout_constraintTop_toTopOf="parent" />
         </LinearLayout>
     </ScrollView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 

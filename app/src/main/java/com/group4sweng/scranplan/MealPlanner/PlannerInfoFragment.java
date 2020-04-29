@@ -2,9 +2,12 @@ package com.group4sweng.scranplan.MealPlanner;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
 
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
@@ -12,8 +15,9 @@ import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 
-public class PlannerInfoFragment extends RecipeInfoFragment {
+public class PlannerInfoFragment extends RecipeInfoFragment{
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -47,6 +51,7 @@ public class PlannerInfoFragment extends RecipeInfoFragment {
         this.recipeDescription = (String) map.get("recipeDescription");
         this.chefName = (String) map.get("chefName");
         this.ingredientArray = (ArrayList<String>) map.get("ingredientList");
+        this.ingredientHashMap = (HashMap<String, String>) map.get("ingredientHashMap");
         this.recipeRating = (String) map.get("rating");
         this.xmlPresentation = (String) map.get("xmlURL");
         this.planner = (Boolean) map.get("planner");
@@ -67,7 +72,6 @@ public class PlannerInfoFragment extends RecipeInfoFragment {
         this.mVegan = (Boolean) map.get("vegan");
         this.mVegetarian = (Boolean) map.get("vegetarian");
 
-
     }
 
     /*
@@ -77,21 +81,59 @@ public class PlannerInfoFragment extends RecipeInfoFragment {
         super.initPageListeners(layout);
 
 
-        mReheatInformationButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        mReheatInformationButton.setOnClickListener(view -> {
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-                builder.setMessage(reheat)
-                        .setTitle("Reheating Information")
-                        .setIcon(R.drawable.reheat);
+            builder.setMessage(reheat)
+                    .setTitle("Reheating Information")
+                    .setIcon(R.drawable.reheat);
 
-                AlertDialog dialog = builder.create();
+            AlertDialog dialog = builder.create();
 
-                dialog.show();
+            dialog.show();
 
+        });
+
+        mChangePortions.setOnClickListener(v -> {
+           AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+           //  Create a new linear layout which fits the proportions of the screen and descends vertically.
+
+            LinearLayout alertLayout = new LinearLayout(getContext());
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            alertLayout.setOrientation(LinearLayout.VERTICAL);
+            alertLayout.setLayoutParams(params);
+
+            ArrayList<Integer> servingAmounts = Portions.getValidServesAmounts(Float.parseFloat(servingAmount));
+            Button[] servesButtons = new Button[servingAmounts.size()];
+
+            int sAmountCounter = 0;
+            for(Button button : servesButtons){
+                button = new Button(getContext());
+                button.setText(String.format(Locale.ENGLISH, "%d", servingAmounts.get(sAmountCounter)));
+                button.setPadding(40,40,40,40);
+                button.setGravity(Gravity.CENTER);
+
+                int finalSAmountCounter = sAmountCounter;
+
+                button.setOnClickListener(v12 -> {
+
+                });
+
+                alertLayout.addView(button);
+                sAmountCounter++;
             }
+
+            builder.setView(alertLayout)
+                    .setTitle("Change Portion Amounts")
+                    .setMessage("Portion amounts are estimated")
+                    .setCancelable(true)
+                    .setNegativeButton("Cancel", (dialog, which) -> { //Allow the user to cancel the operation.
+                        dialog.cancel();
+                    });
+
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
         });
 
     }
@@ -104,6 +146,8 @@ public class PlannerInfoFragment extends RecipeInfoFragment {
     public void displayInfo(View layout) {
         super.displayInfo(layout);
 
+        //  Sets the 'Change Portions' button to visible.
+        mChangePortions.setVisibility(View.VISIBLE);
 
         //Adds refrigerator information
         mFridge.setText("Keep in Fridge: " + fridgeTime + " days");

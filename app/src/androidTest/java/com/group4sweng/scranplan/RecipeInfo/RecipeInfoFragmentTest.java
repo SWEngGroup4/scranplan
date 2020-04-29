@@ -1,17 +1,20 @@
-package com.group4sweng.scranplan;
+package com.group4sweng.scranplan.RecipeInfo;
 
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.widget.ImageButton;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.Espresso;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.rule.ActivityTestRule;
 
+import com.group4sweng.scranplan.Credentials;
+import com.group4sweng.scranplan.Login;
+import com.group4sweng.scranplan.ProfileSettings;
+import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -21,16 +24,12 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
-public class RecipeInfoFragmentTest  {
+public class RecipeInfoFragmentTest implements Credentials {
 
     //  Android Log tag.
     String TAG = "profileSettingsTest";
 
     private UserInfoPrivate testUser;
-
-    //  Default test values.
-    private static final String TEST_EMAIL = "823513405@qq.com";
-    private static String TEST_PASSWORD = "123456";
 
     //  How long we should sleep when waiting for Firebase information to update. Increase this value if you have a slower machine or emulator.
     private static final int THREAD_SLEEP_TIME = 4000;
@@ -46,7 +45,7 @@ public class RecipeInfoFragmentTest  {
 
         ActivityScenario.launch(Login.class); //Launch the login screen
 
-        onView(withId(R.id.loginButton))
+        onView(ViewMatchers.withId(R.id.loginButton))
                 .perform(click());
 
         onView(withId(R.id.emailEditText))

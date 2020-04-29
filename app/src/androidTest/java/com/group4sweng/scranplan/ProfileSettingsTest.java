@@ -58,7 +58,7 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class ProfileSettingsTest extends RecordedEspressoHelper {
+public class ProfileSettingsTest extends EspressoHelper implements Credentials {
 
     enum PrivacyType {
         PRIVATE,
@@ -69,11 +69,7 @@ public class ProfileSettingsTest extends RecordedEspressoHelper {
     private String TAG = "profileSettingsTest";
 
     private UserInfoPrivate testUser;
-    ProfileSettings activityResult;
-
-    //  Default test values.
-    private static final String TEST_EMAIL = "jb2200@york.ac.uk";
-    private static String TEST_PASSWORD = "password";
+    private ProfileSettings activityResult;
 
     //  How long we should sleep when waiting for Firebase information to update. Increase this value if you have a slower machine or emulator.
     private static final int THREAD_SLEEP_TIME = 3000;
@@ -84,7 +80,7 @@ public class ProfileSettingsTest extends RecordedEspressoHelper {
     //  Login with the associated test credentials before testing, wait for Firebase to update and enter profile settings.
     @Before
     public void setUp() throws InterruptedException {
-        RecordedEspressoHelper.shouldSkip = false;
+        EspressoHelper.shouldSkip = false;
 
         ActivityScenario.launch(Login.class); //Launch the login screen
 
@@ -246,7 +242,7 @@ public class ProfileSettingsTest extends RecordedEspressoHelper {
         Espresso.pressBack();
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        RecordedEspressoHelper.shouldSkip = true; // Declares that we should skip pressing the button that opens the sidebar.
+        EspressoHelper.shouldSkip = true; // Declares that we should skip pressing the button that opens the sidebar.
 
         openSideBar(SideBarElement.LOGOUT); // Logout
 
@@ -304,7 +300,7 @@ public class ProfileSettingsTest extends RecordedEspressoHelper {
         Espresso.pressBack();
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        RecordedEspressoHelper.shouldSkip = true;
+        EspressoHelper.shouldSkip = true;
 
         openSideBar(SideBarElement.LOGOUT);
 
@@ -457,7 +453,7 @@ public class ProfileSettingsTest extends RecordedEspressoHelper {
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        RecordedEspressoHelper.shouldSkip = true;
+        EspressoHelper.shouldSkip = true;
 
         openSideBar(SideBarElement.EDIT_PROFILE);
 
@@ -727,7 +723,7 @@ public class ProfileSettingsTest extends RecordedEspressoHelper {
 
     @After
     public void finishOff() {
-        RecordedEspressoHelper.shouldSkip = false;
+        EspressoHelper.shouldSkip = false;
         activityResult.isTesting = false;
         activityResult = null;
     }
