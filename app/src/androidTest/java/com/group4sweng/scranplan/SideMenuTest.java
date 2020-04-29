@@ -52,6 +52,6 @@ public class SideMenuTest implements Credentials{
 
         Thread.sleep(THREAD_SLEEP_TIME);
     }
-    
+
 
 }
