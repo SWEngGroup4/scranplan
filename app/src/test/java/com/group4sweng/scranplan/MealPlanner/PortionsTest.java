@@ -14,6 +14,9 @@ import static org.junit.Assert.assertNull;
  * Portions JUnit tests.
  * Author: JButler
  * (c) CoDev 2020
+ *
+ * -- USER STORY TESTS LINKED WITH ---
+ *  C34
  */
 public class PortionsTest {
     private HashMap<String, String> ingredients = new HashMap<>();

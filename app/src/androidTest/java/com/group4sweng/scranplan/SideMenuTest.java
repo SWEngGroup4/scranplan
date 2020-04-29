@@ -18,6 +18,12 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
+/***
+ * Testing the side menu
+ * -- USER STORY TESTS LINKED WITH ---
+ * C35
+ */
+
 public class SideMenuTest implements Credentials{
     private MainActivity mMainActivity = null;
     FirebaseApp testApp;

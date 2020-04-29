@@ -32,6 +32,12 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.group4sweng.scranplan.HomeTest.typeSearchViewText;
 
+/** Test the Info Planner Fragment.
+ * Testing adding to the meal planner
+ *
+ *  -- USER STORY TESTS LINKED WITH ---
+ *  C4 , C14, C22
+ */
 @RunWith(AndroidJUnit4.class)
 public class PlannerInfoFragmentTest implements Credentials {
 

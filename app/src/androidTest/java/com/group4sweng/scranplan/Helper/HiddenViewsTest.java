@@ -22,6 +22,12 @@ import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
+
+/** Test Hidden Views.
+ *
+ *  -- USER STORY TESTS LINKED WITH ---
+ *  C35
+ */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class HiddenViewsTest implements Credentials {

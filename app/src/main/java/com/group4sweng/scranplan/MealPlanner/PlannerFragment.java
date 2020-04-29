@@ -141,14 +141,14 @@ public class PlannerFragment extends Fragment {
 
     //Opens list fragment on searching
     private void openRecipeDialog(SearchQuery query) {
-        //Creates and launches fragment with required query
+        // Creates and launches fragment with required query
         PlannerListFragment plannerListFragment = new PlannerListFragment(mUser);
         plannerListFragment.setValue(query.getQuery());
         plannerListFragment.setTargetFragment(this, 1);
         plannerListFragment.show(getParentFragmentManager(), "search");
     }
 
-    //Sets default paramters for buttons
+    // Sets default parameters for buttons
     private void defaultButton(final ImageButton imageButton) {
         imageButton.setImageResource(R.drawable.add); //Default image
         imageButton.setOnClickListener(v -> {

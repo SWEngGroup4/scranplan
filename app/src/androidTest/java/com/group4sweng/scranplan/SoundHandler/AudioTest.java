@@ -36,6 +36,10 @@ public class AudioTest extends EspressoHelper {
      * - Audio 'force' stops when the stop button is pressed.
      * - Audio dosen't play on a slide with audio XML tags not included.
      * - Audio XML data is loaded properly & only 1 of each (looping + non-looping) is loaded in.
+     *
+     * -- USER STORY TESTS LINKED WITH ---
+     *
+     * Audio Package
      */
 
     //  Our test 'ding' sound.
