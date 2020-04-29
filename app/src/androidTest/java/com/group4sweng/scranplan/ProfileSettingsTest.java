@@ -460,8 +460,8 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
 
         openSideBar(SideBarElement.EDIT_PROFILE);
 
-        String username =  activityResult.mUsername.getText().toString();
-        String aboutMe = activityResult.mAboutMe.getText().toString();
+        String username =  onView(withId(R.id.settings_input_username)).toString();
+        String aboutMe = onView(withId(R.id.settings_input_about_me)).toString();
 
         //
         assertFalse("Able to save email in username input box. This is an issue.", username.contains(TEST_EMAIL));
