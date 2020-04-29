@@ -24,6 +24,12 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
+/** Test Recipe Info Fragment
+ *
+ *  -- USER STORY TESTS LINKED WITH ---
+ *  B1, B2, B3, B4 , B6, C8
+ *
+ */
 public class RecipeInfoFragmentTest implements Credentials {
 
     //  Android Log tag.
@@ -93,17 +99,5 @@ public class RecipeInfoFragmentTest implements Credentials {
 
         onView(withId(R.id.addFavorite)).
                 perform(click());
-    }
-
-    @Test
-    public void favourite_recipe_can_be_added() throws InterruptedException{
-        Thread.sleep(THREAD_SLEEP_TIME);
-
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-
-            }
-        });
     }
 }

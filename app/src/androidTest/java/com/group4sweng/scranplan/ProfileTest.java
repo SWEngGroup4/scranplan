@@ -28,7 +28,12 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
  *
  *  =====MANUAL TESTS=====
  *  Tests for if data is able to be properly retrieved for multiple users. Also included tests that an appropriate image is displayed
- *  when the user updates this in there profile settings.*/
+ *  when the user updates this in there profile settings.
+ *
+ *  -- USER STORY TESTS LINKED WITH ---
+ *
+ *  */
+
 public class ProfileTest extends EspressoHelper {
 
     //  Default test values.

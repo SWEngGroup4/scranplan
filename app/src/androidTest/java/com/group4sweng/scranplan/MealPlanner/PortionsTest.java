@@ -29,7 +29,11 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.group4sweng.scranplan.Credentials.TEST_EMAIL;
 import static com.group4sweng.scranplan.Credentials.TEST_PASSWORD;
 import static com.group4sweng.scranplan.HomeTest.typeSearchViewText;
-
+/** Test the portions
+ *
+ *  -- USER STORY TESTS LINKED WITH ---
+ *  C34, C14, C22
+ */
 public class PortionsTest {
     @Rule
     public ActivityTestRule<Home> mActivityTestRule = new ActivityTestRule<>(Home.class);

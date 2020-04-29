@@ -41,6 +41,10 @@ import static org.hamcrest.Matchers.allOf;
 /** Test the Presentation Activity.
  *  Tests are included to make sure information is displayed, user can flick through and see comments,
  *  add comments and delete comments.
+ *
+ *  -- USER STORY TESTS LINKED WITH ---
+ *  B1, B2, B3, B4 , B6
+ *
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest

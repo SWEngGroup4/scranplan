@@ -55,6 +55,9 @@ import static org.junit.Assert.assertTrue;
  *  - Firebase user profile password is reset correctly (for multiple accounts)
  *  - Tests of what happens when an connection to Firebase is lost and if the client updates once the wifi signal is retrieved
  *  and if the client is notified that no signal is available.
+ *
+ *  -- USER STORY TESTS LINKED WITH ---
+ *  C20,A1
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
