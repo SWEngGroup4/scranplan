@@ -13,6 +13,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.Helper.RecipeHelpers;
 import com.group4sweng.scranplan.MealPlanner.PlannerFragment;
 import com.group4sweng.scranplan.MealPlanner.PlannerInfoFragment;
 import com.group4sweng.scranplan.MealPlanner.PlannerListFragment;
@@ -66,20 +67,29 @@ public class ShoppingList extends AppCompatActivity {
         public void AddIngredients() {
             for (int a = 0; a < 20; a++) {
                 if (mUser != null) {
-                    ShoppingList = mUser.getMealPlanner();
-                    HashMap<String, Object> updateIngredientList = new HashMap<>();
 
-                    System.out.println(ShoppingList.get(a).get("ingredientHashMap"));
+                    if (mUser.getMealPlanner() != null) {
 
-                    Object newIngredient = ShoppingList.get(a).get("ingredientHashMap");
-                     if (updateIngredientList.containsKey(newIngredient))
-                     {
-                        System.out.println("ALREDY HERE");
-                    } else {
-                        updateIngredientList.put("Recipie" + a , newIngredient);
-                        TextView tv = (TextView) findViewById(R.id.textView2);
-                        tv.setTextSize(25);
-                        tv.setText(updateIngredientList.toString());
+                        if (ShoppingList != null) {
+                            ShoppingList = mUser.getMealPlanner();
+                            HashMap<String, String> updateIngredientList = new HashMap<>();
+                            updateIngredientList = (HashMap<String, String>) ShoppingList.get(a).get("ingredientHashMap");
+                            assert updateIngredientList != null;
+                            ArrayList<String> ingredientArray = RecipeHelpers.convertToIngredientListFormat(updateIngredientList);
+
+                            for (String ingredient : ingredientArray) {
+                                if (ingredientArray.contains(ingredient)) {
+
+                                    System.out.println(ingredient);
+                                    TextView tv = (TextView) findViewById(R.id.textView2);
+                                    tv.setTextSize(25);
+                                    tv.setText(ingredient);
+                                } else {
+
+                                    System.out.println("Already got one of thess in yo lsit ");
+                                }
+                            }
+                        }
                     }
                 }
             }
