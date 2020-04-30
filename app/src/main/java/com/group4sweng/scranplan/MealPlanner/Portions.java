@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  *    Author(s): JButler
  *    (c) CoDev 2020
  **/
-class Portions {
+public class Portions implements Warning {
     private final static String TAG = "portions";
     private final static int[] servesAmounts = {1,2,4,6,10,20}; // All possible variants of 'serves' amounts for a Recipe.
     private final static float MAX_SERVINGS_MULTIPLIER = 4f; // Limit to how much we can scale a recipes portions before it is considered in-accurate.
@@ -225,23 +225,14 @@ class Portions {
         return null;
     }
 
-    static ArrayList<Warning> generateWarnings(HashMap<String, String> ingredients) {
-        ArrayList<Warning> warnings = new ArrayList<>();
-
-        // Cycle through the HashMap.
-        for (Map.Entry<String, String> ingredientHashMap : ingredients.entrySet()) {
-            String ingredient = (String) ((Map.Entry) ingredientHashMap).getKey();
-            String portion = (String) ((Map.Entry) ingredientHashMap).getValue();
-
-            if (retrieveQuantity(portion) == -1f) {
-                warnings.add(Warning.FAILED);
-            } else if (checkMultiplier(ingredient) == 0.5) {
-                warnings.add(Warning.ESTIMATE);
-            } else {
-                warnings.add(Warning.NONE);
-            }
+    public static String generateWarning(String ingredient, String portion) {
+        if (retrieveQuantity(portion) == -1f) {
+            return FAILED;
+        } else if (checkMultiplier(ingredient) == 0.5) {
+            return ESTIMATE;
+        } else {
+            return NONE;
         }
-        return warnings;
     }
 }
 

@@ -3,6 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:paddingBottom="5sp"
+    android:paddingLeft="5sp"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -11,24 +13,26 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.88" />
+        app:layout_constraintGuide_percent="0.83" />
 
     <TextView
         android:id="@+id/ingredient_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="5dp"
         android:text="Ingredient Name"
+        android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/ingredient_icon"
         android:layout_width="0dp"
-        android:layout_height="35sp"
-        android:layout_marginTop="5dp"
+        android:layout_height="40sp"
+        android:layout_marginTop="7dp"
         android:layout_marginEnd="10dp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline2"
         app:layout_constraintTop_toTopOf="parent"
@@ -41,24 +45,38 @@
         android:layout_marginStart="5dp"
         android:layout_marginTop="2dp"
         android:text="Ingredient Warning"
-        android:textColor="@color/colorAccent"
+        android:textColor="#FF5722"
+        android:visibility="gone"
         android:textSize="12sp"
         app:layout_constraintStart_toEndOf="@+id/ingredient_warning_icon"
-        app:layout_constraintTop_toBottomOf="@+id/ingredient_name" />
+        app:layout_constraintTop_toBottomOf="@+id/ingredient_portion" />
 
     <ImageView
         android:id="@+id/ingredient_warning_icon"
-        android:layout_width="17dp"
-        android:layout_height="17dp"
-        android:layout_marginStart="15dp"
+        android:layout_width="19dp"
+        android:layout_height="16sp"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="2dp"
         android:background="#00801F1F"
         android:backgroundTint="#601414"
         android:foregroundTint="#591D1D"
+        android:visibility="gone"
         android:foregroundTintMode="add"
-        android:tint="@color/colorAccent"
+        android:tint="#FF5722"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ingredient_name"
+        app:layout_constraintTop_toBottomOf="@+id/ingredient_portion"
         app:srcCompat="@android:drawable/stat_sys_warning"
         tools:srcCompat="@android:drawable/stat_sys_warning" />
+
+    <TextView
+        android:id="@+id/ingredient_portion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="2dp"
+        android:text="Portion Size"
+        android:textColor="@color/colorAccent"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ingredient_name" />
 </androidx.constraintlayout.widget.ConstraintLayout>

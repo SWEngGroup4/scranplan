@@ -32,6 +32,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.Helper.ImageHelpers;
+import com.group4sweng.scranplan.Helper.RecipeHelpers;
+import com.group4sweng.scranplan.MealPlanner.Ingredients.Ingredient;
 import com.group4sweng.scranplan.Presentation.Presentation;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.UserInfo.FilterType;
@@ -99,7 +101,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
     protected ArrayList<String> ingredientList = new ArrayList<>();
 
     // Define a ListView to display the data
-    protected LinearLayout listViewIngredients;
+    protected LinearLayout linearLayoutIngredients;
 
     // Define an ArrayAdapter for the list
     protected ArrayAdapter<String> arrayAdapter;
@@ -189,7 +191,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         mRecipeFrameLayout = layout.findViewById(R.id.RecipeFrameLayout);
 
         //For the Ingredient array
-        listViewIngredients = layout.findViewById(R.id.listViewText);
+        linearLayoutIngredients = layout.findViewById(R.id.ingredient_list);
 
         //5 star rating bar
         mStars = layout.findViewById(R.id.ratingBar);
@@ -352,20 +354,26 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         });
     }
 
-    protected void updateIngredientsList() {
-        //Getting ingredients array and assigning it to the linear layout view
-        arrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, ingredientList);
+    protected void updateIngredientsList(){
+        ArrayList<Ingredient> ingredientList = RecipeHelpers.convertToIngredientFormat(ingredientHashMap);
 
-        arrayAdapter.addAll(ingredientArray);
-        final int adapterCount = arrayAdapter.getCount();
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        for(Ingredient ingredient : ingredientList){
+            View ingredientView = inflater.inflate(R.layout.ingredient, linearLayoutIngredients, false);
 
-        for (int i = 0; i < adapterCount; i++) {
-            View item = arrayAdapter.getView(i, null, null);
-            listViewIngredients.addView(item);
+            TextView name = ingredientView.findViewById(R.id.ingredient_name);
+            name.setText(ingredient.getName());
+
+            TextView portion = ingredientView.findViewById(R.id.ingredient_portion);
+            portion.setText(ingredient.getPortion());
+
+            linearLayoutIngredients.addView(ingredientView);
         }
     }
 
+
     protected void displayInfo(View layout) {
+
         updateIngredientsList();
 
         //Assigning data passed through into the various xml views

@@ -42,10 +42,14 @@ public class IngredientAdapter extends ArrayAdapter<Ingredient> {
         name.setText(currentIngredient.getName());
 
         ImageView icon = ingredient.findViewById(R.id.ingredient_icon);
-        icon.setImageResource(currentIngredient.getIcon());
+        if(currentIngredient.getIcon() != -1){
+            icon.setImageResource(currentIngredient.getIcon());
+        }
 
         TextView portionWarning = ingredient.findViewById(R.id.ingredient_warning);
-        portionWarning.setText(currentIngredient.getWarning());
+        if(currentIngredient.getWarning() != null){
+            portionWarning.setText(currentIngredient.getWarning());
+        }
 
         return ingredient;
     }
