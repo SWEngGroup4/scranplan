@@ -1,5 +1,7 @@
 package com.group4sweng.scranplan.Helper;
 
+import com.group4sweng.scranplan.MealPlanner.Ingredients.Ingredient;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +21,19 @@ public class RecipeHelpers {
             ingredientArray.add(string);
         }
         return ingredientArray;
+    }
+
+    public static ArrayList<Ingredient> convertToIngredientFormat(HashMap<String, String> ingredientHashMap){
+        ArrayList<Ingredient> ingredientList = new ArrayList<>();
+        String ingredient; String portion;
+
+        for (Map.Entry<String, String> listElement : ingredientHashMap.entrySet()) {
+            ingredient = listElement.getKey();
+            portion = listElement.getValue();
+
+            ingredientList.add(new Ingredient(ingredient, portion));
+        }
+        return ingredientList;
     }
 
     public static void displayIngredients(ArrayList<String> ingredients){

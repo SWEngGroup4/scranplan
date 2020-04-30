@@ -6,14 +6,15 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import com.group4sweng.scranplan.Exceptions.PortionConvertException;
 import com.group4sweng.scranplan.Helper.RecipeHelpers;
 import com.group4sweng.scranplan.MealPlanner.Ingredients.Ingredient;
-import com.group4sweng.scranplan.MealPlanner.Ingredients.Warning;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
@@ -26,6 +27,7 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
 
     //  Fragment layout view. Used when refreshing the layout.
     private View layout;
+    private ListView ingredientListView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -177,26 +179,38 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
 
     @Override
     protected void updateIngredientsList(){
-        ArrayList<Ingredient> ingredientList = new ArrayList<>();
-        ArrayList<Warning> warnings = Portions.generateWarnings(ingredientHashMap);
+        ArrayList<Ingredient> ingredientList = RecipeHelpers.convertToIngredientFormat(ingredientHashMap);
 
-        int numOfIngredients = ingredientArray.size();
-        for(int i=0; i < numOfIngredients; i++){
-            ingredientList.add(new Ingredient(ingredientArray.get(i), warnings.get(i)));
-        }
+        linearLayoutIngredients.removeAllViews();
 
-        final int adapterCount = arrayA
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        for(Ingredient ingredient : ingredientList){
+            View ingredientView = inflater.inflate(R.layout.ingredient, linearLayoutIngredients, false);
 
-        //Getting ingredients array and assigning it to the linear layout view
-        if(getActivity() != null)
-            arrayAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, ingredientList);
+            TextView name = ingredientView.findViewById(R.id.ingredient_name);
+            name.setText(ingredient.getName());
 
-        arrayAdapter.addAll(ingredientArray);
-        final int adapterCount = arrayAdapter.getCount();
+            TextView portion = ingredientView.findViewById(R.id.ingredient_portion);
+            portion.setText(ingredient.getPortion());
 
-        for (int i = 0; i < adapterCount; i++) {
-            View item = arrayAdapter.getView(i, null, null);
-            listViewIngredients.addView(item);
+            String warningMessage = Portions.generateWarning(ingredient.getName(), ingredient.getPortion());
+            if(warningMessage != null){
+                ImageView warningIcon = ingredientView.findViewById(R.id.ingredient_warning_icon);
+                TextView warning = ingredientView.findViewById(R.id.ingredient_warning);
+
+                warning.setVisibility(View.VISIBLE);
+                warningIcon.setVisibility(View.VISIBLE);
+                warning.setText(warningMessage);
+            }
+
+            if(ingredient.getIcon() != -1){
+                ImageView ingredientIcon = ingredientView.findViewById(R.id.ingredient_icon);
+
+                ingredientIcon.setVisibility(View.VISIBLE);
+                ingredientIcon.setImageResource(ingredient.getIcon());
+            }
+
+            linearLayoutIngredients.addView(ingredientView);
         }
     }
 

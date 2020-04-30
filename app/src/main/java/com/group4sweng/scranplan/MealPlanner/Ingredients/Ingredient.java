@@ -3,22 +3,24 @@ package com.group4sweng.scranplan.MealPlanner.Ingredients;
 public class Ingredient {
 
     private String mName;
+    private String mPortion;
     private int mIcon = -1;
 
     private String mWarning = null;
     private boolean SHOW_PORTION_CONVERT_WARNING = false;
 
-    public Ingredient(String mName){
+    public Ingredient(String mName, String mPortion){
         this.mName = mName;
+        this.mPortion = mPortion;
     }
 
-    public Ingredient(String mName, Warning mWarning){
-        this(mName);
+    public Ingredient(String mName, String mPortion, String mWarning){
+        this(mName, mPortion);
         setWarning(mWarning);
     }
 
-    public Ingredient(String mName, int mIcon, Warning mWarning){
-        this(mName, mWarning);
+    public Ingredient(String mName, String mPortion, int mIcon, String mWarning){
+        this(mName, mPortion, mWarning);
         this.mIcon = mIcon;
     }
 
@@ -30,6 +32,12 @@ public class Ingredient {
         return mName;
     }
 
+    public void setPortion(String mPortion) { this.mPortion = mPortion; }
+
+    public String getPortion() {
+        return mPortion;
+    }
+
     public void setIcon(int mIcon) {
         this.mIcon = mIcon;
     }
@@ -38,16 +46,7 @@ public class Ingredient {
         return mIcon;
     }
 
-    public void setWarning(Warning mWarning){
-        switch(mWarning){
-            case NONE:
-                this.mWarning = null;
-            case FAILED:
-                this.mWarning = "Failed to convert portion amount for ingredient";
-            case ESTIMATE:
-                this.mWarning = "Portions for alcohol & herbs are a best estimate";
-        }
-    }
+    public void setWarning(String mWarning){ this.mWarning = mWarning;}
 
     public String getWarning(){
         return mWarning;
