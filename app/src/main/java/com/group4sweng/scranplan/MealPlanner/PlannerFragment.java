@@ -23,6 +23,7 @@ import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
+import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -57,6 +58,8 @@ public class PlannerFragment extends Fragment {
 
     private Integer recipeFragmentRequest = 1;
 
+    public PlannerFragment(UserInfoPrivate userSent){mUser = userSent;}
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,7 +72,6 @@ public class PlannerFragment extends Fragment {
         final View view = inflater.inflate(R.layout.fragment_planner, container, false);
 
         //Grabs user and user's meal planner
-        mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
         if (mUser != null) plannerList = mUser.getMealPlanner();
 
         Home home = (Home) getActivity();
