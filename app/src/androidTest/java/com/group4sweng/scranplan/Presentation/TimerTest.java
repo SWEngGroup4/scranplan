@@ -10,6 +10,7 @@ import com.group4sweng.scranplan.EspressoHelper;
 import com.group4sweng.scranplan.Login;
 import com.group4sweng.scranplan.R;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -191,5 +192,9 @@ public class TimerTest extends EspressoHelper {
         onView(withId(R.id.final_duration_text))
                 .check(matches(isDisplayed()))
                 .check(matches(withText(PresentationTimer.printOutputTime(TEST_RECIPE_TIMER_VALUES[6]))));
+    }
+    @After
+    public void tearDown() throws Exception {
+        EspressoHelper.shouldSkip = false;
     }
 }

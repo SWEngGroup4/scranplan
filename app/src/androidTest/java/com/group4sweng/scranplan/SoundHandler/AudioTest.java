@@ -154,5 +154,6 @@ public class AudioTest extends EspressoHelper {
    public void tearDown(){
         player.stop();
         testAudio = null;
+        EspressoHelper.shouldSkip = false;
    }
 }

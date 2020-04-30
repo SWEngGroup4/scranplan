@@ -11,6 +11,7 @@ import com.group4sweng.scranplan.EspressoHelper;
 import com.group4sweng.scranplan.Login;
 import com.group4sweng.scranplan.R;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -76,4 +77,8 @@ public class HiddenViewsTest implements Credentials {
     public void testGoesToView() {
     }
 
+    @After
+    public void tearDown() throws Exception {
+        EspressoHelper.shouldSkip = false;
+    }
 }

@@ -9,6 +9,7 @@ import androidx.test.rule.ActivityTestRule;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 
@@ -53,5 +54,9 @@ public class SideMenuTest implements Credentials{
         Thread.sleep(THREAD_SLEEP_TIME);
     }
 
-
+    @After
+    public void tearDown() {
+        EspressoHelper.shouldSkip = false;
+        this.mActivityTestRule.finishActivity();
+    }
 }

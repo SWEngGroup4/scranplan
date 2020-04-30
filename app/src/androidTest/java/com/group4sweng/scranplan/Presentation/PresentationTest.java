@@ -15,6 +15,7 @@ import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 
 import com.group4sweng.scranplan.Credentials;
+import com.group4sweng.scranplan.EspressoHelper;
 import com.group4sweng.scranplan.Home;
 import com.group4sweng.scranplan.Login;
 import com.group4sweng.scranplan.R;
@@ -97,7 +98,7 @@ public class PresentationTest implements Credentials {
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        onView(withText("Bacon Sandwich"))
+        onView(withText("Braised peas with bacon, lentils and cod"))
                 .perform(click());
 
         onView(withText("LETS COOK!"))
@@ -166,6 +167,8 @@ public class PresentationTest implements Credentials {
 
 
     @After
-    public void finishOff() {
+    public void tearDown() throws Exception {
+        EspressoHelper.shouldSkip = false;
+        this.mActivityTestRule.finishActivity();
     }
 }

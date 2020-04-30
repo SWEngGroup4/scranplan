@@ -108,5 +108,8 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
     }
 
     @After
-    public void tearDown() { Log.d(TAG, "Tests complete"); }
+    public void tearDown() {
+            EspressoHelper.shouldSkip = false;
+            this.mActivityTestRule.finishActivity();
+        Log.d(TAG, "Tests complete"); }
 }

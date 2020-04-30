@@ -298,6 +298,8 @@ public class HomeTest implements Credentials{
 
 
     @After
-    public void finishOff() {
+    public void tearDown() {
+        EspressoHelper.shouldSkip = false;
+        this.mActivityTestRule.finishActivity();
     }
 }
