@@ -64,7 +64,6 @@ public class PlannerFragment extends Fragment {
 
     private Integer recipeFragmentRequest = 1;
 
-    private Integer recipeFragmentRequest = 1;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

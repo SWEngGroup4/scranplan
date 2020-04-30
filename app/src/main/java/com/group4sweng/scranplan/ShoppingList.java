@@ -52,7 +52,6 @@ public class ShoppingList extends AppCompatActivity {
 
         if (mUser != null) {
                     AddIngredients();
-
         }
     }
 
@@ -68,18 +67,19 @@ public class ShoppingList extends AppCompatActivity {
             for (int a = 0; a < 20; a++) {
                 if (mUser != null) {
                     ShoppingList = mUser.getMealPlanner();
-
                     HashMap<String, Object> updateIngredientList = new HashMap<>();
 
-                    Object newIngredient = ShoppingList.get(a).get("ingredientList");
-                    if (updateIngredientList.containsKey(newIngredient)) {
+                    System.out.println(ShoppingList.get(a).get("ingredientHashMap"));
+
+                    Object newIngredient = ShoppingList.get(a).get("ingredientHashMap");
+                     if (updateIngredientList.containsKey(newIngredient))
+                     {
                         System.out.println("ALREDY HERE");
                     } else {
-                        updateIngredientList.put("Recipie 1", newIngredient);
+                        updateIngredientList.put("Recipie" + a , newIngredient);
                         TextView tv = (TextView) findViewById(R.id.textView2);
                         tv.setTextSize(25);
                         tv.setText(updateIngredientList.toString());
-                        System.out.println("HERE");
                     }
                 }
             }
