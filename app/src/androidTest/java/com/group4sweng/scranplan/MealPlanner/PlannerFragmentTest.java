@@ -80,8 +80,10 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
         Log.d(TAG, "Testing searching");
 
         onView(withText("Meal Planner")).perform(click());
+        onView(withId(0)).perform(longClick());
+        Thread.sleep(THREAD_SLEEP_TIME / 4);
         onView(withId(0)).perform(click());
-        navigateToRecipe("Braised peas with bacon, lentils and cod");
+        navigateToRecipe("Avocado and black bean eggs");
         onView(withText("Add")).perform(click());
     }
 
