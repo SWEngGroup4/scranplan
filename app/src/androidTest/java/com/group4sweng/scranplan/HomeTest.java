@@ -48,7 +48,7 @@ import static org.junit.Assert.assertNotEquals;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class HomeTest implements Credentials{
+public class HomeTest implements Credentials {
 
     //  Android Log tag.
     String TAG = "homeTest";

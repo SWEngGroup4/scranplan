@@ -6,6 +6,7 @@ import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
+import com.group4sweng.scranplan.Credentials;
 import com.group4sweng.scranplan.EspressoHelper;
 import com.group4sweng.scranplan.Login;
 import com.group4sweng.scranplan.R;
@@ -37,11 +38,8 @@ import static org.hamcrest.CoreMatchers.not;
  **/
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class TimerTest extends EspressoHelper {
+public class TimerTest extends EspressoHelper implements Credentials {
 
-    //  Default test values.
-    private static final String TEST_EMAIL = "jb2200@york.ac.uk";
-    private static final String TEST_PASSWORD = "password";
 
     //  Test recipe to search for and compare our results to.
     private static final String TEST_RECIPE = "Ultimate spaghetti carbonara recipe";
@@ -50,7 +48,6 @@ public class TimerTest extends EspressoHelper {
     //  -1 means no timer is present.
     private static final int[] TEST_RECIPE_TIMER_VALUES = {-1, -1, -1, 600000, -1, -1, 300000, -1, -1, -1, -1, -1};
 
-    private static final int THREAD_SLEEP_TIME = 3000;
 
     //  Login, search for the appropriate recipe and open the presentation.
     @Before

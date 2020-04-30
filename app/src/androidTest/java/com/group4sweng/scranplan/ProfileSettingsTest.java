@@ -74,8 +74,7 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
     private UserInfoPrivate testUser;
     private ProfileSettings activityResult;
 
-    //  How long we should sleep when waiting for Firebase information to update. Increase this value if you have a slower machine or emulator.
-    private static final int THREAD_SLEEP_TIME = 3000;
+
 
     @Rule
     public ActivityTestRule<ProfileSettings> mActivityTestRule = new ActivityTestRule<>(ProfileSettings.class);
