@@ -85,9 +85,11 @@ public class PublicProfileTest extends EspressoHelper implements Credentials{
     //  Check the number of recipes & Kudos are visible.
     @Test
     public void testNumberOfRecipesAndKudosAreVisible(){
-        onView(withId(R.id.profile_recipes))
-                .check(matches(isDisplayed()));
 
+        if((boolean) testUser.getPublicPrivacy().get("display_recipes")) {
+            onView(withId(R.id.profile_recipes))
+                .check(matches(isDisplayed()));
+    }
         onView(withId(R.id.profile_kudos))
                 .check(matches(isDisplayed()));
     }
