@@ -102,6 +102,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         }
     }
 
+
     /** Update the public profile based on what has been passed via the Intent.
      * @param flt - Firebase Load Type. Either PARTIAL or FULL. FULL = all data from firebase from a UID string.
      *            PARTIAL = some data has already been loaded from the UserInfoPrivate object so we only need to grab

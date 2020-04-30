@@ -6,9 +6,14 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import com.group4sweng.scranplan.Exceptions.PortionConvertException;
+import com.group4sweng.scranplan.Helper.RecipeHelpers;
+import com.group4sweng.scranplan.MealPlanner.Ingredients.Ingredient;
+import com.group4sweng.scranplan.MealPlanner.Ingredients.Warning;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
@@ -19,13 +24,15 @@ import java.util.Locale;
 
 public class PlannerInfoFragment extends RecipeInfoFragment{
 
+    //  Fragment layout view. Used when refreshing the layout.
+    private View layout;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        View layout = inflater.inflate(R.layout.fragment_recipe_info, null);
+        layout = inflater.inflate(R.layout.fragment_recipe_info, null);
         HashMap<String, Object> map = (HashMap<String, Object>) getArguments().getSerializable("hashmap");
-
 
         initPlannerItems(layout, map);
         initPageItems(layout);
@@ -37,6 +44,13 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
         addFavourite(layout);
 
         return layout;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+
     }
 
     /**
@@ -79,9 +93,7 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
     protected void initPageListeners(View layout) {
         super.initPageListeners(layout);
 
-
         mReheatInformationButton.setOnClickListener(view -> {
-
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
             builder.setMessage(reheat)
@@ -89,21 +101,24 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
                     .setIcon(R.drawable.reheat);
 
             AlertDialog dialog = builder.create();
-
             dialog.show();
-
         });
 
+        initPortionsListeners();
+    }
+
+    private void initPortionsListeners() {
         mChangePortions.setOnClickListener(v -> {
-           AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-           //  Create a new linear layout which fits the proportions of the screen and descends vertically.
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            //  Create a new linear layout which fits the proportions of the screen and descends vertically.
 
             LinearLayout alertLayout = new LinearLayout(getContext());
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             alertLayout.setOrientation(LinearLayout.VERTICAL);
             alertLayout.setLayoutParams(params);
 
-            ArrayList<Integer> servingAmounts = Portions.getValidServesAmounts(Float.parseFloat(servingAmount));
+            float currentServings = Float.parseFloat(servingAmount);
+            ArrayList<Integer> servingAmounts = Portions.getValidServesAmounts(currentServings);
             Button[] servesButtons = new Button[servingAmounts.size()];
 
             int sAmountCounter = 0;
@@ -115,8 +130,27 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
 
                 int finalSAmountCounter = sAmountCounter;
 
-                button.setOnClickListener(v12 -> {
+                button.setOnClickListener(portion -> {
+                    final float newServings = servingAmounts.get(finalSAmountCounter);
+                    try {
+                        final HashMap<String, String> newIngredientsHashMap = Portions.convertPortions(ingredientHashMap, currentServings, newServings);
 
+//                        // Cycle through the HashMap.
+//                        for (Map.Entry<String, String> ingredient : newIngredientsHashMap.entrySet()) {
+//                            String portion = ingredient.getValue();
+//                            if(Portions.retrieveQuantity(portion) == -1){
+//
+//                            }
+//                        }
+                        final ArrayList<String> newIngredientsArray = RecipeHelpers.convertToIngredientListFormat(newIngredientsHashMap);
+                        RecipeHelpers.displayIngredients(newIngredientsArray);
+
+                        ingredientHashMap = newIngredientsHashMap;
+                        ingredientArray = newIngredientsArray;
+
+                    } catch (PortionConvertException e) {
+                        e.printStackTrace();
+                    }
                 });
 
                 alertLayout.addView(button);
@@ -133,10 +167,38 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
 
             AlertDialog alertDialog = builder.create();
             alertDialog.show();
-        });
 
+            alertDialog.setOnDismissListener(portionAlert -> {
+                updateIngredientsList();
+                //displayInfo(layout);
+            });
+        });
     }
 
+    @Override
+    protected void updateIngredientsList(){
+        ArrayList<Ingredient> ingredientList = new ArrayList<>();
+        ArrayList<Warning> warnings = Portions.generateWarnings(ingredientHashMap);
+
+        int numOfIngredients = ingredientArray.size();
+        for(int i=0; i < numOfIngredients; i++){
+            ingredientList.add(new Ingredient(ingredientArray.get(i), warnings.get(i)));
+        }
+
+        final int adapterCount = arrayA
+
+        //Getting ingredients array and assigning it to the linear layout view
+        if(getActivity() != null)
+            arrayAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, ingredientList);
+
+        arrayAdapter.addAll(ingredientArray);
+        final int adapterCount = arrayAdapter.getCount();
+
+        for (int i = 0; i < adapterCount; i++) {
+            View item = arrayAdapter.getView(i, null, null);
+            listViewIngredients.addView(item);
+        }
+    }
 
     /**
      * Method that displays the extra information on the recipe information fragment for the users who have a subscription

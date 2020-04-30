@@ -589,11 +589,10 @@ public class RecipeFragment extends Fragment {
     public void recipeSelected(DocumentSnapshot document) {
 
         //Takes ingredient array from snap shot and reformats before being passed through to fragment
-        ArrayList<String> ingredientArray = new ArrayList<>();
         HashMap<String, String> ingredientHashMap = (HashMap<String, String>) document.getData().get("Ingredients");
 
         //  Convert the Firebase ingredientList HashMap into a readable ArrayList format that can be displayed to the user.
-        ingredientArray = RecipeHelpers.convertToIngredientListFormat(ingredientHashMap);
+        ArrayList<String> ingredientArray = RecipeHelpers.convertToIngredientListFormat(ingredientHashMap);
 
         //Creating a bundle so all data needed from firestore query snapshot can be passed through into fragment class
         mBundle = new Bundle();

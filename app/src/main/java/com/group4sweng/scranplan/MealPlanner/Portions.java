@@ -3,6 +3,7 @@ package com.group4sweng.scranplan.MealPlanner;
 import android.util.Log;
 
 import com.group4sweng.scranplan.Exceptions.PortionConvertException;
+import com.group4sweng.scranplan.MealPlanner.Ingredients.Warning;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -111,10 +112,10 @@ class Portions {
         float overallMultiplier = newServes/prevServes; // Scalar multiplier for scaling recipe portions.
         boolean increasePortions; // Should the serving amount (portions) increase or decrease.
 
-        if(overallMultiplier > 1 && overallMultiplier < MAX_SERVINGS_MULTIPLIER){ // Check if increasing proportions. Must be within limits of max servings amount multiplier.
+        if(overallMultiplier > 1 && overallMultiplier <= MAX_SERVINGS_MULTIPLIER){ // Check if increasing proportions. Must be within limits of max servings amount multiplier.
             overallMultiplier = overallMultiplier - 1; // Remove 1.
             increasePortions = true;
-        } else if (overallMultiplier < 1 && overallMultiplier > 1/MAX_SERVINGS_MULTIPLIER) { // Check if decreasing proportions.
+        } else if (overallMultiplier < 1 && overallMultiplier >= 1/MAX_SERVINGS_MULTIPLIER) { // Check if decreasing proportions.
             increasePortions = false;
         } else if (overallMultiplier == 1) { // prev serving amount = new serving amount. Throw Exception.
             throw new PortionConvertException("Unable to convert portions of food. New and previous serve amounts cannot be the same");
@@ -222,6 +223,25 @@ class Portions {
     // TODO - Use to convert measurements. Could use this later maybe.
     static String convertPortions(String measurementType, float value){
         return null;
+    }
+
+    static ArrayList<Warning> generateWarnings(HashMap<String, String> ingredients) {
+        ArrayList<Warning> warnings = new ArrayList<>();
+
+        // Cycle through the HashMap.
+        for (Map.Entry<String, String> ingredientHashMap : ingredients.entrySet()) {
+            String ingredient = (String) ((Map.Entry) ingredientHashMap).getKey();
+            String portion = (String) ((Map.Entry) ingredientHashMap).getValue();
+
+            if (retrieveQuantity(portion) == -1f) {
+                warnings.add(Warning.FAILED);
+            } else if (checkMultiplier(ingredient) == 0.5) {
+                warnings.add(Warning.ESTIMATE);
+            } else {
+                warnings.add(Warning.NONE);
+            }
+        }
+        return warnings;
     }
 }
 

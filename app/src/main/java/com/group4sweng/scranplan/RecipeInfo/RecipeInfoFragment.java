@@ -158,6 +158,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
      */
     public void onResume() {
         super.onResume();
+
         ViewGroup.LayoutParams params = getDialog().getWindow().getAttributes();
         params.width = ConstraintLayout.LayoutParams.MATCH_PARENT;
         params.height = ConstraintLayout.LayoutParams.MATCH_PARENT;
@@ -349,15 +350,23 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
 
             }
         });
+    }
 
+    protected void updateIngredientsList() {
+        //Getting ingredients array and assigning it to the linear layout view
+        arrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, ingredientList);
 
+        arrayAdapter.addAll(ingredientArray);
+        final int adapterCount = arrayAdapter.getCount();
+
+        for (int i = 0; i < adapterCount; i++) {
+            View item = arrayAdapter.getView(i, null, null);
+            listViewIngredients.addView(item);
+        }
     }
 
     protected void displayInfo(View layout) {
-
-        //Getting ingredients array and assigning it to the linear layout view
-        arrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, ingredientList);
-        arrayAdapter.addAll(ingredientArray);
+        updateIngredientsList();
 
         //Assigning data passed through into the various xml views
         mTitle = layout.findViewById(R.id.Title);
@@ -366,14 +375,6 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         mRecipeImage = layout.findViewById(R.id.recipeImage);
         mChangePortions = layout.findViewById(R.id.changePortions);
         mChangePortions.setVisibility(View.GONE);
-
-        final int adapterCount = arrayAdapter.getCount();
-
-        for (int i = 0; i < adapterCount; i++) {
-            View item = arrayAdapter.getView(i, null, null);
-            listViewIngredients.addView(item);
-        }
-
 
         //Sets the serving amount for each recipe
         mServing.setText("Serves: " + servingAmount);
