@@ -24,6 +24,7 @@ import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.longClick;
 import static androidx.test.espresso.action.ViewActions.pressBack;
 import static androidx.test.espresso.action.ViewActions.pressKey;
 import static androidx.test.espresso.action.ViewActions.typeText;
@@ -79,6 +80,8 @@ public class PlannerInfoFragmentTest implements Credentials {
         Thread.sleep(THREAD_SLEEP_TIME);
 
         onView(withText("Meal Planner")).perform(click());
+        onView(withId(0)).perform(longClick());
+        Thread.sleep(THREAD_SLEEP_TIME/4);
         onView(withId(0)).perform(click());
 
         Thread.sleep(THREAD_SLEEP_TIME);
