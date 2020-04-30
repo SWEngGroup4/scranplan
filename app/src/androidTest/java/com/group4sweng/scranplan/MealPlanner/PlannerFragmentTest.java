@@ -74,6 +74,7 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
     }
 
     //Checks searching for a recipe and adding it to the planner is performed correctly
+    // TODO failing because planner searching fails
     @Test
     public void searchAndAddToPlanner() throws InterruptedException {
         Log.d(TAG, "Testing searching");

@@ -48,7 +48,7 @@ public class PortionsTest {
         Thread.sleep(THREAD_SLEEP_TIME);
     }
 
-    
+
 
 
     @After
