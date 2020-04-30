@@ -68,9 +68,8 @@ public class ShoppingList extends AppCompatActivity {
             for (int a = 0; a < 20; a++) {
                 if (mUser != null) {
 
-                    if (mUser.getMealPlanner() != null) {
+                    if (mUser.getMealPlanner().get(a) != null) {
 
-                        if (ShoppingList != null) {
                             ShoppingList = mUser.getMealPlanner();
                             HashMap<String, String> updateIngredientList = new HashMap<>();
                             updateIngredientList = (HashMap<String, String>) ShoppingList.get(a).get("ingredientHashMap");
@@ -80,15 +79,14 @@ public class ShoppingList extends AppCompatActivity {
                             for (String ingredient : ingredientArray) {
                                 if (ingredientArray.contains(ingredient)) {
 
-                                    System.out.println(ingredient);
                                     TextView tv = (TextView) findViewById(R.id.textView2);
-                                    tv.setTextSize(25);
-                                    tv.setText(ingredient);
-                                } else {
-
+                                    tv.setTextSize(15);
+                                    tv.append(ingredient);
+                                } else
+                                    {
                                     System.out.println("Already got one of thess in yo lsit ");
                                 }
-                            }
+
                         }
                     }
                 }
