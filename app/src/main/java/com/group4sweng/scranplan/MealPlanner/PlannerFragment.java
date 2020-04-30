@@ -144,6 +144,7 @@ public class PlannerFragment extends Fragment {
         // Creates and launches fragment with required query
         PlannerListFragment plannerListFragment = new PlannerListFragment(mUser);
         plannerListFragment.setValue(query.getQuery());
+        plannerListFragment.setIndex(query.getIndex());
         plannerListFragment.setTargetFragment(this, 1);
         plannerListFragment.show(getParentFragmentManager(), "search");
     }
