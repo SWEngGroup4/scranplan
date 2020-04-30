@@ -288,7 +288,8 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
                 public void onClick(View v) {
                     // Adds recipe to planner
                     Fragment fragment = getTargetFragment();
-                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, new Intent());
+                    Intent i = new Intent();
+                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, i);
                     dismiss();
                 }
             });
