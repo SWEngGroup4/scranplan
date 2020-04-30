@@ -62,7 +62,6 @@
             android:textColor="#000000"
             android:textSize="13sp"
             app:layout_constraintBottom_toTopOf="@+id/guideline"
-            app:layout_constraintEnd_toStartOf="@+id/guideline12"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -82,9 +81,10 @@
             android:scaleType="fitCenter"
             android:stateListAnimator="@animator/select"
             app:layout_constraintBottom_toTopOf="@+id/guideline"
-            app:layout_constraintEnd_toStartOf="@+id/guideline14"
-            app:layout_constraintStart_toStartOf="@+id/guideline12"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toStartOf="@+id/LetsCook"
+            app:layout_constraintStart_toEndOf="@+id/ReturnButton"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.666" />
 
         <Button
             android:id="@+id/LetsCook"
@@ -100,7 +100,6 @@
             app:layout_constraintBottom_toTopOf="@+id/guideline"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.657"
-            app:layout_constraintStart_toStartOf="@+id/guideline14"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -143,6 +142,7 @@
             android:layout_alignParentEnd="true"
             android:layout_marginTop="12dp"
             android:layout_marginEnd="5dp"
+            android:layout_marginStart="1dp"
             android:layout_toEndOf="@+id/recipeImage"
             android:ems="10"
             android:gravity="left"
@@ -159,17 +159,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/chefName"
+            android:layout_marginTop="24dp"
             android:layout_marginEnd="112dp"
+            android:layout_marginStart="1dp"
             android:layout_toEndOf="@+id/recipeImage"
             android:numStars="5"
             android:progressTint="@color/colorRatingGold"
             android:secondaryProgressTint="@android:color/transparent"
-            app:layout_constraintBottom_toTopOf="@+id/guideline5"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.13"
             app:layout_constraintStart_toStartOf="@+id/guideline12"
-            app:layout_constraintTop_toBottomOf="@+id/chefName"
-            app:layout_constraintVertical_bias="0.195" />
+            app:layout_constraintTop_toBottomOf="@+id/chefName" />
 
         <TextView
             android:id="@+id/serves"
@@ -177,22 +177,21 @@
             android:layout_height="35dp"
             android:layout_below="@+id/ratingBar"
             android:layout_alignParentEnd="true"
+            android:layout_marginTop="16dp"
             android:layout_marginEnd="5dp"
+            android:layout_marginStart="1dp"
             android:layout_toEndOf="@+id/recipeImage"
             android:gravity="left"
             android:textSize="18sp"
-            app:layout_constraintBottom_toTopOf="@+id/guideline5"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.176"
             app:layout_constraintStart_toStartOf="@+id/guideline12"
-            app:layout_constraintTop_toBottomOf="@+id/chefName"
-            app:layout_constraintVertical_bias="0.808" />
+            app:layout_constraintTop_toBottomOf="@+id/ratingBar" />
 
         <HorizontalScrollView
             android:id="@+id/horizontalScrollView"
-            android:layout_width="391dp"
+            android:layout_width="0dp"
             android:layout_height="51dp"
-            app:layout_constraintBottom_toTopOf="@+id/guideline6"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/guideline5">
@@ -200,7 +199,7 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_marginStart="20dp"
+                android:layout_marginStart="10dp"
                 android:layout_marginEnd="5dp">
 
                 <ImageView
@@ -299,13 +298,12 @@
             android:padding="5sp"
             android:text="Description"
             android:textColor="#0E0E0E"
-            app:layout_constraintBottom_toTopOf="@+id/guideline7"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintLeft_toRightOf="@id/recipeImage"
             app:layout_constraintRight_toLeftOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/guideline6" />
+            app:layout_constraintTop_toBottomOf="@id/horizontalScrollView" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline8"
@@ -452,8 +450,8 @@
 
         <FrameLayout
             android:id="@+id/RecipeFrameLayout"
-            android:layout_width="383dp"
-            android:layout_height="146dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/tabLayout2"
             android:layout_alignParentStart="true"
             android:layout_alignParentBottom="true"
@@ -466,8 +464,8 @@
 
             <LinearLayout
                 android:id="@+id/listViewText"
-                android:layout_width="393dp"
-                android:layout_height="309dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:orientation="vertical"></LinearLayout>
         </FrameLayout>
 
