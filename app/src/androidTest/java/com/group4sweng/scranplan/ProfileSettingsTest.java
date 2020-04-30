@@ -727,6 +727,7 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
     @After
     public void finishOff() {
         EspressoHelper.shouldSkip = false;
+        this.mActivityTestRule.finishActivity();
         activityResult.isTesting = false;
         activityResult = null;
     }

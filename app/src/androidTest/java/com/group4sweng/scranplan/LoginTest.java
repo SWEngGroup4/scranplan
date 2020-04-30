@@ -188,6 +188,8 @@ public class LoginTest implements Credentials {
     @After
     public void tearDown() throws Exception {
         mActivity = null;
+        EspressoHelper.shouldSkip = false;
+        this.mActivityTestRule.finishActivity();
     }
 
 

@@ -10,11 +10,13 @@ import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.rule.ActivityTestRule;
 
 import com.group4sweng.scranplan.Credentials;
+import com.group4sweng.scranplan.EspressoHelper;
 import com.group4sweng.scranplan.Login;
 import com.group4sweng.scranplan.ProfileSettings;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -99,5 +101,11 @@ public class RecipeInfoFragmentTest implements Credentials {
 
         onView(withId(R.id.addFavorite)).
                 perform(click());
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        EspressoHelper.shouldSkip = false;
+        this.mActivityTestRule.finishActivity();
     }
 }
