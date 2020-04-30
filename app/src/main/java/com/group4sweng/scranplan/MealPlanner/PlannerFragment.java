@@ -45,9 +45,7 @@ public class PlannerFragment extends Fragment {
 
     //Fragment handlers
     private FragmentTransaction fragmentTransaction;
-    private BreakfastFragment breakfastFragment;
-    private LunchFragment lunchFragment;
-    private DinnerFragment dinnerFragment;
+    private MealTimescaleFragment mealTimescaleFragment;
 
     //User information
     private com.group4sweng.scranplan.UserInfo.UserInfoPrivate mUser;
@@ -167,23 +165,23 @@ public class PlannerFragment extends Fragment {
 
             //Creates and launches recipe fragment
             if (i == 0) {
-                breakfastFragment = new BreakfastFragment(mUser);
-                breakfastFragment.setArguments(bundle);
-                breakfastFragment.setTargetFragment(PlannerFragment.this, breakfastRequestCode);
+                mealTimescaleFragment = new MealTimescaleFragment(mUser, 0);
+                mealTimescaleFragment.setArguments(bundle);
+                mealTimescaleFragment.setTargetFragment(PlannerFragment.this, breakfastRequestCode);
                 fragmentTransaction = getParentFragmentManager().beginTransaction();
-                fragmentTransaction.add(R.id.frameLayout, breakfastFragment); //Overlays fragment on existing one
+                fragmentTransaction.add(R.id.frameLayout, mealTimescaleFragment); //Overlays fragment on existing one
             }else if (i == 1){
-                lunchFragment = new LunchFragment(mUser);
-                lunchFragment.setArguments(bundle);
-                lunchFragment.setTargetFragment(PlannerFragment.this, lunchRequestCode);
+                mealTimescaleFragment = new MealTimescaleFragment(mUser, 1);
+                mealTimescaleFragment.setArguments(bundle);
+                mealTimescaleFragment.setTargetFragment(PlannerFragment.this, lunchRequestCode);
                 fragmentTransaction = getParentFragmentManager().beginTransaction();
-                fragmentTransaction.add(R.id.frameLayout, lunchFragment); //Overlays fragment on existing one
+                fragmentTransaction.add(R.id.frameLayout, mealTimescaleFragment); //Overlays fragment on existing one
             }else if (i == 2){
-                dinnerFragment = new DinnerFragment(mUser);
-                dinnerFragment.setArguments(bundle);
-                dinnerFragment.setTargetFragment(PlannerFragment.this, dinnerRequestCode);
+                mealTimescaleFragment = new MealTimescaleFragment(mUser, 2);
+                mealTimescaleFragment.setArguments(bundle);
+                mealTimescaleFragment.setTargetFragment(PlannerFragment.this, dinnerRequestCode);
                 fragmentTransaction = getParentFragmentManager().beginTransaction();
-                fragmentTransaction.add(R.id.frameLayout, dinnerFragment); //Overlays fragment on existing one
+                fragmentTransaction.add(R.id.frameLayout, mealTimescaleFragment); //Overlays fragment on existing one
             }
             fragmentTransaction.commitNow(); //Waits for fragment transaction to be completed
             requireView().setVisibility(View.INVISIBLE); //Sets current fragment invisible
@@ -250,17 +248,17 @@ public class PlannerFragment extends Fragment {
             if (requestCode == breakfastRequestCode) {
                 //Removes breakfast fragment overlay and makes planner fragment visible
                 fragmentTransaction = getParentFragmentManager().beginTransaction();
-                fragmentTransaction.remove(breakfastFragment).commitNow();
+                fragmentTransaction.remove(mealTimescaleFragment).commitNow();
                 requireView().setVisibility(View.VISIBLE);
             } else if (requestCode == lunchRequestCode) {
                 //Removes lunch fragment overlay and makes planner fragment visible
                 fragmentTransaction = getParentFragmentManager().beginTransaction();
-                fragmentTransaction.remove(lunchFragment).commitNow();
+                fragmentTransaction.remove(mealTimescaleFragment).commitNow();
                 requireView().setVisibility(View.VISIBLE);
             } else if (requestCode == dinnerRequestCode) {
                 //Removes dinner fragment overlay and makes planner fragment visible
                 fragmentTransaction = getParentFragmentManager().beginTransaction();
-                fragmentTransaction.remove(dinnerFragment).commitNow();
+                fragmentTransaction.remove(mealTimescaleFragment).commitNow();
                 requireView().setVisibility(View.VISIBLE);
             }
             else if (requestCode == dinnerRequestCode){

@@ -76,16 +76,54 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
 
     //Checks adding breakfast to the planner is performed correctly
     @Test
-    public void BreakfastAddToPlanner() throws InterruptedException {
-        Log.d(TAG, "Testing searching");
+    public void breakfastAddToPlanner() throws InterruptedException {
+        Log.d(TAG, "Testing breakfast");
 
         onView(withText("Meal Planner")).perform(click());
         onView(withId(0)).perform(click());
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        onView(withText("Soup")).perform(click());
+        onView(withText("Avocado and black bean eggs")).perform(click());
         onView(withText("Add")).perform(click());
+    }
+
+    //Checks adding breakfast to the planner is performed correctly
+    @Test
+    public void lunchAddToPlanner() throws InterruptedException {
+        Log.d(TAG, "Testing lunch");
+
+        onView(withText("Meal Planner")).perform(click());
+        onView(withId(1)).perform(click());
+
+        Thread.sleep(THREAD_SLEEP_TIME/4);
+
+        onView(withText("Avocado and black bean eggs")).perform(click());
+        onView(withText("Add")).perform(click());
+    }
+
+    //Checks adding breakfast to the planner is performed correctly
+    @Test
+    public void dinnerAddToPlanner() throws InterruptedException {
+        Log.d(TAG, "Testing lunch");
+
+        onView(withText("Meal Planner")).perform(click());
+        onView(withId(2)).perform(click());
+
+        Thread.sleep(THREAD_SLEEP_TIME/4);
+
+        onView(withText("Avocado and black bean eggs")).perform(click());
+        onView(withText("Add")).perform(click());
+    }
+
+    @Test
+    public void removefromPlanner() {
+        Log.d(TAG, "Testing removing");
+
+        onView(withText("Meal Planner")).perform(click());
+        onView(withId(0)).perform(longClick());
+        onView(withId(1)).perform(longClick());
+        onView(withId(2)).perform(longClick());
     }
 
     //Checks searching for a recipe and adding it to the planner is performed correctly

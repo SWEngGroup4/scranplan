@@ -19,9 +19,7 @@ import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.android.gms.ads.formats.UnifiedNativeAdView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.group4sweng.scranplan.Adverts.AdViewHolder;
-import com.group4sweng.scranplan.MealPlanner.BreakfastFragment;
-import com.group4sweng.scranplan.MealPlanner.DinnerFragment;
-import com.group4sweng.scranplan.MealPlanner.LunchFragment;
+import com.group4sweng.scranplan.MealPlanner.MealTimescaleFragment;
 import com.group4sweng.scranplan.R;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -41,9 +39,7 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
 
     // Variables for database and fragment to be displayed in
     private RecipeFragment mRecipeFragment;
-    private BreakfastFragment mBreakfastFragment;
-    private LunchFragment mLunchFragment;
-    private DinnerFragment mDinnerFragment;
+    private MealTimescaleFragment mMealTimescaleFragment;
 
 
     private List<HomeRecipePreviewData> mDataset;
@@ -105,31 +101,11 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
 
     /**
             * Constructor to add all variables
-     * @param breakfastFragment
+     * @param mealTimescaleFragment
      * @param dataset
      */
-    public HomeRecyclerAdapter (BreakfastFragment breakfastFragment, List<HomeRecyclerAdapter.HomeRecipePreviewData> dataset) {
-        mBreakfastFragment = breakfastFragment;
-        mDataset = dataset;
-    }
-
-    /**
-     * Constructor to add all variables
-     * @param lunchFragment
-     * @param dataset
-     */
-    public HomeRecyclerAdapter (LunchFragment lunchFragment, List<HomeRecyclerAdapter.HomeRecipePreviewData> dataset) {
-        mLunchFragment = lunchFragment;
-        mDataset = dataset;
-    }
-
-    /**
-     * Constructor to add all variables
-     * @param dinnerFragment
-     * @param dataset
-     */
-    public HomeRecyclerAdapter (DinnerFragment dinnerFragment, List<HomeRecyclerAdapter.HomeRecipePreviewData> dataset) {
-        mDinnerFragment = dinnerFragment;
+    public HomeRecyclerAdapter (MealTimescaleFragment mealTimescaleFragment, List<HomeRecyclerAdapter.HomeRecipePreviewData> dataset) {
+        mMealTimescaleFragment = mealTimescaleFragment;
         mDataset = dataset;
     }
 
@@ -192,20 +168,8 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
                 Log.e("SEARCH RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
             }
 
-            if (mBreakfastFragment != null){
-                mBreakfastFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
-            }else{
-                Log.e("SEARCH RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
-            }
-
-            if (mLunchFragment != null){
-                mLunchFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
-            }else{
-                Log.e("SEARCH RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
-            }
-
-            if (mDinnerFragment != null){
-                mDinnerFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
+            if (mMealTimescaleFragment != null){
+                mMealTimescaleFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
             }else{
                 Log.e("SEARCH RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
             }
