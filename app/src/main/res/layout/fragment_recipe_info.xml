@@ -8,70 +8,70 @@
     tools:context=".RecipeInfo.RecipeInfoFragment"
     android:fillViewport="true">
 
-    <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
 
-
-    <TextView
-        android:id="@+id/Title"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="80dp"
-        android:layout_marginEnd="5dp"
-        android:background="@color/colorPrimary"
-        android:ems="10"
-        android:gravity="center"
-        android:padding="5sp"
-        android:text="Title"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textColor="#CBFFFFFF"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintTop_toTopOf="@+id/addFavorite"
-        app:layout_constraintVertical_bias="1.0" />
+        android:layout_height="wrap_content">
 
 
-        <Button
-            android:id="@+id/LetsCook"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="120dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="10dp"
-            android:text="Lets Cook!"
-            android:textColor="#FFFFFF"
-            android:textSize="13sp"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/chefName"
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/Title"
-            android:layout_alignParentEnd="true"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="82dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="143dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="288dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="337dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline7"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="458dp" />
+
+        <ImageButton
+            android:id="@+id/ReturnButton"
+            style="@style/Widget.AppCompat.Button"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
             android:layout_marginStart="5dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="5dp"
-            android:layout_toEndOf="@+id/recipeImage"
-            android:ems="10"
-            android:gravity="left"
-            android:text="Chef:"
-            android:textSize="18sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.476"
-            app:layout_constraintTop_toBottomOf="@+id/Title" />
+            android:layout_marginTop="4dp"
+            android:src="?attr/actionModeCloseDrawable"
+            android:text="Back"
+            android:textColor="#000000"
+            android:textSize="13sp"
+            app:layout_constraintBottom_toTopOf="@+id/guideline"
+            app:layout_constraintEnd_toStartOf="@+id/guideline12"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.566" />
 
         <CheckBox
             android:id="@+id/addFavorite"
-            android:layout_width="wrap_content"
-            android:layout_height="55dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginEnd="10dp"
+            android:layout_width="55dp"
+            android:layout_height="58dp"
             android:layout_toStartOf="@+id/LetsCook"
             android:layout_toEndOf="@+id/ReturnButton"
             android:background="@drawable/click_favourite"
@@ -81,7 +81,44 @@
             android:maxHeight="60sp"
             android:scaleType="fitCenter"
             android:stateListAnimator="@animator/select"
+            app:layout_constraintBottom_toTopOf="@+id/guideline"
+            app:layout_constraintEnd_toStartOf="@+id/guideline14"
+            app:layout_constraintStart_toStartOf="@+id/guideline12"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/LetsCook"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="5dp"
+            android:text="Lets Cook!"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            app:layout_constraintBottom_toTopOf="@+id/guideline"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.657"
+            app:layout_constraintStart_toStartOf="@+id/guideline14"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:background="@color/colorPrimary"
+            android:ems="10"
+            android:gravity="center"
+            android:padding="5sp"
+            android:text="Title"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="#CBFFFFFF"
+            app:layout_constraintBottom_toTopOf="@+id/guideline2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/guideline" />
 
         <ImageView
             android:id="@+id/recipeImage"
@@ -89,13 +126,299 @@
             android:layout_height="140dp"
             android:layout_below="@+id/Title"
             android:layout_alignParentStart="true"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="1dp"
-            android:layout_marginEnd="5dp"
+            android:layout_marginTop="5dp"
             android:padding="10sp"
+            app:layout_constraintBottom_toTopOf="@+id/guideline5"
+            app:layout_constraintEnd_toStartOf="@+id/guideline12"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/Title"
+            app:layout_constraintTop_toBottomOf="@+id/guideline2"
+            app:layout_constraintVertical_bias="0.0"
             app:srcCompat="@drawable/scran" />
+
+        <TextView
+            android:id="@+id/chefName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/Title"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="5dp"
+            android:layout_toEndOf="@+id/recipeImage"
+            android:ems="10"
+            android:gravity="left"
+            android:text="Chef:"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.4"
+            app:layout_constraintStart_toStartOf="@+id/guideline12"
+            app:layout_constraintTop_toTopOf="@+id/guideline2" />
+
+        <RatingBar
+            android:id="@+id/ratingBar"
+            style="?android:attr/ratingBarStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/chefName"
+            android:layout_marginEnd="112dp"
+            android:layout_toEndOf="@+id/recipeImage"
+            android:numStars="5"
+            android:progressTint="@color/colorRatingGold"
+            android:secondaryProgressTint="@android:color/transparent"
+            app:layout_constraintBottom_toTopOf="@+id/guideline5"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.13"
+            app:layout_constraintStart_toStartOf="@+id/guideline12"
+            app:layout_constraintTop_toBottomOf="@+id/chefName"
+            app:layout_constraintVertical_bias="0.195" />
+
+        <TextView
+            android:id="@+id/serves"
+            android:layout_width="199dp"
+            android:layout_height="35dp"
+            android:layout_below="@+id/ratingBar"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="5dp"
+            android:layout_toEndOf="@+id/recipeImage"
+            android:gravity="left"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toTopOf="@+id/guideline5"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.176"
+            app:layout_constraintStart_toStartOf="@+id/guideline12"
+            app:layout_constraintTop_toBottomOf="@+id/chefName"
+            app:layout_constraintVertical_bias="0.808" />
+
+        <HorizontalScrollView
+            android:id="@+id/horizontalScrollView"
+            android:layout_width="391dp"
+            android:layout_height="51dp"
+            app:layout_constraintBottom_toTopOf="@+id/guideline6"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/guideline5">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="5dp">
+
+                <ImageView
+                    android:id="@+id/recipeInfoEggs"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:padding="2sp"
+                    android:src="@drawable/eggs"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/recipeInfoMilk"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:padding="2sp"
+                    android:src="@drawable/lactose"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/recipeInfoNuts"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:padding="2sp"
+                    android:src="@drawable/nuts"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/recipeInfoShellfish"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:padding="2sp"
+                    android:src="@drawable/molluscs"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/recipeInfoSoy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:padding="2sp"
+                    android:src="@drawable/soya"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/recipeInfoWheat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:padding="2sp"
+                    android:src="@drawable/gluten"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/recipeInfoPesc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:padding="2sp"
+                    android:src="@drawable/pescetarian"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/recipeInfoVegan"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:padding="2sp"
+                    android:src="@drawable/vegan"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/recipeInfoVeggie"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:padding="4sp"
+                    android:src="@drawable/vegetarian"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <TextView
+            android:id="@+id/description"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_below="@+id/recipeImage"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:background="@color/colorPurpleLight"
+            android:gravity="center"
+            android:padding="5sp"
+            android:text="Description"
+            android:textColor="#0E0E0E"
+            app:layout_constraintBottom_toTopOf="@+id/guideline7"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintLeft_toRightOf="@id/recipeImage"
+            app:layout_constraintRight_toLeftOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/guideline6" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline8"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="196dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="547dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline11"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="506dp" />
+
+        <LinearLayout
+            android:id="@+id/mealPlannerLinearLayout"
+            android:layout_width="392dp"
+            android:layout_height="86dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/description"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="143dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="50dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/fridge"
+                    android:layout_width="131dp"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/description"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginTop="15dp"
+                    android:ems="10"
+                    android:gravity="left"
+                    android:text=""
+                    android:textSize="14dp"
+                    app:layout_constraintBottom_toTopOf="@+id/guideline11"
+                    app:layout_constraintEnd_toStartOf="@+id/guideline8"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/guideline7"
+                    app:layout_constraintVertical_bias="0.487" />
+
+                <TextView
+                    android:id="@+id/freezer"
+                    android:layout_width="131dp"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/description"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginTop="10dp"
+                    android:ems="10"
+                    android:gravity="left"
+                    android:text=""
+                    android:textSize="14dp"
+                    app:layout_constraintBottom_toTopOf="@+id/guideline10"
+                    app:layout_constraintEnd_toStartOf="@+id/guideline8"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/guideline11" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="148dp"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/reheatInfoText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/description"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="15dp"
+                    android:ems="10"
+                    android:gravity="center"
+                    android:text=""
+                    android:textSize="14dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="@+id/guideline8"
+                    app:layout_constraintTop_toTopOf="@+id/guideline7" />
+
+                <ImageButton
+                    android:id="@+id/reheatInfoButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/description"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginStart="60dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@color/colorWindow"
+                    android:src="@android:drawable/ic_dialog_info"
+                    app:layout_constraintBottom_toTopOf="@+id/guideline10"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.515"
+                    app:layout_constraintStart_toStartOf="@+id/guideline8"
+                    app:layout_constraintTop_toBottomOf="@+id/reheatInfoText"
+                    app:layout_constraintVertical_bias="0.0" />
+            </LinearLayout>
+
+        </LinearLayout>
+
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout2"
@@ -104,15 +427,15 @@
             android:layout_below="@+id/description"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
+            android:layout_marginTop="10dp"
             android:layout_marginStart="5dp"
-            android:layout_marginTop="95dp"
             android:layout_marginEnd="5dp"
             android:background="@color/colorPurpleDark"
             android:textColor="#ffffff"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintVertical_bias="0.0">
+            app:layout_constraintTop_toBottomOf="@+id/mealPlannerLinearLayout">
 
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
@@ -129,8 +452,8 @@
 
         <FrameLayout
             android:id="@+id/RecipeFrameLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="383dp"
+            android:layout_height="146dp"
             android:layout_below="@+id/tabLayout2"
             android:layout_alignParentStart="true"
             android:layout_alignParentBottom="true"
@@ -138,236 +461,29 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tabLayout2">
 
             <LinearLayout
                 android:id="@+id/listViewText"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="393dp"
+                android:layout_height="309dp"
                 android:orientation="vertical"></LinearLayout>
         </FrameLayout>
 
-        <TextView
-            android:id="@+id/description"
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:layout_below="@+id/recipeImage"
-            android:layout_centerHorizontal="true"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="55dp"
-            android:layout_marginEnd="5dp"
-            android:background="@color/colorPurpleLight"
-            android:gravity="center"
-            android:padding="5sp"
-            android:text="Description"
-            android:textColor="#0E0E0E"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintLeft_toRightOf="@id/recipeImage"
-            app:layout_constraintRight_toLeftOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/allergyLayout" />
-
-        <RatingBar
-            android:id="@+id/ratingBar"
-            style="?android:attr/ratingBarStyleSmall"
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline12"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/chefName"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="17dp"
-            android:layout_toEndOf="@+id/recipeImage"
-            android:progressTint="@color/colorRatingGold"
-            android:secondaryProgressTint="@android:color/transparent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/chefName" />
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="155dp" />
 
-        <TextView
-            android:id="@+id/serves"
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline14"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/ratingBar"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="17dp"
-            android:layout_marginEnd="5dp"
-            android:layout_toEndOf="@+id/recipeImage"
-            android:gravity="left"
-            android:textSize="18sp"/>
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="233dp" />
 
-        <TextView
-            android:id="@+id/fridge"
-            android:layout_width="131dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/description"
-            android:layout_alignParentStart="true"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="16dp"
-            android:ems="10"
-            android:gravity="left"
-            android:text=""
-            android:textSize="14dp" />
-
-        <TextView
-            android:id="@+id/freezer"
-            android:layout_width="131dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/description"
-            android:layout_alignParentStart="true"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="60dp"
-            android:ems="10"
-            android:gravity="left"
-            android:text=""
-            android:textSize="14dp" />
-
-        <TextView
-            android:id="@+id/reheatInfoText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/description"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="0dp"
-            android:ems="10"
-            android:gravity="center"
-            android:text=""
-            android:textSize="14dp" />
-
-        <ImageButton
-            android:id="@+id/reheatInfoButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/description"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="42dp"
-            android:layout_marginEnd="69dp"
-            android:background="@color/colorWindow"
-            android:visibility="invisible"
-            android:src="@android:drawable/ic_dialog_info" />
-
-        <ImageButton
-            android:id="@+id/ReturnButton"
-            style="@style/Widget.AppCompat.Button"
-            android:layout_width="120dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginTop="10dp"
-            android:text="Back"
-            android:textColor="#000000"
-            android:textSize="13sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:src="?attr/actionModeCloseDrawable" />
-
-
-        <LinearLayout
-            android:layout_marginStart="10sp"
-            android:layout_marginEnd="10sp"
-            android:id="@+id/allergyLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/description"
-            android:layout_below="@+id/recipeImage"
-            android:layout_alignParentStart="true"
-            android:layout_marginTop="1dp"
-            app:layout_constraintTop_toBottomOf="@+id/recipeImage"
-            android:layout_marginBottom="-50dp"
-            android:orientation="horizontal">
-
-            <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent">
-
-            <ImageView
-                android:id="@+id/recipeInfoEggs"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/eggs"
-                android:padding="2sp"
-                android:visibility="gone"
-                android:adjustViewBounds="true"/>
-
-            <ImageView
-                android:id="@+id/recipeInfoMilk"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/lactose"
-                android:visibility="gone"
-                android:padding="2sp"
-                android:adjustViewBounds="true"/>
-
-            <ImageView
-                android:id="@+id/recipeInfoNuts"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/nuts"
-                android:padding="2sp"
-                android:visibility="gone"
-                android:adjustViewBounds="true"/>
-
-            <ImageView
-                android:id="@+id/recipeInfoShellfish"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="2sp"
-                android:src="@drawable/molluscs"
-                android:visibility="gone"
-                android:adjustViewBounds="true"/>
-
-            <ImageView
-                android:id="@+id/recipeInfoSoy"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/soya"
-                android:padding="2sp"
-                android:visibility="gone"
-                android:adjustViewBounds="true"/>
-
-            <ImageView
-                android:id="@+id/recipeInfoWheat"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="2sp"
-                android:src="@drawable/gluten"
-                android:visibility="gone"
-                android:adjustViewBounds="true"/>
-
-            <ImageView
-                android:id="@+id/recipeInfoPesc"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/pescetarian"
-                android:padding="2sp"
-                android:visibility="gone"
-                android:adjustViewBounds="true"/>
-
-            <ImageView
-                android:id="@+id/recipeInfoVegan"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="2sp"
-                android:src="@drawable/vegan"
-                android:visibility="gone"
-                android:adjustViewBounds="true"/>
-
-            <ImageView
-                android:id="@+id/recipeInfoVeggie"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="4sp"
-                android:src="@drawable/vegetarian"
-                android:visibility="gone"
-                android:adjustViewBounds="true"/>
-        </LinearLayout>
-            </HorizontalScrollView>
-        </LinearLayout>
-
-
-    </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

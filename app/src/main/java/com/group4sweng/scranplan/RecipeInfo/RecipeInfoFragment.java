@@ -49,6 +49,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
 
     // Variables for the xml layout so data from firebase can be properly assigned
     protected ImageButton mReturnButton;
+    protected LinearLayout mLayoutForPlanner;
     private Button mLetsCook;
     private TabLayout mTabLayout2;
     private FrameLayout mRecipeFrameLayout;
@@ -181,6 +182,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         //Tab Layouts
         mTabLayout2 = layout.findViewById(R.id.tabLayout2);
         mRecipeFrameLayout = layout.findViewById(R.id.RecipeFrameLayout);
+        mLayoutForPlanner = layout.findViewById(R.id.mealPlannerLinearLayout);
 
         //For the Ingredient array
        listViewIngredients = layout.findViewById(R.id.listViewText);
