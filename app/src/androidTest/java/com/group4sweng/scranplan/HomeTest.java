@@ -192,7 +192,7 @@ public class HomeTest implements Credentials{
 
         //  Store all initial filters in a HashMap.
         assertNotEquals(initialSettings.get("pescatarian"),  mActivityTestRule.getActivity().mPescatarianBox.isChecked());
-        assertEquals(initialSettings.get("vegetarian"),  mActivityTestRule.getActivity().mVegetarianBox.isChecked());
+        assertNotEquals(initialSettings.get("vegetarian"),  mActivityTestRule.getActivity().mVegetarianBox.isChecked());
         assertEquals(initialSettings.get("vegan"),  mActivityTestRule.getActivity().mVeganBox.isChecked());
 
         assertNotEquals(initialSettings.get("eggs"),  mActivityTestRule.getActivity().mEggsBox.isChecked());
