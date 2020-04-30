@@ -113,6 +113,7 @@ public class RecipeFragment extends Fragment {
         else planner = false;
 
         if (planner) {
+
             TextView title = view.findViewById(R.id.recipeFragmentTitle);
             ImageButton returnButton = view.findViewById(R.id.recipeFragmentReturnButton);
             title.setVisibility(View.VISIBLE);

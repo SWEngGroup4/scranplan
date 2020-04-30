@@ -280,7 +280,7 @@ public class Home extends AppCompatActivity {
                     case 1:
                         if (fragment.getClass() == RecipeFragment.class) fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         else fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
-                        fragment = new PlannerFragment();
+                        fragment = new PlannerFragment(mUser);
                         break;
                     case 2:
                         fragment = new TimelinePlanner();
