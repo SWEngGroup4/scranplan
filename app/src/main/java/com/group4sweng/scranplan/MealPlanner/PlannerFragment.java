@@ -197,7 +197,7 @@ public class PlannerFragment extends Fragment {
             if (resultCode == Activity.RESULT_OK) {
                 Bundle bundle = data.getExtras();
 
-                HashMap<String, String> testMap = (HashMap<String, String>) bundle.getSerializable("ingredientHashMap");
+                HashMap<String, String> testMap = (HashMap<String, String>) data.getSerializableExtra("ingredientHashMap");
 
                 //Hides menu options
                 sortButton.setVisible(false);
@@ -215,8 +215,8 @@ public class PlannerFragment extends Fragment {
                     }
 
                     //  Adds the ingredient Hash Map
-                    HashMap<String, String> ingredientHashMap = (HashMap<String, String>) bundle.getSerializable("ingredientHashMap");
-                    map.put("ingredientHashMap", ingredientHashMap);
+                    HashMap<String, String> ingredientHashMap = (HashMap<String, String>) data.getSerializableExtra("ingredientHashMap");
+                    if(ingredientHashMap != null){ map.put("ingredientHashMap", ingredientHashMap); }
 
                     //Sets new listener for inserted recipe to open info fragment
                     currentSelection.setOnClickListener(v -> openRecipeInfo(map));
@@ -239,9 +239,11 @@ public class PlannerFragment extends Fragment {
 
     //Quick function to reset search menu functionality
     private void setSearch() {
+        Home home = (Home) getActivity();
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
+                prefs = home.getSearchPrefs();
                 SearchQuery query = new SearchQuery( s, prefs);
                 openRecipeDialog(query);
                 return false;
