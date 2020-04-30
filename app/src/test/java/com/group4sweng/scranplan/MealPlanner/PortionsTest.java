@@ -1,6 +1,7 @@
 package com.group4sweng.scranplan.MealPlanner;
 
 import com.group4sweng.scranplan.Exceptions.PortionConvertException;
+import com.group4sweng.scranplan.MealPlanner.Ingredients.Portions;
 
 import org.junit.Test;
 

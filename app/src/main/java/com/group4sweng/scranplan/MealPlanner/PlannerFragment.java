@@ -199,8 +199,6 @@ public class PlannerFragment extends Fragment {
             if (resultCode == Activity.RESULT_OK) {
                 Bundle bundle = data.getExtras();
 
-                HashMap<String, String> testMap = (HashMap<String, String>) data.getSerializableExtra("ingredientHashMap");
-
                 //Hides menu options
                 sortButton.setVisible(false);
 

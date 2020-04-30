@@ -13,11 +13,18 @@ public class RecipeHelpers {
     public static ArrayList<String> convertToIngredientListFormat(HashMap<String, String> ingredientHashMap){
         ArrayList<String> ingredientArray = new ArrayList<>();
 
-        for (Map.Entry<String, String> stringStringEntry : ingredientHashMap.entrySet()) {
-            Map.Entry mapElement = stringStringEntry;
+        for (Map.Entry<String, String> listElement : ingredientHashMap.entrySet()) {
+            Map.Entry mapElement = listElement;
             String string = mapElement.getKey().toString() + ": " + mapElement.getValue().toString();
             ingredientArray.add(string);
         }
         return ingredientArray;
+    }
+
+    public static void displayIngredients(ArrayList<String> ingredients){
+        System.out.println("---===INGREDIENTS LIST===---");
+        for(String ingredient : ingredients) {
+            System.out.println(ingredient);
+        }
     }
 }
