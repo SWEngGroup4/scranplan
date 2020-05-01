@@ -26,9 +26,11 @@ public class Portions implements Warning {
     "riesling", "cabernet sauvignon", "pinot noir", "syrah", "zinfandel", "pilsener", "witbier", "pale ale", "bitter ale", "brown ale", "cask ale",
     "mild ale", "old ale", "stock ale", "fruit beer", "scotch ale", "cider", "mead", "red wine", "white wine", "rose wine", "vodka", "whiskey", "white rum", "dark rum",
     "spiced rum", };
+
     //  Common Spice text matchers.
     private final static String[] commonSpices  = {"allspice", "anise", "cardamom", "cayenne", "five spice", "coriander", "cumin", "curry powder", "fennel", "garam masala",
             "nutmeg", "paprika", "turmeric", "black pepper",  "caraway", "cinnamon", "jalapeno", "mustard seeds", "nutmeg", "saffron", "vanilla essence", "wasabi"};
+
     //  Common Spice text matchers. Ingredient matching must be exact. IE "Ginger Beer" will not work. "Ginger" will.
     private final static String[] commonSpicesExact = {"ginger", "salt", "cinnamon", "vanilla", "mace"};
 
@@ -113,9 +115,9 @@ public class Portions implements Warning {
         boolean increasePortions; // Should the serving amount (portions) increase or decrease.
 
         if(overallMultiplier > 1 && overallMultiplier <= MAX_SERVINGS_MULTIPLIER){ // Check if increasing proportions. Must be within limits of max servings amount multiplier.
-            overallMultiplier = overallMultiplier - 1; // Remove 1.
             increasePortions = true;
         } else if (overallMultiplier < 1 && overallMultiplier >= 1/MAX_SERVINGS_MULTIPLIER) { // Check if decreasing proportions.
+            overallMultiplier = 1/overallMultiplier; // Invert multiplier. Used so calculations can be done with an additional scalar multiplier quantity.
             increasePortions = false;
         } else if (overallMultiplier == 1) { // prev serving amount = new serving amount. Throw Exception.
             throw new PortionConvertException("Unable to convert portions of food. New and previous serve amounts cannot be the same");
@@ -132,25 +134,23 @@ public class Portions implements Warning {
                 String value = (String) ingredient.getKey();
                 String portion = (String) ingredient.getValue();
 
-                // Check from alcohol + spice list the multiplier doesn't need to be modified.
+                //  Check from alcohol + spice list the multiplier doesn't need to be modified.
                 currentMultiplierScalar = checkMultiplier(value);
 
                 //  Grab quantity amounts in terms of an Integer and Float
                 String quantityFloat = Float.toString(retrieveQuantity(portion));
                 String quantityInt = Integer.toString((int) retrieveQuantity(portion));
 
+                //  Calculate the new portions quantity amount.
                 float newQuantity;
-
-                if(increasePortions){
-                    //  New quantiy = current quantity + (current quantity * multiplier scalar * overall scalar)
-                    newQuantity = retrieveQuantity(portion) + (retrieveQuantity(portion) * currentMultiplierScalar * overallMultiplier);
+                if(increasePortions){ // Increase the amount in portions.
+                    newQuantity = retrieveQuantity(portion) * (1 +  ((overallMultiplier -1) * currentMultiplierScalar));
                 } else {
-                    //  New quantiy = current quantity - (current quantity * multiplier scalar * (1- overall scalar)
-                    newQuantity = retrieveQuantity(portion) - (retrieveQuantity(portion) * (currentMultiplierScalar * (1-overallMultiplier)));
+                    newQuantity = retrieveQuantity(portion) / (1 + ((overallMultiplier -1) * currentMultiplierScalar));
                 }
 
                 String newQuantityString = Float.toString(newQuantity);
-                String scaledPortion;
+                String scaledPortion; //
 
                 if(Math.ceil(newQuantity) == newQuantity && !portion.contains(".")) { // Check if the new calculated quantity is an integer. If so ignore decimal value.
                     scaledPortion = portion.replaceAll(quantityInt, newQuantityString);
@@ -183,8 +183,10 @@ public class Portions implements Warning {
             }
         }
 
+        //  All exact spice matching is a singular word. Remove all spaces just incase.
         String ingredientSpacesRemoved = ingredient.replaceAll(" ", "");
         for(String spice : commonSpicesExact){
+            //  Check the ingredient is exactly equal to spice name, not just if it contains the name.
             if (ingredientSpacesRemoved.toLowerCase().equals(spice) ){
                 return 0.5f;
             }
@@ -194,15 +196,17 @@ public class Portions implements Warning {
 
     /** Check for all valid serving amounts that can be used for existing serving amount.
      * @param currentServes - Current serving amount.
+     * @param originalServes - Original serving amount.
      * @return - A list of all possible servings amounts within an acceptable range when scaling proportions.
      */
-    static ArrayList<Integer> getValidServesAmounts(float currentServes){
+    static ArrayList<Integer> getValidServesAmounts(float currentServes, float originalServes){
         // Max and minimum serving values that can be used.
-        float maxValue = currentServes * MAX_SERVINGS_MULTIPLIER;
-        float minValue = currentServes * 1/MAX_SERVINGS_MULTIPLIER;
+        int maxValue = (int) Math.floor(currentServes * MAX_SERVINGS_MULTIPLIER);
+        int minValue = (int) Math.floor(currentServes * 1/MAX_SERVINGS_MULTIPLIER);
 
-        int maxValueInt = (int) Math.floor(maxValue);
-        int minValueInt = (int) Math.floor(minValue);
+        //  Max and min serving values for the original recipe.
+        float maxValueOriginal = (int) Math.floor(originalServes * MAX_SERVINGS_MULTIPLIER);
+        float minValueOriginal = (int) Math.floor(originalServes * 1/MAX_SERVINGS_MULTIPLIER);
 
         ArrayList<Integer> amounts = new ArrayList<>();
         //int[] amounts = new int[servesAmounts.length];
@@ -211,9 +215,12 @@ public class Portions implements Warning {
         for (int servesAmount : servesAmounts) {
             System.out.println("Serves amounts: " + servesAmount);
             //  Check if new serving amount is within max/min values and isn't equal to previous serving amount.
-            if (servesAmount <= maxValueInt && servesAmount >= minValueInt && servesAmount != currentServes) {
-                amounts.add(servesAmount);
-                amountsCounter++;
+            if (servesAmount <= maxValue && servesAmount >= minValue && servesAmount != currentServes) {
+                //  Also check against the original recipe value for servings.
+                if(servesAmount <= maxValueOriginal && servesAmount >= minValueOriginal){
+                    amounts.add(servesAmount);
+                    amountsCounter++;
+                }
             }
         }
 
