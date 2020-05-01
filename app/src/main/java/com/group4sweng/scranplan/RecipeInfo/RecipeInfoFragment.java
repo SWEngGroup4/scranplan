@@ -68,7 +68,6 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
     protected String recipeRating;
     protected String xmlPresentation;
     protected String reheat;
-    protected ArrayList<String> ingredientArray;
     protected HashMap<String, String> ingredientHashMap;
     protected Boolean planner;
     protected ArrayList<String> favouriteRecipe;
@@ -127,7 +126,6 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         recipeDescription = getArguments().getString("recipeDescription");
         chefName = getArguments().getString("chefName");
         ingredientHashMap = (HashMap<String, String>) getArguments().getSerializable("ingredientHashMap");
-        ingredientArray = getArguments().getStringArrayList("ingredientList");
         recipeRating = getArguments().getString("rating");
         xmlPresentation = getArguments().getString("xmlURL");
         planner = getArguments().getBoolean("planner");
@@ -208,8 +206,6 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         recipeImage = bundle.getString("imageURL");
         recipeDescription = bundle.getString("recipeDescription");
         chefName = bundle.getString("chefName");
-
-        ingredientArray = bundle.getStringArrayList("ingredientList");
         ingredientHashMap = (HashMap<String, String>) bundle.getSerializable("ingredientHashMap");
         recipeRating = bundle.getString("rating");
         xmlPresentation = bundle.getString("xmlURL");
