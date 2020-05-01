@@ -26,7 +26,7 @@ public class ImageHelpers implements FilterType {
      *
      *  Author: VassilisPallas
      *  Reference: https://gist.github.com/VassilisPallas/b88fb701c55cdace0c420356ee7c1464
-     *  Fair use statement: TODO - Get a response on if we can use this section of code.**/
+     *  Fair use statement: **/
     public static long getSize(Context context, Uri uri) {
         String fileSize = null;
         Cursor cursor = context.getContentResolver()

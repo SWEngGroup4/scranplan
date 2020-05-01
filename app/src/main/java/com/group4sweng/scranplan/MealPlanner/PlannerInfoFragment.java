@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.group4sweng.scranplan.Exceptions.PortionConvertException;
@@ -27,7 +26,8 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
 
     //  Fragment layout view. Used when refreshing the layout.
     private View layout;
-    private ListView ingredientListView;
+    private float originalServings;
+    private float currentServings = -1;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -51,7 +51,6 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
     @Override
     public void onResume() {
         super.onResume();
-
 
     }
 
@@ -110,53 +109,29 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
     }
 
     private void initPortionsListeners() {
-        mChangePortions.setOnClickListener(v -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            //  Create a new linear layout which fits the proportions of the screen and descends vertically.
+        originalServings = Float.parseFloat(servingAmount);
 
+        mChangePortions.setOnClickListener(v -> {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+            //  Create a new linear layout which fits the proportions of the screen and descends vertically.
             LinearLayout alertLayout = new LinearLayout(getContext());
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             alertLayout.setOrientation(LinearLayout.VERTICAL);
             alertLayout.setLayoutParams(params);
 
-            float currentServings = Float.parseFloat(servingAmount);
-            ArrayList<Integer> servingAmounts = Portions.getValidServesAmounts(currentServings);
+            currentServings = Float.parseFloat(servingAmount);
+            ArrayList<Integer> servingAmounts = Portions.getValidServesAmounts(currentServings, originalServings);
             Button[] servesButtons = new Button[servingAmounts.size()];
 
-            int sAmountCounter = 0;
-            for(Button button : servesButtons){
-                button = new Button(getContext());
-                button.setText(String.format(Locale.ENGLISH, "%d", servingAmounts.get(sAmountCounter)));
-                button.setPadding(40,40,40,40);
-                button.setGravity(Gravity.CENTER);
+            for(int i=0; i < servingAmounts.size(); i++){
+                servesButtons[i] = new Button(getContext());
+                servesButtons[i].setText(String.format(Locale.ENGLISH, "%d", servingAmounts.get(i)));
+                servesButtons[i].setPadding(40,40,40,40);
+                servesButtons[i].setGravity(Gravity.CENTER);
 
-                int finalSAmountCounter = sAmountCounter;
-
-                button.setOnClickListener(portion -> {
-                    final float newServings = servingAmounts.get(finalSAmountCounter);
-                    try {
-                        final HashMap<String, String> newIngredientsHashMap = Portions.convertPortions(ingredientHashMap, currentServings, newServings);
-
-//                        // Cycle through the HashMap.
-//                        for (Map.Entry<String, String> ingredient : newIngredientsHashMap.entrySet()) {
-//                            String portion = ingredient.getValue();
-//                            if(Portions.retrieveQuantity(portion) == -1){
-//
-//                            }
-//                        }
-                        final ArrayList<String> newIngredientsArray = RecipeHelpers.convertToIngredientListFormat(newIngredientsHashMap);
-                        RecipeHelpers.displayIngredients(newIngredientsArray);
-
-                        ingredientHashMap = newIngredientsHashMap;
-                        ingredientArray = newIngredientsArray;
-
-                    } catch (PortionConvertException e) {
-                        e.printStackTrace();
-                    }
-                });
-
-                alertLayout.addView(button);
-                sAmountCounter++;
+                alertLayout.addView(servesButtons[i]);
             }
 
             builder.setView(alertLayout)
@@ -170,17 +145,47 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
             AlertDialog alertDialog = builder.create();
             alertDialog.show();
 
-            alertDialog.setOnDismissListener(portionAlert -> {
-                updateIngredientsList();
-                //displayInfo(layout);
-            });
+            int sAmountCounter = 0;
+            for(Button button : servesButtons) {
+                final int sAmountCounterFinal = sAmountCounter;
+
+                button.setOnClickListener(portion -> {
+                    final float newServings = servingAmounts.get(sAmountCounterFinal);
+                    try {
+                        final HashMap<String, String> newIngredientsHashMap = Portions.convertPortions(ingredientHashMap, currentServings, newServings);
+
+                        final ArrayList<String> newIngredientsArray = RecipeHelpers.convertToIngredientListFormat(newIngredientsHashMap);
+                        RecipeHelpers.displayIngredients(newIngredientsArray);
+
+                        ingredientHashMap = newIngredientsHashMap;
+                        //ingredientArray = newIngredientsArray;
+
+                        updateIngredientsList();
+
+                        mServing.setText("Serves: " + Float.toString(newServings));
+                        servingAmount = Float.toString(newServings);
+
+                        alertDialog.cancel();
+                    } catch (PortionConvertException e) {
+                        e.printStackTrace();
+                    }
+                });
+                sAmountCounter++;
+
+//            alertDialog.setOnDismissListener(portionAlert -> {
+//                updateIngredientsList();
+//            });
+            }
         });
     }
+
+//    private void resetPortions(){
+//        displayInfo(layout);
+//    }
 
     @Override
     protected void updateIngredientsList(){
         ArrayList<Ingredient> ingredientList = RecipeHelpers.convertToIngredientFormat(ingredientHashMap);
-
         linearLayoutIngredients.removeAllViews();
 
         LayoutInflater inflater = LayoutInflater.from(getActivity());
@@ -194,7 +199,7 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
             portion.setText(ingredient.getPortion());
 
             String warningMessage = Portions.generateWarning(ingredient.getName(), ingredient.getPortion());
-            if(warningMessage != null){
+            if(warningMessage != null && currentServings != -1){
                 ImageView warningIcon = ingredientView.findViewById(R.id.ingredient_warning_icon);
                 TextView warning = ingredientView.findViewById(R.id.ingredient_warning);
 
