@@ -28,7 +28,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.group4sweng.scranplan.Helper.RecipeHelpers;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import com.group4sweng.scranplan.SearchFunctions.HomeQueries;
 import com.group4sweng.scranplan.SearchFunctions.HomeRecyclerAdapter;
@@ -592,12 +591,12 @@ public class RecipeFragment extends Fragment {
         HashMap<String, String> ingredientHashMap = (HashMap<String, String>) document.getData().get("Ingredients");
 
         //  Convert the Firebase ingredientList HashMap into a readable ArrayList format that can be displayed to the user.
-        ArrayList<String> ingredientArray = RecipeHelpers.convertToIngredientListFormat(ingredientHashMap);
+        //ArrayList<String> ingredientArray = RecipeHelpers.convertToIngredientListFormat(ingredientHashMap);
 
         //Creating a bundle so all data needed from firestore query snapshot can be passed through into fragment class
         mBundle = new Bundle();
         mBundle.putSerializable("ingredientHashMap", ingredientHashMap);
-        mBundle.putStringArrayList("ingredientList", ingredientArray);
+        //mBundle.putStringArrayList("ingredientList", ingredientArray);
         mBundle.putString("recipeID", document.getId());
         mBundle.putString("xmlURL", document.get("xml_url").toString());
         mBundle.putString("recipeTitle", document.get("Name").toString());

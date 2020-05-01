@@ -1,15 +1,12 @@
 package com.group4sweng.scranplan.Helper;
 
-import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.OpenableColumns;
 import android.webkit.MimeTypeMap;
-import android.widget.ImageView;
 
-import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.SupportedFormats;
 import com.group4sweng.scranplan.UserInfo.FilterType;
 
@@ -26,7 +23,7 @@ public class ImageHelpers implements FilterType {
      *
      *  Author: VassilisPallas
      *  Reference: https://gist.github.com/VassilisPallas/b88fb701c55cdace0c420356ee7c1464
-     *  Fair use statement: **/
+     *  Fair use statement: https://github.com/SWEngGroup4/scranplan/issues/59**/
     public static long getSize(Context context, Uri uri) {
         String fileSize = null;
         Cursor cursor = context.getContentResolver()
@@ -110,25 +107,6 @@ public class ImageHelpers implements FilterType {
                 break;
         }
         return message;
-    }
-
-
-    public static ArrayList<ImageView> getFilterIcons(Activity activity, filterType type){
-        ArrayList<ImageView> icons = new ArrayList<>();
-
-        switch(type){
-            case ALLERGENS:
-
-                icons.add(activity.findViewById(R.id.recipeInfoEggs));
-                icons.add(activity.findViewById(R.id.recipeInfoMilk));
-                icons.add(activity.findViewById(R.id.recipeInfoNuts));
-                icons.add(activity.findViewById(R.id.recipeInfoShellfish));
-                icons.add(activity.findViewById(R.id.recipeInfoSoy));
-                icons.add(activity.findViewById(R.id.recipeInfoWheat));
-            case DIETARY:
-
-        }
-        return icons;
     }
 
 }

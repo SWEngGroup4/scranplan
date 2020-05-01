@@ -234,11 +234,11 @@ public class Portions implements Warning {
 
     public static String generateWarning(String ingredient, String portion) {
         if (retrieveQuantity(portion) == -1f) {
-            return FAILED;
+            return Warning.FAILED;
         } else if (checkMultiplier(ingredient) == 0.5) {
-            return ESTIMATE;
+            return Warning.ESTIMATE;
         } else {
-            return NONE;
+            return Warning.NONE;
         }
     }
 }
