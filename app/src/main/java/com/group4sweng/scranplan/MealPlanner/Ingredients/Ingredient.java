@@ -1,26 +1,35 @@
 package com.group4sweng.scranplan.MealPlanner.Ingredients;
 
+/** Custom ingredient class. Holds all variables required to display ingredients.
+ *  Author: JButler, Date: 1/5/20
+ * (c) CoDev 2020    **/
 public class Ingredient {
 
     private String mName;
-    private String mPortion;
+    private String mPortion; // Amount of each ingredient.
     private int mIcon = -1;
 
+    //  Warning if ingredient isn't converted properly.
     private String mWarning = null;
-    private boolean SHOW_PORTION_CONVERT_WARNING = false;
 
+    /** Basic ingredient creation.
+     * @param mName - Ingredient name.
+     * @param mPortion - Portion amount.
+     */
     public Ingredient(String mName, String mPortion){
         this.mName = mName;
         this.mPortion = mPortion;
     }
 
-    public Ingredient(String mName, String mPortion, String mWarning){
+    /** Mealplanner ingredient creation.
+     * @param mName - Ingredient name.
+     * @param mPortion - Portion amount.
+     * @param mIcon - Ingredient Icon.
+     * @param mWarning - Warning if ingredient isn't converted properly.
+     */
+    public Ingredient(String mName, String mPortion, int mIcon, String mWarning){
         this(mName, mPortion);
         setWarning(mWarning);
-    }
-
-    public Ingredient(String mName, String mPortion, int mIcon, String mWarning){
-        this(mName, mPortion, mWarning);
         this.mIcon = mIcon;
     }
 
