@@ -23,7 +23,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.group4sweng.scranplan.Helper.RecipeHelpers;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchRecyclerAdapter.SearchRecipePreviewData;
@@ -207,9 +206,6 @@ public class SearchListFragment extends AppCompatDialogFragment {
         //Takes ingredient array from snap shot and reformats before being passed through to fragment
         ArrayList<String> ingredientArray = new ArrayList<>();
         HashMap<String, String> ingredientHashMap = (HashMap<String, String>) document.getData().get("Ingredients");
-
-        //  Convert the Firebase ingredientList HashMap into a readable ArrayList format that can be displayed to the user.
-        ingredientArray = RecipeHelpers.convertToIngredientListFormat(ingredientHashMap);
 
         //Creating a bundle so all data needed from firestore query snapshot can be passed through into fragment class
         mBundle = new Bundle();
