@@ -105,7 +105,7 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
     //Checks adding breakfast to the planner is performed correctly
     @Test
     public void dinnerAddToPlanner() throws InterruptedException {
-        Log.d(TAG, "Testing lunch");
+        Log.d(TAG, "Testing dinner");
 
         onView(withText("Meal Planner")).perform(click());
         onView(withId(2)).perform(click());
