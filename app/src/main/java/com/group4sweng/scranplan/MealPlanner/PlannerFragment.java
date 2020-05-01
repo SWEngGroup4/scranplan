@@ -87,8 +87,6 @@ public class PlannerFragment extends Fragment {
             searchView.setVisibility(View.INVISIBLE);
             setSearch();
 
-
-
             //Gets search preferences from home class
             prefs = home.getSearchPrefs();
         }
@@ -169,19 +167,19 @@ public class PlannerFragment extends Fragment {
                 mealTimescaleFragment.setArguments(bundle);
                 mealTimescaleFragment.setTargetFragment(PlannerFragment.this, breakfastRequestCode);
                 fragmentTransaction = getParentFragmentManager().beginTransaction();
-                fragmentTransaction.add(R.id.frameLayout, mealTimescaleFragment); //Overlays fragment on existing one
+                //fragmentTransaction.add(R.id.frameLayout, mealTimescaleFragment); //Overlays fragment on existing one
             }else if (i == 1){
                 mealTimescaleFragment = new MealTimescaleFragment(mUser, 1);
                 mealTimescaleFragment.setArguments(bundle);
                 mealTimescaleFragment.setTargetFragment(PlannerFragment.this, lunchRequestCode);
                 fragmentTransaction = getParentFragmentManager().beginTransaction();
-                fragmentTransaction.add(R.id.frameLayout, mealTimescaleFragment); //Overlays fragment on existing one
+                //fragmentTransaction.add(R.id.frameLayout, mealTimescaleFragment); //Overlays fragment on existing one
             }else if (i == 2){
                 mealTimescaleFragment = new MealTimescaleFragment(mUser, 2);
                 mealTimescaleFragment.setArguments(bundle);
                 mealTimescaleFragment.setTargetFragment(PlannerFragment.this, dinnerRequestCode);
                 fragmentTransaction = getParentFragmentManager().beginTransaction();
-                fragmentTransaction.add(R.id.frameLayout, mealTimescaleFragment); //Overlays fragment on existing one
+                //fragmentTransaction.add(R.id.frameLayout, mealTimescaleFragment); //Overlays fragment on existing one
             }
             fragmentTransaction.commitNow(); //Waits for fragment transaction to be completed
             requireView().setVisibility(View.INVISIBLE); //Sets current fragment invisible
