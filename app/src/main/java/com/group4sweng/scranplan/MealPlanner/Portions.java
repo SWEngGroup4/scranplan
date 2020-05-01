@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  *    Author(s): JButler
  *    (c) CoDev 2020
  **/
-public class Portions implements Warning {
+class Portions implements Warning {
     private final static String TAG = "portions";
     private final static int[] servesAmounts = {1,2,4,6,10,20}; // All possible variants of 'serves' amounts for a Recipe.
     private final static float MAX_SERVINGS_MULTIPLIER = 4f; // Limit to how much we can scale a recipes portions before it is considered in-accurate.
@@ -32,7 +32,7 @@ public class Portions implements Warning {
             "nutmeg", "paprika", "turmeric", "black pepper",  "caraway", "cinnamon", "jalapeno", "mustard seeds", "nutmeg", "saffron", "vanilla essence", "wasabi"};
 
     //  Common Spice text matchers. Ingredient matching must be exact. IE "Ginger Beer" will not work. "Ginger" will.
-    private final static String[] commonSpicesExact = {"ginger", "salt", "cinnamon", "vanilla", "mace"};
+    private final static String[] commonSpicesExact = {"ginger", "salt", "cinnamon", "vanilla", "mace", "thyme"};
 
 
     /** Find the quantity of an ingredient from a string descriptor
