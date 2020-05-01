@@ -18,6 +18,7 @@ import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
@@ -60,7 +61,6 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
         this.recipeImage = (String) map.get("imageURL");
         this.recipeDescription = (String) map.get("recipeDescription");
         this.chefName = (String) map.get("chefName");
-        this.ingredientArray = (ArrayList<String>) map.get("ingredientList");
         this.ingredientHashMap = (HashMap<String, String>) map.get("ingredientHashMap");
         this.recipeRating = (String) map.get("rating");
         this.xmlPresentation = (String) map.get("xmlURL");
@@ -156,7 +156,6 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
 
             TextView name = ingredientView.findViewById(R.id.ingredient_name);
             name.setText(ingredient.getName());
-
             TextView portion = ingredientView.findViewById(R.id.ingredient_portion);
             portion.setText(ingredient.getPortion());
 
@@ -253,7 +252,9 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
 
                         updateIngredientsList();
 
-                        String servesDisplay = "Serves: " + newServings;
+                        DecimalFormat df = new DecimalFormat();
+                        df.setMaximumFractionDigits(0);
+                        String servesDisplay = "Serves: " + df.format(newServings);
                         mServing.setText(servesDisplay);
                         servingAmount = Float.toString(newServings);
 
