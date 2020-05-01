@@ -1,7 +1,6 @@
 package com.group4sweng.scranplan.MealPlanner;
 
 import com.group4sweng.scranplan.Exceptions.PortionConvertException;
-import com.group4sweng.scranplan.MealPlanner.Ingredients.Portions;
 
 import org.junit.Test;
 
@@ -106,7 +105,7 @@ public class PortionsTest {
         assertEquals(600.0f, Portions.retrieveQuantity(scaledIngredients.get("Chopped Tomatoes")), 0.0f);
         assertEquals(6.0f, Portions.retrieveQuantity(scaledIngredients.get("cod fillets")), 0.0f);
         assertEquals(-1.0f, Portions.retrieveQuantity(scaledIngredients.get("thyme")), 0.0f);
-        assertEquals(3.125f, Portions.retrieveQuantity(scaledIngredients.get("pale ale")), 0.0f);
+        assertEquals(3.12f, Portions.retrieveQuantity(scaledIngredients.get("pale ale")), 0.0f);
 
         scaledIngredients = Portions.convertPortions(ingredients, 6, 4);
         assertEquals(267.0f, Portions.retrieveQuantity(scaledIngredients.get("Chopped Tomatoes")), 1.0f);

@@ -47,7 +47,6 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
     @Override
     public void onResume() {
         super.onResume();
-
     }
 
     /**
@@ -204,7 +203,7 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
         //  Build the dialog.
         builder.setView(alertLayout)
                 .setTitle("Change Portion Amounts")
-                .setMessage("Portion amounts are estimated")
+                .setMessage("Portion amounts are estimated \nand cooking instructions will not update with new portions amounts.")
                 .setCancelable(true)
                 .setNegativeButton("Cancel", (dialog, which) -> { //Allow the user to cancel the operation.
                     dialog.cancel();
