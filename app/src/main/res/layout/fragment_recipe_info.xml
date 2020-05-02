@@ -49,28 +49,13 @@
             android:orientation="horizontal"
             app:layout_constraintGuide_begin="458dp" />
 
-        <ImageButton
-            android:id="@+id/ReturnButton"
-            style="@style/Widget.AppCompat.Button"
-            android:layout_width="120dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="4dp"
-            android:src="?attr/actionModeCloseDrawable"
-            android:text="Back"
-            android:textColor="#000000"
-            android:textSize="13sp"
-            app:layout_constraintBottom_toTopOf="@+id/guideline"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.566" />
 
         <CheckBox
             android:id="@+id/addFavorite"
-            android:layout_width="55dp"
-            android:layout_height="58dp"
+            android:layout_width="60dp"
+            android:layout_height="47dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="24dp"
             android:layout_toStartOf="@+id/LetsCook"
             android:layout_toEndOf="@+id/ReturnButton"
             android:background="@drawable/click_favourite"
@@ -80,11 +65,8 @@
             android:maxHeight="60sp"
             android:scaleType="fitCenter"
             android:stateListAnimator="@animator/select"
-            app:layout_constraintBottom_toTopOf="@+id/guideline"
             app:layout_constraintEnd_toStartOf="@+id/LetsCook"
-            app:layout_constraintStart_toEndOf="@+id/ReturnButton"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.666" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <Button
             android:id="@+id/LetsCook"
@@ -92,14 +74,12 @@
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="5dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="24dp"
             android:text="Lets Cook!"
             android:textColor="#FFFFFF"
             android:textSize="13sp"
-            app:layout_constraintBottom_toTopOf="@+id/guideline"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.657"
+            app:layout_constraintEnd_toStartOf="@+id/imageButton"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -140,9 +120,9 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/Title"
             android:layout_alignParentEnd="true"
+            android:layout_marginStart="1dp"
             android:layout_marginTop="12dp"
             android:layout_marginEnd="5dp"
-            android:layout_marginStart="1dp"
             android:layout_toEndOf="@+id/recipeImage"
             android:ems="10"
             android:gravity="left"
@@ -159,9 +139,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/chefName"
+            android:layout_marginStart="1dp"
             android:layout_marginTop="24dp"
             android:layout_marginEnd="112dp"
-            android:layout_marginStart="1dp"
             android:layout_toEndOf="@+id/recipeImage"
             android:numStars="5"
             android:progressTint="@color/colorRatingGold"
@@ -173,18 +153,16 @@
 
         <TextView
             android:id="@+id/serves"
-            android:layout_width="199dp"
-            android:layout_height="35dp"
+            android:layout_width="152dp"
+            android:layout_height="32dp"
             android:layout_below="@+id/ratingBar"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="16dp"
-            android:layout_marginEnd="5dp"
-            android:layout_marginStart="1dp"
             android:layout_toEndOf="@+id/recipeImage"
             android:gravity="left"
             android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.176"
+            app:layout_constraintHorizontal_bias="0.069"
             app:layout_constraintStart_toStartOf="@+id/guideline12"
             app:layout_constraintTop_toBottomOf="@+id/ratingBar" />
 
@@ -330,10 +308,10 @@
             android:id="@+id/mealPlannerLinearLayout"
             android:layout_width="392dp"
             android:layout_height="86dp"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/description"
-            android:visibility="gone">
+            app:layout_constraintTop_toBottomOf="@+id/description">
 
             <LinearLayout
                 android:layout_width="143dp"
@@ -425,8 +403,8 @@
             android:layout_below="@+id/description"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="10dp"
             android:layout_marginStart="5dp"
+            android:layout_marginTop="10dp"
             android:layout_marginEnd="5dp"
             android:background="@color/colorPurpleDark"
             android:textColor="#ffffff"
@@ -481,7 +459,31 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_begin="233dp" />
+            app:layout_constraintGuide_begin="173dp" />
+
+        <ImageButton
+            android:id="@+id/imageButton"
+            android:layout_width="50dp"
+            android:layout_height="51dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="5dp"
+            android:background="@color/colorWindow"
+            android:src="@drawable/vert_menu"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/ReturnButton"
+            android:layout_width="59dp"
+            android:layout_height="49dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="20dp"
+            android:background="@color/colorWindow"
+            android:src="@drawable/vert_arrow_back"
+            app:layout_constraintEnd_toStartOf="@+id/addFavorite"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
