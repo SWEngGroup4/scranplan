@@ -54,8 +54,9 @@
             android:id="@+id/addFavorite"
             android:layout_width="60dp"
             android:layout_height="47dp"
+            android:layout_marginStart="10dp"
             android:layout_marginTop="20dp"
-            android:layout_marginEnd="24dp"
+            android:layout_marginEnd="10dp"
             android:layout_toStartOf="@+id/LetsCook"
             android:layout_toEndOf="@+id/ReturnButton"
             android:background="@drawable/click_favourite"
@@ -66,6 +67,8 @@
             android:scaleType="fitCenter"
             android:stateListAnimator="@animator/select"
             app:layout_constraintEnd_toStartOf="@+id/LetsCook"
+            app:layout_constraintHorizontal_bias="0.423"
+            app:layout_constraintStart_toEndOf="@+id/ReturnButton"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
@@ -75,7 +78,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="20dp"
-            android:layout_marginEnd="24dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="20dp"
             android:text="Lets Cook!"
             android:textColor="#FFFFFF"
             android:textSize="13sp"
@@ -476,12 +480,11 @@
             android:id="@+id/ReturnButton"
             android:layout_width="59dp"
             android:layout_height="49dp"
-            android:layout_marginStart="5dp"
             android:layout_marginTop="20dp"
-            android:background="@color/colorWindow"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="10dp"
+            android:background="@null"
             android:src="@drawable/vert_arrow_back"
-            app:layout_constraintEnd_toStartOf="@+id/addFavorite"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
