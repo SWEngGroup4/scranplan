@@ -7,6 +7,9 @@ import static org.junit.Assert.assertEquals;
 /** Ingredients Class JUnit tests.
  *  Author: JButler
  *  (c) CoDev 2020
+ *
+ *  -- USER STORY TESTS LINKED WITH ---
+ *  C34 , A14
  */
 public class IngredientTest {
 

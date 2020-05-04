@@ -16,7 +16,7 @@ import static org.junit.Assert.assertNull;
  * (c) CoDev 2020
  *
  * -- USER STORY TESTS LINKED WITH ---
- *  C34
+ *  C34 , A14
  */
 public class PortionsTest {
     private HashMap<String, String> ingredients = new HashMap<>();
