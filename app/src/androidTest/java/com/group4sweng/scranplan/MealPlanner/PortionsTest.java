@@ -36,6 +36,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
  *  - Ingredients list displays warnings for appropriate ingredients when changing portions.
  *  - Portion conversions are displayed properly within the LinearLayout.
  *
+ * -- USER STORY TESTS LINKED WITH ---
+ *   C34 , A14
  **/
 public class PortionsTest implements Credentials {
 
