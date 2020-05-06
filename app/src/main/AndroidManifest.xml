@@ -19,7 +19,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".PostPage"></activity>
+        <activity android:name=".Social.PostPage"></activity>
         <activity android:name=".PublicProfile"
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity android:name=".ProfileSettings" />

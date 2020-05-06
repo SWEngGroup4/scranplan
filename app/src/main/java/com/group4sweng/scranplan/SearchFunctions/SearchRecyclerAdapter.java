@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.group4sweng.scranplan.R;
+import com.group4sweng.scranplan.Social.ProfileRecipes;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -25,6 +26,7 @@ public class SearchRecyclerAdapter extends RecyclerView.Adapter<SearchRecyclerAd
 
     // Variables for database and fragment to be displayed in
     private SearchListFragment mSearchListFragment;
+    private ProfileRecipes mProfileRecipes;
     private List<SearchRecipePreviewData> mDataset;
 
     public static class SearchRecipePreviewData {
@@ -78,6 +80,16 @@ public class SearchRecyclerAdapter extends RecyclerView.Adapter<SearchRecyclerAd
     }
 
     /**
+     * Constructor to add all variables
+     * @param profileRecipes
+     * @param dataset
+     */
+    public SearchRecyclerAdapter (ProfileRecipes profileRecipes, List<SearchRecipePreviewData> dataset) {
+        mProfileRecipes = profileRecipes;
+        mDataset = dataset;
+    }
+
+    /**
      * Building and inflating the view within its parent
      * @param parent
      * @param viewType
@@ -96,22 +108,27 @@ public class SearchRecyclerAdapter extends RecyclerView.Adapter<SearchRecyclerAd
      */
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
+        Picasso.get().load(mDataset.get(position).imageURL).into(holder.imageView);
         String cap = mDataset.get(position).title;
         holder.title.setText(cap.substring(0, 1).toUpperCase() + cap.substring(1));
         holder.description.setText(mDataset.get(position).description);
-        Picasso.get().load(mDataset.get(position).imageURL).into(holder.imageView);
+
+
 
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(mSearchListFragment != null){
                     mSearchListFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
+                }else if(mProfileRecipes != null){
+                    mProfileRecipes.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
                 }else{
                     Log.e("SEARCH RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
                 }
 
             }
         });
+
     }
 
     // Getting dataset size

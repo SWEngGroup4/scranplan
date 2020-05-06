@@ -9,7 +9,6 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
-import androidx.test.espresso.action.ViewActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
@@ -26,25 +25,21 @@ import org.junit.runner.RunWith;
 import java.util.HashMap;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.pressKey;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.RootMatchers.withDecorView;
-import static androidx.test.espresso.matcher.ViewMatchers.hasFocus;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withHint;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 
-/** Test the Home Activity.
+/**
+ *
+ * Test the Feed Fragment.
  * Author(s): LNewman
  * (c) CoDev 2020
  *
@@ -53,15 +48,15 @@ import static org.junit.Assert.assertNotEquals;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class HomeTest{
+public class FeedTest {
 
     //  Android Log tag.
     String TAG = "homeTest";
 
     private UserInfoPrivate testUser;
 
-    //  Default test values.
-    private static final String TEST_EMAIL = "louisnewman@live.co.uk";
+    //  Default test values
+    private static final String TEST_EMAIL = "lifn@york.ac.uk";
     private static String TEST_PASSWORD = "password";
 
     //  How long we should sleep when waiting for Firebase information to update. Increase this value if you have a slower machine or emulator.

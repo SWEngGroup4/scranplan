@@ -21,6 +21,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.RatingBar;
 import android.widget.SearchView;
 import android.widget.Space;
@@ -28,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -54,7 +56,6 @@ import com.group4sweng.scranplan.Home;
 import com.group4sweng.scranplan.LoadingDialog;
 import com.group4sweng.scranplan.MealPlanner.PlannerInfoFragment;
 import com.group4sweng.scranplan.MealPlanner.PlannerListFragment;
-import com.group4sweng.scranplan.PostPage;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
@@ -112,13 +113,15 @@ public class FeedFragment extends Fragment {
     CheckBox mPostReview;
     CheckBox mPostPic;
     EditText mPostBodyInput;
-    Space mPicSpacer;
 
     ImageView mAttachedRecipeImage;
     TextView mAttachedRecipeTitle;
     TextView mAttachedRecipeInfo;
     String attachedRecipeURL;
     String recipeID;
+
+    ConstraintLayout mUserUploadedImageViewLayout;
+    ConstraintLayout mPostRecipeImageViewLayout;
 
     View mainView;
 
@@ -212,7 +215,7 @@ public class FeedFragment extends Fragment {
         return view;
     }
 
-    private void addPosts(View view){
+    void addPosts(View view){
         final RecyclerView recyclerView = view.findViewById(R.id.postsList);
         // Set out the layout of this horizontal view
         RecyclerView.LayoutManager rManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
@@ -220,9 +223,9 @@ public class FeedFragment extends Fragment {
         //recyclerView.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels));
         // Array to score downloaded data
         data = new ArrayList<>();
-        final RecyclerView.Adapter rAdapter = new FeedRecyclerAdapter(FeedFragment.this, data, user);
+        final RecyclerView.Adapter rAdapter = new FeedRecyclerAdapter(FeedFragment.this, data, user, view);
         recyclerView.setAdapter(rAdapter);
-        query = mColRef.whereArrayContains("users", user.getUID()).orderBy("lastPost", Query.Direction.DESCENDING).limit(10);
+        query = mColRef.whereArrayContains("users", user.getUID()).orderBy("lastPost", Query.Direction.DESCENDING).limit(5);
         // Ensure query exists and builds view with query
         if (query != null) {
             Log.e(TAG, "User is searching the following query: " + query.toString());
@@ -300,18 +303,9 @@ public class FeedFragment extends Fragment {
                                         @Override
                                         public void onComplete(@NonNull Task<QuerySnapshot> t) {
                                             if (t.isSuccessful()) {
-//                                                    for (DocumentSnapshot d : t.getResult()) {
-//                                                        data.add(new FeedRecyclerAdapter.FeedPostPreviewData(
-//                                                                d,
-//                                                                d.getId(),
-//                                                                d.get("imageURL").toString()
-//                                                        ));
-//                                                    }
                                                 ArrayList<HashMap> postsNext = new ArrayList<>();
                                                 for (DocumentSnapshot d : t.getResult()) {
-//                                                        posts.add((HashMap)document.get("recent"));
                                                     Log.e("FEED", "I have found a doc");
-                                                    //posts.addAll((ArrayList)document.get("recent"));
                                                     String first = (String) d.get("space1");
                                                     String second = (String) d.get("space2");
                                                     String third = (String) d.get("space3");
@@ -381,12 +375,13 @@ public class FeedFragment extends Fragment {
         mPostPic = (CheckBox) v.findViewById(R.id.imageIcon);
         mPostBodyInput = v.findViewById(R.id.postBodyInput);
         mUploadedImage = v.findViewById(R.id.userUploadedImageView);
-        mPicSpacer = v.findViewById(R.id.picSpacer);
         mAttachedRecipeImage = v.findViewById(R.id.postRecipeImageView);
         mAttachedRecipeTitle = v.findViewById(R.id.postRecipeTitle);
         mAttachedRecipeInfo =  v.findViewById(R.id.postRecipeDescription);
         mAttachedRecipeReview = v.findViewById(R.id.postRecipeRating);
         mRecipeRatingText = v.findViewById(R.id.recipeRate);
+        mUserUploadedImageViewLayout = v.findViewById(R.id.userUploadedImageViewLayout);
+        mPostRecipeImageViewLayout = v.findViewById(R.id.postRecipeImageViewLayout);
 
 
     }
@@ -439,6 +434,7 @@ public class FeedFragment extends Fragment {
                     }
                 } else {
                     mUploadedImage.setVisibility(View.GONE);
+                    mUserUploadedImageViewLayout.setVisibility(View.GONE);
                 }
             }
         });
@@ -466,16 +462,9 @@ public class FeedFragment extends Fragment {
                 map.put("isReview", mPostReview.isChecked());
                 if(mPostPic.isChecked()){
                     try {
-                        //uploadImage(mImageUri); // Attempt to upload the image in storage to Firebase.
-                        checkImage(mImageUri); // Check the image doesn't throw any exceptions
-
-                         // State that the image is still uploading and therefore we shouldn't save a reference on firebase to it yet.
-
-                        /*  Create a unique reference of the format. 'image/profile/[UNIQUE UID]/profile_image.[EXTENSION].
-                            Whereby [UNIQUE UID] = the Unique id of the user, [EXTENSION] = file image extension. E.g. .jpg,.png. */
-                        StorageReference mImageStorage = mStorageReference.child("images/posts/" + user.getUID() + "/IMAGEID" + (user.getPosts()+1)); //todo input image id
-
-                        //  Check if the upload fails
+                        checkImage(mImageUri);
+                        StorageReference mImageStorage = mStorageReference.child("images/posts/" + user.getUID() + "/IMAGEID" + (user.getPosts()+1));
+                        user.setPosts(user.getPosts()+1);
                         mImageStorage.putFile(mImageUri).addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Failed to upload profile image.", Toast.LENGTH_SHORT).show()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                             @Override
                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -490,7 +479,6 @@ public class FeedFragment extends Fragment {
                                             map.put("recipeReview", ratingNum);
                                         }
                                     }
-                                    // Saving default user to Firebase Firestore database
                                     extras.putAll(map);
                                     ref.add(extras).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                                                                            @Override
@@ -571,8 +559,9 @@ public class FeedFragment extends Fragment {
                         });
                     } catch (ImageException e) {
                         Log.e(TAG, "Failed to upload photo to Firebase");
-                        Toast.makeText(getApplicationContext(),"Failed to upload photo to Firebase, please try again.",Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(getApplicationContext(),"Failed to upload photo to Firebase, please try again.",Toast.LENGTH_SHORT).show();
                         e.printStackTrace();
+                        loadingDialog.dismissDialog();
                         return;
                     }
                 }else {
@@ -689,9 +678,9 @@ public class FeedFragment extends Fragment {
                     }
                 } else {
                     mAttachedRecipeImage.setVisibility(View.GONE);
+                    mPostRecipeImageViewLayout.setVisibility(View.GONE);
                     mAttachedRecipeInfo.setVisibility(View.GONE);
                     mAttachedRecipeTitle.setVisibility(View.GONE);
-                    mPicSpacer.setVisibility(View.GONE);
                     mPostReview.setChecked(false);
                 }
             }
@@ -759,20 +748,16 @@ public class FeedFragment extends Fragment {
                         .apply(RequestOptions.centerCropTransform())
                         .into(mUploadedImage);
                 mUploadedImage.setVisibility(View.VISIBLE);
+                mUserUploadedImageViewLayout.setVisibility(View.VISIBLE);
+                mPostRecipeImageViewLayout.setVisibility(View.VISIBLE);
                 mPostPic.setChecked(true);
                 if(mPostRecipe.isChecked()){
-                    mPicSpacer.setVisibility(View.VISIBLE);
                     DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
                     mUploadedImage.setMaxWidth(displayMetrics.widthPixels/2-20);
                     mAttachedRecipeImage.setMaxWidth(displayMetrics.widthPixels/2-20);
 
-//                    if(mUploadedImage.getWidth() > mAttachedRecipeImage.()){
-//                        mUploadedImage.setMaxHeight(mAttachedRecipeImage.getHeight());
-//                    }else{
-//                        mAttachedRecipeImage.setMaxHeight(mUploadedImage.getHeight());
-//                    }
                 }else {
-                    mPicSpacer.setVisibility(View.GONE);
+
                 }
             }else{
                 mPostPic.setChecked(false);
@@ -811,19 +796,11 @@ public class FeedFragment extends Fragment {
                 mAttachedRecipeTitle.setVisibility(View.VISIBLE);
                 mAttachedRecipeInfo.setVisibility(View.VISIBLE);
                 mAttachedRecipeImage.setVisibility(View.VISIBLE);
+                mPostRecipeImageViewLayout.setVisibility(View.VISIBLE);
                 if(mPostPic.isChecked()){
-                    mPicSpacer.setVisibility(View.VISIBLE);
                     DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
                     mUploadedImage.setMaxWidth(displayMetrics.widthPixels/2-20);
                     mAttachedRecipeImage.setMaxWidth(displayMetrics.widthPixels/2-20);
-//                    if(mUploadedImage.getHeight() > mAttachedRecipeImage.getHeight()){
-//                        mUploadedImage.setMaxHeight(mAttachedRecipeImage.getHeight());
-//                    }else{
-//                        mAttachedRecipeImage.setMaxHeight(mUploadedImage.getHeight());
-//                    }
-
-                }else{
-                    mPicSpacer.setVisibility(View.GONE);
                 }
 
                 //Removes recipe fragment overlay and makes planner fragment visible
@@ -870,36 +847,7 @@ public class FeedFragment extends Fragment {
         }
     }
 
-//    /** Upload the image to Firebase. Initiated before saving preferences if the format and size is supported to give some time for the app to upload the image.
-//     *  Does not update the users reference to the image. This is updated after saving the users preferences.
-//     *
-//     * @param uri - The unique uri of the image file location from the users storage.
-//     * @throws ImageException - Thrown if URL cannot be retrieved. This will only fail if there is a reference to a blank file.
-//     *  In normal operation this shouldn't happen.
-//     */
-//    private void uploadImage(Uri uri) throws ImageException {
-//        checkImage(uri); // Check the image doesn't throw any exceptions
-//
-//        POST_IS_UPLOADING = true; // State that the image is still uploading and therefore we shouldn't save a reference on firebase to it yet.
-//
-//        /*  Create a unique reference of the format. 'image/profile/[UNIQUE UID]/profile_image.[EXTENSION].
-//            Whereby [UNIQUE UID] = the Unique id of the user, [EXTENSION] = file image extension. E.g. .jpg,.png. */
-//        StorageReference mImageStorage = mStorageReference.child("images/posts/" + user.getUID() + "/IMAGEID" + (user.getPosts()+1)); //todo input image id
-//
-//        //  Check if the upload fails
-//        mImageStorage.putFile(uri).addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Failed to upload profile image.", Toast.LENGTH_SHORT).show()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-//            @Override
-//            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-//                mImageStorage.getDownloadUrl().addOnSuccessListener(locationUri -> { // Successful upload.
-//                    // TODO set image URL for post - only save when uploading post
-//                    //uploadedImageURL = locationUri.toString(); // Update the UserInfoPrivate class with this new image URL.
-//                    POST_IS_UPLOADING = false; // State we have finished uploading (a reference exists).
-//                }).addOnFailureListener(e -> {
-//                    throw new RuntimeException("Unable to grab image URL from Firebase for image URL being uploaded currently. This shouldn't happen.");
-//                });
-//            }
-//        });
-//    }
+
 
     //Opens info dialog for selected recipe
     private void openRecipeInfo(HashMap<String, Object> map) {
@@ -945,40 +893,231 @@ public class FeedFragment extends Fragment {
      * On click of a recipe a new recipe info fragment is opened and the document is sent through
      * This saves on downloading the data again from the database
      */
-    public void itemSelected(Map<String, Object> document, Bundle mBundle,TextView likes, CheckBox likedOrNot, TextView numComments) {
+    public void itemSelected(Map<String, Object> document, Bundle mBundle,TextView likes, CheckBox likedOrNot, TextView numComments, View view) {
 
-        PostPage postDialogFragment = new PostPage(likes, likedOrNot, numComments);
+        PostPage postDialogFragment = new PostPage(likes, likedOrNot, numComments, view);
         postDialogFragment.setArguments(mBundle);
         postDialogFragment.setTargetFragment(this, 1);
         postDialogFragment.show(getFragmentManager(), "Show post dialog fragment");
 
-        //Takes ingredient array from snap shot and reformats before being passed through to fragment
-//        ArrayList<String> ingredientArray = new ArrayList<>();
-//
-//        Map<String, Map<String, Object>> test = (Map) document.getData().get("Ingredients");
-//        Iterator hmIterator = test.entrySet().iterator();
-//
-//        while (hmIterator.hasNext()) {
-//            Map.Entry mapElement = (Map.Entry) hmIterator.next();
-//            String string = mapElement.getKey().toString() + ": " + mapElement.getValue().toString();
-//            ingredientArray.add(string);
-//        }
-//
-//        //Creating a bundle so all data needed from firestore query snapshot can be passed through into fragment class
-//        Bundle bundle = new Bundle();
-//        bundle.putStringArrayList("ingredientList", ingredientArray);
-//        bundle.putString("recipeID", document.getId());
-//        bundle.putString("xmlURL", document.get("xml_url").toString());
-//        bundle.putString("recipeTitle", document.get("Name").toString());
-//        bundle.putString("rating", document.get("score").toString());
-//        bundle.putString("imageURL", document.get("imageURL").toString());
-//        bundle.putString("recipeDescription", document.get("Description").toString());
-//        bundle.putString("chefName", document.get("Chef").toString());
-//        bundle.putSerializable("user", user);
-//
-//
-//        RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
-//        recipeDialogFragment.setArguments(bundle);
-//        recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");
     }
+
+
+    /**
+     * This method checks what comment is selected and opens up a menu to either open up another
+     * users profile or if the comment was made my this user, user can delete the comment.
+     * @param document
+     * @param anchor
+     */
+    public void menuSelected(HashMap document, View anchor, View view){
+        //Creating the instance of PopupMenu
+        PopupMenu popup = new PopupMenu(getContext(), anchor);
+        //Inflating the Popup using xml file
+        popup.getMenuInflater().inflate(R.menu.menu_comment, popup.getMenu());
+        if(document.get("author").toString().equals(user.getUID())){
+            popup.getMenu().getItem(0).setVisible(false);
+            popup.getMenu().getItem(1).setVisible(false);
+            popup.getMenu().getItem(2).setVisible(true);
+        }else{
+            popup.getMenu().getItem(0).setVisible(true);
+            popup.getMenu().getItem(1).setVisible(true);
+            popup.getMenu().getItem(2).setVisible(false);
+        }
+
+        //registering popup with OnMenuItemClickListener
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            public boolean onMenuItemClick(
+                    MenuItem item) {
+                // Give each item functionality
+                switch (item.getItemId()) {
+                    case R.id.viewCommentProfile:
+                        Log.e(TAG,"Clicked open profile!");
+                        //TODO add functionality to open users profile in new fragment
+                        break;
+                    case R.id.reportComment:
+                        Log.e(TAG,"Report comment clicked!");
+                        //TODO add functionality to report this comment
+                        break;
+                    case R.id.deleteComment:
+                        Log.e(TAG,"Clicked delete comment!");
+                        final String deleteDocID = (String) document.get("docID");
+                        deletePost(deleteDocID);
+
+                        break;
+                }
+                return true;
+            }
+        });
+
+        popup.show();//showing popup menu
+    }
+
+    public void deletePost(String deleteDocID){
+//        loadingDialog.startLoadingDialog();
+        mDatabase.collection("followers").document(user.getUID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()){
+                    if(task.getResult().exists()){
+                        // Add post to followers map
+                        DocumentSnapshot doc = task.getResult();
+                        if(((HashMap)doc.get("mapA")) != null){
+                            if(((HashMap)doc.get("mapA")).get("docID").equals(deleteDocID)){
+                                String map = "mapA";
+                                mDatabase.collection("followers").document(user.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                //TODO reduce number of posts on profile by 1
+                                                mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
+                                                addPosts(mainView);
+//                                                loadingDialog.dismissDialog();
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        }else if(((HashMap)doc.get("mapB")) != null){
+                            if(((HashMap)doc.get("mapB")).get("docID").equals(deleteDocID)){
+                                String map = "mapB";
+                                mDatabase.collection("followers").document(user.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                //TODO reduce number of posts on profile by 1
+                                                mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
+                                                addPosts(mainView);
+//                                                loadingDialog.dismissDialog();
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        }else if(((HashMap)doc.get("mapC")) != null){
+                            if(((HashMap)doc.get("mapC")).get("docID").equals(deleteDocID)){
+                                String map = "mapC";
+                                mDatabase.collection("followers").document(user.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                //TODO reduce number of posts on profile by 1
+                                                mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
+                                                addPosts(mainView);
+//                                                loadingDialog.dismissDialog();
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        }else{
+                            mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    //TODO reduce number of posts on profile by 1
+                                    mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
+                                    addPosts(mainView);
+//                                    loadingDialog.dismissDialog();
+                                }
+                            });
+                        }
+                    }else{
+                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                //TODO reduce number of posts on profile by 1
+                                mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
+                                addPosts(mainView);
+//                                loadingDialog.dismissDialog();
+                            }
+                        });
+                    }
+                }
+            }
+        });
+    }
+
+
+//    public void deletePost(String deleteDocID){
+//        loadingDialog.startLoadingDialog();
+//        mDatabase.collection("followers").document(user.getUID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//            @Override
+//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                if(task.isSuccessful()){
+//                    if(task.getResult().exists()){
+//                        // Add post to followers map
+//                        DocumentSnapshot doc = task.getResult();
+//                        if(((HashMap)doc.get("mapA")).get("docID").equals(deleteDocID)){
+//                            String map = "mapA";
+//                            mDatabase.collection("followers").document(user.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
+//                                @Override
+//                                public void onComplete(@NonNull Task<Void> task) {
+//                                    mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+//                                        @Override
+//                                        public void onComplete(@NonNull Task<Void> task) {
+//                                            //TODO reduce number of posts on profile by 1
+//                                            mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
+//                                        }
+//                                    });
+//                                    loadingDialog.dismissDialog();
+//                                }
+//                            });
+//                        }else if(((HashMap)doc.get("mapB")).get("docID").equals(deleteDocID)){
+//                            String map = "mapB";
+//                            mDatabase.collection("followers").document(user.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
+//                                @Override
+//                                public void onComplete(@NonNull Task<Void> task) {
+//                                    mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+//                                        @Override
+//                                        public void onComplete(@NonNull Task<Void> task) {
+//                                            //TODO reduce number of posts on profile by 1
+//                                            mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
+//                                        }
+//                                    });
+//                                    loadingDialog.dismissDialog();
+//                                }
+//                            });
+//                        }else if(((HashMap)doc.get("mapC")).get("docID").equals(deleteDocID)){
+//                            String map = "mapC";
+//                            mDatabase.collection("followers").document(user.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
+//                                @Override
+//                                public void onComplete(@NonNull Task<Void> task) {
+//                                    mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+//                                        @Override
+//                                        public void onComplete(@NonNull Task<Void> task) {
+//                                            //TODO reduce number of posts on profile by 1
+//                                            mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
+//                                        }
+//                                    });
+//                                    loadingDialog.dismissDialog();
+//                                }
+//                            });
+//                        }else{
+//                            mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+//                                @Override
+//                                public void onComplete(@NonNull Task<Void> task) {
+//                                    //TODO reduce number of posts on profile by 1
+//                                    mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
+//                                }
+//                            });
+//                        }
+//                    }else{
+//                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+//                            @Override
+//                            public void onComplete(@NonNull Task<Void> task) {
+//                                //TODO reduce number of posts on profile by 1
+//                                mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
+//                            }
+//                        });
+//                        loadingDialog.startLoadingDialog();
+//                    }
+//                }
+//            }
+//        });
+//    }
 }

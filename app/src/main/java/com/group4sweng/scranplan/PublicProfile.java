@@ -28,7 +28,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.MealPlanner.PlannerFragment;
 import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.Social.FeedFragment;
+import com.group4sweng.scranplan.Social.ProfilePictures;
 import com.group4sweng.scranplan.Social.ProfilePosts;
+import com.group4sweng.scranplan.Social.ProfileRecipes;
 import com.group4sweng.scranplan.UserInfo.FilterType;
 import com.group4sweng.scranplan.UserInfo.Kudos;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
@@ -96,14 +98,6 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         setContentView(R.layout.activity_public_profile);
 
         initPageItems();
-        //TODO add method to pass intent with a valid UID string.
-
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
         //  Gets extra string UID attached when an intent is sent.
         UID = getIntent().getStringExtra("UID");
 
@@ -125,8 +119,14 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         }
         fragment = new ProfilePosts(searchers);
         fragmentTransaction.replace(R.id.profileFrameLayout, fragment);
-        fragmentTransaction.commit ();
+        fragmentTransaction.commit();
         initPageListeners();
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
     }
 
     private void initPageItems(){
@@ -158,10 +158,10 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                     case 1:
                         if (fragment.getClass() == RecipeFragment.class) fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         else fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
-                        fragment = new ProfilePosts(searchers);
+                        fragment = new ProfilePictures(searchers, mUsername.getText().toString());
                         break;
                     case 2:
-                        fragment = new ProfilePosts(searchers);
+                        fragment = new ProfileRecipes(searchers);
                         fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         break;
                 }
