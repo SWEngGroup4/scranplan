@@ -1,10 +1,17 @@
-package com.group4sweng.scranplan;
+package com.group4sweng.scranplan.Helper;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.Espresso;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
+import com.group4sweng.scranplan.Credentials;
+import com.group4sweng.scranplan.EspressoHelper;
+import com.group4sweng.scranplan.Login;
+import com.group4sweng.scranplan.R;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,22 +23,26 @@ import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
+
+/** Test Hidden Views.
+ *
+ *  -- USER STORY TESTS LINKED WITH ---
+ *  C35
+ */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class HiddenViewsTest {
+public class HiddenViewsTest implements Credentials {
 
     @Before
     public void setUp() throws InterruptedException {
 
         // Test credentials & keyword
-        String TEST_EMAIL = "jb2200@york.ac.uk";
-        String TEST_PASSWORD = "password";
         String KEYWORD = "AccioLogin2020";
         int THREAD_SLEEP_TIME = 4000; // Time to sleep in milliseconds
 
         ActivityScenario.launch(Login.class); //Launch the login screen
 
-        onView(withId(R.id.loginButton))
+        onView(ViewMatchers.withId(R.id.loginButton))
                 .perform(click());
 
         onView(withId(R.id.emailEditText))
@@ -45,7 +56,7 @@ public class HiddenViewsTest {
 
         Thread.sleep(THREAD_SLEEP_TIME);
 
-        RecordedEspressoHelper.openSideBar(RecordedEspressoHelper.SideBarElement.EDIT_PROFILE);
+        EspressoHelper.openSideBar(EspressoHelper.SideBarElement.EDIT_PROFILE);
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
@@ -66,4 +77,8 @@ public class HiddenViewsTest {
     public void testGoesToView() {
     }
 
+    @After
+    public void tearDown() throws Exception {
+        EspressoHelper.shouldSkip = false;
+    }
 }

@@ -266,6 +266,13 @@
                     android:visibility="gone" />
             </LinearLayout>
         </HorizontalScrollView>
+            <LinearLayout
+                android:id="@+id/ingredient_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+            </LinearLayout>
+        </FrameLayout>
 
         <TextView
             android:id="@+id/description"
@@ -300,6 +307,19 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintGuide_begin="547dp" />
+
+    <Button
+        android:id="@+id/changePortions"
+        android:layout_width="150dp"
+        style="@style/Widget.AppCompat.Button.Small"
+        android:layout_height="35dp"
+        android:layout_below="@+id/serves"
+        android:layout_marginStart="0dp"
+        android:layout_marginEnd="5dp"
+        android:layout_toEndOf="@+id/recipeImage"
+        android:text="Change portions"
+        android:textSize="12sp"
+        android:textColor="#000000" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline11"

@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -30,6 +31,11 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.group4sweng.scranplan.Home;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
+import com.group4sweng.scranplan.SearchFunctions.HomeQueries;
+import com.group4sweng.scranplan.SearchFunctions.HomeRecyclerAdapter;
+import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
+import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
+import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.ArrayList;
@@ -119,6 +125,17 @@ public class RecipeFragment extends Fragment {
             }
         }
         else planner = false;
+
+        if (planner) {
+
+            TextView title = view.findViewById(R.id.recipeFragmentTitle);
+            ImageButton returnButton = view.findViewById(R.id.recipeFragmentReturnButton);
+            title.setVisibility(View.VISIBLE);
+            returnButton.setVisibility(View.VISIBLE);
+            returnButton.setOnClickListener(v ->
+                    getTargetFragment().onActivityResult(getTargetRequestCode(),
+                            Activity.RESULT_CANCELED, null));
+        }
 
         Home home = (Home) getActivity();
 
@@ -607,11 +624,14 @@ public class RecipeFragment extends Fragment {
             String string = mapElement.getKey().toString() + ": " + mapElement.getValue().toString();
             ingredientArray.add(string);
         }
+        //Takes ingredient HashMap from the snapshot.
+        HashMap<String, String> ingredientHashMap = (HashMap<String, String>) document.getData().get("Ingredients");
 
 
 
         //Creating a bundle so all data needed from firestore query snapshot can be passed through into fragment class
         mBundle = new Bundle();
+        mBundle.putSerializable("ingredientHashMap", ingredientHashMap);
         mBundle.putStringArrayList("ingredientList", ingredientArray);
         mBundle.putSerializable("ratingMap", ratingResults);
         mBundle.putString("recipeID", document.getId());
@@ -637,8 +657,7 @@ public class RecipeFragment extends Fragment {
         mBundle.putBoolean("vegetarian", document.getBoolean("vegetarian"));
 
         ArrayList faves = (ArrayList) document.get("favourite");
-        mBundle.putBoolean("isFav", faves.contains(user.getUID()));
-
+        mBundle.putBoolean("isFav", faves.contains(user.getUID().hashCode()));
 
         RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
         recipeDialogFragment.setArguments(mBundle);

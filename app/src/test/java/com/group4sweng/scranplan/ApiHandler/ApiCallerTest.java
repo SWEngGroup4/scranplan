@@ -1,4 +1,4 @@
-package com.group4sweng.scranplan.APIHandler;
+package com.group4sweng.scranplan.ApiHandler;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -11,7 +11,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(MockitoJUnitRunner.class)
-public class APICallerTest {
+public class ApiCallerTest {
 
     @Before public void setUp() throws Exception{
         initMocks(this);

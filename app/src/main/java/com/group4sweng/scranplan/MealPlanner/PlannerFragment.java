@@ -23,6 +23,7 @@ import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
+import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -55,6 +56,10 @@ public class PlannerFragment extends Fragment {
     private SearchView searchView;
     private MenuItem sortButton;
 
+    private Integer recipeFragmentRequest = 1;
+
+    public PlannerFragment(UserInfoPrivate userSent){mUser = userSent;}
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +72,6 @@ public class PlannerFragment extends Fragment {
         final View view = inflater.inflate(R.layout.fragment_planner, container, false);
 
         //Grabs user and user's meal planner
-        mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
         if (mUser != null) plannerList = mUser.getMealPlanner();
 
         Home home = (Home) getActivity();
@@ -139,14 +143,15 @@ public class PlannerFragment extends Fragment {
 
     //Opens list fragment on searching
     private void openRecipeDialog(SearchQuery query) {
-        //Creates and launches fragment with required query
+        // Creates and launches fragment with required query
         PlannerListFragment plannerListFragment = new PlannerListFragment(mUser);
         plannerListFragment.setValue(query.getQuery());
+        plannerListFragment.setIndex(query.getIndex());
         plannerListFragment.setTargetFragment(this, 1);
         plannerListFragment.show(getParentFragmentManager(), "search");
     }
 
-    //Sets default paramters for buttons
+    // Sets default parameters for buttons
     private void defaultButton(final ImageButton imageButton) {
         imageButton.setImageResource(R.drawable.add); //Default image
         imageButton.setOnClickListener(v -> {
@@ -157,7 +162,7 @@ public class PlannerFragment extends Fragment {
             //Creates and launches recipe fragment
             recipeFragment = new RecipeFragment(mUser);
             recipeFragment.setArguments(bundle);
-            recipeFragment.setTargetFragment(PlannerFragment.this, 1);
+            recipeFragment.setTargetFragment(PlannerFragment.this, recipeFragmentRequest);
             fragmentTransaction = getParentFragmentManager().beginTransaction();
             fragmentTransaction.add(R.id.frameLayout, recipeFragment); //Overlays fragment on existing one
             fragmentTransaction.commitNow(); //Waits for fragment transaction to be completed
@@ -190,48 +195,55 @@ public class PlannerFragment extends Fragment {
     //Handles child fragment exit results
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK) {
-            Bundle bundle = data.getExtras();
+        if (requestCode == recipeFragmentRequest) {
+            if (resultCode == Activity.RESULT_OK) {
+                Bundle bundle = data.getExtras();
 
-            //Hides menu options
-            sortButton.setVisible(false);
+                //Hides menu options
+                sortButton.setVisible(false);
 
-            //Clears search view
-            searchView.clearFocus();
-            searchView.onActionViewCollapsed();
-            searchView.setVisibility(View.INVISIBLE);
+                //Clears search view
+                searchView.clearFocus();
+                searchView.onActionViewCollapsed();
+                searchView.setVisibility(View.INVISIBLE);
 
-            //Compiles bundle into a hashmap object for serialization
-            final HashMap<String, Object> map = new HashMap<>();
-            if (bundle != null) {
-                for (String key : bundle.keySet()) {
-                    map.put(key, bundle.get(key));
+                //Compiles bundle into a hashmap object for serialization
+                final HashMap<String, Object> map = new HashMap<>();
+                if (bundle != null) {
+                    for (String key : bundle.keySet()) {
+                        map.put(key, bundle.get(key));
+                    }
+
+                    //  Adds the ingredient Hash Map
+                    HashMap<String, String> ingredientHashMap = (HashMap<String, String>) data.getSerializableExtra("ingredientHashMap");
+                    if(ingredientHashMap != null){ map.put("ingredientHashMap", ingredientHashMap); }
+
+                    //Sets new listener for inserted recipe to open info fragment
+                    currentSelection.setOnClickListener(v -> openRecipeInfo(map));
+
+                    //Loads recipe image
+                    Picasso.get().load(bundle.getString("imageURL")).into(currentSelection);
+
+                    //Sets and updates user planner
+                    plannerList.set(currentSelection.getId(), map);
+                    mUser.setMealPlanner(plannerList);
+                    updateMealPlan();
                 }
-
-                //Sets new listener for inserted recipe to open info fragment
-                currentSelection.setOnClickListener(v -> openRecipeInfo(map));
-
-                //Loads recipe image
-                Picasso.get().load(bundle.getString("imageURL")).into(currentSelection);
-
-                //Removes recipe fragment overlay and makes planner fragment visible
-                fragmentTransaction = getParentFragmentManager().beginTransaction();
-                fragmentTransaction.remove(recipeFragment).commitNow();
-                requireView().setVisibility(View.VISIBLE);
-
-                //Sets and updates user planner
-                plannerList.set(currentSelection.getId(), map);
-                mUser.setMealPlanner(plannerList);
-                updateMealPlan();
             }
+            //Removes recipe fragment overlay and makes planner fragment visible
+            fragmentTransaction = getParentFragmentManager().beginTransaction();
+            fragmentTransaction.remove(recipeFragment).commitNow();
+            requireView().setVisibility(View.VISIBLE);
         }
     }
 
     //Quick function to reset search menu functionality
     private void setSearch() {
+        Home home = (Home) getActivity();
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
+                prefs = home.getSearchPrefs();
                 SearchQuery query = new SearchQuery( s, prefs);
                 openRecipeDialog(query);
                 return false;

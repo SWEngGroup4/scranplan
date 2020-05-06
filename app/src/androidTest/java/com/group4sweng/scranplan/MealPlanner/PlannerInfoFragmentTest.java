@@ -1,13 +1,18 @@
-package com.group4sweng.scranplan;
+package com.group4sweng.scranplan.MealPlanner;
 
 import android.util.Log;
-import android.view.KeyEvent;
-import android.widget.SearchView;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.Espresso;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
+
+import com.group4sweng.scranplan.Credentials;
+import com.group4sweng.scranplan.EspressoHelper;
+import com.group4sweng.scranplan.Home;
+import com.group4sweng.scranplan.Login;
+import com.group4sweng.scranplan.R;
 
 import org.junit.After;
 import org.junit.Before;
@@ -19,18 +24,20 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.longClick;
 import static androidx.test.espresso.action.ViewActions.pressBack;
-import static androidx.test.espresso.action.ViewActions.pressKey;
 import static androidx.test.espresso.action.ViewActions.typeText;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static com.group4sweng.scranplan.HomeTest.typeSearchViewText;
+import static com.group4sweng.scranplan.EspressoHelper.navigateToRecipe;
 
+/** Test the Info Planner Fragment.
+ * Testing adding to the meal planner
+ *
+ *  -- USER STORY TESTS LINKED WITH ---
+ *  C4 , C14, C22
+ */
 @RunWith(AndroidJUnit4.class)
-public class PlannerInfoFragmentTest {
+public class PlannerInfoFragmentTest implements Credentials {
 
     @Rule
     public ActivityTestRule<Home> mActivityTestRule = new ActivityTestRule<>(Home.class);
@@ -45,9 +52,9 @@ public class PlannerInfoFragmentTest {
         Log.d(TAG, "Starting tests");
         ActivityScenario.launch(Login.class);
 
-        onView(withId(R.id.loginButton)).perform(click());
-        onView(withId(R.id.emailEditText)).perform(typeText("j.k.pearson87@gmail.com"));
-        onView(withId(R.id.passwordEditText)).perform(typeText("makaveli"));
+        onView(ViewMatchers.withId(R.id.loginButton)).perform(click());
+        onView(withId(R.id.emailEditText)).perform(typeText(TEST_EMAIL));
+        onView(withId(R.id.passwordEditText)).perform(typeText(TEST_PASSWORD));
         Espresso.closeSoftKeyboard();
 
         onView(withId(R.id.loginButton)).perform(click());
@@ -60,6 +67,7 @@ public class PlannerInfoFragmentTest {
      *
      * This branch didn't have the meal planner saving system so meal planner refreshes each time, hence
      * one big test method to test icons.
+     * // TODO failing because planner searching fails
      */
     @Test
     public void searchAndAddToPlanner() throws InterruptedException {
@@ -68,19 +76,11 @@ public class PlannerInfoFragmentTest {
         Thread.sleep(THREAD_SLEEP_TIME);
 
         onView(withText("Meal Planner")).perform(click());
+        onView(withId(0)).perform(longClick());
+        Thread.sleep(THREAD_SLEEP_TIME/4);
         onView(withId(0)).perform(click());
 
-        Thread.sleep(THREAD_SLEEP_TIME);
-
-        onView(withId(R.id.menuSearch)).perform(click());
-
-        onView(isAssignableFrom(SearchView.class))
-                .perform(typeSearchViewText("bacon"))
-                .perform(pressKey(KeyEvent.KEYCODE_ENTER));
-
-        Thread.sleep(THREAD_SLEEP_TIME);
-
-        onView(withText("Bacon Sandwich")).perform(click());
+        navigateToRecipe("Bacon sandwich");
 
         Thread.sleep(THREAD_SLEEP_TIME);
 
@@ -121,5 +121,8 @@ public class PlannerInfoFragmentTest {
     }
 
     @After
-    public void tearDown() { Log.d(TAG, "Tests complete"); }
+    public void tearDown() {
+            EspressoHelper.shouldSkip = false;
+            this.mActivityTestRule.finishActivity();
+        Log.d(TAG, "Tests complete"); }
 }

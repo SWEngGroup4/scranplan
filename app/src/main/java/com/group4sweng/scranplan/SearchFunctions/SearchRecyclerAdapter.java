@@ -104,7 +104,7 @@ public class SearchRecyclerAdapter extends RecyclerView.Adapter<SearchRecyclerAd
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mSearchListFragment != null){
+                if(mSearchListFragment != null && mDataset.get(position).document != null){
                     mSearchListFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
                 }else{
                     Log.e("SEARCH RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");

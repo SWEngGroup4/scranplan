@@ -9,7 +9,6 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
-import androidx.test.espresso.action.ViewActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
@@ -26,40 +25,35 @@ import org.junit.runner.RunWith;
 import java.util.HashMap;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.pressKey;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.RootMatchers.withDecorView;
-import static androidx.test.espresso.matcher.ViewMatchers.hasFocus;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withHint;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 
 /** Test the Home Activity.
  *  Tests are included to make sure information is displayed, user can successfully after search
  *  parameters and search for the meals they want.
+ *
+ *  Contains Tests for searching using Algolia, for recipes.
+ *  -- USER STORY TESTS LINKED WITH ---
+ *  C6, C7, C18, C2, C1, C3
+ *  //TODO add search by user tests
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class HomeTest{
+public class HomeTest implements Credentials {
 
     //  Android Log tag.
     String TAG = "homeTest";
 
     private UserInfoPrivate testUser;
-
-    //  Default test values.
-    private static final String TEST_EMAIL = "louisnewman@live.co.uk";
-    private static String TEST_PASSWORD = "password";
 
     //  How long we should sleep when waiting for Firebase information to update. Increase this value if you have a slower machine or emulator.
     private static final int THREAD_SLEEP_TIME = 4000;
@@ -103,7 +97,7 @@ public class HomeTest{
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        onView(withText("Bacon Sandwich"))
+        onView(withText("Braised peas with bacon, lentils and cod"))
                 .check(matches(isDisplayed()));
 
         Espresso.pressBack();
@@ -198,7 +192,7 @@ public class HomeTest{
 
         //  Store all initial filters in a HashMap.
         assertNotEquals(initialSettings.get("pescatarian"),  mActivityTestRule.getActivity().mPescatarianBox.isChecked());
-        assertEquals(initialSettings.get("vegetarian"),  mActivityTestRule.getActivity().mVegetarianBox.isChecked());
+        assertNotEquals(initialSettings.get("vegetarian"),  mActivityTestRule.getActivity().mVegetarianBox.isChecked());
         assertEquals(initialSettings.get("vegan"),  mActivityTestRule.getActivity().mVeganBox.isChecked());
 
         assertNotEquals(initialSettings.get("eggs"),  mActivityTestRule.getActivity().mEggsBox.isChecked());
@@ -304,6 +298,8 @@ public class HomeTest{
 
 
     @After
-    public void finishOff() {
+    public void tearDown() {
+        EspressoHelper.shouldSkip = false;
+        this.mActivityTestRule.finishActivity();
     }
 }

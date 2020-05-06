@@ -1,4 +1,4 @@
-package com.group4sweng.scranplan.APIHandler;
+package com.group4sweng.scranplan.ApiHandler;
 
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;

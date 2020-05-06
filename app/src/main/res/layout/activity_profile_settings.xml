@@ -149,14 +149,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="52sp"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginEnd="16dp"
                 android:onClick="saveSettings"
                 android:text="save settings"
                 android:textColor="#C8FFFFFF"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/settings_privacy_table" />
+                app:layout_constraintTop_toBottomOf="@+id/settings_progress_text" />
 
             <EditText
                 android:id="@+id/settings_input_about_me"
@@ -264,6 +265,18 @@
                         android:text="Filters"
                         android:textSize="13sp"
                         tools:checked="true" />
+
+                    <Switch
+                        android:id="@+id/settings_privacy_feed"
+                        android:layout_margin="4sp"
+                        android:layout_weight="1"
+                        android:background="#36675B7A"
+                        android:checked="false"
+                        android:onClick="onSwitchClicked"
+                        android:padding="6sp"
+                        android:text="@string/feed"
+                        android:textSize="13sp"
+                        tools:checked="true" />
                 </TableRow>
 
                 <TableRow></TableRow>
@@ -272,8 +285,8 @@
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/preferences_tab_bar"
-                android:layout_width="200sp"
-                android:layout_height="40sp"
+                android:layout_width="209dp"
+                android:layout_height="40dp"
                 android:layout_marginStart="16dp"
 
                 android:layout_marginTop="15dp"
@@ -299,11 +312,10 @@
                 android:layout_width="175sp"
                 android:layout_height="40sp"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="10dp"
                 app:layout_constraintBottom_toTopOf="@+id/settings_privacy_table"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/private_or_public"
-                app:layout_constraintVertical_bias="0.49">
+                app:layout_constraintTop_toBottomOf="@+id/settings_private_toggle">
 
                 <com.google.android.material.tabs.TabItem
                     android:layout_width="wrap_content"
@@ -327,6 +339,39 @@
                 android:textSize="11sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/settings_reset_password" />
+
+            <Switch
+                android:id="@+id/settings_private_toggle"
+                android:layout_width="164dp"
+                android:layout_height="31dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="10dp"
+                android:padding="6sp"
+                android:text="Private Profile  "
+                android:onClick="onSwitchClicked"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/settings_privacy" />
+
+            <ProgressBar
+                android:id="@+id/settings_progress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="20sp"
+                android:layout_marginHorizontal="20sp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/settings_privacy_table" />
+
+            <TextView
+                android:id="@+id/settings_progress_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="Saving Image... 0%"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/settings_progress" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

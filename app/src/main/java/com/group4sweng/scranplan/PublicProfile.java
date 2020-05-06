@@ -31,8 +31,11 @@ import java.util.HashMap;
 import static com.group4sweng.scranplan.UserInfo.FilterType.filterType.ALLERGENS;
 import static com.group4sweng.scranplan.UserInfo.FilterType.filterType.DIETARY;
 
-/** Class retrieves and displays public profile data on a given user based on a valid UID input string or UserInfoPrivate object.
- *  from Firebase or from local data.
+/**
+ * Class retrieves and displays public profile data on a given user based on a valid UID input string or UserInfoPrivate object.
+ * from Firebase or from local data.
+ * Author(s): JButler, LNewman
+ * (c) CoDev 2020
  *
  *  For firebase pass an extra string via intent with ID = "UID"
  *  For local data pass a UserInfoPrivate object via intent with ID = "user"
@@ -42,18 +45,18 @@ import static com.group4sweng.scranplan.UserInfo.FilterType.filterType.DIETARY;
  */
 public class PublicProfile extends AppCompatActivity implements FilterType{
 
+    //  Check whether we should fully or partially load data from Firebase. Prevents to many queries, faster loading speed etc...
     enum FirebaseLoadType {
         FULL,
         PARTIAL
     }
 
-    //TODO - Remove Kudos image on very teeny screens.
-    // TAG for Profile Settings
+    //  Public Profile TAG.
     final String TAG = "PublicProfile";
 
     //  UID for the user in which we want to retrieve data from.
     private String UID;
-    private UserInfoPrivate mUserProfile;
+    protected UserInfoPrivate mUserProfile;
 
     //  Default filter type enumeration. Types shown in 'FilterType' interface.
     FilterType.filterType currentFilterType = ALLERGENS;
@@ -82,8 +85,6 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         setContentView(R.layout.activity_public_profile);
 
         initPageItems();
-        //TODO add method to pass intent with a valid UID string.
-
     }
 
     @Override
@@ -97,6 +98,22 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         mUserProfile = (UserInfoPrivate) getIntent().getSerializableExtra("user");
 
         if(mUserProfile != null){ // Check if local data is available to reference. Don't have to grab from firebase.
+            updatePublicProfile(FirebaseLoadType.PARTIAL);
+        } else if(UID != null){ // If not instead search for the profile via the associated UID and reference Firebase.
+            updatePublicProfile(FirebaseLoadType.FULL);
+        } else {
+            Log.e(TAG, "Unable to retrieve extra UID intent string. Cannot initialize profile.");
+        }
+    }
+
+
+    /** Update the public profile based on what has been passed via the Intent.
+     * @param flt - Firebase Load Type. Either PARTIAL or FULL. FULL = all data from firebase from a UID string.
+     *            PARTIAL = some data has already been loaded from the UserInfoPrivate object so we only need to grab
+     *            some Firebase realtime data such as Kudos.
+     */
+    private void updatePublicProfile(FirebaseLoadType flt){
+        if(flt == FirebaseLoadType.PARTIAL){
             Log.i(TAG, "Loading local user data");
             loadInPrivacySettings(mUserProfile.getPublicPrivacy());
             loadLocalProfile();
@@ -124,7 +141,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         Intent returnIntent = new Intent(this, Home.class);
         returnIntent.putExtra("user", mUserProfile);
         startActivity(returnIntent);
-        finish(); //    We don't need to send anything back but do need to destroy the current activity.
+        finish(); //    Don't need to send anything back but do need to destroy the current activity.
     }
 
     //  Checks for if a user wants specific data to be retrieved based on there privacy settings.
@@ -151,8 +168,8 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
             if(imageURL == null){
                 throw new NullPointerException("Unable to load Profile image URL. Image URL is null");
-            } else if(!imageURL.equals("")){
-                Glide.with(this)
+            } else if(!imageURL.equals("")){ // If Image URL is equal to "" (default) display a placeholder image.
+                Glide.with(this) // Use glide to load in a circular image.
                         .load(profile.get("imageURL"))
                         .apply(RequestOptions.circleCropTransform())
                         .into(mProfileImage); }
@@ -169,73 +186,21 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
             LinearLayout dietLayout = findViewById(R.id.dietLayout);
             dietLayout.setVisibility(View.VISIBLE);
 
+            allergyLayout.setVisibility(View.GONE);
+            allergyPressInfo.setVisibility(View.GONE);
+            profileSettingsAllergens.setVisibility(View.GONE);
         }
     }
 
-    /*
-    private void makeFiltersInvisible(){
-        switch(currentFilterType){
-            case ALLERGENS:
-                Drawable transparentDrawable = new ColorDrawable(Color.TRANSPARENT); // Create a transparent drawable background.
-
-                //  Remove checkboxes by setting a transparent background.
-                mAllergy_gluten.setButtonDrawable(transparentDrawable);
-                mAllergy_milk.setButtonDrawable(transparentDrawable);
-                mAllergy_soy.setButtonDrawable(transparentDrawable);
-                mAllergy_shellfish.setButtonDrawable(transparentDrawable);
-                mAllergy_eggs.setButtonDrawable(transparentDrawable);
-                mAllergy_nuts.setButtonDrawable(transparentDrawable);
-
-                //  Set top-left element (nuts) to a new 'hidden info' string and remove text from all other filters.
-                mAllergy_nuts.setText((String) "Filter information has been hidden");
-                mAllergy_gluten.setText("");
-                mAllergy_soy.setText("");
-                mAllergy_shellfish.setText("");
-                mAllergy_eggs.setText("");
-                mAllergy_milk.setText("");
-            case RELIGIOUS:
-                //TODO
-                Log.i(TAG, "Religious");
-            case DIETARY:
-                //TODO
-                Log.i(TAG, "Religious");
-            case HEALTH:
-                //TODO
-                Log.i(TAG, "Religious");
-        }
-
-    }*/
-
-    /** Set which filter checkboxes should be selected
-     * @param - Enumeration of the type of filter to be displayed. E.g. Allegern, Religious...
+    /** Load in all associated Firebase user data either fully or partially.
+     * @param flt - Firebase Load Type. Either PARTIAL or FULL. FULL = all data from firebase from a UID string.
+     *            PARTIAL = some data has already been loaded from the UserInfoPrivate object so we only need to grab
+     *            some Firebase realtime data such as Kudos.
      */
-    /*
-    private void displayFilters(HashMap<String, Object> filters){
-
-
-
-        switch(type){
-            case ALLERGENS:
-                mAllergy_eggs.setChecked((boolean) filters.get("allergy_eggs"));
-                mAllergy_milk.setChecked((boolean) filters.get("allergy_milk"));
-                mAllergy_nuts.setChecked((boolean) filters.get("allergy_nuts"));
-                mAllergy_shellfish.setChecked((boolean) filters.get("allergy_shellfish"));
-                mAllergy_soy.setChecked((boolean) filters.get("allergy_soya"));
-                mAllergy_gluten.setChecked((boolean) filters.get("allergy_gluten"));
-            case RELIGIOUS:
-                //TODO
-            case DIETARY:
-                //TODO
-            case HEALTH:
-                //TODO
-        }
-    }*/
-
-    //  Load in all associated public profile data for a given UID. (defined at Activity Start).
     private void loadFirebase(FirebaseLoadType flt) {
         final FirebaseLoadType fltFinal = flt;
 
-        if(fltFinal == FirebaseLoadType.PARTIAL){
+        if(fltFinal == FirebaseLoadType.PARTIAL){ // If only a partial load, grab the UID from the UserInfoPrivate object.
             UID = mUserProfile.getUID();
         }
         //  Grab the 'users' collection corresponding to the correct document UID.
@@ -248,12 +213,12 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                 if(document.exists()){ // Check a document exists.
                     if(fltFinal == FirebaseLoadType.FULL){
                         @SuppressWarnings("unchecked")
-                        HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacy");
+                        HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacyPublic");
                         loadInPrivacySettings(privacy); // Load in privacy settings first (always)
                         loadProfile(document); // Then we load the public users profile.
                     }
                     loadKudosAndRecipes(document);
-                    initKudosIconPressListener(document);
+                    initKudosIconPressListener();
                     Log.i(TAG, "Successfully loaded the users profile");
                 } else {
                     Log.e(TAG, "No such document, " + document.toString() + " exists");
@@ -264,15 +229,17 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         });
     }
 
+    /** Method to load in Kudos and Recipe information.
+     *  Always loads directly from Firebase.
+     * @param profile - A snapshot of the Firebase user profile document.
+     */
     private void loadKudosAndRecipes(DocumentSnapshot profile){
-        //  Load in kudos.
         String kudosString = "Kudos: " + ((long) profile.get("kudos"));
-        Log.e(TAG, "KUDOS is: " + kudosString);
 
         Kudos.setKudos((long) profile.get("kudos"));
-        Kudos.updateKudos();
+        Kudos.updateKudos(); // Update the kudos icon + chef descriptor.
 
-        Log.e(TAG, "Image resource number: " + Kudos.chefLevelIcon);
+        // Assign Kudos icon + chef descriptor.
         mKudosIcon.setImageResource(Kudos.chefLevelIcon);
         mKudos.setText(kudosString);
 
@@ -323,10 +290,19 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
             LinearLayout dietLayout = findViewById(R.id.dietLayout);
             dietLayout.setVisibility(View.VISIBLE);
 
+        } else { // Remove preferences icons if required.
+            LinearLayout allergyLayout = findViewById(R.id.allergyLayout);
+            View allergyPressInfo = findViewById(R.id.allergyPressInfo);
+            View profileSettingsAllergens = findViewById(R.id.profile_settings_allergens);
+
+            allergyLayout.setVisibility(View.GONE);
+            allergyPressInfo.setVisibility(View.GONE);
+            profileSettingsAllergens.setVisibility(View.GONE);
         }
     }
 
-    private void initKudosIconPressListener(DocumentSnapshot profile){
+    //  Initiate click listener for Kudos press. Creates an alert dialog with the chef rank.
+    private void initKudosIconPressListener(){
         mKudosIcon.setOnClickListener(v -> {
             Kudos.updateKudos();
 
@@ -338,6 +314,12 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         });
     }
 
+    /** Initiate the horizontal scroll filter icon collection with corresponding icons
+     *  and click listeners.
+     *
+     * @param type - Type of filters we want to display. IE ALLERGENS, DIETARY.
+     * @param filters - HashMap collection of all available filters.
+     */
     private void initFiltersIcons(filterType type, HashMap<String , Object> filters){
         ArrayList<Boolean> filterValues = new ArrayList<>();
         ArrayList<ImageView> filterIcons = new ArrayList<>();
@@ -354,6 +336,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                 filterValues.add((boolean) filters.get("allergy_soya"));
                 filterValues.add((boolean) filters.get("allergy_gluten"));
 
+                //  Messages to display on icon click via alert dialog box.
                 filterMessages.add("Allergic to Eggs");
                 filterMessages.add("Allergic to Lactose");
                 filterMessages.add("Allergic to Nuts");
@@ -386,7 +369,8 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                 title = "";
         }
 
-
+        /*  Cycle through the filter icons collection and add alert dialogs for the description for each
+            of each Icon presented upon a users click. */
         for(int i = 0; i < filterIcons.size(); i++){
             if (filterValues.get(i)) {
                 ImageView icon = filterIcons.get(i);

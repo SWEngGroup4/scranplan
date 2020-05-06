@@ -14,7 +14,7 @@ import static org.junit.Assert.assertTrue;
  * Written 22/3/20 NBillis
  * (c) CoDev 2020
  */
-public class AudioURLTest {
+public class AudioUrlTest {
 
     @Test
     public void testPlayingURLSounds() throws Exception{
@@ -32,7 +32,6 @@ public class AudioURLTest {
         String result = mAudio.getStoredURL();
         assertEquals("https://bigsoundbank.com/UPLOAD/mp3/1610.mp3",result);
     }
-
 
 
     @Test
