@@ -62,7 +62,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
     private ImageView mRecipeImage;
     private CheckBox mFavourite;
     private RatingBar mStars;
-    private TextView mServing;
+    protected TextView mServing;
 
     //Variables to hold the data being passed through into the fragment
     protected String recipeID;
@@ -96,14 +96,14 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
     protected TextView mFreezer;
     protected TextView mReheatInformation;
     protected ImageButton mReheatInformationButton;
-    protected Button mChangePortions;
-    protected TextView mServing;
+    protected ImageButton mChangePortions;
+    //protected TextView mServing;
     protected String starRating;
 
 
-    private FirebaseFirestore mDatabase;
-    private CollectionReference mDataRef;
-    private CollectionReference mUserRef;
+    protected FirebaseFirestore mDatabase;
+    protected CollectionReference mDataRef;
+    protected CollectionReference mUserRef;
 
     // Define a String ArrayList for the ingredients
     protected ArrayList<String> ingredientList = new ArrayList<>();
@@ -128,19 +128,6 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         View layout = inflater.inflate(R.layout.fragment_recipe_info, null);
-
-        recipeID = getArguments().getString("recipeID");
-        recipeName = getArguments().getString("recipeTitle");
-        recipeImage = getArguments().getString("imageURL");
-        recipeDescription = getArguments().getString("recipeDescription");
-        chefName = getArguments().getString("chefName");
-        ingredientHashMap = (HashMap<String, String>) getArguments().getSerializable("ingredientHashMap");
-        recipeRating = getArguments().getString("rating");
-        xmlPresentation = getArguments().getString("xmlURL");
-        planner = getArguments().getBoolean("planner");
-        favouriteRecipe = getArguments().getStringArrayList("favourite");
-        mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
-        isFavourite = getArguments().getBoolean("isFav");
 
 
         builder.setView(layout);
@@ -220,12 +207,10 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         recipeDescription = bundle.getString("recipeDescription");
         chefName = bundle.getString("chefName");
         ingredientHashMap = (HashMap<String, String>) bundle.getSerializable("ingredientHashMap");
-        ingredientArray = bundle.getStringArrayList("ingredientList");
         ratingMap =  (HashMap<String, Double>) bundle.getSerializable("ratingMap");
-        recipeRating = bundle.getString("rating");
         xmlPresentation = bundle.getString("xmlURL");
         planner = bundle.getBoolean("planner");
-        recipeRating = bundle.getString("rating");
+        //recipeRating = bundle.getString("rating");
         reheat = bundle.getString("reheat");
         noEggs = bundle.getBoolean("noEggs");
         noMilk = bundle.getBoolean("noMilk");
@@ -401,7 +386,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         mDescription = layout.findViewById(R.id.description);
         mRecipeImage = layout.findViewById(R.id.recipeImage);
         mChangePortions = layout.findViewById(R.id.changePortions);
-        mChangePortions.setVisibility(View.GONE);
+        mChangePortions.setVisibility(View.INVISIBLE);
 
         //Sets the serving amount for each recipe
         mServing.setText("Serves: " + servingAmount);
@@ -409,10 +394,6 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         //Setting the recipe star rating
         starRating = ratingMap.get("overallRating").toString();
         updateStarRating(starRating);
-//        mStars.setRating(Float.parseFloat(starRating));
-//        mStars.setIsIndicator(true);
-//        mStars.setNumStars(5);
-//        mStars.setStepSize(0.1F);
 
         //setting the recipe title
         mTitle.setText(recipeName);
@@ -582,110 +563,5 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
 
     }
 
-
-    /**
-     * Method that allows for the creation of the allergies icons and displays them onto the recipe information screen
-     */
-    /*
-    private void allergyIconCreation(View layout){
-
-    //Arrays that hold the boolean values and imageView id's for the allergy ingredients
-    ArrayList<Boolean> allergyValue = new ArrayList<>();
-        allergyValue.add(noEggs);
-        allergyValue.add(noMilk);
-        allergyValue.add(noNuts);
-        allergyValue.add(noShellfish);
-        allergyValue.add(noSoy);
-        allergyValue.add(noWheat);
-
-        ArrayList<String> allergyMessage = ImageHelpers.getFilterIconsHoverMessage(FilterType.filterType.ALLERGENS);
-
-    ArrayList<ImageView> list = new ArrayList<>();
-        list.add(layout.findViewById(R.id.recipeInfoEggs));
-        list.add(layout.findViewById(R.id.recipeInfoMilk));
-        list.add(layout.findViewById(R.id.recipeInfoNuts));
-        list.add(layout.findViewById(R.id.recipeInfoShellfish));
-        list.add(layout.findViewById(R.id.recipeInfoSoy));
-        list.add(layout.findViewById(R.id.recipeInfoWheat));
-
-    //Integers that hold the sizes of the two different category array sizes
-    final int arrayCount1 = allergyValue.size();
-
-    //For loop that iterates through both allergy ingredient arrays and if a recipe holds a certain
-    //allergy then that allergy icon is set to visible
-        for(
-    int i = 0;
-    i<arrayCount1;i++)
-
-    {
-        if (!allergyValue.get(i)) {
-            ImageView createAllergyIcon = list.get(i);
-            String message = allergyMessage.get(i);
-            createAllergyIcon.setVisibility(View.VISIBLE);
-            createAllergyIcon.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-                    AlertDialog dialog = builder.create();
-
-                    dialog.setTitle("Allergy");
-                    dialog.setMessage(message);
-                    dialog.show();
-                }
-            });
-        }
-    }
-
-
-}*/
-
-    /**
-     * Method that allows for the creation of the eating preference icons and displays them onto the recipe information screen
-     */
-    /*
-    private void eatingAdviceIconCreation(View layout) {
-
-        //Arrays that hold the boolean values and ImageView id's for the eating preference
-        ArrayList<Boolean> EatingHabitValue = new ArrayList<>();
-        EatingHabitValue.add(mPescatarian);
-        EatingHabitValue.add(mVegan);
-        EatingHabitValue.add(mVegetarian);
-
-        ArrayList<String> EatingHabitMessage = ImageHelpers.getFilterIconsHoverMessage(FilterType.filterType.DIETARY);
-
-        ArrayList<ImageView> EatingHabit = new ArrayList<>();
-        EatingHabit.add(layout.findViewById(R.id.recipeInfoPesc));
-        EatingHabit.add(layout.findViewById(R.id.recipeInfoVegan));
-        EatingHabit.add(layout.findViewById(R.id.recipeInfoVeggie));
-
-        //Integers that hold the sizes of the two different category array sizes
-        final int arrayCount2 = EatingHabit.size();
-
-
-        //For loop that iterates through the eating preference arrays and if a recipe is either vegan, vegetarian
-        //or pescatarian then the imageView is made visible
-        for (int i = 0; i < arrayCount2; i++) {
-            if (EatingHabitValue.get(i)) {
-                ImageView eatingPreferenceIcon = EatingHabit.get(i);
-                String message = EatingHabitMessage.get(i);
-                eatingPreferenceIcon.setVisibility(View.VISIBLE);
-                eatingPreferenceIcon.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-                        AlertDialog dialog = builder.create();
-
-                        dialog.setTitle("Recipe Advice");
-                        dialog.setMessage(message);
-                        dialog.show();
-                    }
-                });
-            }
-        }
-
-
-    }*/
 
 }

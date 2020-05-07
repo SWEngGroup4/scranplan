@@ -186,9 +186,6 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
             LinearLayout dietLayout = findViewById(R.id.dietLayout);
             dietLayout.setVisibility(View.VISIBLE);
 
-            allergyLayout.setVisibility(View.GONE);
-            allergyPressInfo.setVisibility(View.GONE);
-            profileSettingsAllergens.setVisibility(View.GONE);
         }
     }
 
