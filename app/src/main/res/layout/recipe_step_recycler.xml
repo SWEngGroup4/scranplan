@@ -35,19 +35,17 @@ android:layout_height="wrap_content">
 
             <ImageView
                 android:id="@+id/recipeStepMedia"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_width="250dp"
+                android:layout_height="250dp"
                 android:layout_margin="16dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
-                android:layout_marginBottom="128dp"
                 android:adjustViewBounds="true"
                 android:background="#00FFFFFF"
                 android:padding="10dp"
                 android:scaleType="fitCenter"
                 app:layout_constraintBottom_toTopOf="@+id/recipeStepText"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/recipeStepID"
                 app:srcCompat="@drawable/add" />
@@ -58,30 +56,26 @@ android:layout_height="wrap_content">
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
-                android:layout_marginBottom="16dp"
                 android:ems="10"
                 android:gravity="start|top"
-                android:hint="Step desciprtion"
+                android:hint="Step description"
                 android:inputType="textMultiLine|textCapSentences"
-                app:layout_constraintBottom_toTopOf="@+id/recipeStepTimerValue"
+                app:layout_constraintBottom_toTopOf="@+id/recipeStepAddMedia"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <EditText
                 android:id="@+id/recipeStepTimerValue"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="64dp"
-                android:layout_marginEnd="64dp"
-                android:layout_marginBottom="8dp"
                 android:ems="10"
                 android:hint="Timer length in minutes"
                 android:inputType="numberDecimal"
-                app:layout_constraintBottom_toTopOf="@+id/recipeStepAddMedia"
+                android:visibility="visible"
+                app:layout_constraintBottom_toTopOf="@+id/recipeStepAddGraphics"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                tools:visibility="visible" />
 
             <Button
                 android:id="@+id/recipeStepAddMedia"
@@ -90,6 +84,18 @@ android:layout_height="wrap_content">
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:text="Add media"
+                app:layout_constraintBottom_toTopOf="@+id/recipeStepMediaUri"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/recipeStepMediaUri"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:gravity="center_horizontal"
+                android:text="TextView"
                 app:layout_constraintBottom_toTopOf="@+id/recipeStepAddAudio"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
@@ -101,9 +107,19 @@ android:layout_height="wrap_content">
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:text="Add audio"
+                app:layout_constraintBottom_toTopOf="@+id/recipeStepAudioUri"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/recipeStepAudioUri"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:gravity="center_horizontal"
+                android:text="TextView"
                 app:layout_constraintBottom_toTopOf="@+id/recipeStepAddTimer"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <Button
@@ -113,7 +129,7 @@ android:layout_height="wrap_content">
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:text="Add timer"
-                app:layout_constraintBottom_toTopOf="@+id/recipeStepAddGraphics"
+                app:layout_constraintBottom_toTopOf="@+id/recipeStepTimerValue"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
@@ -128,6 +144,19 @@ android:layout_height="wrap_content">
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
+
+            <ImageButton
+                android:id="@+id/recipeStepRemove"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="#00FFFFFF"
+                android:backgroundTint="#FFFFFF"
+                android:tint="#000000"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@android:drawable/ic_menu_close_clear_cancel" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
