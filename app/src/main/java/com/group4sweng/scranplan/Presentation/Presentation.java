@@ -97,7 +97,7 @@ public class Presentation extends AppCompatActivity {
     Button playPause;
 
     /**  Lists containing references to timers (total duration) & audio objects if they exist for each slide by index (corresponding to slide number).
-         If a timer or audio object isn't present for the slide a 'null' value or for numbers -1 is present. **/
+     If a timer or audio object isn't present for the slide a 'null' value or for numbers -1 is present. **/
     private ArrayList<Float> slideTimers = new ArrayList<>();
     private ArrayList<AudioURL> slideAudioLooping = new ArrayList<>();
     private ArrayList<AudioURL> slideAudio = new ArrayList<>();
@@ -221,9 +221,9 @@ public class Presentation extends AppCompatActivity {
 
                 if (slide.text != null)
                     pSlide.addText(slide.text);
-                if (slide.line != null) {}
+                if (slide.lines != null) {}
                 //TODO - Generate line
-                if (slide.shape != null) {}
+                if (slide.shapes != null) {}
                 //TODO - Generate shape
                 if (slide.image != null)
                     pSlide.addImage(slide.image);
@@ -286,18 +286,6 @@ public class Presentation extends AppCompatActivity {
                         dropdown.setSelection(currentSlide[0]+1);}else{
                         currentSlide[0] = toSlide(slideLayouts, currentSlide[0], currentSlide[0] + 1);}
                 });
-            Button prevSlide = findViewById(R.id.prevButton);
-            prevSlide.setVisibility(View.VISIBLE);
-            Button nextSlide = findViewById(R.id.nextButton);
-            nextSlide.setVisibility(View.VISIBLE);
-            int finalSlideCount = slideCount;
-
-            nextSlide.setOnClickListener(v -> {
-                expandableLayout.collapse();
-                if(currentSlide[0]+1 < finalSlideCount+1){
-                    dropdown.setSelection(currentSlide[0]+1);}else{
-                    currentSlide[0] = toSlide(slideLayouts, currentSlide[0], currentSlide[0] + 1);}
-            });
 
                 prevSlide.setOnClickListener(v -> {
                     expandableLayout.collapse();
@@ -630,8 +618,8 @@ public class Presentation extends AppCompatActivity {
     }
 
     /* ----BEGIN TIMER SECTION----
-    * Author: JButler
-    * (c) CoDev 2020    */
+     * Author: JButler
+     * (c) CoDev 2020    */
 
     /** Load associated User interface elements for the timer. */
     private void loadTimerUI() {
