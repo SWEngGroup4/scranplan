@@ -109,6 +109,9 @@ public class SearchQuery {
             index = "recipe_votes";
         }else if(mTimeBox){
             index = "recipe_time";
+        }else{
+            // create a default case
+            index = "SCRANPLAN_RECIPES";
         }
     }
 }

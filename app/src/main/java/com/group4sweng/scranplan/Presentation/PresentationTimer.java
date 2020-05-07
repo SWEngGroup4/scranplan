@@ -2,7 +2,7 @@ package com.group4sweng.scranplan.Presentation;
 
 import android.os.CountDownTimer;
 
-import com.group4sweng.scranplan.Exceptions.AudioPlaybackError;
+import com.group4sweng.scranplan.Exceptions.AudioPlaybackException;
 import com.group4sweng.scranplan.SoundHandler.AudioURL;
 
 import java.util.Locale;
@@ -82,50 +82,11 @@ abstract class PresentationTimer extends CountDownTimer{
 
     }
 
-    // TODO - (optional). See if we can implement a countdown timer with intervals included + messages to be displayed at each interval.
-    //  Useful for long videos or steps that require multiple timers.
-    /*
-    public PresentationTimer(int[] multipleCountDownTimers, String[] countDownTimesMessages, int interval){
-        Arrays.sort(multipleCountDownTimers); //Make sure intervals are in order from lowest to highest.
-
-        for(int i : multipleCountDownTimers) { //Repeat the countdown for all time objects in the array,
-            timer = new CountDownTimer(multipleCountDownTimers[i], interval) {
-                @Override
-                public void onTick(long millisUntilFinished) {
-                    millisRemaining = millisUntilFinished;
-                    minutes = TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished);
-                    seconds = TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished);
-                }
-
-                @Override
-                public void onFinish() {
-                    if (soundEnabled) {
-                        audio = new AudioURL();
-                        try {
-                            audio.playURLSound(soundURLs[i]);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    String timeLeft = String.format(Locale.ENGLISH, "%02d:%02d", minutes, seconds);
-                    //TODO - Add a call that allows us to print the output of our input messages to the presentation once each individual counter finishes.
-                }
-            }.start();
-        }
-    }*/
-
-    // TODO - Replica of above but with more constructor input fields.
-    /*
-    public PresentationTimer(int[] multipleCountDownTimers, String[] countDownTimesMessages, int interval, String[] soundURLs){
-        this(multipleCountDownTimers, countDownTimesMessages, interval);
-        this.soundURLs = soundURLs;
-    }*/
-
     /** Soft timer stop.
      *  Stops the timer when the timer playback duration has finished. Doesn't force all audio file playback to stop.
-     * @throws AudioPlaybackError - Error returned if the final audio URL fails to play.
+     * @throws AudioPlaybackException - Error returned if the final audio URL fails to play.
      */
-    void stopTimer() throws AudioPlaybackError {
+    void stopTimer() throws AudioPlaybackException {
         this.cancel();
 
         if(loopingAudio != null){
@@ -141,9 +102,9 @@ abstract class PresentationTimer extends CountDownTimer{
     /** Hard timer stop
      * Stop our timer before the timer has a chance to finish. Must be called when changing activity or pressing the top button.
      * @return - Time left (in milliseconds) on the countdown timer. Useful for restarting a timer after a pause.
-     * @throws AudioPlaybackError - Error returned when the player doesn't finish playing.
+     * @throws AudioPlaybackException - Error returned when the player doesn't finish playing.
      */
-    long forceStopTimer() throws AudioPlaybackError {
+    long forceStopTimer() throws AudioPlaybackException {
         //  Stop and remove the timer and stop any audio.
         this.cancel();
 
@@ -151,7 +112,7 @@ abstract class PresentationTimer extends CountDownTimer{
             if(finishAudio.getPlayer().isPlaying()){ // Check if audio was playing initially.
                 finishAudio.stopURLSound();
                 if(finishAudio.getPlayer().isPlaying()){ // Audio should have stopped playing. Throw exception if not
-                    throw new AudioPlaybackError("Audio playback failed to stop for file URL: " + finishAudio.getStoredURL());
+                    throw new AudioPlaybackException("Audio playback failed to stop for file URL: " + finishAudio.getStoredURL());
                 }
             }
         }
@@ -159,7 +120,7 @@ abstract class PresentationTimer extends CountDownTimer{
         if(loopingAudio != null) {
             loopingAudio.stopURLSound();
             if(loopingAudio.getPlayer().isPlaying()){
-                throw new AudioPlaybackError("Audio playback failed to stop for file URL: " + loopingAudio.getStoredURL());
+                throw new AudioPlaybackException("Audio playback failed to stop for file URL: " + loopingAudio.getStoredURL());
             }
         }
 
@@ -170,10 +131,13 @@ abstract class PresentationTimer extends CountDownTimer{
      * @return - Returns the time in a printable format for the presentation.
      * format: [MINS]:[SECONDS]
      */
-    static String printOutputTime(long millisRemaining) {
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(millisRemaining);
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(millisRemaining);
+    static String printOutputTime(long currentMillis) {
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(currentMillis);
 
+        //  Seconds are the current time in seconds (from milliseconds) - time in minutes > to seconds that has passed.
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(currentMillis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(currentMillis));
+
+        //  Display in a format that allows for a '0' in-front of single number characters. IE 09:05.
         return String.format(Locale.ENGLISH, "%02d:%02d", minutes, seconds);
     }
 

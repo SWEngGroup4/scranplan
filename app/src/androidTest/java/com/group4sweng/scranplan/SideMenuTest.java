@@ -9,24 +9,27 @@ import androidx.test.rule.ActivityTestRule;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
-public class SideMenuTest {
+/***
+ * Testing the side menu
+ * -- USER STORY TESTS LINKED WITH ---
+ * C35
+ */
+
+public class SideMenuTest implements Credentials{
     private MainActivity mMainActivity = null;
     FirebaseApp testApp;
     FirebaseAuth testAuth;
     Context mContext;
-
-
-    private static  final String TEST_EMAIL = "ncab500+test@york.ac.uk";
-    private static String TEST_PASSWORD = "password";
+    
     private static final int THREAD_SLEEP_TIME = 9000;
 
     @Rule
@@ -51,12 +54,9 @@ public class SideMenuTest {
         Thread.sleep(THREAD_SLEEP_TIME);
     }
 
-    @Test
-    public void openToolBarTest() throws InterruptedException {
-        //       openContextualActionModeOverflowMenu();
-        // openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getInstrumentation().getContext());
-        //    onView(withId(R.id.nav_profile)).perform(click());
+    @After
+    public void tearDown() {
+        EspressoHelper.shouldSkip = false;
+        this.mActivityTestRule.finishActivity();
     }
-
-
 }

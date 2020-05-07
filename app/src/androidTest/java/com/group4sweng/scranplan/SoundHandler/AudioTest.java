@@ -1,13 +1,12 @@
-package com.group4sweng.scranplan;
+package com.group4sweng.scranplan.SoundHandler;
 
 import android.media.MediaPlayer;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
-import com.group4sweng.scranplan.Exceptions.AudioPlaybackError;
-import com.group4sweng.scranplan.SoundHandler.AudioURL;
-import com.group4sweng.scranplan.SoundHandler.StockSounds;
+import com.group4sweng.scranplan.EspressoHelper;
+import com.group4sweng.scranplan.Exceptions.AudioPlaybackException;
 
 import org.junit.After;
 import org.junit.Before;
@@ -21,7 +20,7 @@ import static org.junit.Assert.fail;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class AudioTest extends RecordedEspressoHelper {
+public class AudioTest extends EspressoHelper {
 
     /**
      * Instrumentation tests for audio.
@@ -35,18 +34,27 @@ public class AudioTest extends RecordedEspressoHelper {
      * - Audio stops when timer runs out of time
      * - Audio 'force' stops when slide is changed
      * - Audio 'force' stops when the stop button is pressed.
-     * - Audio dosen't play on a slide with audio XML tags not included
+     * - Audio dosen't play on a slide with audio XML tags not included.
      * - Audio XML data is loaded properly & only 1 of each (looping + non-looping) is loaded in.
+     *
+     * -- USER STORY TESTS LINKED WITH ---
+     *
+     * Audio Package
      */
 
     //  Our test 'ding' sound.
-    private String SOUND_URL = "https://bigsoundbank.com/UPLOAD/mp3/1631.mp3";
+    private final String SOUND_URL = "https://bigsoundbank.com/UPLOAD/mp3/1631.mp3";
 
     //  A test 'ticking' sound. Wrong format (completely un-supported)
-    private String SOUND_URL_MP2 = "https://firebasestorage.googleapis.com/v0/b/scran-plan-bc521.appspot.com/o/sounds%2Ftest_wrong_format_eggtimer.mp2?alt=media&token=a34e8c38-16d4-4d9c-85b3-85da48bdd542";
+    private final String SOUND_URL_MP2 = "https://firebasestorage.googleapis.com/v0/b/scran-plan-bc521.appspot.com/o/sounds%2Ftest_wrong_format_eggtimer.mp2?alt=media&token=a34e8c38-16d4-4d9c-85b3-85da48bdd542";
 
     //  Same file, format supported by Android but not by this app.
-    private String SOUND_URL_FLAC = "https://firebasestorage.googleapis.com/v0/b/scran-plan-bc521.appspot.com/o/sounds%2Ftest_wrong_format_eggtimer.flac?alt=media&token=66be31ab-f20b-49b4-8ddc-a2edeae71512";
+    private final String SOUND_URL_FLAC = "https://firebasestorage.googleapis.com/v0/b/scran-plan-bc521.appspot.com/o/sounds%2Ftest_wrong_format_eggtimer.flac?alt=media&token=66be31ab-f20b-49b4-8ddc-a2edeae71512";
+
+    //  Name of the test recipe we want to navigate to.
+    private final String TEST_RECIPE_NAME = "Ultimate spaghetti carbonara";
+
+
     private int THREAD_SLEEP_TIME = 3000;
 
     //  Corresponding audio URL and player objects to test.
@@ -64,7 +72,7 @@ public class AudioTest extends RecordedEspressoHelper {
     public void testSoundLoads() throws InterruptedException {
         try {
             testAudio.playURLSound(SOUND_URL);
-        } catch (AudioPlaybackError e) {
+        } catch (AudioPlaybackException e) {
             e.printStackTrace();
         }
 
@@ -92,7 +100,7 @@ public class AudioTest extends RecordedEspressoHelper {
 
         try {
             testAudio.playURLSound(StockSounds.EGG_TIMER.getSoundURL());
-        } catch (AudioPlaybackError e){
+        } catch (AudioPlaybackException e){
             e.printStackTrace();
         }
         player.getDuration();
@@ -112,7 +120,7 @@ public class AudioTest extends RecordedEspressoHelper {
         try {
             testAudio.playURLSound(SOUND_URL_MP2);
             fail("Failed to throw exception when reading in an unsuported file media type.");
-        } catch (AudioPlaybackError e){
+        } catch (AudioPlaybackException e){
             assertEquals(e.getMessage(), "Tried to use an invalid audio format. Please resort to using the .mp3 format.");
         }
    }
@@ -125,7 +133,7 @@ public class AudioTest extends RecordedEspressoHelper {
         try {
             testAudio.playURLSound(SOUND_URL_FLAC);
             fail("Failed to throw exception when reading in an unsuported file media type.");
-        } catch (AudioPlaybackError e){
+        } catch (AudioPlaybackException e){
             assertEquals(e.getMessage(), "Tried to use an invalid audio format. Please resort to using the .mp3 format.");
         }
    }
@@ -137,7 +145,7 @@ public class AudioTest extends RecordedEspressoHelper {
         try {
             testAudio.playURLSound("fakeInput.mp3");
             fail("Failed to throw exception when reading in a fake input.");
-        } catch (AudioPlaybackError e){
+        } catch (AudioPlaybackException e){
             assertEquals(e.getMessage(), "Failed to play audio from URL: fakeInput.mp3");
         }
    }
@@ -146,5 +154,6 @@ public class AudioTest extends RecordedEspressoHelper {
    public void tearDown(){
         player.stop();
         testAudio = null;
+        EspressoHelper.shouldSkip = false;
    }
 }

@@ -40,19 +40,20 @@ import static org.junit.Assert.assertNotEquals;
 /** Test the Home Activity.
  *  Tests are included to make sure information is displayed, user can successfully after search
  *  parameters and search for the meals they want.
+ *
+ *  Contains Tests for searching using Algolia, for recipes.
+ *  -- USER STORY TESTS LINKED WITH ---
+ *  C6, C7, C18, C2, C1, C3
+ *  //TODO add search by user tests
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class HomeTest{
+public class HomeTest implements Credentials {
 
     //  Android Log tag.
     String TAG = "homeTest";
 
     private UserInfoPrivate testUser;
-
-    //  Default test values.
-    private static final String TEST_EMAIL = "ncab500+april@york.ac.uk";
-    private static String TEST_PASSWORD = "password";
 
     //  How long we should sleep when waiting for Firebase information to update. Increase this value if you have a slower machine or emulator.
     private static final int THREAD_SLEEP_TIME = 4000;
@@ -96,7 +97,7 @@ public class HomeTest{
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        onView(withText("Bacon Sandwich"))
+        onView(withText("Braised peas with bacon, lentils and cod"))
                 .check(matches(isDisplayed()));
 
         Espresso.pressBack();
@@ -191,7 +192,7 @@ public class HomeTest{
 
         //  Store all initial filters in a HashMap.
         assertNotEquals(initialSettings.get("pescatarian"),  mActivityTestRule.getActivity().mPescatarianBox.isChecked());
-        assertEquals(initialSettings.get("vegetarian"),  mActivityTestRule.getActivity().mVegetarianBox.isChecked());
+        assertNotEquals(initialSettings.get("vegetarian"),  mActivityTestRule.getActivity().mVegetarianBox.isChecked());
         assertEquals(initialSettings.get("vegan"),  mActivityTestRule.getActivity().mVeganBox.isChecked());
 
         assertNotEquals(initialSettings.get("eggs"),  mActivityTestRule.getActivity().mEggsBox.isChecked());
@@ -297,6 +298,8 @@ public class HomeTest{
 
 
     @After
-    public void finishOff() {
+    public void tearDown() {
+        EspressoHelper.shouldSkip = false;
+        this.mActivityTestRule.finishActivity();
     }
 }

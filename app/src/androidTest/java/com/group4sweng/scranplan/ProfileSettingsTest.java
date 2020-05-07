@@ -55,10 +55,13 @@ import static org.junit.Assert.assertTrue;
  *  - Firebase user profile password is reset correctly (for multiple accounts)
  *  - Tests of what happens when an connection to Firebase is lost and if the client updates once the wifi signal is retrieved
  *  and if the client is notified that no signal is available.
+ *
+ *  -- USER STORY TESTS LINKED WITH ---
+ *  C20,A1
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class ProfileSettingsTest extends RecordedEspressoHelper {
+public class ProfileSettingsTest extends EspressoHelper implements Credentials {
 
     enum PrivacyType {
         PRIVATE,
@@ -69,14 +72,9 @@ public class ProfileSettingsTest extends RecordedEspressoHelper {
     private String TAG = "profileSettingsTest";
 
     private UserInfoPrivate testUser;
-    ProfileSettings activityResult;
+    private ProfileSettings activityResult;
 
-    //  Default test values.
-    private static final String TEST_EMAIL = "jb2200@york.ac.uk";
-    private static String TEST_PASSWORD = "password";
 
-    //  How long we should sleep when waiting for Firebase information to update. Increase this value if you have a slower machine or emulator.
-    private static final int THREAD_SLEEP_TIME = 3000;
 
     @Rule
     public ActivityTestRule<ProfileSettings> mActivityTestRule = new ActivityTestRule<>(ProfileSettings.class);
@@ -84,7 +82,7 @@ public class ProfileSettingsTest extends RecordedEspressoHelper {
     //  Login with the associated test credentials before testing, wait for Firebase to update and enter profile settings.
     @Before
     public void setUp() throws InterruptedException {
-        RecordedEspressoHelper.shouldSkip = false;
+        EspressoHelper.shouldSkip = false;
 
         ActivityScenario.launch(Login.class); //Launch the login screen
 
@@ -246,7 +244,7 @@ public class ProfileSettingsTest extends RecordedEspressoHelper {
         Espresso.pressBack();
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        RecordedEspressoHelper.shouldSkip = true; // Declares that we should skip pressing the button that opens the sidebar.
+        EspressoHelper.shouldSkip = true; // Declares that we should skip pressing the button that opens the sidebar.
 
         openSideBar(SideBarElement.LOGOUT); // Logout
 
@@ -304,7 +302,7 @@ public class ProfileSettingsTest extends RecordedEspressoHelper {
         Espresso.pressBack();
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        RecordedEspressoHelper.shouldSkip = true;
+        EspressoHelper.shouldSkip = true;
 
         openSideBar(SideBarElement.LOGOUT);
 
@@ -457,12 +455,12 @@ public class ProfileSettingsTest extends RecordedEspressoHelper {
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        RecordedEspressoHelper.shouldSkip = true;
+        EspressoHelper.shouldSkip = true;
 
         openSideBar(SideBarElement.EDIT_PROFILE);
 
-        String username =  activityResult.mUsername.getText().toString();
-        String aboutMe = activityResult.mAboutMe.getText().toString();
+        String username =  onView(withId(R.id.settings_input_username)).toString();
+        String aboutMe = onView(withId(R.id.settings_input_about_me)).toString();
 
         //
         assertFalse("Able to save email in username input box. This is an issue.", username.contains(TEST_EMAIL));
@@ -727,7 +725,8 @@ public class ProfileSettingsTest extends RecordedEspressoHelper {
 
     @After
     public void finishOff() {
-        RecordedEspressoHelper.shouldSkip = false;
+        EspressoHelper.shouldSkip = false;
+        this.mActivityTestRule.finishActivity();
         activityResult.isTesting = false;
         activityResult = null;
     }
