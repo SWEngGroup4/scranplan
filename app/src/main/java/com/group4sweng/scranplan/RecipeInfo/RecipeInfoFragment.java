@@ -32,6 +32,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.Helper.ImageHelpers;
+import com.group4sweng.scranplan.Helper.RecipeHelpers;
+import com.group4sweng.scranplan.MealPlanner.Ingredients.Ingredient;
 import com.group4sweng.scranplan.Presentation.Presentation;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.UserInfo.FilterType;
@@ -39,6 +41,7 @@ import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class RecipeInfoFragment extends AppCompatDialogFragment implements FilterType {
@@ -55,7 +58,6 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
     private ImageView mRecipeImage;
     private ImageButton mFavourite;
     private RatingBar mStars;
-    private TextView mServing;
 
     //Variables to hold the data being passed through into the fragment
     protected String recipeID;
@@ -66,7 +68,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
     protected String recipeRating;
     protected String xmlPresentation;
     protected String reheat;
-    protected ArrayList<String> ingredientArray;
+    protected HashMap<String, String> ingredientHashMap;
     protected Boolean planner;
     protected ArrayList<String> favouriteRecipe;
     protected UserInfoPrivate mUser;
@@ -87,7 +89,8 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
     protected TextView mFreezer;
     protected TextView mReheatInformation;
     protected ImageButton mReheatInformationButton;
-
+    protected Button mChangePortions;
+    protected TextView mServing;
 
     private FirebaseFirestore mDatabase;
     private CollectionReference mDataRef;
@@ -97,7 +100,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
     protected ArrayList<String> ingredientList = new ArrayList<>();
 
     // Define a ListView to display the data
-    protected LinearLayout listViewIngredients;
+    protected LinearLayout linearLayoutIngredients;
 
     // Define an ArrayAdapter for the list
     protected ArrayAdapter<String> arrayAdapter;
@@ -116,6 +119,20 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         View layout = inflater.inflate(R.layout.fragment_recipe_info, null);
+
+        recipeID = getArguments().getString("recipeID");
+        recipeName = getArguments().getString("recipeTitle");
+        recipeImage = getArguments().getString("imageURL");
+        recipeDescription = getArguments().getString("recipeDescription");
+        chefName = getArguments().getString("chefName");
+        ingredientHashMap = (HashMap<String, String>) getArguments().getSerializable("ingredientHashMap");
+        recipeRating = getArguments().getString("rating");
+        xmlPresentation = getArguments().getString("xmlURL");
+        planner = getArguments().getBoolean("planner");
+        favouriteRecipe = getArguments().getStringArrayList("favourite");
+        mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
+        isFavourite = getArguments().getBoolean("isFav");
+
 
         builder.setView(layout);
 
@@ -142,6 +159,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
      */
     public void onResume() {
         super.onResume();
+
         ViewGroup.LayoutParams params = getDialog().getWindow().getAttributes();
         params.width = ConstraintLayout.LayoutParams.MATCH_PARENT;
         params.height = ConstraintLayout.LayoutParams.MATCH_PARENT;
@@ -172,7 +190,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         mRecipeFrameLayout = layout.findViewById(R.id.RecipeFrameLayout);
 
         //For the Ingredient array
-       listViewIngredients = layout.findViewById(R.id.listViewText);
+        linearLayoutIngredients = layout.findViewById(R.id.ingredient_list);
 
         //5 star rating bar
         mStars = layout.findViewById(R.id.ratingBar);
@@ -189,7 +207,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         recipeImage = bundle.getString("imageURL");
         recipeDescription = bundle.getString("recipeDescription");
         chefName = bundle.getString("chefName");
-        ingredientArray = bundle.getStringArrayList("ingredientList");
+        ingredientHashMap = (HashMap<String, String>) bundle.getSerializable("ingredientHashMap");
         recipeRating = bundle.getString("rating");
         xmlPresentation = bundle.getString("xmlURL");
         planner = bundle.getBoolean("planner");
@@ -205,6 +223,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         mVegan = bundle.getBoolean("vegan");
         mVegetarian = bundle.getBoolean("vegetarian");
         servingAmount = bundle.getString("peopleServes");
+
         canFreeze = bundle.getBoolean("canFreeze");
         fridgeTime = bundle.getString("fridgeDays");
         favouriteRecipe = getArguments().getStringArrayList("favourite");
@@ -271,7 +290,8 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
                 public void onClick(View v) {
                     // Adds recipe to planner
                     Fragment fragment = getTargetFragment();
-                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, new Intent());
+                    Intent i = new Intent();
+                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, i);
                     dismiss();
                 }
             });
@@ -331,28 +351,37 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
 
             }
         });
-
-
     }
+
+    protected void updateIngredientsList(){
+        ArrayList<Ingredient> ingredientList = RecipeHelpers.convertToIngredientFormat(ingredientHashMap);
+
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        for(Ingredient ingredient : ingredientList){
+            View ingredientView = inflater.inflate(R.layout.ingredient, linearLayoutIngredients, false);
+
+            TextView name = ingredientView.findViewById(R.id.ingredient_name);
+            name.setText(ingredient.getName());
+
+            TextView portion = ingredientView.findViewById(R.id.ingredient_portion);
+            portion.setText(ingredient.getPortion());
+
+            linearLayoutIngredients.addView(ingredientView);
+        }
+    }
+
 
     protected void displayInfo(View layout) {
 
-        //Getting ingredients array and assigning it to the linear layout view
-        arrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, ingredientList);
-        arrayAdapter.addAll(ingredientArray);
+        updateIngredientsList();
 
         //Assigning data passed through into the various xml views
         mTitle = layout.findViewById(R.id.Title);
         mChefName = layout.findViewById(R.id.chefName);
         mDescription = layout.findViewById(R.id.description);
         mRecipeImage = layout.findViewById(R.id.recipeImage);
-        final int adapterCount = arrayAdapter.getCount();
-
-        for (int i = 0; i < adapterCount; i++) {
-            View item = arrayAdapter.getView(i, null, null);
-            listViewIngredients.addView(item);
-        }
-
+        mChangePortions = layout.findViewById(R.id.changePortions);
+        mChangePortions.setVisibility(View.GONE);
 
         //Sets the serving amount for each recipe
         mServing.setText("Serves: " + servingAmount);
@@ -419,7 +448,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         mFavourite = layout.findViewById(R.id.addFavorite);
         mDataRef = mDatabase.collection("recipes");
         final DocumentReference docRef = mDataRef.document(recipeID);
-        final String user = mUser.getUID();
+        final int user = mUser.getUID().hashCode();
 
         /*
          * After each operation, it will show the text "Added to favourites!" or "Removed from favourites!".

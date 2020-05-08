@@ -118,7 +118,7 @@ public class SearchRecyclerAdapter extends RecyclerView.Adapter<SearchRecyclerAd
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mSearchListFragment != null){
+                if(mSearchListFragment != null && mDataset.get(position).document != null){
                     mSearchListFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
                 }else if(mProfileRecipes != null){
                     mProfileRecipes.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);

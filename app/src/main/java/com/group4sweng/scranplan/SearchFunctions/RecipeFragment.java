@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -33,9 +34,8 @@ import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This class builds the horizontal scrolls of custom preference recipe selection for the user on the
@@ -118,6 +118,17 @@ public class RecipeFragment extends Fragment {
             }
         }
         else planner = false;
+
+        if (planner) {
+
+            TextView title = view.findViewById(R.id.recipeFragmentTitle);
+            ImageButton returnButton = view.findViewById(R.id.recipeFragmentReturnButton);
+            title.setVisibility(View.VISIBLE);
+            returnButton.setVisibility(View.VISIBLE);
+            returnButton.setOnClickListener(v ->
+                    getTargetFragment().onActivityResult(getTargetRequestCode(),
+                            Activity.RESULT_CANCELED, null));
+        }
 
         Home home = (Home) getActivity();
 
@@ -585,21 +596,12 @@ public class RecipeFragment extends Fragment {
      */
     public void recipeSelected(DocumentSnapshot document) {
 
-        //Takes ingredient array from snap shot and reformats before being passed through to fragment
-        ArrayList<String> ingredientArray = new ArrayList<>();
-
-        Map<String, Map<String, Object>> test = (Map) document.getData().get("Ingredients");
-        Iterator hmIterator = test.entrySet().iterator();
-
-        while (hmIterator.hasNext()) {
-            Map.Entry mapElement = (Map.Entry) hmIterator.next();
-            String string = mapElement.getKey().toString() + ": " + mapElement.getValue().toString();
-            ingredientArray.add(string);
-        }
+        //Takes ingredient HashMap from the snapshot.
+        HashMap<String, String> ingredientHashMap = (HashMap<String, String>) document.getData().get("Ingredients");
 
         //Creating a bundle so all data needed from firestore query snapshot can be passed through into fragment class
         mBundle = new Bundle();
-        mBundle.putStringArrayList("ingredientList", ingredientArray);
+        mBundle.putSerializable("ingredientHashMap", ingredientHashMap);
         mBundle.putString("recipeID", document.getId());
         mBundle.putString("xmlURL", document.get("xml_url").toString());
         mBundle.putString("recipeTitle", document.get("Name").toString());
@@ -623,8 +625,7 @@ public class RecipeFragment extends Fragment {
         mBundle.putBoolean("vegetarian", document.getBoolean("vegetarian"));
 
         ArrayList faves = (ArrayList) document.get("favourite");
-        mBundle.putBoolean("isFav", faves.contains(user.getUID()));
-
+        mBundle.putBoolean("isFav", faves.contains(user.getUID().hashCode()));
 
         RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
         recipeDialogFragment.setArguments(mBundle);
