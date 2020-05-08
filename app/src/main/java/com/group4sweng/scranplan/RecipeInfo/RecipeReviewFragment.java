@@ -56,6 +56,8 @@ public class RecipeReviewFragment extends FeedFragment {
     private String mRecipeTitle;
     private String mRecipeDescription;
     private String docID;
+    private Boolean reviewMade;
+    private String postID;
 
     protected HashMap<String, Double> ratingMap;
 
@@ -96,6 +98,10 @@ public class RecipeReviewFragment extends FeedFragment {
         return layout;
     }
 
+    /**
+     * Method To check if user has already left a review on a recipe. If the user has, it will populate the review input box with their previous
+     * review so they can edit if they wish.
+     */
     private void checkReview() {
 
         mDatabase.collection("reviews").document(docID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -106,10 +112,24 @@ public class RecipeReviewFragment extends FeedFragment {
                         Log.e(TAG, "exists ");
 
                         DocumentSnapshot document = task.getResult();
-                        //mPostBodyInput.setText(document.get("overallReview").toString());
+                        mStars.setRating(Float.parseFloat(document.get("overallRating").toString()));
+                        postID = document.get("post").toString();
+
+                        mDatabase.collection("posts").document(postID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> nextTask) {
+
+                                DocumentSnapshot d = nextTask.getResult();
+                                mPostBodyInput.setText(d.get("body").toString());
+
+                            }
+                        });
+
+                        reviewMade = true;
 
                     } else {
                         Log.e("FdRc", "Unable to retrieve user document in Firestore ");
+                        reviewMade = false;
                     }
                 }
             }
@@ -162,7 +182,6 @@ public class RecipeReviewFragment extends FeedFragment {
 
                 addingReviewFirestore(layout);
 
-
             }
         });
 
@@ -196,12 +215,6 @@ public class RecipeReviewFragment extends FeedFragment {
 
     private void calculateRating(){
 
-
-        Log.i(TAG, "Values: "+ ratingMap);
-
-//        ratingMap.put("overallRating", 3f);
-//        ratingMap.put("totalRates", 2f);
-
         newTotalRates = ratingMap.get("totalRates") + 1;
         newOverallRating = ((ratingMap.get("overallRating") * ratingMap.get("totalRates")) + getNewRating) / newTotalRates;
 
@@ -226,53 +239,107 @@ public class RecipeReviewFragment extends FeedFragment {
 
         String body = mPostBodyInput.getText().toString();
 
-        // Creating map to store data in posts collection
-        HashMap<String, Object> postsMap = new HashMap<>();
-        postsMap.put("comments", 0);
-        postsMap.put("likes", 0);
-        postsMap.put("body", body);
-        postsMap.put("overallRating", getNewRating);
-        postsMap.put("timestamp", FieldValue.serverTimestamp());
-        postsMap.put("author", user.getUID());
-        postsMap.put("isPic", mPostPic.isChecked());
-        postsMap.put("isRecipe", true);
-        postsMap.put("isReview", true);
-        postsMap.put("recipeDescription", mRecipeDescription);
-        postsMap.put("recipeTitle", mRecipeTitle);
-        postsMap.put("recipeID", mRecipeID);
+        if(!reviewMade){
+            // Creating map to store data in posts collection
+            HashMap<String, Object> postsMap = new HashMap<>();
+            postsMap.put("comments", 0);
+            postsMap.put("likes", 0);
+            postsMap.put("body", body);
+            postsMap.put("overallRating", getNewRating);
+            postsMap.put("timestamp", FieldValue.serverTimestamp());
+            postsMap.put("author", user.getUID());
+            postsMap.put("isPic", mPostPic.isChecked());
+            postsMap.put("isRecipe", true);
+            postsMap.put("isReview", true);
+            postsMap.put("recipeDescription", mRecipeDescription);
+            postsMap.put("recipeTitle", mRecipeTitle);
+            postsMap.put("recipeID", mRecipeID);
 
-        //Saving map to the firestore
-        DocumentReference postRef = mDatabase.collection("posts").document();
-        Log.e(TAG, "Added new post ");
-        //On complete listener makes sure post has been saved on firestore before getting document ID and saving
-        //in reviews collection
-        postRef.set(postsMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                //Document ID for review post
-                docID = user.getUID() + "-" + mRecipeID;
-                HashMap<String, Object> reviewMap = new HashMap<>();
+            //Saving map to the firestore
+            DocumentReference postRef = mDatabase.collection("posts").document();
+            Log.e(TAG, "Added new post ");
+            //On complete listener makes sure post has been saved on firestore before getting document ID and saving
+            //in reviews collection
+            postRef.set(postsMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    //Document ID for review post
+                    docID = user.getUID() + "-" + mRecipeID;
+                    HashMap<String, Object> reviewMap = new HashMap<>();
 
-                reviewMap.put("user", user.getUID());
-                reviewMap.put("overallRating", getNewRating);
-                reviewMap.put("post", postRef.getId());
-                reviewMap.put("timestamp", FieldValue.serverTimestamp());
+                    reviewMap.put("user", user.getUID());
+                    reviewMap.put("overallRating", getNewRating);
+                    reviewMap.put("post", postRef.getId());
+                    reviewMap.put("timestamp", FieldValue.serverTimestamp());
 
-                //Saving review map to the firestore with custom document ID
+                    //Saving review map to the firestore with custom document ID
 
-                Log.e(TAG, "Added new post ");
-                reviewDocRef.set(reviewMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        addPosts(layout);
-                    }
-                });
+                    Log.e(TAG, "Added new post ");
+                    reviewDocRef.set(reviewMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            addPosts(layout);
+                        }
+                    });
 
-                // Update the UserInfoPrivate class with this new image URL.
-                POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
-                loadingDialog.dismissDialog();
-            }
-        });
+                    // Update the UserInfoPrivate class with this new image URL.
+                    POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
+                    loadingDialog.dismissDialog();
+                    reviewMade = true;
+                    postID = postRef.getId();
+                }
+            });
+        }
+        else {
+            // Creating map to store data in posts collection
+            HashMap<String, Object> postsMap = new HashMap<>();
+            postsMap.put("comments", 0);
+            postsMap.put("likes", 0);
+            postsMap.put("body", body);
+            postsMap.put("overallRating", getNewRating);
+            postsMap.put("timestamp", FieldValue.serverTimestamp());
+            postsMap.put("author", user.getUID());
+            postsMap.put("isPic", mPostPic.isChecked());
+            postsMap.put("isRecipe", true);
+            postsMap.put("isReview", true);
+            postsMap.put("recipeDescription", mRecipeDescription);
+            postsMap.put("recipeTitle", mRecipeTitle);
+            postsMap.put("recipeID", mRecipeID);
+
+            //Saving map to the firestore
+            DocumentReference postRef = mDatabase.collection("posts").document(postID);
+            Log.e(TAG, "Added new post ");
+            //On complete listener makes sure post has been saved on firestore before getting document ID and saving
+            //in reviews collection
+            postRef.set(postsMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    //Document ID for review post
+                    docID = user.getUID() + "-" + mRecipeID;
+                    HashMap<String, Object> reviewMap = new HashMap<>();
+
+                    reviewMap.put("user", user.getUID());
+                    reviewMap.put("overallRating", getNewRating);
+                    reviewMap.put("post", postRef.getId());
+                    reviewMap.put("timestamp", FieldValue.serverTimestamp());
+
+                    //Saving review map to the firestore with custom document ID
+
+                    Log.e(TAG, "Added new post ");
+                    reviewDocRef.set(reviewMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            addPosts(layout);
+                        }
+                    });
+
+                    // Update the UserInfoPrivate class with this new image URL.
+                    POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
+                    loadingDialog.dismissDialog();
+                }
+            });
+
+        }
 
     }
 

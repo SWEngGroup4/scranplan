@@ -92,7 +92,7 @@ public class FeedFragment extends Fragment {
     private static final int MAX_IMAGE_FILE_SIZE_IN_MB = 4; // Max storage image size for the profile picture.
     protected static boolean POST_IS_UPLOADING = false; // Boolean to determine if the image is uploading currently.
 
-    private Uri mImageUri; // Unique image uri.
+    protected Uri mImageUri; // Unique image uri.
     ImageView mUploadedImage;
 
     float ratingNum;
