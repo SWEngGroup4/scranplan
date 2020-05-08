@@ -37,7 +37,12 @@ import static org.hamcrest.Matchers.allOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-/** Test the Presentation Activity.
+/**
+ * Test the Feed Fragment.
+ * Author(s): LNewman
+ * (c) CoDev 2020
+ *
+ * Test the Presentation Activity.
  *  Tests are included to make sure information is displayed, user can flick through and see comments,
  *  add comments and delete comments.
  */
@@ -46,7 +51,7 @@ import static org.junit.Assert.assertNotEquals;
 public class PresentationTest {
 
     //  Android Log tag.
-    String TAG = "homeTest";
+    String TAG = "PresTest";
 
     private UserInfoPrivate testUser;
 

@@ -75,10 +75,12 @@ import static com.group4sweng.scranplan.Helper.ImageHelpers.isImageFormatSupport
 
 
 /**
- * This class builds the horizontal scrolls of custom preference recipe selection for the user on the
- * home screen. Each of these scrolls is infinite in length, loading 5 recipes at a time to minimise
- * reads from the Firestore yet still giving the user an infinite and responsive experience with
- * scroll listeners to check where the user is interacting with these scrolls.
+ * Class for the home page feed fragment.
+ * Author(s): LNewman
+ * (c) CoDev 2020
+ *
+ * This class builds the vertical scroll of followed users in the feed fragment but also adds the
+ * functionality to create a new posts that will then populate on the feed and within this users profile.
  */
 public class FeedFragment extends Fragment {
 
@@ -89,7 +91,6 @@ public class FeedFragment extends Fragment {
     private static final int PERMISSION_CODE = 1001;
 
     private static final int MAX_IMAGE_FILE_SIZE_IN_MB = 4; // Max storage image size for the profile picture.
-    private static boolean POST_IS_UPLOADING = false; // Boolean to determine if the image is uploading currently.
 
     private Uri mImageUri; // Unique image uri.
     ImageView mUploadedImage;
@@ -386,23 +387,7 @@ public class FeedFragment extends Fragment {
 
     }
 
-    private void postPicClick(){
-        //  Check if the version of Android is above 'Marshmallow' we check for additional permission.
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
 
-            //  Checks if permission has already been granted to read from external storage (our image picker)
-            if(getContext().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
-                //   Ask for permission.
-                String [] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
-                requestPermissions(permissions, PERMISSION_CODE);
-            } else {
-                //  Read permission has been granted already.
-                imageSelector();
-            }
-        } else {
-            imageSelector();
-        }
-    }
 
     /**
      *  Setting up page listeners for when buttons are pressed
@@ -442,7 +427,6 @@ public class FeedFragment extends Fragment {
         mPostButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                POST_IS_UPLOADING = true;
                 loadingDialog.startLoadingDialog();
                 String body = mPostBodyInput.getText().toString();
                 //TODO set these variables from the addition of these items
@@ -508,9 +492,6 @@ public class FeedFragment extends Fragment {
                                                                                                            mPostPic.setChecked(false);
 
                                                                                                            addPosts(mainView);
-
-                                                                                                           // Update the UserInfoPrivate class with this new image URL.
-                                                                                                           POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
                                                                                                            loadingDialog.dismissDialog();
                                                                                                        }
                                                                                                    });
@@ -538,9 +519,6 @@ public class FeedFragment extends Fragment {
                                                                                                            mPostPic.setChecked(false);
 
                                                                                                            addPosts(mainView);
-
-                                                                                                           // Update the UserInfoPrivate class with this new image URL.
-                                                                                                           POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
                                                                                                            loadingDialog.dismissDialog();
                                                                                                        }
                                                                                                    });
@@ -604,9 +582,6 @@ public class FeedFragment extends Fragment {
                                                                                               mPostPic.setChecked(false);
 
                                                                                               addPosts(mainView);
-
-                                                                                              // Update the UserInfoPrivate class with this new image URL.
-                                                                                              POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
                                                                                               loadingDialog.dismissDialog();
                                                                                           }
                                                                                       });
@@ -634,9 +609,6 @@ public class FeedFragment extends Fragment {
                                                                                               mPostPic.setChecked(false);
 
                                                                                               addPosts(mainView);
-
-                                                                                              // Update the UserInfoPrivate class with this new image URL.
-                                                                                              POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
                                                                                               loadingDialog.dismissDialog();
                                                                                           }
                                                                                       });
