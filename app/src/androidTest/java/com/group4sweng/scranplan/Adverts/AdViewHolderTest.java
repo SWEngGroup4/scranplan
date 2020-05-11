@@ -28,6 +28,7 @@ import static org.junit.Assert.*;
 
 /***
  * Testing to ensure adverts are visible in the application.
+ * Linked with user story C19
  */
 public class AdViewHolderTest implements Credentials {
     String TAG = "AdvertTest";
