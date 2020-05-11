@@ -27,6 +27,7 @@ public class HomeQueries {
     }
 
     HashMap queries;
+    public static final int NUMBER_OF_RECIPES = 10;
     final FirebaseFirestore database = FirebaseFirestore.getInstance();
     CollectionReference ref = database.collection("recipes");
 
@@ -84,6 +85,6 @@ public class HomeQueries {
         if(user.getPreferences().isAllergy_soya()){
             query = query.whereEqualTo("noSoy", true);
         }
-        return query.limit(5);
+        return query.limit(NUMBER_OF_RECIPES);
     }
 }
