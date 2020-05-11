@@ -602,7 +602,7 @@ public class RecipeFragment extends Fragment {
             // If scroll views fail due to no user, this error is reported
             Log.e(TAG, "ERROR: Loading scroll views - We were unable to find user.");
         }
-        loadNativeAds();
+        if(dataScore != null){ loadNativeAds();}
         return view;
     }
 
@@ -655,7 +655,7 @@ public class RecipeFragment extends Fragment {
         return;
         } else {
          */
-        if (mNativeAds.size() <= 0) {
+        if (mNativeAds.size() <= 0 || dataScore.size() <= 0) {
             return;
         }
 
