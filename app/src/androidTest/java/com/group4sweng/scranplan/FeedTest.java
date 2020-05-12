@@ -27,12 +27,14 @@ import java.util.HashMap;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.pressKey;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static com.group4sweng.scranplan.HomeTest.typeSearchViewText;
 import static org.hamcrest.Matchers.allOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -102,16 +104,35 @@ public class FeedTest {
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-//        onView(withId(R.id.recipeIcon))
-//                .perform(click());
-//
-//
-//        Thread.sleep(THREAD_SLEEP_TIME/4);
+        onView(withId(R.id.recipeIcon))
+                .perform(click());
 
-//        onView(withId(R.id.recipeIcon))
-//                .perform(click());
-//
-//        Thread.sleep(THREAD_SLEEP_TIME);
+
+        Thread.sleep(THREAD_SLEEP_TIME/4);
+        onView(withId(R.id.recipeIcon))
+                .perform(click());
+
+        Thread.sleep(THREAD_SLEEP_TIME);
+
+        onView(withId(R.id.menuSearch)).perform(click());
+        onView(isAssignableFrom(SearchView.class))
+                .perform(typeSearchViewText("bacon"))
+                .perform(pressKey(KeyEvent.KEYCODE_ENTER));
+
+
+        Thread.sleep(THREAD_SLEEP_TIME/4);
+
+        onView(withText("Braised peas with bacon, lentils and cod"))
+                .check(matches(isDisplayed()));
+
+        onView(withText("Braised peas with bacon, lentils and cod"))
+                .perform(scrollTo())
+                .perform(click());
+
+        onView(withId(R.id.recipeIcon))
+                .perform(click());
+
+        Thread.sleep(THREAD_SLEEP_TIME);
 //
 ////        onView(withId(R.id.recipeListCardView))
 ////                .perform(click());

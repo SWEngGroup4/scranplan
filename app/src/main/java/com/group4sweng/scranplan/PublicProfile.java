@@ -136,7 +136,6 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
             loadFirebase(FirebaseLoadType.PARTIAL);
             searchers = mUserProfile.getUID();
         } else if(UID != null){ // If not instead search for the profile via the associated UID and reference Firebase.
-        } else {
             Log.i(TAG, "Loading data from Firebase");
             loadFirebase(FirebaseLoadType.FULL);
             searchers = UID;
@@ -150,10 +149,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
+
 
     private void initPageItems(){
         mProfileImage = findViewById(R.id.public_profile_image);
@@ -229,10 +225,8 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
     //  Load all the data grabbed from the Firebase document snapshot.
     private void loadProfile(DocumentSnapshot profile) {
-        if(retrieveAboutMe && !profile.get("about").equals("")) { //  If we are allowed to retrieve this data. do so.
+        if(retrieveAboutMe) { //  If we are allowed to retrieve this data. do so.
             mAboutMe.setText((String) profile.get("about"));
-            LinearLayout aboutLayout = findViewById(R.id.aboutMeLayout);
-            aboutLayout.setVisibility(View.VISIBLE);
         } else {
             View profileAboutMeDesc = findViewById(R.id.public_profile_about_me_desc);
             View profileAboutMe = findViewById(R.id.profile_about_me);
@@ -250,18 +244,19 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                         .load(profile.get("imageURL"))
                         .apply(RequestOptions.circleCropTransform())
                         .into(mProfileImage); }
-            }
+        }
 
         if(retrieveUsername){ mUsername.setText((String) profile.get("displayName")); }
-
 
         if(retrieveFilters){
             @SuppressWarnings("unchecked")
             HashMap<String, Object> filters = (HashMap<String, Object>) profile.get("preferences");
             initFiltersIcons(ALLERGENS, filters);
             initFiltersIcons(DIETARY, filters);
-            LinearLayout dietLayout = findViewById(R.id.dietLayout);
-            dietLayout.setVisibility(View.VISIBLE);
+        } else { // Remove all checkboxes if filters are hidden.
+            LinearLayout allergyLayout = findViewById(R.id.allergyLayout);
+            View allergyPressInfo = findViewById(R.id.allergyPressInfo);
+            View profileSettingsAllergens = findViewById(R.id.profile_settings_allergens);
 
             allergyLayout.setVisibility(View.GONE);
             allergyPressInfo.setVisibility(View.GONE);

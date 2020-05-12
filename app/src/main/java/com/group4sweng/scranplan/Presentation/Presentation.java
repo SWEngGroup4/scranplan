@@ -354,20 +354,8 @@ public class Presentation extends AppCompatActivity {
         /* Setting up the post comment listener, removing the text from the box and saving
          it as a new document in the Firestore, the data is also reloaded */
             mPostComment.setOnClickListener(v -> {
-                String content = mInputComment.getText().toString();
-                mInputComment.getText().clear();
-
-                CollectionReference ref = mDatabase.collection("recipes").document(recipeID).collection("slide" + currentSlide[0].toString());
-                Log.e(TAG, "Added new doc ");
-                // Saving the comment as a new document
-                HashMap<String, Object> map = new HashMap<>();
-                map.put("authorID", mUser.getUID());
-                map.put("author", mUser.getDisplayName());
-                map.put("comment", content);
-                map.put("timestamp", FieldValue.serverTimestamp());
-                // Saving default user to Firebase Firestore database
-                ref.add(map);
-                addFirestoreComments(currentSlide[0].toString());
+            String content = mInputComment.getText().toString();
+            mInputComment.getText().clear();
             CollectionReference ref = mDatabase.collection("recipes").document(recipeID).collection("slide" + currentSlide[0].toString());
             Log.e(TAG, "Added new doc ");
             // Saving the comment as a new document
