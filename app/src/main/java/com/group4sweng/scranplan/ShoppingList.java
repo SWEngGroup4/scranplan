@@ -77,14 +77,16 @@ public class ShoppingList extends AppCompatActivity {
                             ArrayList<String> ingredientArray = RecipeHelpers.convertToIngredientListFormat(updateIngredientList);
 
                             for (String ingredient : ingredientArray) {
-                                if (ingredientArray.contains(ingredient)) {
+                                if (updateIngredientList.containsValue(ingredient)) {
+                                    System.out.println("Already got one of thess in yo lsit ");
 
-                                    TextView tv = (TextView) findViewById(R.id.textView2);
-                                    tv.setTextSize(15);
-                                    tv.append(ingredient);
+
                                 } else
                                     {
                                     System.out.println("Already got one of thess in yo lsit ");
+                                        TextView tv = (TextView) findViewById(R.id.textView2);
+                                        tv.setTextSize(15);
+                                        tv.append(ingredient);
                                 }
 
                         }
