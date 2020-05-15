@@ -25,6 +25,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
+import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 import java.util.List;
@@ -44,15 +45,15 @@ public class recipeReviewRecyclerAdapter extends RecyclerView.Adapter <recipeRev
         private String userID;
         private String postID;
         private String rating;
-        private Uri recipePic;
+        private String recipePic;
         private String timeStamp;
 
-        public reviewData(String textBody, String userID, String rating, Timestamp timeStampIn, String postID){
+        public reviewData(String textBody, String userID, String rating, Timestamp timeStampIn,String recipePic, String postID){
 
             this.textBody = textBody;
             this.userID = userID;
             this.rating = rating;
-            //this.recipePic = recipePic;
+            this.recipePic = recipePic;
             String temp = timeStampIn.toDate().toString();
             this.timeStamp = temp;
             this.postID = postID;
@@ -97,6 +98,15 @@ public class recipeReviewRecyclerAdapter extends RecyclerView.Adapter <recipeRev
             holder.postBody.setText("deleted");
         }
 
+        if(mData.get(position).recipePic != null) {
+
+            holder.recipeImageView.setVisibility(View.VISIBLE);
+            Picasso.get().load(mData.get(position).recipePic).into(holder.recipeImageView);
+        }
+        else{
+            holder.recipeImageView.setVisibility(View.INVISIBLE);
+            Log.e("FdRc", "User details retrieval : Unable to retrieve user document in Firestore ");
+        }
 
         holder.rating.setRating(Float.parseFloat(mData.get(position).rating));
         holder.timeStamp.setText(mData.get(position).timeStamp);
@@ -166,6 +176,7 @@ public class recipeReviewRecyclerAdapter extends RecyclerView.Adapter <recipeRev
         private CheckBox likedOrNot;
         private boolean likedB4;
         private TextView numLikes;
+        private ImageView recipeImageView;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -177,6 +188,7 @@ public class recipeReviewRecyclerAdapter extends RecyclerView.Adapter <recipeRev
             likedOrNot = itemView.findViewById(R.id.likeIcon);
             numLikes = itemView.findViewById(R.id.postNumLike);
             cardView = itemView.findViewById(R.id.postCardView);
+            recipeImageView = itemView.findViewById(R.id.postRecipeImageViewAdapter);
 
         }
     }

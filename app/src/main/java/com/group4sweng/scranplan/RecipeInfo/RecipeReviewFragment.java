@@ -12,6 +12,7 @@ import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -29,6 +30,8 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.group4sweng.scranplan.Exceptions.ImageException;
 import com.group4sweng.scranplan.LoadingDialog;
 import com.group4sweng.scranplan.R;
@@ -44,6 +47,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+import static java.sql.Types.NULL;
+
 
 public class RecipeReviewFragment extends FeedFragment {
 
@@ -58,6 +64,7 @@ public class RecipeReviewFragment extends FeedFragment {
     private String docID;
     private Boolean reviewMade;
     private String postID;
+    private String oldUserStarRating;
 
     protected HashMap<String, Double> ratingMap;
 
@@ -67,7 +74,10 @@ public class RecipeReviewFragment extends FeedFragment {
     DocumentReference reviewDocRef;
 
     private double getNewRating;
+    private double oldOverallRating;
     private double newOverallRating;
+    private double oldUserRating;
+    private double oldTotalRates;
     private double newTotalRates;
     final String TAG = "Data";
 
@@ -114,6 +124,7 @@ public class RecipeReviewFragment extends FeedFragment {
                         DocumentSnapshot document = task.getResult();
                         mStars.setRating(Float.parseFloat(document.get("overallRating").toString()));
                         postID = document.get("post").toString();
+                        oldUserStarRating = document.get("overallRating").toString();
 
                         mDatabase.collection("posts").document(postID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
@@ -215,6 +226,26 @@ public class RecipeReviewFragment extends FeedFragment {
 
     private void calculateRating(){
 
+        if(reviewMade){
+
+            oldUserRating = Double.parseDouble(oldUserStarRating);
+            oldTotalRates = ratingMap.get("totalRates")-1;
+            oldOverallRating = (((ratingMap.get("overallRating") * ratingMap.get("totalRates")) - oldUserRating)) / oldTotalRates;
+            Log.i(TAG, "Values: "+ oldOverallRating);
+
+            ratingMap.put("overallRating", oldOverallRating);
+            ratingMap.put("totalRates", oldTotalRates);
+
+            HashMap<String, Object> updateMap = new HashMap<>();
+            CollectionReference ref = mDatabase.collection("recipes");
+            DocumentReference documentReference = ref.document(mRecipeID);
+            updateMap.put("rating", ratingMap);
+            documentReference.update(updateMap);
+
+            Log.i(TAG, "Values: "+ ratingMap);
+
+        }
+
         newTotalRates = ratingMap.get("totalRates") + 1;
         newOverallRating = ((ratingMap.get("overallRating") * ratingMap.get("totalRates")) + getNewRating) / newTotalRates;
 
@@ -232,16 +263,18 @@ public class RecipeReviewFragment extends FeedFragment {
 
     }
 
-    private void addingReviewFirestore(View layout){
+    private void addingReviewFirestore(View layout) {
 
         POST_IS_UPLOADING = true;
         loadingDialog.startLoadingDialog();
 
         String body = mPostBodyInput.getText().toString();
+        HashMap<String, Object> postsMap = new HashMap<>();
+        HashMap<String, Object> reviewMap = new HashMap<>();
 
-        if(!reviewMade){
+        if (!reviewMade) {
             // Creating map to store data in posts collection
-            HashMap<String, Object> postsMap = new HashMap<>();
+
             postsMap.put("comments", 0);
             postsMap.put("likes", 0);
             postsMap.put("body", body);
@@ -260,39 +293,96 @@ public class RecipeReviewFragment extends FeedFragment {
             Log.e(TAG, "Added new post ");
             //On complete listener makes sure post has been saved on firestore before getting document ID and saving
             //in reviews collection
-            postRef.set(postsMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    //Document ID for review post
-                    docID = user.getUID() + "-" + mRecipeID;
-                    HashMap<String, Object> reviewMap = new HashMap<>();
+            if (mPostPic.isChecked()) {
+                try {
+                    checkImage(mImageUri); // Check the image doesn't throw any exceptions
 
-                    reviewMap.put("user", user.getUID());
-                    reviewMap.put("overallRating", getNewRating);
-                    reviewMap.put("post", postRef.getId());
-                    reviewMap.put("timestamp", FieldValue.serverTimestamp());
+                    // State that the image is still uploading and therefore we shouldn't save a reference on firebase to it yet.
 
-                    //Saving review map to the firestore with custom document ID
+                        /*  Create a unique reference of the format. 'image/profile/[UNIQUE UID]/profile_image.[EXTENSION].
+                            Whereby [UNIQUE UID] = the Unique id of the user, [EXTENSION] = file image extension. E.g. .jpg,.png. */
+                    StorageReference mImageStorage = mStorageReference.child("images/posts/" + user.getUID() + "/IMAGEID" + (user.getPosts() + 1)); //todo input image id
 
-                    Log.e(TAG, "Added new post ");
-                    reviewDocRef.set(reviewMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    //  Check if the upload fails
+                    mImageStorage.putFile(mImageUri).addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Failed to upload profile image.", Toast.LENGTH_SHORT).show()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            addPosts(layout);
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            mImageStorage.getDownloadUrl().addOnSuccessListener(locationUri -> { // Successful upload.
+                                postsMap.put("uploadedImageURL", locationUri.toString());
+
+                                postRef.set(postsMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        //Document ID for review post
+                                        docID = user.getUID() + "-" + mRecipeID;
+
+
+                                        reviewMap.put("user", user.getUID());
+                                        reviewMap.put("overallRating", getNewRating);
+                                        reviewMap.put("post", postRef.getId());
+                                        reviewMap.put("timestamp", FieldValue.serverTimestamp());
+
+                                        //Saving review map to the firestore with custom document ID
+
+                                        Log.e(TAG, "Added new post ");
+                                        reviewDocRef.set(reviewMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                mDatabase.collection("users").document(user.getUID()).update("posts", FieldValue.increment(1));
+                                                addPosts(layout);
+                                            }
+                                        });
+
+                                        // Update the UserInfoPrivate class with this new image URL.
+                                        POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
+                                        loadingDialog.dismissDialog();
+                                        reviewMade = true;
+                                        postID = postRef.getId();
+                                    }
+                                });
+                            });
                         }
                     });
-
-                    // Update the UserInfoPrivate class with this new image URL.
-                    POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
-                    loadingDialog.dismissDialog();
-                    reviewMade = true;
-                    postID = postRef.getId();
+                } catch (ImageException e) {
+                    Log.e(TAG, "Failed to upload photo to Firebase");
+                    Toast.makeText(getApplicationContext(), "Failed to upload photo to Firebase, please try again.", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                    return;
                 }
-            });
+            }
+            else {
+                postsMap.put("uploadedImageURL", NULL);
+                postRef.set(postsMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        //Document ID for review post
+                        docID = user.getUID() + "-" + mRecipeID;
+                        //HashMap<String, Object> reviewMap = new HashMap<>();
+
+                        reviewMap.put("user", user.getUID());
+                        reviewMap.put("overallRating", getNewRating);
+                        reviewMap.put("post", postRef.getId());
+                        reviewMap.put("timestamp", FieldValue.serverTimestamp());
+
+                        //Saving review map to the firestore with custom document ID
+
+                        Log.e(TAG, "Added new post ");
+                        reviewDocRef.set(reviewMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                addPosts(layout);
+                            }
+                        });
+
+                        // Update the UserInfoPrivate class with this new image URL.
+                        POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
+                        loadingDialog.dismissDialog();
+                    }
+                });
+
+            }
         }
-        else {
-            // Creating map to store data in posts collection
-            HashMap<String, Object> postsMap = new HashMap<>();
+        else{
             postsMap.put("comments", 0);
             postsMap.put("likes", 0);
             postsMap.put("body", body);
@@ -311,36 +401,98 @@ public class RecipeReviewFragment extends FeedFragment {
             Log.e(TAG, "Added new post ");
             //On complete listener makes sure post has been saved on firestore before getting document ID and saving
             //in reviews collection
-            postRef.set(postsMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    //Document ID for review post
-                    docID = user.getUID() + "-" + mRecipeID;
-                    HashMap<String, Object> reviewMap = new HashMap<>();
+            if (mPostPic.isChecked()) {
+                try {
+                    checkImage(mImageUri); // Check the image doesn't throw any exceptions
 
-                    reviewMap.put("user", user.getUID());
-                    reviewMap.put("overallRating", getNewRating);
-                    reviewMap.put("post", postRef.getId());
-                    reviewMap.put("timestamp", FieldValue.serverTimestamp());
+                    // State that the image is still uploading and therefore we shouldn't save a reference on firebase to it yet.
 
-                    //Saving review map to the firestore with custom document ID
+                        /*  Create a unique reference of the format. 'image/profile/[UNIQUE UID]/profile_image.[EXTENSION].
+                            Whereby [UNIQUE UID] = the Unique id of the user, [EXTENSION] = file image extension. E.g. .jpg,.png. */
+                    StorageReference mImageStorage = mStorageReference.child("images/posts/" + user.getUID() + "/IMAGEID" + (user.getPosts() + 1)); //todo input image id
 
-                    Log.e(TAG, "Added new post ");
-                    reviewDocRef.set(reviewMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    //  Check if the upload fails
+                    mImageStorage.putFile(mImageUri).addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Failed to upload profile image.", Toast.LENGTH_SHORT).show()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            addPosts(layout);
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            mImageStorage.getDownloadUrl().addOnSuccessListener(locationUri -> { // Successful upload.
+                                postsMap.put("uploadedImageURL", locationUri.toString());
+
+                                postRef.set(postsMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        //Document ID for review post
+                                        docID = user.getUID() + "-" + mRecipeID;
+
+
+                                        reviewMap.put("user", user.getUID());
+                                        reviewMap.put("overallRating", getNewRating);
+                                        reviewMap.put("post", postRef.getId());
+                                        reviewMap.put("timestamp", FieldValue.serverTimestamp());
+
+                                        //Saving review map to the firestore with custom document ID
+
+                                        Log.e(TAG, "Added new post ");
+                                        reviewDocRef.set(reviewMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                mDatabase.collection("users").document(user.getUID()).update("posts", FieldValue.increment(1));
+                                                addPosts(layout);
+                                            }
+                                        });
+
+                                        // Update the UserInfoPrivate class with this new image URL.
+                                        POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
+                                        loadingDialog.dismissDialog();
+                                        reviewMade = true;
+                                        postID = postRef.getId();
+                                    }
+                                });
+                            });
                         }
                     });
-
-                    // Update the UserInfoPrivate class with this new image URL.
-                    POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
-                    loadingDialog.dismissDialog();
+                } catch (ImageException e) {
+                    Log.e(TAG, "Failed to upload photo to Firebase");
+                    Toast.makeText(getApplicationContext(), "Failed to upload photo to Firebase, please try again.", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                    return;
                 }
-            });
+            }
+            else {
+                postsMap.put("uploadedImageURL", NULL);
+                postRef.set(postsMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        //Document ID for review post
+                        docID = user.getUID() + "-" + mRecipeID;
+                        //HashMap<String, Object> reviewMap = new HashMap<>();
+
+                        reviewMap.put("user", user.getUID());
+                        reviewMap.put("overallRating", getNewRating);
+                        reviewMap.put("post", postRef.getId());
+                        reviewMap.put("timestamp", FieldValue.serverTimestamp());
+
+                        //Saving review map to the firestore with custom document ID
+
+                        Log.e(TAG, "Added new post ");
+                        reviewDocRef.set(reviewMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                addPosts(layout);
+                            }
+                        });
+
+                        // Update the UserInfoPrivate class with this new image URL.
+                        POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
+                        loadingDialog.dismissDialog();
+                    }
+                });
+
+            }
+
+
 
         }
-
     }
 
     @Override
@@ -372,6 +524,7 @@ public class RecipeReviewFragment extends FeedFragment {
                                     document.get("author").toString(),
                                     document.get("overallRating").toString(),
                                     (Timestamp) document.get("timestamp"),
+                                    document.get("uploadedImageURL").toString(),
                                     document.getId()
                             ));
                         }
@@ -417,6 +570,7 @@ public class RecipeReviewFragment extends FeedFragment {
                                                             d.get("author").toString(),
                                                             d.get("overallRating").toString(),
                                                             (Timestamp) d.get("timestamp"),
+                                                            d.get("uploadedImageURL").toString(),
                                                             d.getId()
                                                     ));
                                                 }

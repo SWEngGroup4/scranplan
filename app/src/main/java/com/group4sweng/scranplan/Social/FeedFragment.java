@@ -148,7 +148,7 @@ public class FeedFragment extends Fragment {
     // Firebase user collection and storage references.
     CollectionReference mRef = mDatabase.collection("posts");
     FirebaseStorage mStorage = FirebaseStorage.getInstance();
-    StorageReference mStorageReference = mStorage.getReference();
+    protected StorageReference mStorageReference = mStorage.getReference();
 
 
 
