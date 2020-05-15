@@ -60,6 +60,7 @@ import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
+import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -98,10 +99,6 @@ public class FeedFragment extends Fragment {
 
     float ratingNum;
 
-
-
-    // Width size of each scroll view, dictating size of images on home screen
-    final int scrollViewSize = 5;
     LoadingDialog loadingDialog;
 
     //Score scroll info
@@ -130,12 +127,14 @@ public class FeedFragment extends Fragment {
     TextView mRecipeRatingText;
     RatingBar mAttachedRecipeReview;
 
+
+
     //Fragment handlers
     private FragmentTransaction fragmentTransaction;
     private RecipeFragment recipeFragment;
 
     //User information
-    private com.group4sweng.scranplan.UserInfo.UserInfoPrivate user;
+    private com.group4sweng.scranplan.UserInfo.UserInfoPrivate mUser;
     private SearchPrefs prefs;
 
     //Menu items
@@ -155,7 +154,7 @@ public class FeedFragment extends Fragment {
     StorageReference mStorageReference = mStorage.getReference();
 
 
-
+    public FeedFragment(UserInfoPrivate userSent){mUser = userSent;}
 
 
 
@@ -174,42 +173,34 @@ public class FeedFragment extends Fragment {
         mainView = view;
         loadingDialog = new LoadingDialog(getActivity());
 
-        // Grabs screen size for % layout TODO - change to density pixels + NullPointerException check
-        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-        user = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
-
-        // Procedurally fills topLayout with imageButton content
-        LinearLayout topLayout = view.findViewById(R.id.topLayout);
-
         initPageItems(view);
         initPageListeners();
 
+        Home home = (Home) getActivity();
+        if (home != null) {
+            // Gets search activity from home class and make it invisible
+            searchView = home.getSearchView();
+            sortButton = home.getSortView();
+
+            sortButton.setVisible(false);
+            searchView.setVisibility(View.INVISIBLE);
+            //setSearch();
+
+            //Gets search preferences from home class
+            prefs = home.getSearchPrefs();
+        }
+
+        addPosts(view);
+
         // Checks users details have been provided
-        if(user != null){
-            // Build the first horizontal scroll built around organising the recipes via highest rated
-            //TODO make new query
-            Home home = (Home) getActivity();
-            if (home != null) {
-                // Gets search activity from home class and make it invisible
-                searchView = home.getSearchView();
-                sortButton = home.getSortView();
-
-                sortButton.setVisible(false);
-                searchView.setVisibility(View.INVISIBLE);
-                //setSearch();
-
-                //Gets search preferences from home class
-                prefs = home.getSearchPrefs();
-            }
-
-            addPosts(view);
-
-        }else{
+        if(mUser == null){
             // If scroll views fail due to no user, this error is reported
             Log.e(TAG, "ERROR: Loading social feed - We were unable to find user.");
         }
         return view;
     }
+
+
 
     void addPosts(View view){
         final RecyclerView recyclerView = view.findViewById(R.id.postsList);
@@ -219,9 +210,9 @@ public class FeedFragment extends Fragment {
         //recyclerView.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels));
         // Array to score downloaded data
         data = new ArrayList<>();
-        final RecyclerView.Adapter rAdapter = new FeedRecyclerAdapter(FeedFragment.this, data, user, view);
+        final RecyclerView.Adapter rAdapter = new FeedRecyclerAdapter(FeedFragment.this, data, mUser, view);
         recyclerView.setAdapter(rAdapter);
-        query = mColRef.whereArrayContains("users", user.getUID()).orderBy("lastPost", Query.Direction.DESCENDING).limit(5);
+        query = mColRef.whereArrayContains("users", mUser.getUID()).orderBy("lastPost", Query.Direction.DESCENDING).limit(5);
         // Ensure query exists and builds view with query
         if (query != null) {
             Log.e(TAG, "User is searching the following query: " + query.toString());
@@ -230,7 +221,7 @@ public class FeedFragment extends Fragment {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     if (task.isSuccessful()) {
-                        Log.e("FEED", "UID = " + user.getUID());
+                        Log.e("FEED", "UID = " + mUser.getUID());
                         Log.e("FEED", "task success");
                         ArrayList<HashMap> posts = new ArrayList<>();
                         for (DocumentSnapshot document : task.getResult()) {
@@ -401,7 +392,7 @@ public class FeedFragment extends Fragment {
             //create new followers map
             HashMap<String, Object> newDoc = new HashMap<>();
             ArrayList<String> arrayList = new ArrayList<>();
-            arrayList.add(user.getUID());
+            arrayList.add(mUser.getUID());
             newDoc.put("mapA", map);
             newDoc.put("mapB", (HashMap) null);
             newDoc.put("mapC", (HashMap) null);
@@ -409,9 +400,9 @@ public class FeedFragment extends Fragment {
             newDoc.put("space2", "B");
             newDoc.put("space3", "C");
             newDoc.put("lastPost", map.get("timestamp"));
-            newDoc.put("author", user.getUID());
+            newDoc.put("author", mUser.getUID());
             newDoc.put("users", arrayList);
-            mDatabase.collection("followers").document(user.getUID()).set(newDoc).addOnCompleteListener(new OnCompleteListener<Void>() {
+            mDatabase.collection("followers").document(mUser.getUID()).set(newDoc).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     postComplete();
@@ -421,7 +412,7 @@ public class FeedFragment extends Fragment {
     }
 
     protected void postComplete(){
-        mDatabase.collection("users").document(user.getUID()).update("posts", FieldValue.increment(1));
+        mDatabase.collection("users").document(mUser.getUID()).update("posts", FieldValue.increment(1));
         mPostBodyInput.getText().clear();
         mPostRecipe.setChecked(false);
         mPostReview.setChecked(false);
@@ -448,7 +439,7 @@ public class FeedFragment extends Fragment {
                   if(task.isSuccessful()){
                       final String docID = task.getResult().getId();
                       map.put("docID", docID);
-                      mDatabase.collection("followers").document(user.getUID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                      mDatabase.collection("followers").document(mUser.getUID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                           @Override
                           public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                               if(task.isSuccessful()){
@@ -465,8 +456,8 @@ public class FeedFragment extends Fragment {
     protected void postImageAttached(HashMap map, HashMap extras, CollectionReference ref){
         try {
             checkImage(mImageUri);
-            StorageReference mImageStorage = mStorageReference.child("images/posts/" + user.getUID() + "/IMAGEID" + (user.getPosts()+1));
-            user.setPosts(user.getPosts()+1);
+            StorageReference mImageStorage = mStorageReference.child("images/posts/" + mUser.getUID() + "/IMAGEID" + (mUser.getPosts()+1));
+            mUser.setPosts(mUser.getPosts()+1);
             mImageStorage.putFile(mImageUri).addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Failed to upload profile image.", Toast.LENGTH_SHORT).show()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -537,7 +528,7 @@ public class FeedFragment extends Fragment {
                 HashMap<String, Object> extras = new HashMap<>();
                 extras.put("comments", 0);
                 extras.put("likes", 0);
-                map.put("author", user.getUID());
+                map.put("author", mUser.getUID());
                 map.put("body", body);
                 map.put("timestamp", FieldValue.serverTimestamp());
                 map.put("isPic", mPostPic.isChecked());
@@ -560,7 +551,7 @@ public class FeedFragment extends Fragment {
                         bundle.putBoolean("planner", true); //Condition to let child fragments know access is from planner
 
                         //Creates and launches recipe fragment
-                        recipeFragment = new RecipeFragment(user);
+                        recipeFragment = new RecipeFragment(mUser);
                         recipeFragment.setArguments(bundle);
                         recipeFragment.setTargetFragment(FeedFragment.this, 1);
                         fragmentTransaction = getParentFragmentManager().beginTransaction();
@@ -648,9 +639,6 @@ public class FeedFragment extends Fragment {
                     DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
                     mUploadedImage.setMaxWidth(displayMetrics.widthPixels/2-20);
                     mAttachedRecipeImage.setMaxWidth(displayMetrics.widthPixels/2-20);
-
-                }else {
-
                 }
             }else{
                 mPostPic.setChecked(false);
@@ -702,6 +690,19 @@ public class FeedFragment extends Fragment {
                 requireView().setVisibility(View.VISIBLE);
 
             }
+        }else{
+
+            fragmentTransaction = getParentFragmentManager().beginTransaction();
+            fragmentTransaction.remove(recipeFragment).commitNow();
+            requireView().setVisibility(View.VISIBLE);
+            //Hides menu options
+            sortButton.setVisible(false);
+            //Clears search view
+            searchView.clearFocus();
+            searchView.onActionViewCollapsed();
+            searchView.setVisibility(View.INVISIBLE);
+            // removes check
+            mPostRecipe.setChecked(false);
         }
     }
 
@@ -758,9 +759,11 @@ public class FeedFragment extends Fragment {
 
     //Quick function to reset search menu functionality
     private void setSearch() {
+        Home home = (Home) getActivity();
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
+                prefs = home.getSearchPrefs();
                 SearchQuery query = new SearchQuery( s, prefs);
                 openRecipeDialog(query);
                 return false;
@@ -776,8 +779,9 @@ public class FeedFragment extends Fragment {
     //Opens list fragment on searching
     private void openRecipeDialog(SearchQuery query) {
         //Creates and launches fragment with required query
-        PlannerListFragment plannerListFragment = new PlannerListFragment(user);
+        PlannerListFragment plannerListFragment = new PlannerListFragment(mUser);
         plannerListFragment.setValue(query.getQuery());
+        plannerListFragment.setIndex(query.getIndex());
         plannerListFragment.setTargetFragment(this, 1);
         plannerListFragment.show(getParentFragmentManager(), "search");
     }
@@ -807,7 +811,7 @@ public class FeedFragment extends Fragment {
         PopupMenu popup = new PopupMenu(getContext(), anchor);
         //Inflating the Popup using xml file
         popup.getMenuInflater().inflate(R.menu.menu_comment, popup.getMenu());
-        if(document.get("author").toString().equals(user.getUID())){
+        if(document.get("author").toString().equals(mUser.getUID())){
             popup.getMenu().getItem(0).setVisible(false);
             popup.getMenu().getItem(1).setVisible(false);
             popup.getMenu().getItem(2).setVisible(true);
@@ -846,7 +850,7 @@ public class FeedFragment extends Fragment {
     }
 
     public void deletePost(String deleteDocID){
-        mDatabase.collection("followers").document(user.getUID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        mDatabase.collection("followers").document(mUser.getUID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if(task.isSuccessful()){
@@ -856,14 +860,14 @@ public class FeedFragment extends Fragment {
                         if(((HashMap)doc.get("mapA")) != null){
                             if(((HashMap)doc.get("mapA")).get("docID").equals(deleteDocID)){
                                 String map = "mapA";
-                                mDatabase.collection("followers").document(user.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                mDatabase.collection("followers").document(mUser.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
                                                 //TODO reduce number of posts on profile by 1
-                                                mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
+                                                mDatabase.collection("users").document(mUser.getUID()).update("livePosts", FieldValue.increment(- 1));
                                                 addPosts(mainView);
                                             }
                                         });
@@ -873,14 +877,14 @@ public class FeedFragment extends Fragment {
                         }else if(((HashMap)doc.get("mapB")) != null){
                             if(((HashMap)doc.get("mapB")).get("docID").equals(deleteDocID)){
                                 String map = "mapB";
-                                mDatabase.collection("followers").document(user.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                mDatabase.collection("followers").document(mUser.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
                                                 //TODO reduce number of posts on profile by 1
-                                                mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
+                                                mDatabase.collection("users").document(mUser.getUID()).update("livePosts", FieldValue.increment(- 1));
                                                 addPosts(mainView);
                                             }
                                         });
@@ -890,14 +894,14 @@ public class FeedFragment extends Fragment {
                         }else if(((HashMap)doc.get("mapC")) != null){
                             if(((HashMap)doc.get("mapC")).get("docID").equals(deleteDocID)){
                                 String map = "mapC";
-                                mDatabase.collection("followers").document(user.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                mDatabase.collection("followers").document(mUser.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
                                                 //TODO reduce number of posts on profile by 1
-                                                mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
+                                                mDatabase.collection("users").document(mUser.getUID()).update("livePosts", FieldValue.increment(- 1));
                                                 addPosts(mainView);
                                             }
                                         });
@@ -909,7 +913,7 @@ public class FeedFragment extends Fragment {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     //TODO reduce number of posts on profile by 1
-                                    mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
+                                    mDatabase.collection("users").document(mUser.getUID()).update("livePosts", FieldValue.increment(- 1));
                                     addPosts(mainView);
                                 }
                             });
@@ -919,7 +923,7 @@ public class FeedFragment extends Fragment {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 //TODO reduce number of posts on profile by 1
-                                mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
+                                mDatabase.collection("users").document(mUser.getUID()).update("livePosts", FieldValue.increment(- 1));
                                 addPosts(mainView);
                             }
                         });

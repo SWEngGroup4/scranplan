@@ -14,6 +14,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -28,6 +29,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.group4sweng.scranplan.LoadingDialog;
+import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 
@@ -47,6 +49,8 @@ public class ProfilePosts extends Fragment {
 
     final String TAG = "profile Posts";
 
+    PublicProfile profile;
+
     public ProfilePosts(String UID){
         searchUID = UID;
     }
@@ -54,7 +58,7 @@ public class ProfilePosts extends Fragment {
 
 
     // Width size of each scroll view, dictating size of images on home screen
-    final int scrollViewSize = 5;
+    final int postsLoaded = 5;
     LoadingDialog loadingDialog;
 
     //Score scroll info
@@ -66,11 +70,8 @@ public class ProfilePosts extends Fragment {
 
 
     View mainView;
+    NestedScrollView profileScrollView;
 
-
-    //Fragment handlers
-    private FragmentTransaction fragmentTransaction;
-    private RecipeFragment recipeFragment;
 
     //User information
     private com.group4sweng.scranplan.UserInfo.UserInfoPrivate user;
@@ -98,6 +99,9 @@ public class ProfilePosts extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        profile = (PublicProfile) getActivity();
+        profileScrollView = profile.findViewById(R.id.nestedScrollViewProfile);
         View view = inflater.inflate(R.layout.profile_posts, container, false);
         mainView = view;
         loadingDialog = new LoadingDialog(getActivity());
@@ -136,7 +140,7 @@ public class ProfilePosts extends Fragment {
         final RecyclerView.Adapter rAdapter = new FeedRecyclerAdapter( this, data, user, view);
         recyclerView.setAdapter(rAdapter);
         Log.e(TAG, "ERROR: Loading social feed - We were unable to find user. ->" + searchUID);
-        query = mColRef.whereEqualTo("author", searchUID).orderBy("timestamp", Query.Direction.DESCENDING).limit(10);
+        query = mColRef.whereEqualTo("author", searchUID).orderBy("timestamp", Query.Direction.DESCENDING).limit(postsLoaded);
         // Ensure query exists and builds view with query
         if (query != null) {
             Log.e(TAG, "User is searching the following query: " + query.toString());
@@ -145,7 +149,6 @@ public class ProfilePosts extends Fragment {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     if (task.isSuccessful()) {
-                        ArrayList<HashMap> posts = new ArrayList<>();
                         for (DocumentSnapshot document : task.getResult()) {
                             Log.e("TIME", "I have found a doc");
                             HashMap<String, Object> temporary = new HashMap<String, Object>();
@@ -173,69 +176,127 @@ public class ProfilePosts extends Fragment {
                             isLastItemReached = true;
                         }
                         // Track users location to check if new data download is required
-                        RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
-                            @Override
-                            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                                super.onScrollStateChanged(recyclerView, newState);
-                                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
-                                    isScrolling = true;
-                                }
-                            }
-                            // If scrolled to end then download new data and check if we are out of data
-                            @Override
-                            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                                super.onScrolled(recyclerView, dx, dy);
+                        NestedScrollView.OnScrollChangeListener onScrollListener = new NestedScrollView.OnScrollChangeListener() {
+                                                                        @Override
+                                                                        public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                                                                            if (v.getChildAt(v.getChildCount() - 1) != null) {
+                                                                                if ((scrollY >= (v.getChildAt(v.getChildCount() - 1).getMeasuredHeight() - v.getMeasuredHeight())) &&
+                                                                                        scrollY > oldScrollY) {
 
-                                LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
-                                int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
-                                int visibleItemCount = linearLayoutManager.getChildCount();
-                                int totalItemCount = linearLayoutManager.getItemCount();
+                                                                                    LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
+                                                                                    int visibleItemCount = linearLayoutManager.getChildCount();
+                                                                                    int totalItemCount = linearLayoutManager.getItemCount();
+                                                                                    int pastVisiblesItems = linearLayoutManager.findFirstVisibleItemPosition();
+                                                                                    if ((visibleItemCount + pastVisiblesItems) >= totalItemCount && !isLastItemReached) {
+                                                                                        Query nextQuery = query.startAfter(lastVisible);
+                                                                                        nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                                            @Override
+                                                                                            public void onComplete(@NonNull Task<QuerySnapshot> t) {
+                                                                                                if (t.isSuccessful()) {
+                                                                                                    Log.e("TIME", "SEARCHING FOR MORE POSTS");
+                                                                                                    for (DocumentSnapshot d : t.getResult()) {
+                                                                                                        Log.e("TIME", "POSTS FOUND");
+                                                                                                        HashMap<String, Object> temp = new HashMap<String, Object>();
+                                                                                                        temp.put("docID", d.getId());
+                                                                                                        temp.put("author", d.get("author"));
+                                                                                                        temp.put("body", d.get("body"));
+                                                                                                        temp.put("comments", d.get("comments"));
+                                                                                                        temp.put("isPic", d.get("isPic"));
+                                                                                                        temp.put("isRecipe", d.get("isRecipe"));
+                                                                                                        temp.put("isReview", d.get("isReview"));
+                                                                                                        temp.put("likes", d.get("likes"));
+                                                                                                        temp.put("recipeDescription", d.get("recipeDescription"));
+                                                                                                        temp.put("recipeID", d.get("recipeID"));
+                                                                                                        temp.put("recipeImageURL", d.get("recipeImageURL"));
+                                                                                                        temp.put("recipeReview", d.get("recipeReview"));
+                                                                                                        temp.put("recipeTitle", d.get("recipeTitle"));
+                                                                                                        temp.put("timestamp", d.get("timestamp"));
+                                                                                                        temp.put("uploadedImageURL", d.get("uploadedImageURL"));
+                                                                                                        data.add(new FeedRecyclerAdapter.FeedPostPreviewData(temp));
+                                                                                                    }
+                                                                                                    if (isLastItemReached) {
+                                                                                                        // Add end here
+                                                                                                    }
+                                                                                                    rAdapter.notifyDataSetChanged();
+                                                                                                    if (t.getResult().size() != 0) {
+                                                                                                        lastVisible = t.getResult().getDocuments().get(t.getResult().size() - 1);
+                                                                                                    }
 
-                                if (isScrolling && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReached) {
-                                    isScrolling = false;
-                                    Query nextQuery = query.startAfter(lastVisible);
-                                    nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<QuerySnapshot> t) {
-                                            if (t.isSuccessful()) {
-
-                                                for (DocumentSnapshot d : t.getResult()) {
-                                                    Log.e("TIME", "I have found a doc");
-                                                    HashMap<String, Object> temporary = new HashMap<String, Object>();
-                                                    temporary.put("author", d.get("author"));
-                                                    temporary.put("body", d.get("body"));
-                                                    temporary.put("comments", d.get("comments"));
-                                                    temporary.put("isPic", d.get("isPic"));
-                                                    temporary.put("isRecipe", d.get("isRecipe"));
-                                                    temporary.put("isReview", d.get("isReview"));
-                                                    temporary.put("likes", d.get("likes"));
-                                                    temporary.put("recipeDescription", d.get("recipeDescription"));
-                                                    temporary.put("recipeID", d.get("recipeID"));
-                                                    temporary.put("recipeImageURL", d.get("recipeImageURL"));
-                                                    temporary.put("recipeReview", d.get("recipeReview"));
-                                                    temporary.put("recipeTitle", d.get("recipeTitle"));
-                                                    temporary.put("timestamp", d.get("timestamp"));
-                                                    temporary.put("uploadedImageURL", d.get("uploadedImageURL"));
-                                                    data.add(new FeedRecyclerAdapter.FeedPostPreviewData(temporary));
-                                                }
-                                                if(isLastItemReached){
-                                                    // Add end here
-                                                }
-                                                rAdapter.notifyDataSetChanged();
-                                                if (t.getResult().size() != 0) {
-                                                    lastVisible = t.getResult().getDocuments().get(t.getResult().size() - 1);
-                                                }
-
-                                                if (t.getResult().size() < 5) {
-                                                    isLastItemReached = true;
-                                                }
-                                            }
-                                        }
-                                    });
-                                }
-                            }
-                        };
-                        recyclerView.addOnScrollListener(onScrollListener);
+                                                                                                    if (t.getResult().size() < 5) {
+                                                                                                        isLastItemReached = true;
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                        });
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    };
+//                        RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+//                            @Override
+//                            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+//                                super.onScrollStateChanged(recyclerView, newState);
+//                                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+//                                    isScrolling = true;
+//                                }
+//                            }
+//                            // If scrolled to end then download new data and check if we are out of data
+//                            @Override
+//                            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+//                                super.onScrolled(recyclerView, dx, dy);
+//
+//                                LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
+//                                int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+//                                int visibleItemCount = linearLayoutManager.getChildCount();
+//                                int totalItemCount = linearLayoutManager.getItemCount();
+//
+//                                if (isScrolling && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReached) {
+//                                    isScrolling = false;
+//                                    Query nextQuery = query.startAfter(lastVisible);
+//                                    nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//                                        @Override
+//                                        public void onComplete(@NonNull Task<QuerySnapshot> t) {
+//                                            if (t.isSuccessful()) {
+//                                                Log.e("TIME", "SEARCHING FOR MORE POSTS");
+//                                                for (DocumentSnapshot d : t.getResult()) {
+//                                                    Log.e("TIME", "POSTS FOUND");
+//                                                    Log.e("TIME", "I have found a doc");
+//                                                    HashMap<String, Object> temporary = new HashMap<String, Object>();
+//                                                    temporary.put("author", d.get("author"));
+//                                                    temporary.put("body", d.get("body"));
+//                                                    temporary.put("comments", d.get("comments"));
+//                                                    temporary.put("isPic", d.get("isPic"));
+//                                                    temporary.put("isRecipe", d.get("isRecipe"));
+//                                                    temporary.put("isReview", d.get("isReview"));
+//                                                    temporary.put("likes", d.get("likes"));
+//                                                    temporary.put("recipeDescription", d.get("recipeDescription"));
+//                                                    temporary.put("recipeID", d.get("recipeID"));
+//                                                    temporary.put("recipeImageURL", d.get("recipeImageURL"));
+//                                                    temporary.put("recipeReview", d.get("recipeReview"));
+//                                                    temporary.put("recipeTitle", d.get("recipeTitle"));
+//                                                    temporary.put("timestamp", d.get("timestamp"));
+//                                                    temporary.put("uploadedImageURL", d.get("uploadedImageURL"));
+//                                                    data.add(new FeedRecyclerAdapter.FeedPostPreviewData(temporary));
+//                                                }
+//                                                if(isLastItemReached){
+//                                                    // Add end here
+//                                                }
+//                                                rAdapter.notifyDataSetChanged();
+//                                                if (t.getResult().size() != 0) {
+//                                                    lastVisible = t.getResult().getDocuments().get(t.getResult().size() - 1);
+//                                                }
+//
+//                                                if (t.getResult().size() < 5) {
+//                                                    isLastItemReached = true;
+//                                                }
+//                                            }
+//                                        }
+//                                    });
+//                                }
+//                            }
+//                        };
+                        profileScrollView.setOnScrollChangeListener(onScrollListener);
                     }
                 }
             });

@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 
 import androidx.annotation.NonNull;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -23,12 +24,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.group4sweng.scranplan.LoadingDialog;
+import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchRecyclerAdapter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -44,33 +47,24 @@ public class ProfileRecipes extends Fragment {
 
     final String TAG = "Profile Recipes";
     int numberOfColumns = 2;
-    int dataLim = 10;
+    int dataLim = 6;
+
+    NestedScrollView profileScrollView;
+    PublicProfile profile;
 
     public ProfileRecipes(String UID){
         searchUID = UID;
     }
     private String searchUID;
 
-
-    // Width size of each scroll view, dictating size of images on home screen
-    final int scrollViewSize = 5;
     LoadingDialog loadingDialog;
 
     //Score scroll info
     List<SearchRecyclerAdapter.SearchRecipePreviewData> data;
     private DocumentSnapshot lastVisible;
-    private boolean isScrolling = false;
     private boolean isLastItemReached = false;
 
-
-
     View mainView;
-
-
-    //Fragment handlers
-    private FragmentTransaction fragmentTransaction;
-    private RecipeFragment recipeFragment;
-
     //User information
     private com.group4sweng.scranplan.UserInfo.UserInfoPrivate user;
 
@@ -97,6 +91,9 @@ public class ProfileRecipes extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        profile = (PublicProfile) getActivity();
+        profileScrollView = profile.findViewById(R.id.nestedScrollViewProfile);
+
         View view = inflater.inflate(R.layout.profile_recipes, container, false);
         mainView = view;
         loadingDialog = new LoadingDialog(getActivity());
@@ -168,65 +165,119 @@ public class ProfileRecipes extends Fragment {
                                     null
                             ));
                         }
-                        // check if user has scrolled through the view
-                        RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+                        NestedScrollView.OnScrollChangeListener onScrollListener = new NestedScrollView.OnScrollChangeListener() {
                             @Override
-                            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                                super.onScrollStateChanged(recyclerView, newState);
-                                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
-                                    isScrolling = true;
-                                }
-                            }
-                            // If user is scrolling and has reached the end, more data is loaded
-                            @Override
-                            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                                super.onScrolled(recyclerView, dx, dy);
-                                // Checking if user is at the end
-                                LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
-                                int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
-                                int visibleItemCount = linearLayoutManager.getChildCount();
-                                int totalItemCount = linearLayoutManager.getItemCount();
-                                // If found to have reached end, more data is requested from the server in the same manner
-                                if (isScrolling && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReached) {
-                                    isScrolling = false;
-                                    Query nextQuery = query.startAfter(lastVisible);
-                                    nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<QuerySnapshot> t) {
-                                            if (t.isSuccessful()) {
-                                                for (DocumentSnapshot d : t.getResult()) {
-                                                    data.add(new SearchRecyclerAdapter.SearchRecipePreviewData(
-                                                            d,
-                                                            d.getId(),
-                                                            d.get("Name").toString(),
-                                                            d.get("Description").toString(),
-                                                            d.get("imageURL").toString()
-                                                    ));
-                                                }
-                                                if(isLastItemReached){
-                                                    data.add(new SearchRecyclerAdapter.SearchRecipePreviewData(
-                                                            null,
-                                                            null,
-                                                            "No more results",
-                                                            "We have checked all over and there is nothing more to be found!",
-                                                            null
-                                                    ));
-                                                }
-                                                rAdapter.notifyDataSetChanged();
-                                                if (t.getResult().size() != 0) {
-                                                    lastVisible = t.getResult().getDocuments().get(t.getResult().size() - 1);
-                                                }
+                            public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                                if (v.getChildAt(v.getChildCount() - 1) != null) {
+                                    if ((scrollY >= (v.getChildAt(v.getChildCount() - 1).getMeasuredHeight() - v.getMeasuredHeight())) &&
+                                            scrollY > oldScrollY) {
 
-                                                if (t.getResult().size() < 5) {
-                                                    isLastItemReached = true;
+                                        GridLayoutManager linearLayoutManager = ((GridLayoutManager) recyclerView.getLayoutManager());
+                                        int visibleItemCount = linearLayoutManager.getChildCount();
+                                        int totalItemCount = linearLayoutManager.getItemCount();
+                                        int pastVisiblesItems = linearLayoutManager.findFirstVisibleItemPosition();
+                                        if ((visibleItemCount + pastVisiblesItems) >= totalItemCount && !isLastItemReached) {
+                                            Query nextQuery = query.startAfter(lastVisible);
+                                            nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<QuerySnapshot> t) {
+                                                    if (t.isSuccessful()) {
+                                                        Log.e("TIME", "SEARCHING FOR MORE POSTS");
+                                                        for (DocumentSnapshot d : t.getResult()) {
+                                                            Log.e("TIME", "POSTS FOUND");
+                                                            data.add(new SearchRecyclerAdapter.SearchRecipePreviewData(
+                                                                    d,
+                                                                    d.getId(),
+                                                                    d.get("Name").toString(),
+                                                                    d.get("Description").toString(),
+                                                                    d.get("imageURL").toString()
+                                                            ));
+                                                        }
+                                                        if(isLastItemReached){
+                                                            data.add(new SearchRecyclerAdapter.SearchRecipePreviewData(
+                                                                    null,
+                                                                    null,
+                                                                    "No more results",
+                                                                    "We have checked all over and there is nothing more to be found!",
+                                                                    null
+                                                            ));
+                                                        }
+                                                        rAdapter.notifyDataSetChanged();
+                                                        if (t.getResult().size() != 0) {
+                                                            lastVisible = t.getResult().getDocuments().get(t.getResult().size() - 1);
+                                                        }
+
+                                                        if (t.getResult().size() < 5) {
+                                                            isLastItemReached = true;
+                                                        }
+                                                    }
                                                 }
-                                            }
+                                            });
                                         }
-                                    });
+                                    }
                                 }
                             }
                         };
-                        recyclerView.addOnScrollListener(onScrollListener);
+                        profileScrollView.setOnScrollChangeListener(onScrollListener);
+//                        // check if user has scrolled through the view
+//                        RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+//                            @Override
+//                            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+//                                super.onScrollStateChanged(recyclerView, newState);
+//                                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+//                                    isScrolling = true;
+//                                }
+//                            }
+//                            // If user is scrolling and has reached the end, more data is loaded
+//                            @Override
+//                            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+//                                super.onScrolled(recyclerView, dx, dy);
+//                                // Checking if user is at the end
+//                                LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
+//                                int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+//                                int visibleItemCount = linearLayoutManager.getChildCount();
+//                                int totalItemCount = linearLayoutManager.getItemCount();
+//                                // If found to have reached end, more data is requested from the server in the same manner
+//                                if (isScrolling && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReached) {
+//                                    isScrolling = false;
+//                                    Query nextQuery = query.startAfter(lastVisible);
+//                                    nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//                                        @Override
+//                                        public void onComplete(@NonNull Task<QuerySnapshot> t) {
+//                                            if (t.isSuccessful()) {
+//                                                for (DocumentSnapshot d : t.getResult()) {
+//                                                    data.add(new SearchRecyclerAdapter.SearchRecipePreviewData(
+//                                                            d,
+//                                                            d.getId(),
+//                                                            d.get("Name").toString(),
+//                                                            d.get("Description").toString(),
+//                                                            d.get("imageURL").toString()
+//                                                    ));
+//                                                }
+//                                                if(isLastItemReached){
+//                                                    data.add(new SearchRecyclerAdapter.SearchRecipePreviewData(
+//                                                            null,
+//                                                            null,
+//                                                            "No more results",
+//                                                            "We have checked all over and there is nothing more to be found!",
+//                                                            null
+//                                                    ));
+//                                                }
+//                                                rAdapter.notifyDataSetChanged();
+//                                                if (t.getResult().size() != 0) {
+//                                                    lastVisible = t.getResult().getDocuments().get(t.getResult().size() - 1);
+//                                                }
+//
+//                                                if (t.getResult().size() < 5) {
+//                                                    isLastItemReached = true;
+//                                                }
+//                                            }
+//                                        }
+//                                    });
+//                                }
+//                            }
+//                        };
+//                        recyclerView.addOnScrollListener(onScrollListener);
                     }
                 }
             });

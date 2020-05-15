@@ -40,7 +40,7 @@ public class EspressoHelper {
      * these helper functions are only for fragments, elements without proper resource ids, or elements which don't have associated text.
      */
 
-    private static final int SEARCH_WAIT_TIME = 2000;
+    private static final int SEARCH_WAIT_TIME = 4000;
 
     public static boolean shouldSkip = false; // Should we skip pressing the sidebar button incase we don't need to open the sidebar.
 

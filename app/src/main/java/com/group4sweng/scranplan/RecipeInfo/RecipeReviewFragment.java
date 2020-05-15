@@ -25,6 +25,9 @@ public class RecipeReviewFragment extends FeedFragment {
 
     private float getRating;
 
+    public RecipeReviewFragment(UserInfoPrivate userSent) {
+        super(userSent);
+    }
 
 
     @Override

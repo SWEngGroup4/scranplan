@@ -1,5 +1,6 @@
 package com.group4sweng.scranplan.Social;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -164,9 +165,11 @@ public class PictureRecyclerAdapter extends RecyclerView.Adapter<PictureRecycler
         }
         if(mDataset.get(position).isRecipe){
             holder.recipeTitle.setVisibility(View.VISIBLE);
+            holder.recipeTitle.setBackgroundColor(Color.parseColor("#80FFFFFF"));
             holder.recipeTitle.setText(mDataset.get(position).recipeTitle);
             if(mDataset.get(position).isReview){
                 holder.recipeRating.setVisibility(View.VISIBLE);
+                holder.recipeRating.setBackgroundColor(Color.parseColor("#80FFFFFF"));
                 holder.recipeRating.setRating(mDataset.get(position).review);
             }else{
                 holder.recipeRating.setVisibility(View.GONE);

@@ -1,43 +1,34 @@
 package com.group4sweng.scranplan;
 
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.View;
-import android.widget.SearchView;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.Espresso;
-import androidx.test.espresso.UiController;
-import androidx.test.espresso.ViewAction;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 
-import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
+import com.group4sweng.scranplan.Credentials;
+import com.group4sweng.scranplan.EspressoHelper;
+import com.group4sweng.scranplan.Home;
+import com.group4sweng.scranplan.Login;
+import com.group4sweng.scranplan.R;
 
-import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.HashMap;
-
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.pressKey;
-import static androidx.test.espresso.action.ViewActions.scrollTo;
+import static androidx.test.espresso.action.ViewActions.longClick;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static com.group4sweng.scranplan.HomeTest.typeSearchViewText;
-import static org.hamcrest.Matchers.allOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static com.group4sweng.scranplan.EspressoHelper.navigateToRecipe;
 
 /**
  *
@@ -49,13 +40,11 @@ import static org.junit.Assert.assertNotEquals;
  *  parameters and search for the meals they want.
  */
 @RunWith(AndroidJUnit4.class)
-@LargeTest
 public class FeedTest {
 
     //  Android Log tag.
     String TAG = "FeedTest";
 
-    private UserInfoPrivate testUser;
 
     //  Default test values
     private static final String TEST_EMAIL = "lifn501@york.ac.uk";
@@ -90,49 +79,78 @@ public class FeedTest {
 
         Thread.sleep(THREAD_SLEEP_TIME);
 
-        onView(withText("Feed"))
+        onView(withText("FEED"))
                 .perform(click());
 
     }
 
+//    // Check search field can be activated and searched in, also testing results.
+//    @Test
+//    public void addRecipe() throws InterruptedException {
+//        Log.d(TAG, "Testing navigate to add recipe");
+//
+//        onView(withId(R.id.postBodyInput))
+//                .perform(typeText(TEST_EMAIL));
+//        Espresso.closeSoftKeyboard();
+//
+//        Thread.sleep(THREAD_SLEEP_TIME/4);
+//
+//        onView(withId(R.id.recipeIcon))
+//                .perform(click());
+//        Thread.sleep(THREAD_SLEEP_TIME/4);
+//        onView(withId(R.id.menuSearch)).check(
+//                matches(isDisplayed()));
+//        onView(withText("Trending")).check(
+//                matches(isDisplayed()));
+//    }
+
     // Check search field can be activated and searched in, also testing results.
     @Test
     public void testPostAndDel() throws InterruptedException {
+        Log.d(TAG, "Testing navigate to add recipe");
 
         onView(withId(R.id.postBodyInput))
                 .perform(typeText(TEST_EMAIL));
+        Espresso.closeSoftKeyboard();
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
         onView(withId(R.id.recipeIcon))
                 .perform(click());
-
-
         Thread.sleep(THREAD_SLEEP_TIME/4);
-        onView(withId(R.id.recipeIcon))
-                .perform(click());
-
+        onView(withId(R.id.menuSearch)).check(
+                matches(isDisplayed()));
+        navigateToRecipe("Braised peas with bacon, lentils and cod");
         Thread.sleep(THREAD_SLEEP_TIME);
+        onView(withText("Add")).perform(click());
 
-        onView(withId(R.id.menuSearch)).perform(click());
-        onView(isAssignableFrom(SearchView.class))
-                .perform(typeSearchViewText("bacon"))
-                .perform(pressKey(KeyEvent.KEYCODE_ENTER));
-
-
-        Thread.sleep(THREAD_SLEEP_TIME/4);
-
-        onView(withText("Braised peas with bacon, lentils and cod"))
-                .check(matches(isDisplayed()));
-
-        onView(withText("Braised peas with bacon, lentils and cod"))
-                .perform(scrollTo())
-                .perform(click());
-
-        onView(withId(R.id.recipeIcon))
-                .perform(click());
-
-        Thread.sleep(THREAD_SLEEP_TIME);
+//
+//        Thread.sleep(THREAD_SLEEP_TIME/4);
+//        onView(withId(R.id.recipeIcon))
+//                .perform(click());
+//
+//        Thread.sleep(THREAD_SLEEP_TIME);
+//
+//        onView(withId(R.id.menuSearch)).perform(click());
+//
+//
+//        onView(isAssignableFrom(SearchView.class))
+//                .perform(typeSearchViewText("bacon"))
+//                .perform(pressKey(KeyEvent.KEYCODE_ENTER));
+//
+//
+//        Thread.sleep(THREAD_SLEEP_TIME/4);
+//
+////        onView(withText("Braised peas with bacon, lentils and cod"))
+////                .check(matches(isDisplayed()));
+//
+//        onView(withText("Braised peas with bacon, lentils and cod"))
+//                .perform(click());
+//
+//        onView(withId(R.id.recipeIcon))
+//                .perform(click());
+//
+//        Thread.sleep(THREAD_SLEEP_TIME);
 //
 ////        onView(withId(R.id.recipeListCardView))
 ////                .perform(click());
@@ -147,26 +165,26 @@ public class FeedTest {
 //
 //        Thread.sleep(THREAD_SLEEP_TIME);
 
-        onView(withId(R.id.sendPostButton))
-                .perform(click());
-
-        Thread.sleep(THREAD_SLEEP_TIME);
-
-
-        onView(withText(TEST_EMAIL))
-                .perform(click());
-
-        onView(withId(R.id.postMenu))
-                .perform(click());
-
-        Thread.sleep(THREAD_SLEEP_TIME);
-
-        onView(withText("Delete"))
-                .perform(click());
-
-        Thread.sleep(THREAD_SLEEP_TIME);
-
-        Espresso.pressBack();
+//        onView(withId(R.id.sendPostButton))
+//                .perform(click());
+//
+//        Thread.sleep(THREAD_SLEEP_TIME);
+//
+//
+//        onView(withText(TEST_EMAIL))
+//                .perform(click());
+//
+//        onView(withId(R.id.postMenu))
+//                .perform(click());
+//
+//        Thread.sleep(THREAD_SLEEP_TIME);
+//
+//        onView(withText("Delete"))
+//                .perform(click());
+//
+//        Thread.sleep(THREAD_SLEEP_TIME);
+//
+//        Espresso.pressBack();
 
     }
 
