@@ -49,7 +49,7 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
     TextView mShoppingList;
     private List<HashMap<String, Object>> ShoppingList = new ArrayList<>();
     RecyclerViewAdaptor adapter;
-    List<String> newList;
+    ArrayList<String> newList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,17 +67,17 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
 
     @Override
     public void onItemClick(View view, int position) {
+
     if (newList != null) {
         newList.remove(position);
     }
-            adapter.notifyItemRemoved(position);
-            System.out.println(newList);
-
+    adapter.notifyItemRemoved(position);
+    System.out.println(newList);
     }
 
 
     public void AddIngredients() {
-        ArrayList<String> newList = new ArrayList<>();
+
         for (int a = 0; a < 20; a++) {
             if (mUser != null) {
 
@@ -90,10 +90,10 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
                     ArrayList<String> ingredientArray = RecipeHelpers.convertToIngredientListFormat(updateIngredientList);
                     for (String ingredient : ingredientArray) {
                         if (newList.contains(ingredient)){
-
                             newList.remove(ingredient);
-                            newList.add("2x" + ingredient);
+                            newList.add("2x " + ingredient);
                         }
+
                         else {
                             newList.add(ingredient);
                         }
