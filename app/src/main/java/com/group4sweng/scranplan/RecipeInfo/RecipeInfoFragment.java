@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,6 +62,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
     private TextView mRating;
     private ImageView mRecipeImage;
     private CheckBox mFavourite;
+    private CheckBox mKudos;
     private RatingBar mStars;
     protected TextView mServing;
 
@@ -73,6 +75,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
     protected String recipeRating;
     protected String xmlPresentation;
     protected String reheat;
+    private String docID;
     protected HashMap<String, String> ingredientHashMap;
     protected ArrayList<String> ingredientArray;
     protected HashMap<String, Double> ratingMap;
@@ -80,6 +83,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
     protected ArrayList<String> favouriteRecipe;
     protected UserInfoPrivate mUser;
     protected Boolean isFavourite;
+    protected Boolean kudosGiven;
     protected String servingAmount;
     protected String fridgeTime;
     protected Boolean canFreeze;
@@ -99,7 +103,6 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
     protected ImageButton mChangePortions;
     //protected TextView mServing;
     protected String starRating;
-
 
     protected FirebaseFirestore mDatabase;
     protected CollectionReference mDataRef;
@@ -129,7 +132,6 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
 
         View layout = inflater.inflate(R.layout.fragment_recipe_info, null);
 
-
         builder.setView(layout);
 
         //This method holds all the arguments from the bundle
@@ -146,6 +148,8 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         tabFragments(layout);
 
         addFavourite(layout);
+
+        addKudos(layout);
 
         return layout;
     }
@@ -173,6 +177,8 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         mFavourite = layout.findViewById(R.id.addFavorite);
         mFavourite.setChecked(isFavourite);
 
+        mKudos = layout.findViewById(R.id.addKudos);
+
         //Text Views
         mTitle = layout.findViewById(R.id.Title);
         mChefName = layout.findViewById(R.id.chefName);
@@ -193,6 +199,8 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
 
         //5 star rating bar
         mStars = layout.findViewById(R.id.ratingBar);
+
+        docID = mUser.getUID() + "-" + recipeID;
     }
 
 
@@ -210,7 +218,6 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         ratingMap =  (HashMap<String, Double>) bundle.getSerializable("ratingMap");
         xmlPresentation = bundle.getString("xmlURL");
         planner = bundle.getBoolean("planner");
-        //recipeRating = bundle.getString("rating");
         reheat = bundle.getString("reheat");
         noEggs = bundle.getBoolean("noEggs");
         noMilk = bundle.getBoolean("noMilk");
@@ -337,6 +344,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
                         reviewBundle.putString("recipeID", recipeID);
                         reviewBundle.putString("recipeDescription", recipeDescription);
                         reviewBundle.putString("recipeTitle",recipeName);
+                        reviewBundle.putString("recipeImageURL",recipeImage);
                         fragment.setArguments(reviewBundle);
                         break;
 
@@ -481,6 +489,54 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
                             //mFavourite.setChecked(false);
                         }
                     });
+                }
+            }
+        });
+    }
+
+    /*
+     * Method to give kudos to a recipe chef if the user likes the recipe
+     */
+    protected void addKudos(View layout) {
+
+        //Checking firebase first to see if user has already given kudos to the creator of the recipe.
+        mDatabase.collection("kudos").document(docID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    if(task.getResult().exists()){
+                        kudosGiven = true;
+                        mKudos.setChecked((boolean)task.getResult().get("kudosGiven"));
+                        mKudos.setClickable(false);
+                    }else{
+                        kudosGiven = false;
+                        mKudos.setChecked(false);
+                    }
+                    //Once kudos is given, icon changes to signify this aswell as the firebase being updated
+                    mKudos.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                        @Override
+                        public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                            if (mKudos.isChecked()) {
+
+                                mKudos.setClickable(false);
+                                HashMap<String, Object> kudosPost = new HashMap<>();
+                                kudosPost.put("kudosGiven", true);
+                                kudosPost.put("user", mUser.getUID());
+                                kudosPost.put("recipe", recipeID);
+                                mDatabase.collection("kudos").document(docID).set(kudosPost);
+                                mDatabase.collection("users").document(chefName).update("kudos", FieldValue.increment(1));
+
+                                Toast.makeText(getContext(), "Kudos to the Chef!",
+                                        Toast.LENGTH_SHORT).show();
+
+                            }else{
+                                Toast.makeText(getContext(), "Already given Kudos to the Chef!",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                }else {
+                    Log.e("FdRc", "User details retrieval : Unable to retrieve user document in Firestore ");
                 }
             }
         });

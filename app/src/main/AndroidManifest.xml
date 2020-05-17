@@ -19,22 +19,29 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <meta-data
+            android:name="com.google.android.actions"
+            android:resource="@xml/kudos_icon_clickable" />
+
         <activity android:name=".PublicProfile" />
         <activity android:name=".ProfileSettings" />
-        <activity android:name=".Presentation.Presentation"
+        <activity
+            android:name=".Presentation.Presentation"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity" />
-        <activity android:name=".Login"
+        <activity
+            android:name=".Login"
             android:screenOrientation="portrait"
-            tools:ignore="LockedOrientationActivity"/>
-        <activity android:name=".InitialUserCustomisation"
+            tools:ignore="LockedOrientationActivity" />
+        <activity
+            android:name=".InitialUserCustomisation"
             android:screenOrientation="portrait"
-            tools:ignore="LockedOrientationActivity"/>
+            tools:ignore="LockedOrientationActivity" />
         <activity
             android:name=".Home"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             tools:ignore="LockedOrientationActivity" />
         <activity android:name=".MainActivity">
@@ -52,6 +59,7 @@
         <meta-data
             android:name="io.sentry.dsn"
             android:value="https://e6648ff9c7d346bc98a8fd6aabb5738a@sentry.io/2102064" />
+
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />

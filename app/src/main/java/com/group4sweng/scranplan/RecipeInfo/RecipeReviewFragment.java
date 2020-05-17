@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,6 +43,7 @@ import com.group4sweng.scranplan.SearchFunctions.SearchRecyclerAdapter;
 import com.group4sweng.scranplan.Social.FeedFragment;
 import com.group4sweng.scranplan.Social.FeedRecyclerAdapter;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,7 +61,9 @@ public class RecipeReviewFragment extends FeedFragment {
     private CheckBox mRecipeIcon;
     private CheckBox mReviewIcon;
     private TextView mRecipeRate;
+    private ImageView mRecipeReviewImage;
     private String mRecipeID;
+    private String mRecipeImage;
     private String mRecipeTitle;
     private String mRecipeDescription;
     private String docID;
@@ -132,6 +137,9 @@ public class RecipeReviewFragment extends FeedFragment {
 
                                 DocumentSnapshot d = nextTask.getResult();
                                 mPostBodyInput.setText(d.get("body").toString());
+                                mRecipeReviewImage.setVisibility(View.VISIBLE);
+                                Picasso.get().load(d.get("uploadedImageURL").toString()).into(mRecipeReviewImage);
+                                mPostPic.setChecked(true);
 
                             }
                         });
@@ -157,6 +165,7 @@ public class RecipeReviewFragment extends FeedFragment {
 
         ratingMap = (HashMap<String, Double>) getArguments().getSerializable("ratingMap");
         mRecipeID = getArguments().getString("recipeID");
+        mRecipeImage = getArguments().getString("recipeImageURL");
         mRecipeTitle = getArguments().getString("recipeTitle");
         mRecipeDescription = getArguments().getString("recipeDescription");
 
@@ -172,6 +181,7 @@ public class RecipeReviewFragment extends FeedFragment {
         mRecipeIcon = layout.findViewById(R.id.recipeIcon);
         mReviewIcon = layout.findViewById(R.id.reviewIcon);
         mRecipeRate = layout.findViewById(R.id.recipeRate);
+        mRecipeReviewImage = layout.findViewById(R.id.userUploadedImageView);
 
     }
 
@@ -287,6 +297,7 @@ public class RecipeReviewFragment extends FeedFragment {
             postsMap.put("recipeDescription", mRecipeDescription);
             postsMap.put("recipeTitle", mRecipeTitle);
             postsMap.put("recipeID", mRecipeID);
+            postsMap.put("recipeImageURL", mRecipeImage);
 
             //Saving map to the firestore
             DocumentReference postRef = mDatabase.collection("posts").document();
@@ -328,7 +339,8 @@ public class RecipeReviewFragment extends FeedFragment {
                                         reviewDocRef.set(reviewMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
-                                                mDatabase.collection("users").document(user.getUID()).update("posts", FieldValue.increment(1));
+                                                mDatabase.collection("users").document(user.getUID()).update("posts", FieldValue.increment(1),"livePosts", FieldValue.increment(1));
+                                                user.setPosts(user.getPosts()+1);
                                                 addPosts(layout);
                                             }
                                         });
@@ -351,7 +363,6 @@ public class RecipeReviewFragment extends FeedFragment {
                 }
             }
             else {
-                postsMap.put("uploadedImageURL", NULL);
                 postRef.set(postsMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -370,6 +381,8 @@ public class RecipeReviewFragment extends FeedFragment {
                         reviewDocRef.set(reviewMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
+                                mDatabase.collection("users").document(user.getUID()).update("posts", FieldValue.increment(1),"livePosts", FieldValue.increment(1));
+                                user.setPosts(user.getPosts()+1);
                                 addPosts(layout);
                             }
                         });
@@ -395,6 +408,7 @@ public class RecipeReviewFragment extends FeedFragment {
             postsMap.put("recipeDescription", mRecipeDescription);
             postsMap.put("recipeTitle", mRecipeTitle);
             postsMap.put("recipeID", mRecipeID);
+            postsMap.put("recipeImageURL", mRecipeImage);
 
             //Saving map to the firestore
             DocumentReference postRef = mDatabase.collection("posts").document(postID);
@@ -437,6 +451,7 @@ public class RecipeReviewFragment extends FeedFragment {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
                                                 mDatabase.collection("users").document(user.getUID()).update("posts", FieldValue.increment(1));
+                                                user.setPosts(user.getPosts()+1);
                                                 addPosts(layout);
                                             }
                                         });
@@ -459,7 +474,6 @@ public class RecipeReviewFragment extends FeedFragment {
                 }
             }
             else {
-                postsMap.put("uploadedImageURL", NULL);
                 postRef.set(postsMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -478,6 +492,8 @@ public class RecipeReviewFragment extends FeedFragment {
                         reviewDocRef.set(reviewMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
+                                mDatabase.collection("users").document(user.getUID()).update("posts", FieldValue.increment(1));
+                                user.setPosts(user.getPosts()+1);
                                 addPosts(layout);
                             }
                         });
@@ -519,12 +535,16 @@ public class RecipeReviewFragment extends FeedFragment {
 
                         for (DocumentSnapshot document : task.getResult()) {
                             //Pass all data from document
+                            String test = null;
+                            if ((Boolean) document.get("isPic")){
+                                test = document.get("uploadedImageURL").toString();
+                            }
                             data.add(new recipeReviewRecyclerAdapter.reviewData(
                                     document.get("body").toString(),
                                     document.get("author").toString(),
                                     document.get("overallRating").toString(),
                                     (Timestamp) document.get("timestamp"),
-                                    document.get("uploadedImageURL").toString(),
+                                    test,
                                     document.getId()
                             ));
                         }
@@ -565,12 +585,16 @@ public class RecipeReviewFragment extends FeedFragment {
                                             if (t.isSuccessful()) {
                                                 for (DocumentSnapshot d : t.getResult()) {
                                                     //Pass all data from document
+                                                    String test = null;
+                                                    if ((Boolean) d.get("isPic")){
+                                                        test = d.get("uploadedImageURL").toString();
+                                                    }
                                                     data.add(new recipeReviewRecyclerAdapter.reviewData(
                                                             d.get("body").toString(),
                                                             d.get("author").toString(),
                                                             d.get("overallRating").toString(),
                                                             (Timestamp) d.get("timestamp"),
-                                                            d.get("uploadedImageURL").toString(),
+                                                            test,
                                                             d.getId()
                                                     ));
                                                 }

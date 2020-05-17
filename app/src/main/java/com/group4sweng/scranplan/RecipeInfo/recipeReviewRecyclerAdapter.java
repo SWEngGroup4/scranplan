@@ -104,7 +104,7 @@ public class recipeReviewRecyclerAdapter extends RecyclerView.Adapter <recipeRev
             Picasso.get().load(mData.get(position).recipePic).into(holder.recipeImageView);
         }
         else{
-            holder.recipeImageView.setVisibility(View.INVISIBLE);
+            holder.recipeImageView.setVisibility(View.GONE);
             Log.e("FdRc", "User details retrieval : Unable to retrieve user document in Firestore ");
         }
 
