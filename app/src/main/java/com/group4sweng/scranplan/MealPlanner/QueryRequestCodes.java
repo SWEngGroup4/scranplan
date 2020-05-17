@@ -4,4 +4,5 @@ public interface QueryRequestCodes {
     int BREAKFAST = 0;
     int LUNCH = 1;
     int DINNER = 2;
+    int NORMAL = 3;
 }

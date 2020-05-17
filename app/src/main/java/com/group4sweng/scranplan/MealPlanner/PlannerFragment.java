@@ -20,6 +20,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.Home;
 import com.group4sweng.scranplan.R;
+import com.group4sweng.scranplan.RecipeFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
@@ -45,7 +46,7 @@ public class PlannerFragment extends Fragment {
 
     //Fragment handlers
     private FragmentTransaction fragmentTransaction;
-    private MealTimescaleFragment mealTimescaleFragment;
+    private RecipeFragment mealTimescaleFragment;
 
     //User information
     private com.group4sweng.scranplan.UserInfo.UserInfoPrivate mUser;
@@ -163,24 +164,21 @@ public class PlannerFragment extends Fragment {
 
             //Creates and launches recipe fragment
             if (i == 0) {
-                mealTimescaleFragment = new MealTimescaleFragment(mUser, 0);
+                mealTimescaleFragment = new RecipeFragment(mUser, breakfastRequestCode);
                 mealTimescaleFragment.setArguments(bundle);
                 mealTimescaleFragment.setTargetFragment(PlannerFragment.this, breakfastRequestCode);
-                fragmentTransaction = getParentFragmentManager().beginTransaction();
-                //fragmentTransaction.add(R.id.frameLayout, mealTimescaleFragment); //Overlays fragment on existing one
+
             }else if (i == 1){
-                mealTimescaleFragment = new MealTimescaleFragment(mUser, 1);
+                mealTimescaleFragment = new RecipeFragment(mUser, lunchRequestCode);
                 mealTimescaleFragment.setArguments(bundle);
                 mealTimescaleFragment.setTargetFragment(PlannerFragment.this, lunchRequestCode);
-                fragmentTransaction = getParentFragmentManager().beginTransaction();
-                //fragmentTransaction.add(R.id.frameLayout, mealTimescaleFragment); //Overlays fragment on existing one
             }else if (i == 2){
-                mealTimescaleFragment = new MealTimescaleFragment(mUser, 2);
+                mealTimescaleFragment = new RecipeFragment(mUser, dinnerRequestCode);
                 mealTimescaleFragment.setArguments(bundle);
                 mealTimescaleFragment.setTargetFragment(PlannerFragment.this, dinnerRequestCode);
-                fragmentTransaction = getParentFragmentManager().beginTransaction();
-                //fragmentTransaction.add(R.id.frameLayout, mealTimescaleFragment); //Overlays fragment on existing one
             }
+            fragmentTransaction = getParentFragmentManager().beginTransaction();
+            fragmentTransaction.add(R.id.frameLayout, mealTimescaleFragment); //Overlays fragment on existing one
             fragmentTransaction.commitNow(); //Waits for fragment transaction to be completed
             requireView().setVisibility(View.INVISIBLE); //Sets current fragment invisible
 

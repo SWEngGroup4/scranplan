@@ -39,9 +39,6 @@ public class HomeQueries {
         queries.put("votes", buildQuery(user).orderBy("rating.totalRates", Query.Direction.DESCENDING));
         queries.put("timestamp", buildQuery(user).orderBy("timestamp", Query.Direction.DESCENDING));
         queries.put("favourite", ref.whereArrayContains("favourite", user.getUID().hashCode()));
-        queries.put("breakfast", buildQuery(user).whereEqualTo("breakfast", true));
-        queries.put("lunch", buildQuery(user).whereEqualTo("lunch", true));
-        queries.put("dinner", buildQuery(user).whereEqualTo("dinner", true));
         queries.put("breakfastScore",buildQuery(user).whereEqualTo("breakfast", true).orderBy("score", Query.Direction.DESCENDING));
         queries.put("lunchScore",buildQuery(user).whereEqualTo("lunch", true).orderBy("score", Query.Direction.DESCENDING));
         queries.put("dinnerScore",buildQuery(user).whereEqualTo("dinner", true).orderBy("score", Query.Direction.DESCENDING));

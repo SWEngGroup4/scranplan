@@ -19,7 +19,6 @@ import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.android.gms.ads.formats.UnifiedNativeAdView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.group4sweng.scranplan.Adverts.AdViewHolder;
-import com.group4sweng.scranplan.MealPlanner.MealTimescaleFragment;
 import com.group4sweng.scranplan.R;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -39,9 +38,6 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
 
     // Variables for database and fragment to be displayed in
     private RecipeFragment mRecipeFragment;
-    private MealTimescaleFragment mMealTimescaleFragment;
-
-
     private List<HomeRecipePreviewData> mDataset;
 
     private static final int RECIPE_PREVIEW_ITEM_VIEW_TYPE = 0;
@@ -100,16 +96,6 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
     }
 
     /**
-            * Constructor to add all variables
-     * @param mealTimescaleFragment
-     * @param dataset
-     */
-    public HomeRecyclerAdapter (MealTimescaleFragment mealTimescaleFragment, List<HomeRecyclerAdapter.HomeRecipePreviewData> dataset) {
-        mMealTimescaleFragment = mealTimescaleFragment;
-        mDataset = dataset;
-    }
-
-    /**
      * Building and inflating the view within its parent
      * @param parent
      * @param viewType
@@ -164,12 +150,6 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
         holder.cardView.setOnClickListener(v -> {
             if (mRecipeFragment != null){
                 mRecipeFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
-            }else{
-                Log.e("SEARCH RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
-            }
-
-            if (mMealTimescaleFragment != null){
-                mMealTimescaleFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
             }else{
                 Log.e("SEARCH RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
             }

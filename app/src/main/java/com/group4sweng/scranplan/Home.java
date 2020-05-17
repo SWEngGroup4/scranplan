@@ -126,6 +126,8 @@ public class Home extends AppCompatActivity {
             mSentryUser.setEmail(mUser.getEmail());
             Sentry.setUser(mSentryUser);
         }
+
+        fragment = new RecipeFragment(mUser, 4);
         /*
         // Setting up the action and tab bars
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -250,7 +252,7 @@ public class Home extends AppCompatActivity {
         //Defining all relevant members of signin & register page
         tabLayout = findViewById(R.id.tabLayout);
         frameLayout = findViewById(R.id.frameLayout);
-        fragment = new RecipeFragment();
+        Fragment fragment = new RecipeFragment(mUser, 4);
         fragmentTransaction.replace(R.id.frameLayout, fragment);
         fragmentTransaction.commit ();
         navigationView = (NavigationView) findViewById(R.id.side_menu);
@@ -320,7 +322,7 @@ public class Home extends AppCompatActivity {
                 Log.d("Test", String.valueOf(fragment));
                 switch (tab.getPosition()) {
                     case 0:
-                        fragment = new RecipeFragment();
+                        fragment = new RecipeFragment(mUser,4);
                         fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
                         break;
                     case 1:
