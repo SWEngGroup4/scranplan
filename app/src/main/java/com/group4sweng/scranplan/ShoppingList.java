@@ -2,32 +2,23 @@ package com.group4sweng.scranplan;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.common.collect.ObjectArrays;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.Helper.RecipeHelpers;
-import com.group4sweng.scranplan.MealPlanner.PlannerFragment;
-import com.group4sweng.scranplan.MealPlanner.PlannerInfoFragment;
-import com.group4sweng.scranplan.MealPlanner.PlannerListFragment;
-import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
-import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
+import java.text.Collator;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -41,26 +32,28 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
     private FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
     private CollectionReference mUserRef = mDatabase.collection("users");
 
-    private List<HashMap<String, Object>> updateIngredientList = new ArrayList<>();
-
     //User information
     private com.group4sweng.scranplan.UserInfo.UserInfoPrivate mUser;
 
-    TextView mShoppingList;
     private List<HashMap<String, Object>> ShoppingList = new ArrayList<>();
     RecyclerViewAdaptor adapter;
     ArrayList<String> newList = new ArrayList<>();
+    ArrayList<String> newList2 = new ArrayList<>();
+
+    Button msaveButton;
+    Button mShowButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-       setContentView(R.layout.activity_shoppinglist);
+        setContentView(R.layout.activity_shoppinglist);
 
         mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) getIntent().getSerializableExtra("user");
 
         if (mUser != null) {
             AddIngredients();
+            initPageListeners();
         }
 
     }
@@ -68,13 +61,11 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
     @Override
     public void onItemClick(View view, int position) {
 
-    if (newList != null) {
-        newList.remove(position);
+        if (newList2 != null) {
+            newList2.remove(position);
+        }
+        adapter.notifyItemRemoved(position);
     }
-    adapter.notifyItemRemoved(position);
-    System.out.println(newList);
-    }
-
 
     public void AddIngredients() {
 
@@ -89,31 +80,45 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
                     assert updateIngredientList != null;
                     ArrayList<String> ingredientArray = RecipeHelpers.convertToIngredientListFormat(updateIngredientList);
                     for (String ingredient : ingredientArray) {
-                        if (newList.contains(ingredient)){
-                            newList.remove(ingredient);
-                            newList.add("2x " + ingredient);
-                        }
-
-                        else {
-                            newList.add(ingredient);
-                        }
+                        newList.add(ingredient);
                     }
+
                 }
             }
         }
-        System.out.println(newList);
+        Set<String> unique = new HashSet<String>(newList);
+        for (String key : unique) {
+            newList2.add(Collections.frequency(newList, key) + " Times : " + key);
+            java.util.Collections.sort(newList2, Collator.getInstance());
+        }
+
         RecyclerView recyclerView = findViewById(R.id.rvShoppingList);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new RecyclerViewAdaptor(this, newList);
+        adapter = new RecyclerViewAdaptor(this, newList2);
         adapter.setClickListener(this);
         recyclerView.setAdapter(adapter);
     }
 
     @Override
-    public void onBackPressed () {
+    public void onBackPressed() {
         Intent returnIntent = new Intent(this, Home.class);
         returnIntent.putExtra("user", mUser);
         startActivity(returnIntent);
-        finish(); //    We don't need to send anything back but do need to destroy the current activity.
     }
+
+    private void initPageListeners() {
+        msaveButton = findViewById(R.id.SavedList);
+        mShowButton = findViewById(R.id.ViewSavedList);
+
+        msaveButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+
+                System.out.println(newList2);
+
+            }
+        });
+
+    }
+
+
 }
