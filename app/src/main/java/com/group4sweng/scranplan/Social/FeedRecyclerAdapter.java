@@ -33,6 +33,10 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
+ * Class for the feed recycler adapter used in both the feed fragment and posts fragment of profile.
+ * Author(s): LNewman
+ * (c) CoDev 2020
+ *
  *  Class holding the recycler adapter for the feed fragment, each card will represent the view
  *  of one recipe. All recipe info is stored in this card.
  *  Creating a card view that hold the picture and the document which, the picture will be displayed
@@ -78,6 +82,10 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
             this.timeStamp = time.toDate().toString();
             this.isRecipe = (boolean) document.get("isRecipe");
             this.isPic = (boolean) document.get("isPic");
+            if(document.get("overallRating") != null){
+                this.isReview = (boolean) document.get("isReview");
+            }
+            this.isReview = (boolean) document.get("isReview");
             this.authorUID = (String) document.get("author");
             this.body = (String) document.get("body");
             if(isPic){
@@ -89,7 +97,7 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
                 this.recipeTitle = (String) document.get("recipeTitle");
                 this.recipeDescription = (String) document.get("recipeDescription");
                 if(isReview){
-                    double toFloat = (double) document.get("recipeReview");
+                    double toFloat = (double) document.get("overallRating");
                     this.review = (float)toFloat;
                 }
             }
@@ -139,7 +147,7 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
             recipeTitle = v.findViewById(R.id.postRecipeTitleAdapter);
             recipeDescription = v.findViewById(R.id.postRecipeDescriptionAdapter);
             timeStamp = v.findViewById(R.id.postTimeStamp);
-            recipeRating = v.findViewById(R.id.postRecipeRatingAdapter);
+            recipeRating = v.findViewById(R.id.recipeRatingFeed);
             numLikes = v.findViewById(R.id.postNumLike);
             numComments = v.findViewById(R.id.postNumComments);
             likedOrNot = v.findViewById(R.id.likeIcon);
@@ -237,11 +245,11 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
             holder.recipeImageView.setVisibility(View.VISIBLE);
             holder.recipeTitle.setText(mDataset.get(position).recipeTitle);
             holder.recipeDescription.setText(mDataset.get(position).recipeDescription);
-            //Picasso.get().load(mDataset.get(position).recipeImageURL).into(holder.recipeImageView);
-            Glide.with(holder.recipeImageView.getContext())
-                    .load(mDataset.get(position).recipeImageURL)
-                    .apply(RequestOptions.centerCropTransform())
-                    .into(holder.recipeImageView);
+            Picasso.get().load(mDataset.get(position).recipeImageURL).into(holder.recipeImageView);
+//            Glide.with(holder.recipeImageView.getContext())
+//                    .load(mDataset.get(position).recipeImageURL)
+//                    .apply(RequestOptions.centerCropTransform())
+//                    .into(holder.recipeImageView);
             if(mDataset.get(position).isReview){
                 holder.recipeRating.setVisibility(View.VISIBLE);
                 holder.recipeRating.setRating(mDataset.get(position).review);
@@ -321,8 +329,9 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
                         mBundle.putString("recipeTitle", mDataset.get(position).recipeTitle);
                         mBundle.putString("recipeDescription", mDataset.get(position).recipeDescription);
                         mBundle.putString("recipeImageURL", mDataset.get(position).recipeImageURL);
+                        mBundle.putBoolean("isReview", mDataset.get(position).isReview);
                         if(mDataset.get(position).isReview){
-                            mBundle.putFloat("recipeReview", mDataset.get(position).review);
+                            mBundle.putFloat("overallRating", mDataset.get(position).review);
                         }
                     }
                     if(mDataset.get(position).isPic) {
@@ -367,12 +376,12 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
             public void onClick(View v) {
                 if (mFeedFragment != null) {
                     if (mDataset.get(holder.getAdapterPosition()).document != null) {
-                        mFeedFragment.menuSelected(mDataset.get(holder.getAdapterPosition()).document, holder.cardView, view);
+                        mFeedFragment.menuSelected(mDataset.get(holder.getAdapterPosition()).document, holder.menu);
                         Log.e("COMMENT RECYCLER", "Add send to profile on click");
                     }
                 }else if(mProfilePosts != null){
                     if(mDataset.get(holder.getAdapterPosition()).document != null){
-                        mProfilePosts.menuSelected(mDataset.get(holder.getAdapterPosition()).document, holder.cardView, view);
+                        mProfilePosts.menuSelected(mDataset.get(holder.getAdapterPosition()).document, holder.menu);
                         Log.e("COMMENT RECYCLER", "Add send to profile on click");
                     }
                 }else{

@@ -5,6 +5,10 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
+ * Building search query class.
+ * Author(s): LNewman, NBillis
+ * (c) CoDev 2020
+ *
  * Builds up a search query from the preferences selected by the user.
  */
 public class SearchQuery {

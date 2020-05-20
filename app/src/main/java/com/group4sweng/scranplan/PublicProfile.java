@@ -90,6 +90,9 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     TextView mKudos;
     ImageView mKudosIcon;
     TabLayout mStreamTabs;
+    TextView mPosts;
+    TextView mFollowers;
+    TextView mFollowing;
 
     //  Whether we should retrieve different information for the user. E.g. username, about me etc...
     private boolean retrieveAboutMe = false, retrieveUsername = false,
@@ -101,12 +104,6 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         setContentView(R.layout.activity_public_profile);
 
         initPageItems();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
         //  Gets extra string UID attached when an intent is sent.
         UID = getIntent().getStringExtra("UID");
 
@@ -120,6 +117,13 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         } else {
             Log.e(TAG, "Unable to retrieve extra UID intent string. Cannot initialize profile.");
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+
     }
 
 
@@ -161,6 +165,10 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         mStreamTabs = findViewById(R.id.profileStreamTabs);
 
         frameLayout = findViewById(R.id.profileFrameLayout);
+
+        mPosts = findViewById(R.id.postsNum);
+        mFollowers = findViewById(R.id.followersNum);
+        mFollowing = findViewById(R.id.followingNum);
 
     }
 
@@ -289,6 +297,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                         loadInPrivacySettings(privacy); // Load in privacy settings first (always)
                         loadProfile(document); // Then we load the public users profile.
                     }
+                    postsFollowersFollowing(document);
                     loadKudosAndRecipes(document);
                     initKudosIconPressListener();
                     Log.i(TAG, "Successfully loaded the users profile");
@@ -320,6 +329,17 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         if(retrieveRecipes){ mNumRecipes.setText(numOfRecipesString);} else {
             mNumRecipes.setText(""); // Set number of recipes to nothing if hidden.
         }
+    }
+
+    /** Method to load in posts, followers and following.
+     *  Always loads directly from Firebase.
+     * @param profile - A snapshot of the Firebase user profile document.
+     */
+    private void postsFollowersFollowing(DocumentSnapshot profile){
+        String postsString =  Long.toString(((long) profile.get("livePosts")));
+
+        mPosts.setText(postsString);
+
     }
 
     //  Load the information from the local UserInfoPrivate object if the profile corresponds to that of the user using the app/

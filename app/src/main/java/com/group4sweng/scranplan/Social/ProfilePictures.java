@@ -38,29 +38,37 @@ import java.util.Map;
 
 
 /**
- * This class builds the horizontal scrolls of custom preference recipe selection for the user on the
- * home screen. Each of these scrolls is infinite in length, loading 5 recipes at a time to minimise
- * reads from the Firestore yet still giving the user an infinite and responsive experience with
- * scroll listeners to check where the user is interacting with these scrolls.
+ * Class for the Pictures fragment in profile.
+ * Author(s): LNewman
+ * (c) CoDev 2020
+ *
+ * This class builds the grid scroll of all selected users picture posts in an infinite scroll
+ *  grid using the PictureRecyclerAdapter.
  */
 public class ProfilePictures extends Fragment {
 
     final String TAG = "profile Pics";
+    // Number of pictures per row
     int numberOfColumns = 2;
+    // How many images to load in each firebase query
     int dataLim = 10;
     String authorName;
 
     NestedScrollView profileScrollView;
     PublicProfile profile;
 
+    /**
+     * Pictures constructor
+     * @param UID
+     * @param author
+     */
     public ProfilePictures(String UID, String author){
         searchUID = UID;
         authorName = author;
     }
     private String searchUID;
-    LoadingDialog loadingDialog;
 
-    //Score scroll info
+    //scroll info
     List<PictureRecyclerAdapter.PicturePostPreviewData> data;
     private DocumentSnapshot lastVisible;
     private boolean isLastItemReached = false;
@@ -68,17 +76,13 @@ public class ProfilePictures extends Fragment {
 
 
     View mainView;
-
-
-    //User information
+    //User information to current user can like posts
     private com.group4sweng.scranplan.UserInfo.UserInfoPrivate user;
-
 
     Query query;
 
 
-
-    // Database objects for accessing recipes
+    // Database objects for accessing posts
     private FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
     private CollectionReference mColRef = mDatabase.collection("posts");
 
@@ -101,16 +105,12 @@ public class ProfilePictures extends Fragment {
 
         View view = inflater.inflate(R.layout.profile_posts, container, false);
         mainView = view;
-        loadingDialog = new LoadingDialog(getActivity());
 
         // Grabs screen size for % layout TODO - change to density pixels + NullPointerException check
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
         user = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
 
-
         Log.e(TAG, "IN TO THE FRAGMENT FOR PROFILE POSTS");
-        initPageListeners();
-
 
         // Checks users details have been provided
         if(user != null){
@@ -161,7 +161,7 @@ public class ProfilePictures extends Fragment {
                             temporary.put("recipeDescription", document.get("recipeDescription"));
                             temporary.put("recipeID", document.get("recipeID"));
                             temporary.put("recipeImageURL", document.get("recipeImageURL"));
-                            temporary.put("recipeReview", document.get("recipeReview"));
+                            temporary.put("overallRating", document.get("overallRating"));
                             temporary.put("recipeTitle", document.get("recipeTitle"));
                             temporary.put("timestamp", document.get("timestamp"));
                             temporary.put("uploadedImageURL", document.get("uploadedImageURL"));
@@ -205,7 +205,7 @@ public class ProfilePictures extends Fragment {
                                                             temp.put("recipeDescription", d.get("recipeDescription"));
                                                             temp.put("recipeID", d.get("recipeID"));
                                                             temp.put("recipeImageURL", d.get("recipeImageURL"));
-                                                            temp.put("recipeReview", d.get("recipeReview"));
+                                                            temp.put("overallRating", d.get("overallRating"));
                                                             temp.put("recipeTitle", d.get("recipeTitle"));
                                                             temp.put("timestamp", d.get("timestamp"));
                                                             temp.put("uploadedImageURL", d.get("uploadedImageURL"));
@@ -231,253 +231,16 @@ public class ProfilePictures extends Fragment {
                             }
                         };
                         profileScrollView.setOnScrollChangeListener(onScrollListener);
-//                        // Track users location to check if new data download is required
-//                        RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
-//                            @Override
-//                            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-//                                super.onScrollStateChanged(recyclerView, newState);
-//                                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
-//                                    isScrolling = true;
-//                                }
-//                            }
-//                                if (isScrolling && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReached) {
-//                                    isScrolling = false;
-//                                    Query nextQuery = query.startAfter(lastVisible);
-//                                    nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-//                                        @Override
-//                                        public void onComplete(@NonNull Task<QuerySnapshot> t) {
-//                                            if (t.isSuccessful()) {
-//
-//                                                for (DocumentSnapshot d : t.getResult()) {
-//                                                    Log.e("TIME", "I have found a doc");
-//                                                    HashMap<String, Object> temporary = new HashMap<String, Object>();
-//                                                    temporary.put("author", d.get("author"));
-//                                                    temporary.put("body", d.get("body"));
-//                                                    temporary.put("comments", d.get("comments"));
-//                                                    temporary.put("isPic", d.get("isPic"));
-//                                                    temporary.put("isRecipe", d.get("isRecipe"));
-//                                                    temporary.put("isReview", d.get("isReview"));
-//                                                    temporary.put("likes", d.get("likes"));
-//                                                    temporary.put("recipeDescription", d.get("recipeDescription"));
-//                                                    temporary.put("recipeID", d.get("recipeID"));
-//                                                    temporary.put("recipeImageURL", d.get("recipeImageURL"));
-//                                                    temporary.put("recipeReview", d.get("recipeReview"));
-//                                                    temporary.put("recipeTitle", d.get("recipeTitle"));
-//                                                    temporary.put("timestamp", d.get("timestamp"));
-//                                                    temporary.put("uploadedImageURL", d.get("uploadedImageURL"));
-//                                                    data.add(new PictureRecyclerAdapter.PicturePostPreviewData(temporary));
-//                                                }
-//                                                if(isLastItemReached){
-//                                                    // Add end here
-//                                                }
-//                                                rAdapter.notifyDataSetChanged();
-//                                                if (t.getResult().size() != 0) {
-//                                                    lastVisible = t.getResult().getDocuments().get(t.getResult().size() - 1);
-//                                                }
-//
-//                                                if (t.getResult().size() < 5) {
-//                                                    isLastItemReached = true;
-//                                                }
-//                                            }
-//                                        }
-//                                    });
-//                                }
-//                            }
-//                        };
-//                        recyclerView.addOnScrollListener(onScrollListener);
+
                     }
                 }
             });
         }
     }
 
-    public void deletePost(String deleteDocID){
-        loadingDialog.startLoadingDialog();
-        mDatabase.collection("followers").document(user.getUID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.isSuccessful()){
-                    if(task.getResult().exists()){
-                        // Add post to followers map
-                        DocumentSnapshot doc = task.getResult();
-                        if(((HashMap)doc.get("mapA")) != null){
-                            if(((HashMap)doc.get("mapA")).get("docID").equals(deleteDocID)){
-                                String map = "mapA";
-                                mDatabase.collection("followers").document(user.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                //TODO reduce number of posts on profile by 1
-                                                mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
-                                                addPosts(mainView);
-                                            }
-                                        });
-                                        loadingDialog.dismissDialog();
-                                    }
-                                });
-                            }
-                        }else if(((HashMap)doc.get("mapB")) != null){
-                            if(((HashMap)doc.get("mapB")).get("docID").equals(deleteDocID)){
-                                String map = "mapB";
-                                mDatabase.collection("followers").document(user.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                //TODO reduce number of posts on profile by 1
-                                                mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
-                                                addPosts(mainView);
-                                            }
-                                        });
-                                        loadingDialog.dismissDialog();
-                                    }
-                                });
-                            }
-                        }else if(((HashMap)doc.get("mapC")) != null){
-                            if(((HashMap)doc.get("mapC")).get("docID").equals(deleteDocID)){
-                                String map = "mapC";
-                                mDatabase.collection("followers").document(user.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                //TODO reduce number of posts on profile by 1
-                                                mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
-                                                addPosts(mainView);
-                                            }
-                                        });
-                                        loadingDialog.dismissDialog();
-                                    }
-                                });
-                            }
-                        }else{
-                            mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    //TODO reduce number of posts on profile by 1
-                                    mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
-                                    addPosts(mainView);
-                                }
-                            });
-                        }
-                    }else{
-                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                //TODO reduce number of posts on profile by 1
-                                mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
-                                addPosts(mainView);
-                            }
-                        });
-                        loadingDialog.startLoadingDialog();
-                    }
-                }
-            }
-        });
-    }
-
-
-//    public void deletePost(String deleteDocID){
-//        loadingDialog.startLoadingDialog();
-//        mDatabase.collection("followers").document(user.getUID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//            @Override
-//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                if(task.isSuccessful()){
-//                    if(task.getResult().exists()){
-//                        // Add post to followers map
-//                        DocumentSnapshot doc = task.getResult();
-//                        if(((HashMap)doc.get("mapA")).get("docID").equals(deleteDocID)){
-//                            String map = "mapA";
-//                            mDatabase.collection("followers").document(user.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
-//                                @Override
-//                                public void onComplete(@NonNull Task<Void> task) {
-//                                    mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-//                                        @Override
-//                                        public void onComplete(@NonNull Task<Void> task) {
-//                                            //TODO reduce number of posts on profile by 1
-//                                            mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
-//                                        }
-//                                    });
-//                                    loadingDialog.dismissDialog();
-//                                }
-//                            });
-//                        }else if(((HashMap)doc.get("mapB")).get("docID").equals(deleteDocID)){
-//                            String map = "mapB";
-//                            mDatabase.collection("followers").document(user.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
-//                                @Override
-//                                public void onComplete(@NonNull Task<Void> task) {
-//                                    mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-//                                        @Override
-//                                        public void onComplete(@NonNull Task<Void> task) {
-//                                            //TODO reduce number of posts on profile by 1
-//                                            mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
-//                                        }
-//                                    });
-//                                    loadingDialog.dismissDialog();
-//                                }
-//                            });
-//                        }else if(((HashMap)doc.get("mapC")).get("docID").equals(deleteDocID)){
-//                            String map = "mapC";
-//                            mDatabase.collection("followers").document(user.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
-//                                @Override
-//                                public void onComplete(@NonNull Task<Void> task) {
-//                                    mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-//                                        @Override
-//                                        public void onComplete(@NonNull Task<Void> task) {
-//                                            //TODO reduce number of posts on profile by 1
-//                                            mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
-//                                        }
-//                                    });
-//                                    loadingDialog.dismissDialog();
-//                                }
-//                            });
-//                        }else{
-//                            mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-//                                @Override
-//                                public void onComplete(@NonNull Task<Void> task) {
-//                                    //TODO reduce number of posts on profile by 1
-//                                    mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
-//                                }
-//                            });
-//                        }
-//                    }else{
-//                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-//                            @Override
-//                            public void onComplete(@NonNull Task<Void> task) {
-//                                //TODO reduce number of posts on profile by 1
-//                                mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
-//                            }
-//                        });
-//                        loadingDialog.startLoadingDialog();
-//                    }
-//                }
-//            }
-//        });
-//    }
-
-
-
-
-
 
     /**
-     *  Setting up page listeners for when buttons are pressed
-     */
-    protected void initPageListeners() {
-
-
-    }
-
-
-
-
-    /**
-     * On click of a recipe a new recipe info fragment is opened and the document is sent through
-     * This saves on downloading the data again from the database
+     * On click of a post, a post fragment is opened
      */
     public void itemSelected(Map<String, Object> document, Bundle mBundle,TextView likes, CheckBox likedOrNot, TextView numComments, View view) {
 

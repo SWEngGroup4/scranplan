@@ -38,6 +38,10 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
+ * Class for the home page fragment containing horizontal meals to scroll though.
+ * Author(s): LNewman
+ * (c) CoDev 2020
+ *
  * This class builds the horizontal scrolls of custom preference recipe selection for the user on the
  * home screen. Each of these scrolls is infinite in length, loading 5 recipes at a time to minimise
  * reads from the Firestore yet still giving the user an infinite and responsive experience with
@@ -160,7 +164,6 @@ public class RecipeFragment extends Fragment {
             }
         }
 
-        // Grabs screen size for % layout TODO - change to density pixels + NullPointerException check
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
 
         // Procedurally fills topLayout with imageButton content

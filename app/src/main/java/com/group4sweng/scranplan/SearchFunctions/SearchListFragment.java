@@ -36,6 +36,11 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
+ * Building search list infinite scroll fragment.
+ * Author(s): LNewman, NBillis
+ * (c) CoDev 2020
+ *
+ *
  *  This class takes a Firestore query and returns a fragment consisting of an infinite list,
  *  that goes of for as long as there is data delivered to the user in blocks of 5 items.
  *  Each item will be presented as just an image, title and description, users can click these images

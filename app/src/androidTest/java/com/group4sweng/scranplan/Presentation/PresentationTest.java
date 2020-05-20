@@ -40,9 +40,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 
 /**
- * Test the Feed Fragment.
- * Author(s): LNewman
- * (c) CoDev 2020
+ * Test the Presentation.
  *
  * Test the Presentation Activity.
  *  Tests are included to make sure information is displayed, user can flick through and see comments,
@@ -93,6 +91,7 @@ public class PresentationTest implements Credentials {
     }
 
     // Checking all parts of the slide comments
+    // Author: LNewman
     @Test
     public void testBaconComment() throws InterruptedException {
         onView(withId(R.id.menuSearch)).perform(click());
@@ -111,7 +110,7 @@ public class PresentationTest implements Credentials {
 
 
 
-        Thread.sleep(THREAD_SLEEP_TIME/4);
+        Thread.sleep(THREAD_SLEEP_TIME*2);
 
         onView(withText("COMMENTS"))
                 .perform(click());
@@ -134,7 +133,8 @@ public class PresentationTest implements Credentials {
         onView(withText("bacon"))
                 .check(matches(isDisplayed()));
 
-        onView(withText("bacon"))
+
+        onView(withId(R.id.postMenu))
                 .perform(click());
 
         onView(withText("Delete"))

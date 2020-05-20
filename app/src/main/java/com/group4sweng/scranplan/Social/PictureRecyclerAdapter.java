@@ -32,6 +32,10 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
+ * Class for the profile picture feed recycler adapter.
+ * Author(s): LNewman
+ * (c) CoDev 2020
+ *
  *  Class holding the recycler adapter for the home page, each card will represent the view
  *  of one recipe. All recipe info is stored in this card.
  *  Creating a card view that hold the picture and the document which, the picture will be displayed
@@ -76,6 +80,7 @@ public class PictureRecyclerAdapter extends RecyclerView.Adapter<PictureRecycler
             this.timeStamp = time.toDate().toString();
             this.isRecipe = (boolean) document.get("isRecipe");
             this.isPic = (boolean) document.get("isPic");
+            this.isReview = (boolean) document.get("isReview");
             this.authorUID = (String) document.get("author");
             this.body = (String) document.get("body");
             if(isPic){
@@ -87,7 +92,7 @@ public class PictureRecyclerAdapter extends RecyclerView.Adapter<PictureRecycler
                 this.recipeTitle = (String) document.get("recipeTitle");
                 this.recipeDescription = (String) document.get("recipeDescription");
                 if(isReview){
-                    double toFloat = (double) document.get("recipeReview");
+                    double toFloat = (double) document.get("overallRating");
                     this.review = (float)toFloat;
                 }
             }

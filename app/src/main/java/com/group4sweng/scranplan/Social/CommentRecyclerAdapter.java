@@ -69,9 +69,6 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
                 this.timestamp = timestamp.toDate().toString();
             }
             this.commentID = commentID;
-
-
-
         }
     }
 

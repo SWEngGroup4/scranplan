@@ -17,6 +17,10 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 /**
+ * Class for the search recycler adapter.
+ * Author(s): LNewman
+ * (c) CoDev 2020
+ *
  *  Class holding the recycler adapter for the search functionality, each card will represent the view
  *  of one recipe. All recipe info is stored in this card.
  *  Creating a card view that hold the picture and the document which, the picture will be displayed

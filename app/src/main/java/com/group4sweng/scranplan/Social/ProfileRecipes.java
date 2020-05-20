@@ -38,10 +38,12 @@ import java.util.Map;
 
 
 /**
- * This class builds the horizontal scrolls of custom preference recipe selection for the user on the
- * home screen. Each of these scrolls is infinite in length, loading 5 recipes at a time to minimise
- * reads from the Firestore yet still giving the user an infinite and responsive experience with
- * scroll listeners to check where the user is interacting with these scrolls.
+ * Class for the Posts fragment in profile.
+ * Author(s): LNewman
+ * (c) CoDev 2020
+ *
+ * This class builds the vertical scroll of all selected users posts in an infinite scroll
+ * using the FeedRecyclerAdapter to display posts in the same way as they are on the feed.
  */
 public class ProfileRecipes extends Fragment {
 
@@ -103,7 +105,6 @@ public class ProfileRecipes extends Fragment {
 
 
         Log.e(TAG, "IN TO THE FRAGMENT FOR PROFILE POSTS");
-        initPageListeners();
 
         // Checks users details have been provided
         if(user != null){
@@ -219,83 +220,12 @@ public class ProfileRecipes extends Fragment {
                             }
                         };
                         profileScrollView.setOnScrollChangeListener(onScrollListener);
-//                        // check if user has scrolled through the view
-//                        RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
-//                            @Override
-//                            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-//                                super.onScrollStateChanged(recyclerView, newState);
-//                                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
-//                                    isScrolling = true;
-//                                }
-//                            }
-//                            // If user is scrolling and has reached the end, more data is loaded
-//                            @Override
-//                            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-//                                super.onScrolled(recyclerView, dx, dy);
-//                                // Checking if user is at the end
-//                                LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
-//                                int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
-//                                int visibleItemCount = linearLayoutManager.getChildCount();
-//                                int totalItemCount = linearLayoutManager.getItemCount();
-//                                // If found to have reached end, more data is requested from the server in the same manner
-//                                if (isScrolling && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReached) {
-//                                    isScrolling = false;
-//                                    Query nextQuery = query.startAfter(lastVisible);
-//                                    nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-//                                        @Override
-//                                        public void onComplete(@NonNull Task<QuerySnapshot> t) {
-//                                            if (t.isSuccessful()) {
-//                                                for (DocumentSnapshot d : t.getResult()) {
-//                                                    data.add(new SearchRecyclerAdapter.SearchRecipePreviewData(
-//                                                            d,
-//                                                            d.getId(),
-//                                                            d.get("Name").toString(),
-//                                                            d.get("Description").toString(),
-//                                                            d.get("imageURL").toString()
-//                                                    ));
-//                                                }
-//                                                if(isLastItemReached){
-//                                                    data.add(new SearchRecyclerAdapter.SearchRecipePreviewData(
-//                                                            null,
-//                                                            null,
-//                                                            "No more results",
-//                                                            "We have checked all over and there is nothing more to be found!",
-//                                                            null
-//                                                    ));
-//                                                }
-//                                                rAdapter.notifyDataSetChanged();
-//                                                if (t.getResult().size() != 0) {
-//                                                    lastVisible = t.getResult().getDocuments().get(t.getResult().size() - 1);
-//                                                }
-//
-//                                                if (t.getResult().size() < 5) {
-//                                                    isLastItemReached = true;
-//                                                }
-//                                            }
-//                                        }
-//                                    });
-//                                }
-//                            }
-//                        };
-//                        recyclerView.addOnScrollListener(onScrollListener);
                     }
                 }
             });
         }
     }
 
-
-
-
-
-
-    /**
-     *  Setting up page listeners for when buttons are pressed
-     */
-    protected void initPageListeners() {
-
-
-    }
 
 
 
