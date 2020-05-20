@@ -1,21 +1,12 @@
 package com.group4sweng.scranplan.Social;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatDialogFragment;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.widget.NestedScrollView;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -24,6 +15,14 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDialogFragment;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.widget.NestedScrollView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -267,25 +266,28 @@ public class PostPage extends AppCompatDialogFragment {
          it as a new document in the Firestore, the data is also reloaded */
         sendComment.setOnClickListener(v -> {
             String content = newComment.getText().toString();
-            newComment.getText().clear();
+            if(!newComment.getText().toString().equals("")) {
+                newComment.getText().clear();
 
-            CollectionReference ref = mDatabase.collection("posts").document(postID).collection("comments");
-            Log.e(TAG, "Added new doc ");
-            // Saving the comment as a new document
-            HashMap<String, Object> map = new HashMap<>();
-            map.put("authorID", mUser.getUID());
-            map.put("likes", 0);
-            map.put("comment", content);
-            map.put("timestamp", FieldValue.serverTimestamp());
-            // Saving default user to Firebase Firestore database
-            ref.add(map);
-            int newComment = Integer.parseInt((String) numComments.getText())+1;
-            String commentString = String.valueOf(newComment);
-            lastPageComments.setText(commentString);
-            numComments.setText(commentString);
-            mDatabase.collection("posts").document(postID).update("comments", FieldValue.increment(1));
-            addFirestoreComments();
-
+                CollectionReference ref = mDatabase.collection("posts").document(postID).collection("comments");
+                Log.e(TAG, "Added new doc ");
+                // Saving the comment as a new document
+                HashMap<String, Object> map = new HashMap<>();
+                map.put("authorID", mUser.getUID());
+                map.put("likes", 0);
+                map.put("comment", content);
+                map.put("timestamp", FieldValue.serverTimestamp());
+                // Saving default user to Firebase Firestore database
+                ref.add(map);
+                int newComment = Integer.parseInt((String) numComments.getText()) + 1;
+                String commentString = String.valueOf(newComment);
+                lastPageComments.setText(commentString);
+                numComments.setText(commentString);
+                mDatabase.collection("posts").document(postID).update("comments", FieldValue.increment(1));
+                addFirestoreComments();
+            }else{
+                Toast.makeText(getContext(),"You need to write a comment first!",Toast.LENGTH_SHORT).show();
+            }
 
         });
 
