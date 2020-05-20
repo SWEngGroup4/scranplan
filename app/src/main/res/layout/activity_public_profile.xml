@@ -379,17 +379,17 @@
                     <com.google.android.material.tabs.TabItem
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:icon="@drawable/stream_posts_icon" />
+                        android:icon="@drawable/ic_library_books_black_24dp" />
 
                     <com.google.android.material.tabs.TabItem
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:icon="@drawable/stream_photo_icon" />
+                        android:icon="@drawable/ic_photo_library_black_24dp" />
 
                     <com.google.android.material.tabs.TabItem
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:icon="@drawable/stream_food_icon" />
+                        android:icon="@drawable/ic_restaurant_menu_black_24dp" />
 
                 </com.google.android.material.tabs.TabLayout>
 
