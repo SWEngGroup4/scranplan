@@ -5,14 +5,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -25,9 +24,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.group4sweng.scranplan.MealPlanner.PlannerFragment;
 import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
-import com.group4sweng.scranplan.Social.FeedFragment;
 import com.group4sweng.scranplan.Social.ProfilePictures;
 import com.group4sweng.scranplan.Social.ProfilePosts;
 import com.group4sweng.scranplan.Social.ProfileRecipes;
@@ -93,6 +90,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     TextView mPosts;
     TextView mFollowers;
     TextView mFollowing;
+    Button mFollowButton;
 
     //  Whether we should retrieve different information for the user. E.g. username, about me etc...
     private boolean retrieveAboutMe = false, retrieveUsername = false,
@@ -135,6 +133,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     private void updatePublicProfile(FirebaseLoadType flt){
         if(flt == FirebaseLoadType.PARTIAL){
             Log.i(TAG, "Loading local user data");
+            mFollowButton.setVisibility(View.GONE);
             loadInPrivacySettings(mUserProfile.getPublicPrivacy());
             loadLocalProfile();
             loadFirebase(FirebaseLoadType.PARTIAL);
@@ -169,7 +168,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         mPosts = findViewById(R.id.postsNum);
         mFollowers = findViewById(R.id.followersNum);
         mFollowing = findViewById(R.id.followingNum);
-
+        mFollowButton = findViewById(R.id.followButton);
     }
 
     private void initPageListeners(){
