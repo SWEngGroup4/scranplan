@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/FrameLayoutid"
+    tools:context="com.group4sweng.scranplan.Social.Messenger.MessengerFeedFragment"
+    android:background="#A6AAC9">
+
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="bottom">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/postsList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                >
+
+            </androidx.recyclerview.widget.RecyclerView>
+
+            <LinearLayout
+                android:id="@+id/topLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="bottom">
+
+        <LinearLayout
+            android:id="@+id/makePostLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_corners_coloured"
+            android:orientation="vertical"
+            android:radius="10sp">
+
+            <LinearLayout
+                android:id="@+id/addPostLinearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"
+                    android:orientation="vertical">
+
+                    <EditText
+                        android:id="@+id/postBodyInput"
+                        style="@style/Widget.AppCompat.EditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16sp"
+                        android:layout_marginTop="5sp"
+                        android:layout_marginEnd="16sp"
+                        android:background="@drawable/rounded_corners"
+                        android:ems="10"
+                        android:gravity="top|left"
+                        android:hint="@string/enter_message_here"
+                        android:importantForAutofill="no"
+                        android:inputType="textMultiLine"
+                        android:maxLines="10"
+                        android:minLines="3"
+                        android:padding="5.5sp"
+                        android:scrollbars="vertical"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                        android:textColor="#353236"
+                        android:textSize="15sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <Button
+                        android:id="@+id/sendPostButton"
+                        style="@style/Widget.AppCompat.Button.Colored"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal|center_vertical"
+                        android:layout_weight="1"
+                        android:foregroundGravity="center_vertical|center|center_horizontal"
+                        android:gravity="center_horizontal|center_vertical"
+                        android:paddingRight="10sp"
+                        android:singleLine="true"
+                        android:text="@string/send"
+                        android:textColor="#C8FFFFFF" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <CheckBox
+                            android:id="@+id/recipeIcon"
+                            android:layout_width="30sp"
+                            android:layout_height="30sp"
+                            android:background="@drawable/add_recipe"
+                            android:button="@null"
+                            android:checked="false"
+                            android:maxWidth="30sp"
+                            android:maxHeight="30sp"
+                            android:scaleType="fitCenter"
+                            android:stateListAnimator="@animator/select" />
+
+                        <CheckBox
+                            android:id="@+id/imageIcon"
+                            android:layout_width="30sp"
+                            android:layout_height="30sp"
+                            android:background="@drawable/add_image"
+                            android:button="@null"
+                            android:checked="false"
+                            android:maxWidth="30sp"
+                            android:maxHeight="30sp"
+                            android:scaleType="fitCenter"
+                            android:stateListAnimator="@animator/select" />
+
+                        <CheckBox
+                            android:id="@+id/reviewIcon"
+                            android:layout_width="30sp"
+                            android:layout_height="30sp"
+                            android:background="@drawable/add_rating"
+                            android:button="@null"
+                            android:checked="false"
+                            android:maxWidth="30sp"
+                            android:maxHeight="30sp"
+                            android:scaleType="fitCenter"
+                            android:stateListAnimator="@animator/select" />
+
+                    </LinearLayout>
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+
+            <!--                <LinearLayout-->
+            <!--                    android:id="@+id/openCommentsLinearLayout"-->
+            <!--                    android:layout_margin="5sp"-->
+            <!--                    android:layout_width="match_parent"-->
+            <!--                    android:layout_height="40sp"-->
+            <!--                    android:layout_marginBottom="0dp">-->
+
+
+            <!--                    <Button-->
+            <!--                        android:id="@+id/postRecipe"-->
+            <!--                        android:layout_width="wrap_content"-->
+            <!--                        android:layout_height="50sp"-->
+            <!--                        android:layout_marginStart="20sp"-->
+            <!--                        android:layout_marginEnd="20sp"-->
+            <!--                        android:text="+ 🍽"-->
+            <!--                        android:textColor="#C8FFFFFF"-->
+            <!--                        style="@style/Widget.AppCompat.Button.Colored"-->
+            <!--                        android:singleLine="true"/>-->
+
+            <!--                    <Button-->
+            <!--                        android:id="@+id/postReview"-->
+            <!--                        android:layout_width="wrap_content"-->
+            <!--                        android:layout_height="50sp"-->
+            <!--                        android:layout_marginStart="20sp"-->
+            <!--                        android:layout_marginEnd="20sp"-->
+            <!--                        android:text="+ ⭐"-->
+            <!--                        android:textColor="#C8FFFFFF"-->
+            <!--                        style="@style/Widget.AppCompat.Button.Colored"-->
+            <!--                        android:singleLine="true"/>-->
+
+
+            <!--                    <Button-->
+            <!--                        android:id="@+id/postPic"-->
+            <!--                        android:layout_width="wrap_content"-->
+            <!--                        android:layout_height="50sp"-->
+            <!--                        android:layout_marginStart="20sp"-->
+            <!--                        android:layout_marginEnd="20sp"-->
+            <!--                        android:text="+ 📷"-->
+            <!--                        android:textColor="#C8FFFFFF"-->
+            <!--                        style="@style/Widget.AppCompat.Button.Colored"-->
+            <!--                        android:singleLine="true"/>-->
+
+            <!--                </LinearLayout>-->
+
+
+            <!--                <LinearLayout-->
+            <!--                    android:layout_width="match_parent"-->
+            <!--                    android:layout_height="wrap_content"-->
+            <!--                    android:padding="5sp">-->
+            <!--                    <Space-->
+            <!--                        android:layout_width="0dp"-->
+            <!--                        android:layout_height="1dp"-->
+            <!--                        android:minWidth="5sp"-->
+            <!--                        android:layout_weight="1" >-->
+            <!--                    </Space>-->
+
+            <!--                    <ImageView-->
+            <!--                        android:id="@+id/postRecipeImageView"-->
+            <!--                        android:maxHeight="250sp"-->
+            <!--                        android:maxWidth="250sp"-->
+            <!--                        android:layout_width="wrap_content"-->
+            <!--                        android:layout_height="wrap_content"-->
+            <!--                        android:adjustViewBounds="true"-->
+            <!--                        android:scaleType="centerCrop"-->
+            <!--                        android:layout_gravity="center_horizontal"-->
+            <!--                        android:layout_centerInParent="true"-->
+            <!--                        android:src="@drawable/scran"-->
+            <!--                        android:visibility="gone"-->
+            <!--                        android:layout_marginHorizontal="5sp"/>-->
+            <!--                    <Space-->
+            <!--                        android:id="@+id/picSpacer"-->
+            <!--                        android:layout_width="0dp"-->
+            <!--                        android:layout_height="1dp"-->
+            <!--                        android:paddingHorizontal="5sp"-->
+            <!--                        android:layout_weight="1"-->
+            <!--                        android:visibility="gone" >-->
+            <!--                    </Space>-->
+
+            <!--                    <ImageView-->
+            <!--                        android:id="@+id/userUploadedImageView"-->
+            <!--                        android:layout_width="wrap_content"-->
+            <!--                        android:layout_height="wrap_content"-->
+            <!--                        android:maxHeight="250sp"-->
+            <!--                        android:maxWidth="250sp"-->
+            <!--                        android:layout_gravity="center_horizontal"-->
+            <!--                        android:scaleType="centerCrop"-->
+            <!--                        android:layout_centerInParent="true"-->
+            <!--                        android:adjustViewBounds="true"-->
+            <!--                        android:src="@drawable/scran"-->
+            <!--                        android:visibility="gone"-->
+            <!--                        android:layout_marginHorizontal="5sp"/>-->
+            <!--                    <Space-->
+            <!--                        android:layout_width="0dp"-->
+            <!--                        android:layout_height="1dp"-->
+            <!--                        android:minWidth="5sp"-->
+            <!--                        android:layout_weight="1" >-->
+            <!--                    </Space>-->
+            <!--                </LinearLayout>-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="2sp"
+                android:paddingVertical="5sp">
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"
+                    android:minWidth="20sp" />
+
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/postRecipeImageViewLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:paddingHorizontal="10sp"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:id="@+id/postRecipeImageView"
+                        android:layout_width="150sp"
+                        android:layout_height="0dp"
+                        android:layout_centerInParent="true"
+                        android:layout_gravity="center_horizontal"
+                        android:adjustViewBounds="true"
+                        android:maxWidth="250sp"
+                        android:maxHeight="250sp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/scran"
+                        android:visibility="gone"
+                        app:layout_constraintDimensionRatio="1:1"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/userUploadedImageViewLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:paddingHorizontal="10sp"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:id="@+id/userUploadedImageView"
+                        android:layout_width="150sp"
+                        android:layout_height="0dp"
+                        android:layout_centerInParent="true"
+                        android:layout_gravity="center_horizontal"
+                        android:adjustViewBounds="true"
+                        android:maxWidth="250sp"
+                        android:maxHeight="250sp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/scran"
+                        android:visibility="gone"
+                        app:layout_constraintDimensionRatio="1:1"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"
+                    android:minWidth="20sp"></Space>
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="10sp">
+
+
+                <TextView
+                    android:id="@+id/postRecipeTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5sp"
+                    android:singleLine="true"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/postRecipeDescription"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5sp"
+                    android:visibility="gone" />
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"
+                    android:minWidth="5sp"></Space>
+
+                <TextView
+                    android:id="@+id/recipeRate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20sp"
+                    android:layout_marginTop="10sp"
+                    android:text="Rating:"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+                <RatingBar
+                    android:id="@+id/postRecipeRating"
+                    style="?android:attr/ratingBarStyleIndicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10sp"
+                    android:layout_marginBottom="10sp"
+                    android:isIndicator="false"
+                    android:numStars="5"
+                    android:progressTint="@color/colorRatingGold"
+                    android:secondaryProgressTint="@android:color/transparent"
+                    android:stepSize="0.5"
+                    android:visibility="gone" />
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"
+                    android:minWidth="5sp"></Space>
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+</FrameLayout>

@@ -38,6 +38,7 @@ import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
 import com.group4sweng.scranplan.Social.FeedFragment;
+import com.group4sweng.scranplan.Social.Messenger.MessengerFeedFragment;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import io.sentry.core.Sentry;
@@ -261,6 +262,17 @@ public class Home extends AppCompatActivity {
                         startActivity(returningIntent);
 
                         finish();
+                    case R.id.nav_messenger:
+                        Log.e(TAG, "Messenger Has been entered");
+                        FragmentManager fragmentManager = getSupportFragmentManager();
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragment = new MessengerFeedFragment(mUser);
+                        fragmentTransaction.replace(R.id.frameLayout, fragment);
+                        fragmentTransaction.commit();
+                        searchView.clearFocus();
+                        searchView.onActionViewCollapsed();
+                    default:
+                        return false;
                 }
                 return false;
             }

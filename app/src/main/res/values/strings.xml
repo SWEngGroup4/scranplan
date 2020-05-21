@@ -16,4 +16,10 @@
     <string name="review">+ Review</string>
     <string name="image">+ Image</string>
     <string name="post">Post</string>
+    <string name="enter_message_here">Enter Message here...</string>
+    <string name="send">SEND</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="log_out">Log Out</string>
+    <string name="public_profile">Public Profile</string>
+    <string name="messenger">Messenger</string>
 </resources>
