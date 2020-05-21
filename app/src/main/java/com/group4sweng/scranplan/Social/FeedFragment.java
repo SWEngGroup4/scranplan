@@ -477,17 +477,17 @@ public class FeedFragment extends Fragment {
      */
     protected void postComplete(){
         mDatabase.collection("users").document(mUser.getUID()).update("posts", FieldValue.increment(1), "livePosts", FieldValue.increment(1)).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                                                                                                        @Override
-                                                                                                                                                                        public void onComplete(@NonNull Task<Void> task) {
-                                                                                                                                                                            mUser.setPosts(mUser.getPosts()+1);
-                                                                                                                                                                            mPostBodyInput.getText().clear();
-                                                                                                                                                                            mPostRecipe.setChecked(false);
-                                                                                                                                                                            mPostReview.setChecked(false);
-                                                                                                                                                                            mPostPic.setChecked(false);
-                                                                                                                                                                            addPosts(mainView);
-                                                                                                                                                                            loadingDialog.dismissDialog();
-                                                                                                                                                                        }
-                                                                                                                                                                    }
+                                                                                                                                                @Override
+                                                                                                                                                public void onComplete(@NonNull Task<Void> task) {
+                                                                                                                                                    mUser.setPosts(mUser.getPosts()+1);
+                                                                                                                                                    mPostBodyInput.getText().clear();
+                                                                                                                                                    mPostRecipe.setChecked(false);
+                                                                                                                                                    mPostReview.setChecked(false);
+                                                                                                                                                    mPostPic.setChecked(false);
+                                                                                                                                                    addPosts(mainView);
+                                                                                                                                                    loadingDialog.dismissDialog();
+                                                                                                                                                }
+                                                                                                                                            }
         );
     }
 

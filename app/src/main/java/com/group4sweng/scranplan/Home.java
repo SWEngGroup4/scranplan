@@ -266,7 +266,7 @@ public class Home extends AppCompatActivity {
                         Log.e(TAG, "Messenger Has been entered");
                         FragmentManager fragmentManager = getSupportFragmentManager();
                         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                        fragment = new MessengerFeedFragment(mUser);
+                        fragment = new MessengerFeedFragment(mUser , null);
                         fragmentTransaction.replace(R.id.frameLayout, fragment);
                         fragmentTransaction.commit();
                         searchView.clearFocus();

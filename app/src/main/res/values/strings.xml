@@ -22,4 +22,5 @@
     <string name="log_out">Log Out</string>
     <string name="public_profile">Public Profile</string>
     <string name="messenger">Messenger</string>
+    <string name="time_stamp">Time Stamp</string>
 </resources>

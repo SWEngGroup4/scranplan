@@ -47,6 +47,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".SideMenu" />
+        <activity android:name=".Social.Messenger.MessengerMenu" />
 
         <meta-data
             android:name="io.sentry.debug"
