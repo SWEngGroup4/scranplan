@@ -39,6 +39,9 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
     RecyclerViewAdaptor adapter;
     ArrayList<String> newList = new ArrayList<>();
     ArrayList<String> newList2 = new ArrayList<>();
+    ArrayList<String> newList3 = new ArrayList<>();
+
+
 
     Button msaveButton;
     Button mShowButton;
@@ -112,8 +115,20 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
 
         msaveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
+                if (newList2 != null) {
+                    for (int x = 0; x < 100; x++) {
+                      //  newList3.add(newList2.get(x));
+                        newList3.addAll(newList2);
+                        System.out.println(newList3);
+                    }
+                }
 
-                System.out.println(newList2);
+            }
+        });
+        mShowButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+
+                System.out.println(newList3);
 
             }
         });
