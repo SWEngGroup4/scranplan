@@ -101,33 +101,37 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
 
     }
 
-    @Override
-    public void onBackPressed() {
-        Intent returnIntent = new Intent(this, Home.class);
-        returnIntent.putExtra("user", mUser);
-        startActivity(returnIntent);
-    }
-
     private void initPageListeners() {
         msaveButton = findViewById(R.id.SavedList);
         mShowButton = findViewById(R.id.ViewSavedList);
 
         msaveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                        System.out.println(newList2);
+
+                        for (String ingredient : newList2 ){
+                            newList3.add(ingredient);
+                        }
+                System.out.println(newList3);
 
             }
         });
 
         mShowButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
 
-                System.out.println(newList2);
+            @Override
+            public void onClick(View v) {
 
+                if (newList3 != null ){
+                    Intent saveListIntent = new Intent(ShoppingList.this, savedList.class);
+                    saveListIntent.putStringArrayListExtra("newList3", newList3);
+                    saveListIntent.putExtra("user", mUser);
+                    startActivity(saveListIntent);
+                }
             }
         });
+        }
+
 
     }
 
 
-}

@@ -23,6 +23,8 @@
         <activity android:name=".ProfileSettings" />
 
         <activity android:name=".ShoppingList" />
+        <activity android:name=".savedList" />
+
         <activity android:name=".RecyclerViewAdaptor" />
         <activity android:name=".Presentation.Presentation"
             android:screenOrientation="portrait"
