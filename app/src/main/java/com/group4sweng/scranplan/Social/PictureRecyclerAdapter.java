@@ -1,5 +1,6 @@
 package com.group4sweng.scranplan.Social;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -7,14 +8,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -33,23 +32,22 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Class for the feed recycler adapter used in both the feed fragment and posts fragment of profile.
+ * Class for the profile picture feed recycler adapter.
  * Author(s): LNewman
  * (c) CoDev 2020
  *
- *  Class holding the recycler adapter for the feed fragment, each card will represent the view
+ *  Class holding the recycler adapter for the home page, each card will represent the view
  *  of one recipe. All recipe info is stored in this card.
  *  Creating a card view that hold the picture and the document which, the picture will be displayed
  *  in a button and the button will pass the document though for the recipe to be read
  */
-public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapter.ViewHolder> {
+public class PictureRecyclerAdapter extends RecyclerView.Adapter<PictureRecyclerAdapter.ViewHolder> {
 
     // Variables for database and fragment to be displayed in
-    private FeedFragment mFeedFragment;
-    private ProfilePosts mProfilePosts;
-    private List<FeedPostPreviewData> mDataset;
+    private ProfilePictures mProfilePictures;
+    private List<PicturePostPreviewData> mDataset;
     private UserInfoPrivate user;
-    private View view;
+    private String authorName;
 
 
 
@@ -59,7 +57,7 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
     /**
      * The holder for the card with variables required
      */
-    public static class FeedPostPreviewData {
+    public static class PicturePostPreviewData {
         private String postID;
         private String authorUID;
         private String timeStamp;
@@ -75,16 +73,13 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
         private float review;
         private HashMap<String, Object> document;
 
-        public FeedPostPreviewData(HashMap<String, Object> doc) {
+        public PicturePostPreviewData(HashMap<String, Object> doc) {
             this.document = doc;
             this.postID = (String) document.get("docID");
             Timestamp time = (Timestamp) document.get("timestamp");
             this.timeStamp = time.toDate().toString();
             this.isRecipe = (boolean) document.get("isRecipe");
             this.isPic = (boolean) document.get("isPic");
-            if(document.get("overallRating") != null){
-                this.isReview = (boolean) document.get("isReview");
-            }
             this.isReview = (boolean) document.get("isReview");
             this.authorUID = (String) document.get("author");
             this.body = (String) document.get("body");
@@ -111,17 +106,10 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private String authorName;
         private String authorPicURL;
-
         private CardView cardView;
-        private TextView author;
-        private TextView body;
-        private TextView timeStamp;
-        private ImageView authorPic;
         private ImageView uploadedImageView;
-
-        private ImageView recipeImageView;
         private TextView recipeTitle;
-        private TextView recipeDescription;
+        private RatingBar recipeRating;
 
         private TextView numLikes;
         private TextView numComments;
@@ -129,59 +117,31 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
 
         private boolean likedB4;
 
-        private RatingBar recipeRating;
-
-        private ConstraintLayout recipeLayout;
-        private ConstraintLayout picLayout;
-
-        private ImageButton menu;
-
         private ViewHolder(View v) {
             super(v);
-            authorPic = v.findViewById(R.id.postAuthorPic);
-            cardView = v.findViewById(R.id.postCardView);
-            author = v.findViewById(R.id.postAuthor);
-            body = v.findViewById(R.id.postBody);
-            uploadedImageView = v.findViewById(R.id.userUploadedImageViewAdapter);
-            recipeImageView = v.findViewById(R.id.postRecipeImageViewAdapter);
-            recipeTitle = v.findViewById(R.id.postRecipeTitleAdapter);
-            recipeDescription = v.findViewById(R.id.postRecipeDescriptionAdapter);
-            timeStamp = v.findViewById(R.id.postTimeStamp);
-            recipeRating = v.findViewById(R.id.recipeRatingFeed);
+            cardView = v.findViewById(R.id.recipeListCardView);
+            uploadedImageView = v.findViewById(R.id.recipeListImageView);
+            recipeTitle = v.findViewById(R.id.recipeListTitle);
+            recipeRating = v.findViewById(R.id.recipeListRating);
             numLikes = v.findViewById(R.id.postNumLike);
             numComments = v.findViewById(R.id.postNumComments);
             likedOrNot = v.findViewById(R.id.likeIcon);
-            recipeLayout = v.findViewById(R.id.postRecipeImageViewAdapterLayout);
-            picLayout = v.findViewById(R.id.userUploadedImageViewAdapterLayout);
-            menu = v.findViewById(R.id.postMenu);
-
         }
     }
 
 
 
-    /**
-     * Constructor to add all variables
-     * @param feedFragment
-     * @param dataset
-     */
-    public FeedRecyclerAdapter(FeedFragment feedFragment, List<FeedPostPreviewData> dataset ,UserInfoPrivate user, View view) {
-        mFeedFragment = feedFragment;
-        mDataset = dataset;
-        this.user = user;
-        this.view = view;
-    }
 
     /**
      * Constructor to add all variables
-     * @param profilePosts
+     * @param profilePictures
      * @param dataset
      */
-    public FeedRecyclerAdapter(ProfilePosts profilePosts, List<FeedPostPreviewData> dataset ,UserInfoPrivate user, View mView) {
-        mProfilePosts = profilePosts;
+    public PictureRecyclerAdapter(ProfilePictures profilePictures, List<PicturePostPreviewData> dataset ,UserInfoPrivate user, String author) {
+        mProfilePictures = profilePictures;
+        this.authorName = author;
         mDataset = dataset;
         this.user = user;
-        view = mView;
     }
 
 
@@ -191,9 +151,9 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
      * @param viewType
      * @return
      */
-    public FeedRecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public PictureRecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.feed_recyler, parent, false);
+                .inflate(R.layout.profile_picture_recycler, parent, false);
         return new ViewHolder(v);
     }
 
@@ -204,56 +164,23 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
      */
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        if(mDataset.get(position).authorUID != null){
-            mDatabase.collection("users").document(mDataset.get(position).authorUID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        holder.authorName = (String)task.getResult().get("displayName");
-                        holder.authorPicURL = (String)task.getResult().get("imageURL");
-                        holder.author.setText((String)task.getResult().get("displayName"));
-                        if(task.getResult().get("imageURL") != null){
-                            Glide.with(holder.authorPic.getContext())
-                                    .load(task.getResult().get("imageURL"))
-                                    .apply(RequestOptions.circleCropTransform())
-                                    .into(holder.authorPic);
-                            holder.authorPic.setVisibility(View.VISIBLE);
-                        }
-
-                    }else {
-                        Log.e("FdRc", "User details retrieval : Unable to retrieve user document in Firestore ");
-                        holder.author.setText("");
-                    }
-                }
-            });
-        }else {
-            Log.e("FdRc", "User UID null");
-            holder.author.setText("");
-        }
-
-        holder.timeStamp.setText(mDataset.get(position).timeStamp);
-        holder.body.setText(mDataset.get(position).body);
         if(mDataset.get(position).uploadedImageURL != null){
-            holder.picLayout.setVisibility(View.VISIBLE);
             holder.uploadedImageView.setVisibility(View.VISIBLE);
             Picasso.get().load(mDataset.get(position).uploadedImageURL).into(holder.uploadedImageView);
         }
         if(mDataset.get(position).isRecipe){
-            holder.recipeLayout.setVisibility(View.VISIBLE);
             holder.recipeTitle.setVisibility(View.VISIBLE);
-            holder.recipeDescription.setVisibility(View.VISIBLE);
-            holder.recipeImageView.setVisibility(View.VISIBLE);
+            holder.recipeTitle.setBackgroundColor(Color.parseColor("#80FFFFFF"));
             holder.recipeTitle.setText(mDataset.get(position).recipeTitle);
-            holder.recipeDescription.setText(mDataset.get(position).recipeDescription);
-            Picasso.get().load(mDataset.get(position).recipeImageURL).into(holder.recipeImageView);
-//            Glide.with(holder.recipeImageView.getContext())
-//                    .load(mDataset.get(position).recipeImageURL)
-//                    .apply(RequestOptions.centerCropTransform())
-//                    .into(holder.recipeImageView);
             if(mDataset.get(position).isReview){
                 holder.recipeRating.setVisibility(View.VISIBLE);
+                holder.recipeRating.setBackgroundColor(Color.parseColor("#80FFFFFF"));
                 holder.recipeRating.setRating(mDataset.get(position).review);
+            }else{
+                holder.recipeRating.setVisibility(View.GONE);
             }
+        }else{
+            holder.recipeTitle.setVisibility(View.GONE);
         }
         Log.e("FdRc", "searching for post: " + mDataset.get(position).postID);
         mDatabase.collection("posts").document(mDataset.get(position).postID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -316,11 +243,10 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mFeedFragment != null || mProfilePosts != null){
+                if (mProfilePictures != null){
                     Bundle mBundle = new Bundle();
-                    mBundle.putString("authorID", mDataset.get(position).authorUID);
                     mBundle.putString("postID", mDataset.get(position).postID);
-                    mBundle.putString("authorName", holder.authorName);
+                    mBundle.putString("authorName", authorName);
                     mBundle.putString("authorPicURL", holder.authorPicURL);
                     mBundle.putBoolean("likedB4", holder.likedB4);
                     mBundle.putString("body", mDataset.get(position).body);
@@ -329,9 +255,8 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
                         mBundle.putString("recipeTitle", mDataset.get(position).recipeTitle);
                         mBundle.putString("recipeDescription", mDataset.get(position).recipeDescription);
                         mBundle.putString("recipeImageURL", mDataset.get(position).recipeImageURL);
-                        mBundle.putBoolean("isReview", mDataset.get(position).isReview);
                         if(mDataset.get(position).isReview){
-                            mBundle.putFloat("overallRating", mDataset.get(position).review);
+                            mBundle.putFloat("recipeReview", mDataset.get(position).review);
                         }
                     }
                     if(mDataset.get(position).isPic) {
@@ -339,11 +264,9 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
                     }
                     mBundle.putString("timestamp", mDataset.get(position).timeStamp);
 
-                    if(mFeedFragment != null){
-                        mFeedFragment.itemSelected(mDataset.get(holder.getAdapterPosition()).document, mBundle, holder.numLikes, holder.likedOrNot, holder.numComments, holder.cardView);
-                    }else{
-                        mProfilePosts.itemSelected(mDataset.get(holder.getAdapterPosition()).document, mBundle, holder.numLikes, holder.likedOrNot, holder.numComments, holder.cardView);
-                    }
+
+                    mProfilePictures.itemSelected(mDataset.get(holder.getAdapterPosition()).document, mBundle, holder.numLikes, holder.likedOrNot, holder.numComments, holder.cardView);
+
 
 
 
@@ -366,26 +289,6 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
 
                 }else{
                     Log.e("FEED RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
-                }
-
-            }
-        });
-
-        holder.menu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mFeedFragment != null) {
-                    if (mDataset.get(holder.getAdapterPosition()).document != null) {
-                        mFeedFragment.menuSelected(mDataset.get(holder.getAdapterPosition()).document, holder.menu);
-                        Log.e("COMMENT RECYCLER", "Add send to profile on click");
-                    }
-                }else if(mProfilePosts != null){
-                    if(mDataset.get(holder.getAdapterPosition()).document != null){
-                        mProfilePosts.menuSelected(mDataset.get(holder.getAdapterPosition()).document, holder.menu);
-                        Log.e("COMMENT RECYCLER", "Add send to profile on click");
-                    }
-                }else{
-                    Log.e("COMMENT RECYCLER", "Issue with no component in onBindViewHolder");
                 }
 
             }

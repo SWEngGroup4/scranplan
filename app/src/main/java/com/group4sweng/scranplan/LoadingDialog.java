@@ -7,11 +7,15 @@ import android.view.View;
 import android.widget.ImageView;
 
 import androidx.fragment.app.Fragment;
-
+/**
+ * Class a pop up loading dialogue that contains a spinning logo.
+ * Author(s): LNewman
+ * (c) CoDev 2020
+ *
+ */
 public class LoadingDialog {
 
     Activity activity;
-    //Fragment fragment;
     AlertDialog dialog;
     ImageView logo;
 
@@ -21,7 +25,6 @@ public class LoadingDialog {
 
     public void startLoadingDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        //AlertDialog.Builder builder = new AlertDialog.Builder(fragment);
 
         LayoutInflater inflater = activity.getLayoutInflater();
         View view = inflater.inflate(R.layout.loading_dialog, null);

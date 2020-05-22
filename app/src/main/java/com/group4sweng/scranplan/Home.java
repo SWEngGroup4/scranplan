@@ -222,7 +222,7 @@ public class Home extends AppCompatActivity {
         navigationView = (NavigationView) findViewById(R.id.side_menu);
         tabLayout.addTab(tabLayout.newTab().setText("Recipes"));
         tabLayout.addTab(tabLayout.newTab().setText("Meal Planner"));
-        tabLayout.addTab(tabLayout.newTab().setText("Timeline"));
+        tabLayout.addTab(tabLayout.newTab().setText("Feed"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
     }
 
@@ -285,7 +285,7 @@ public class Home extends AppCompatActivity {
                         fragment = new PlannerFragment(mUser);
                         break;
                     case 2:
-                        fragment = new FeedFragment();
+                        fragment = new FeedFragment(mUser);
                         fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         break;
                 }

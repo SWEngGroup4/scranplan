@@ -38,6 +38,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 /** Test the Home Activity.
+ * Author(s): LNewman, NBillis
+ * (c) CoDev 2020
+ *
  *  Tests are included to make sure information is displayed, user can successfully after search
  *  parameters and search for the meals they want.
  *

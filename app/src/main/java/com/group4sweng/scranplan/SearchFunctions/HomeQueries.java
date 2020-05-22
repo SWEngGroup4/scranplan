@@ -8,7 +8,11 @@ import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import java.util.HashMap;
 
 /**
- * This builds up the queries, taken from user preferences and feeds them into the infinate
+ * Class for the home page horizontal scroll queries.
+ * Author(s): LNewman
+ * (c) CoDev 2020
+ *
+ * This builds up the queries, taken from user preferences and feeds them into the infinite
  * horizontal scroll views on the home page
  */
 public class HomeQueries {

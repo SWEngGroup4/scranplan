@@ -21,6 +21,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.RatingBar;
 import android.widget.SearchView;
 import android.widget.Space;
@@ -28,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -58,11 +60,10 @@ import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
-import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
-import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,10 +77,12 @@ import static com.group4sweng.scranplan.Helper.ImageHelpers.isImageFormatSupport
 
 
 /**
- * This class builds the horizontal scrolls of custom preference recipe selection for the user on the
- * home screen. Each of these scrolls is infinite in length, loading 5 recipes at a time to minimise
- * reads from the Firestore yet still giving the user an infinite and responsive experience with
- * scroll listeners to check where the user is interacting with these scrolls.
+ * Class for the home page feed fragment.
+ * Author(s): LNewman
+ * (c) CoDev 2020
+ *
+ * This class builds the vertical scroll of followed users in the feed fragment but also adds the
+ * functionality to create a new posts that will then populate on the feed and within this users profile.
  */
 public class FeedFragment extends Fragment {
 
@@ -90,68 +93,69 @@ public class FeedFragment extends Fragment {
     private static final int PERMISSION_CODE = 1001;
 
     private static final int MAX_IMAGE_FILE_SIZE_IN_MB = 4; // Max storage image size for the profile picture.
-    protected static boolean POST_IS_UPLOADING = false; // Boolean to determine if the image is uploading currently.
 
-    protected Uri mImageUri; // Unique image uri.
+    private Uri mImageUri; // Unique image uri.
     ImageView mUploadedImage;
 
     float ratingNum;
 
-
-
-    // Width size of each scroll view, dictating size of images on home screen
-    final int scrollViewSize = 5;
-    protected LoadingDialog loadingDialog;
+    LoadingDialog loadingDialog;
 
     //Score scroll info
-    private List<FeedRecyclerAdapter.FeedPostPreviewData> data;
-    protected DocumentSnapshot lastVisible;
-    protected boolean isScrolling = false;
-    protected boolean isLastItemReached = false;
+    List<FeedRecyclerAdapter.FeedPostPreviewData> data;
+    private DocumentSnapshot lastVisible;
+    private boolean isScrolling = false;
+    private boolean isLastItemReached = false;
 
     protected Button mPostButton;
-    protected CheckBox mPostRecipe;
-    protected CheckBox mPostReview;
-    protected CheckBox mPostPic;
-    protected EditText mPostBodyInput;
-    protected Space mPicSpacer;
+    CheckBox mPostRecipe;
+    CheckBox mPostReview;
+    CheckBox mPostPic;
+    EditText mPostBodyInput;
 
-    protected ImageView mAttachedRecipeImage;
-    protected TextView mAttachedRecipeTitle;
-    protected TextView mAttachedRecipeInfo;
-    protected String attachedRecipeURL;
-    protected String recipeID;
+    ImageView mAttachedRecipeImage;
+    TextView mAttachedRecipeTitle;
+    TextView mAttachedRecipeInfo;
+    String attachedRecipeURL;
+    String recipeID;
+    String newPostID;
+
+    ConstraintLayout mUserUploadedImageViewLayout;
+    ConstraintLayout mPostRecipeImageViewLayout;
 
     View mainView;
 
     TextView mRecipeRatingText;
     RatingBar mAttachedRecipeReview;
 
+
+
     //Fragment handlers
-    protected FragmentTransaction fragmentTransaction;
-    protected RecipeFragment recipeFragment;
+    private FragmentTransaction fragmentTransaction;
+    private RecipeFragment recipeFragment;
 
     //User information
-    protected com.group4sweng.scranplan.UserInfo.UserInfoPrivate user;
-    protected SearchPrefs prefs;
+    private com.group4sweng.scranplan.UserInfo.UserInfoPrivate mUser;
+    private SearchPrefs prefs;
 
     //Menu items
     private SearchView searchView;
     private MenuItem sortButton;
 
-    protected Query query;
+    Query query;
+
 
 
     // Database objects for accessing recipes
-    protected FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
-    protected CollectionReference mColRef = mDatabase.collection("followers");
+    private FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
+    private CollectionReference mColRef = mDatabase.collection("followers");
     // Firebase user collection and storage references.
     CollectionReference mRef = mDatabase.collection("posts");
     FirebaseStorage mStorage = FirebaseStorage.getInstance();
-    protected StorageReference mStorageReference = mStorage.getReference();
+    StorageReference mStorageReference = mStorage.getReference();
 
 
-
+    public FeedFragment(UserInfoPrivate userSent){mUser = userSent;}
 
 
 
@@ -170,51 +174,40 @@ public class FeedFragment extends Fragment {
         mainView = view;
         loadingDialog = new LoadingDialog(getActivity());
 
-        // Grabs screen size for % layout TODO - change to density pixels + NullPointerException check
-        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-        user = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
-
-        // Procedurally fills topLayout with imageButton content
-        LinearLayout topLayout = view.findViewById(R.id.topLayout);
-
-
         initPageItems(view);
         initPageListeners();
 
+        Home home = (Home) getActivity();
+        if (home != null) {
+            // Gets search activity from home class and make it invisible
+            searchView = home.getSearchView();
+            sortButton = home.getSortView();
+
+            sortButton.setVisible(false);
+            searchView.setVisibility(View.INVISIBLE);
+            //setSearch();
+
+            //Gets search preferences from home class
+            prefs = home.getSearchPrefs();
+        }
+
+        addPosts(view);
+
         // Checks users details have been provided
-        if(user != null){
-            // Build the first horizontal scroll built around organising the recipes via highest rated
-            //TODO make new query
-            Home home = (Home) getActivity();
-            if (home != null) {
-                // Gets search activity from home class and make it invisible
-                searchView = home.getSearchView();
-                sortButton = home.getSortView();
-
-                sortButton.setVisible(false);
-                searchView.setVisibility(View.INVISIBLE);
-                //setSearch();
-
-
-
-                //Gets search preferences from home class
-                prefs = home.getSearchPrefs();
-            }
-
-            addPosts(view);
-
-            // Add view to page
-//            topLayout.addView(recyclerView);
-//            Log.e(TAG, "Social feed added");
-
-        }else{
+        if(mUser == null){
             // If scroll views fail due to no user, this error is reported
             Log.e(TAG, "ERROR: Loading social feed - We were unable to find user.");
         }
         return view;
     }
 
-    protected void addPosts(View view){
+
+    /**
+     * Adding all posts for current user to the feed - implementing an infinite scroll for all
+     * followers 3 most recent posts
+     * @param view
+     */
+    void addPosts(View view){
         final RecyclerView recyclerView = view.findViewById(R.id.postsList);
         // Set out the layout of this horizontal view
         RecyclerView.LayoutManager rManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
@@ -222,9 +215,9 @@ public class FeedFragment extends Fragment {
         //recyclerView.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels));
         // Array to score downloaded data
         data = new ArrayList<>();
-        final RecyclerView.Adapter rAdapter = new FeedRecyclerAdapter(FeedFragment.this, data, user);
+        final RecyclerView.Adapter rAdapter = new FeedRecyclerAdapter(FeedFragment.this, data, mUser, view);
         recyclerView.setAdapter(rAdapter);
-        query = mColRef.whereArrayContains("users", user.getUID()).orderBy("lastPost", Query.Direction.DESCENDING).limit(10);
+        query = mColRef.whereArrayContains("users", mUser.getUID()).orderBy("lastPost", Query.Direction.DESCENDING).limit(5);
         // Ensure query exists and builds view with query
         if (query != null) {
             Log.e(TAG, "User is searching the following query: " + query.toString());
@@ -233,7 +226,7 @@ public class FeedFragment extends Fragment {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     if (task.isSuccessful()) {
-                        Log.e("FEED", "UID = " + user.getUID());
+                        Log.e("FEED", "UID = " + mUser.getUID());
                         Log.e("FEED", "task success");
                         ArrayList<HashMap> posts = new ArrayList<>();
                         for (DocumentSnapshot document : task.getResult()) {
@@ -302,18 +295,9 @@ public class FeedFragment extends Fragment {
                                         @Override
                                         public void onComplete(@NonNull Task<QuerySnapshot> t) {
                                             if (t.isSuccessful()) {
-//                                                    for (DocumentSnapshot d : t.getResult()) {
-//                                                        data.add(new FeedRecyclerAdapter.FeedPostPreviewData(
-//                                                                d,
-//                                                                d.getId(),
-//                                                                d.get("imageURL").toString()
-//                                                        ));
-//                                                    }
                                                 ArrayList<HashMap> postsNext = new ArrayList<>();
                                                 for (DocumentSnapshot d : t.getResult()) {
-//                                                        posts.add((HashMap)document.get("recent"));
                                                     Log.e("FEED", "I have found a doc");
-                                                    //posts.addAll((ArrayList)document.get("recent"));
                                                     String first = (String) d.get("space1");
                                                     String second = (String) d.get("space2");
                                                     String third = (String) d.get("space3");
@@ -383,33 +367,285 @@ public class FeedFragment extends Fragment {
         mPostPic = (CheckBox) v.findViewById(R.id.imageIcon);
         mPostBodyInput = v.findViewById(R.id.postBodyInput);
         mUploadedImage = v.findViewById(R.id.userUploadedImageView);
-        mPicSpacer = v.findViewById(R.id.picSpacer);
         mAttachedRecipeImage = v.findViewById(R.id.postRecipeImageView);
         mAttachedRecipeTitle = v.findViewById(R.id.postRecipeTitle);
         mAttachedRecipeInfo =  v.findViewById(R.id.postRecipeDescription);
         mAttachedRecipeReview = v.findViewById(R.id.postRecipeRating);
         mRecipeRatingText = v.findViewById(R.id.recipeRate);
+        mUserUploadedImageViewLayout = v.findViewById(R.id.userUploadedImageViewLayout);
+        mPostRecipeImageViewLayout = v.findViewById(R.id.postRecipeImageViewLayout);
 
 
     }
 
-    private void postPicClick(){
-        //  Check if the version of Android is above 'Marshmallow' we check for additional permission.
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+    /**
+     * Updating the follows section of firebase when creating a new post
+     * @param map
+     */
+    protected void updateFollowers(HashMap map){
+        mDatabase.collection("followers").document(mUser.getUID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()){
+                    if(task.getResult().exists()){
+                        // Add post to followers map
+                        DocumentSnapshot doc = task.getResult();
+                        boolean oldReview = false;
+                        String delMap = "";
+                        if(doc.get("mapA") != null){
+                            if(((String)((HashMap)doc.get("mapA")).get("docID")).equals(newPostID)){
+                                oldReview = true;
+                                delMap = "A";
+                            }
+                        }else if(doc.get("mapB") != null){
+                            if(((String)((HashMap)doc.get("mapB")).get("docID")).equals(newPostID)){
+                                oldReview = true;
+                                delMap = "B";
+                            }
+                        }else if(doc.get("mapC") != null){
+                            if(((String)((HashMap)doc.get("mapC")).get("docID")).equals(newPostID)){
+                                oldReview = true;
+                                delMap = "C";
+                            }
+                        }
+                        if(oldReview){
+                            if(((String) doc.get("space3")).equals(delMap)){
+                                String space = "map" + (String) doc.get("space3");
+                                doc.getReference().update(space, map,
+                                        "space1", doc.get("space3"),
+                                        "space2", doc.get("space1"),
+                                        "space3", doc.get("space2"),
+                                        "lastPost", map.get("timestamp")).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        postComplete();
+                                    }
+                                });
+                            }else{
+                                String space = "map" + (String) doc.get("space3");
+                                doc.getReference().update(space, map,
+                                        "space1", doc.get("space3"),
+                                        "space2", doc.get("space1"),
+                                        "space3", doc.get("space2"),
+                                        "lastPost", map.get("timestamp"),
+                                        "map" + delMap, null).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        postComplete();
+                                    }
+                                });
+                            }
+                        }else{
+                            String space = "map" + (String) doc.get("space3");
+                            doc.getReference().update(space, map,
+                                    "space1", doc.get("space3"),
+                                    "space2", doc.get("space1"),
+                                    "space3", doc.get("space2"),
+                                    "lastPost", map.get("timestamp")).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    postComplete();
+                                }
+                            });
+                        }
 
-            //  Checks if permission has already been granted to read from external storage (our image picker)
-            if(getContext().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
-                //   Ask for permission.
-                String [] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
-                requestPermissions(permissions, PERMISSION_CODE);
-            } else {
-                //  Read permission has been granted already.
-                imageSelector();
+                    }else{
+                        //create new followers map
+                        HashMap<String, Object> newDoc = new HashMap<>();
+                        ArrayList<String> arrayList = new ArrayList<>();
+                        arrayList.add(mUser.getUID());
+                        newDoc.put("mapA", map);
+                        newDoc.put("mapB", (HashMap) null);
+                        newDoc.put("mapC", (HashMap) null);
+                        newDoc.put("space1", "A");
+                        newDoc.put("space2", "B");
+                        newDoc.put("space3", "C");
+                        newDoc.put("lastPost", map.get("timestamp"));
+                        newDoc.put("author", mUser.getUID());
+                        newDoc.put("users", arrayList);
+                        mDatabase.collection("followers").document(mUser.getUID()).set(newDoc).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                postComplete();
+                            }
+                        });
+                    }
+                }
             }
-        } else {
-            imageSelector();
+        });
+    }
+
+    /**
+     * Reset the screen once a new post has been completed
+     */
+    protected void postComplete(){
+        mDatabase.collection("users").document(mUser.getUID()).update("posts", FieldValue.increment(1), "livePosts", FieldValue.increment(1)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                                                                                                                        @Override
+                                                                                                                                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                                                                                                                                            mUser.setPosts(mUser.getPosts()+1);
+                                                                                                                                                                            mPostBodyInput.getText().clear();
+                                                                                                                                                                            mPostRecipe.setChecked(false);
+                                                                                                                                                                            mPostReview.setChecked(false);
+                                                                                                                                                                            mPostPic.setChecked(false);
+                                                                                                                                                                            addPosts(mainView);
+                                                                                                                                                                            loadingDialog.dismissDialog();
+                                                                                                                                                                        }
+                                                                                                                                                                    }
+        );
+    }
+
+
+
+    /**
+     * Method To check if user has already left a review on a recipe. If the user has, it will populate the review input box with their previous
+     * review so they can edit if they wish.
+     */
+    private void reviewAttached(HashMap map, HashMap extras, CollectionReference ref) {
+        mDatabase.collection("recipes").document(recipeID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    final HashMap<String,Object> ratingMap = (HashMap<String,Object>) document.get("rating");
+                    mDatabase.collection("reviews").document(mUser.getUID() + "-" + recipeID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                double oldOverallRating;
+                                double oldTotalRates;
+                                if (task.getResult().exists()) {
+                                    Log.e(TAG, "exists ");
+
+
+                                    newPostID = document.get("post").toString();
+                                    String oldUserStarRating = document.get("overallRating").toString();
+
+                                    Double oldUserRating = Double.parseDouble(oldUserStarRating);
+                                    oldTotalRates = (double)ratingMap.get("totalRates")-1;
+                                    oldOverallRating = ((((double)ratingMap.get("overallRating") * (double)ratingMap.get("totalRates")) - oldUserRating)) / oldTotalRates;
+                                    Log.i(TAG, "Values: "+ oldOverallRating);
+
+                                    ratingMap.put("overallRating", oldOverallRating);
+                                    ratingMap.put("totalRates", oldTotalRates);
+
+                                    HashMap<String, Object> updateMap = new HashMap<>();
+                                    CollectionReference ref = mDatabase.collection("recipes");
+                                    DocumentReference documentReference = ref.document(recipeID);
+                                    updateMap.put("rating", ratingMap);
+                                    documentReference.update(updateMap);
+
+                                    Log.i(TAG, "Values: "+ ratingMap);
+
+                                } else {
+                                    Log.e("FdRc", "Unable to retrieve user document in Firestore ");
+                                }
+
+                                double newTotalRates = (double)ratingMap.get("totalRates") + 1;
+                                double newOverallRating = (((double)ratingMap.get("overallRating") * (double)ratingMap.get("totalRates")) + ratingNum) / newTotalRates;
+
+                                ratingMap.put("overallRating", newOverallRating);
+                                ratingMap.put("totalRates", newTotalRates);
+
+                                mDatabase.collection("recipes").document(recipeID).update("rating", ratingMap);
+                                HashMap<String, Object> newRatings = new HashMap<>();
+                                newRatings.put("overallRating", ratingNum);
+                                newRatings.put("timestamp", FieldValue.serverTimestamp());
+                                newRatings.put("user", mUser.getUID());
+                                Log.i(TAG, "Values: "+ ratingMap);
+                                savePost(map, extras, ref, newRatings);
+                            }
+                        }
+
+                    });
+                }
+            }
+        });
+
+
+    }
+
+
+    /**
+     *  Adding recipe info if attached to post
+     * @param map
+     * @param extras
+     * @param ref
+     */
+    protected void addRecipeInfo(HashMap map, HashMap extras, CollectionReference ref){
+        if (mPostRecipe.isChecked()) {
+            map.put("recipeID", recipeID);
+            map.put("recipeImageURL", attachedRecipeURL);
+            map.put("recipeTitle", mAttachedRecipeTitle.getText());
+            map.put("recipeDescription", mAttachedRecipeInfo.getText());
+        }
+        extras.putAll(map);
+        if (mPostReview.isChecked() && mPostRecipe.isChecked()) {
+            map.put("overallRating", mAttachedRecipeReview.getRating());
+            extras.put("overallRating", mAttachedRecipeReview.getRating());
+            reviewAttached(map, extras, ref);
+        }else{
+            savePost(map, extras, ref, null);
         }
     }
+
+    protected void savePost(HashMap map, HashMap extras, CollectionReference ref, HashMap<String, Object> newRatings){
+        if(newPostID == null){
+            ref.add(extras).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                                                      @Override
+                                                      public void onComplete(@NonNull Task<DocumentReference> task) {
+                                                          if(task.isSuccessful()){
+                                                              final String docID = task.getResult().getId();
+                                                              map.put("docID", docID);
+                                                              if(mPostReview.isChecked() && mPostRecipe.isChecked()){
+                                                                  newRatings.put("post", docID);
+                                                                  mDatabase.collection("reviews").document(mUser.getUID() + "-" + recipeID).set(newRatings);
+                                                              }
+                                                              updateFollowers(map);
+                                                          }
+                                                      }
+                                                  }
+            );
+        }else{
+            ref.document(newPostID).set(extras);
+            map.put("docID", newPostID);
+            if(mPostReview.isChecked() && mPostRecipe.isChecked()){
+                newRatings.put("post", newPostID);
+                mDatabase.collection("reviews").document(mUser.getUID() + "-" + recipeID).set(newRatings);
+            }
+            updateFollowers(map);
+        }
+    }
+
+    /**
+     * Adding image to post if an image is attached
+     * @param map
+     * @param extras
+     * @param ref
+     */
+    protected void postImageAttached(HashMap map, HashMap extras, CollectionReference ref){
+        try {
+            checkImage(mImageUri);
+            StorageReference mImageStorage = mStorageReference.child("images/posts/" + mUser.getUID() + "/IMAGEID" + (mUser.getPosts()+1));
+            mImageStorage.putFile(mImageUri).addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Failed to upload profile image.", Toast.LENGTH_SHORT).show()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    mImageStorage.getDownloadUrl().addOnSuccessListener(locationUri -> { // Successful upload.
+                        map.put("uploadedImageURL", locationUri.toString());
+                        addRecipeInfo(map, extras, ref);
+                    }).addOnFailureListener(e -> {
+                        throw new RuntimeException("Unable to grab image URL from Firebase for image URL being uploaded currently. This shouldn't happen.");
+                    });
+                }
+            });
+        } catch (ImageException e) {
+            Log.e(TAG, "Failed to upload photo to Firebase");
+            e.printStackTrace();
+            loadingDialog.dismissDialog();
+            return;
+        }
+    }
+
+
 
     /**
      *  Setting up page listeners for when buttons are pressed
@@ -441,6 +677,7 @@ public class FeedFragment extends Fragment {
                     }
                 } else {
                     mUploadedImage.setVisibility(View.GONE);
+                    mUserUploadedImageViewLayout.setVisibility(View.GONE);
                 }
             }
         });
@@ -448,222 +685,32 @@ public class FeedFragment extends Fragment {
         mPostButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                POST_IS_UPLOADING = true;
-                loadingDialog.startLoadingDialog();
                 String body = mPostBodyInput.getText().toString();
-                //TODO set these variables from the addition of these items
+                if(mPostPic.isChecked() || mPostRecipe.isChecked() || !body.equals("")){
+                    loadingDialog.startLoadingDialog();
+                    //TODO set these variables from the addition of these items
 
-                CollectionReference ref = mDatabase.collection("posts");
-                Log.e(TAG, "Added new post ");
-                // Saving the comment as a new document
-                HashMap<String, Object> map = new HashMap<>();
-                HashMap<String, Object> extras = new HashMap<>();
-                extras.put("comments", 0);
-                extras.put("likes", 0);
-                map.put("author", user.getUID());
-                map.put("body", body);
-                map.put("timestamp", FieldValue.serverTimestamp());
-                map.put("isPic", mPostPic.isChecked());
-                map.put("isRecipe", mPostRecipe.isChecked());
-                map.put("isReview", mPostReview.isChecked());
-                if(mPostPic.isChecked()){
-                    try {
-                        //uploadImage(mImageUri); // Attempt to upload the image in storage to Firebase.
-                        checkImage(mImageUri); // Check the image doesn't throw any exceptions
-
-                         // State that the image is still uploading and therefore we shouldn't save a reference on firebase to it yet.
-
-                        /*  Create a unique reference of the format. 'image/profile/[UNIQUE UID]/profile_image.[EXTENSION].
-                            Whereby [UNIQUE UID] = the Unique id of the user, [EXTENSION] = file image extension. E.g. .jpg,.png. */
-                        StorageReference mImageStorage = mStorageReference.child("images/posts/" + user.getUID() + "/IMAGEID" + (user.getPosts()+1)); //todo input image id
-
-                        //  Check if the upload fails
-                        mImageStorage.putFile(mImageUri).addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Failed to upload profile image.", Toast.LENGTH_SHORT).show()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                mImageStorage.getDownloadUrl().addOnSuccessListener(locationUri -> { // Successful upload.
-                                    map.put("uploadedImageURL", locationUri.toString());
-                                    if (mPostRecipe.isChecked()) {
-                                        map.put("recipeID", recipeID);
-                                        map.put("recipeImageURL", attachedRecipeURL);
-                                        map.put("recipeTitle", mAttachedRecipeTitle.getText());
-                                        map.put("recipeDescription", mAttachedRecipeInfo.getText());
-                                        if (mPostReview.isChecked()) {
-                                            map.put("recipeReview", ratingNum);
-                                        }
-                                    }
-                                    // Saving default user to Firebase Firestore database
-                                    extras.putAll(map);
-                                    ref.add(extras).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-                                                                           @Override
-                                                                           public void onComplete(@NonNull Task<DocumentReference> task) {
-                                                                               if(task.isSuccessful()){
-                                                                                   final String docID = task.getResult().getId();
-                                                                                   map.put("docID", docID);
-                                                                                   mDatabase.collection("followers").document(user.getUID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                                                       @Override
-                                                                                       public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                                                           if(task.isSuccessful()){
-                                                                                               if(task.getResult().exists()){
-                                                                                                   // Add post to followers map
-                                                                                                   DocumentSnapshot doc = task.getResult();
-                                                                                                   String space = "map" + (String) doc.get("space3");
-                                                                                                   doc.getReference().update(space, map,
-                                                                                                           "space1", doc.get("space3"),
-                                                                                                           "space2", doc.get("space1"),
-                                                                                                           "space3", doc.get("space2"),
-                                                                                                           "lastPost", map.get("timestamp")).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                                       @Override
-                                                                                                       public void onComplete(@NonNull Task<Void> task) {
-                                                                                                           mDatabase.collection("users").document(user.getUID()).update("posts", FieldValue.increment(1));
-                                                                                                           mPostBodyInput.getText().clear();
-                                                                                                           mPostRecipe.setChecked(false);
-                                                                                                           mPostReview.setChecked(false);
-                                                                                                           mPostPic.setChecked(false);
-
-                                                                                                           addPosts(mainView);
-
-                                                                                                           // Update the UserInfoPrivate class with this new image URL.
-                                                                                                           POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
-                                                                                                           loadingDialog.dismissDialog();
-                                                                                                       }
-                                                                                                   });
-                                                                                               }else{
-                                                                                                   //create new followers map
-                                                                                                   HashMap<String, Object> newDoc = new HashMap<>();
-                                                                                                   ArrayList<String> arrayList = new ArrayList<>();
-                                                                                                   arrayList.add(user.getUID());
-                                                                                                   newDoc.put("mapA", map);
-                                                                                                   newDoc.put("mapB", (HashMap) null);
-                                                                                                   newDoc.put("mapC", (HashMap) null);
-                                                                                                   newDoc.put("space1", "A");
-                                                                                                   newDoc.put("space2", "B");
-                                                                                                   newDoc.put("space3", "C");
-                                                                                                   newDoc.put("lastPost", map.get("timestamp"));
-                                                                                                   newDoc.put("author", user.getUID());
-                                                                                                   newDoc.put("users", arrayList);
-                                                                                                   mDatabase.collection("followers").document(user.getUID()).set(newDoc).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                                       @Override
-                                                                                                       public void onComplete(@NonNull Task<Void> task) {
-                                                                                                           mDatabase.collection("users").document(user.getUID()).update("posts", FieldValue.increment(1));
-                                                                                                           mPostBodyInput.getText().clear();
-                                                                                                           mPostRecipe.setChecked(false);
-                                                                                                           mPostReview.setChecked(false);
-                                                                                                           mPostPic.setChecked(false);
-
-                                                                                                           addPosts(mainView);
-
-                                                                                                           // Update the UserInfoPrivate class with this new image URL.
-                                                                                                           POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
-                                                                                                           loadingDialog.dismissDialog();
-                                                                                                       }
-                                                                                                   });
-                                                                                               }
-                                                                                           }
-                                                                                       }
-                                                                                   });
-                                                                               }
-                                                                           }
-                                                                       }
-                                    );
-                                }).addOnFailureListener(e -> {
-                                    throw new RuntimeException("Unable to grab image URL from Firebase for image URL being uploaded currently. This shouldn't happen.");
-                                });
-                            }
-                        });
-                    } catch (ImageException e) {
-                        Log.e(TAG, "Failed to upload photo to Firebase");
-                        Toast.makeText(getApplicationContext(),"Failed to upload photo to Firebase, please try again.",Toast.LENGTH_SHORT).show();
-                        e.printStackTrace();
-                        return;
+                    CollectionReference ref = mDatabase.collection("posts");
+                    Log.e(TAG, "Added new post ");
+                    // Saving the comment as a new document
+                    HashMap<String, Object> map = new HashMap<>();
+                    HashMap<String, Object> extras = new HashMap<>();
+                    extras.put("comments", 0);
+                    extras.put("likes", 0);
+                    map.put("author", mUser.getUID());
+                    map.put("body", body);
+                    map.put("timestamp", FieldValue.serverTimestamp());
+                    map.put("isPic", mPostPic.isChecked());
+                    map.put("isRecipe", mPostRecipe.isChecked());
+                    map.put("isReview", mPostReview.isChecked());
+                    if(mPostPic.isChecked()){
+                        postImageAttached(map, extras, ref);
+                    }else {
+                        addRecipeInfo(map, extras, ref);
                     }
-                }else {
-                    if (mPostRecipe.isChecked()) {
-                        map.put("recipeID", recipeID);
-                        map.put("recipeImageURL", attachedRecipeURL);
-                        map.put("recipeTitle", mAttachedRecipeTitle.getText());
-                        map.put("recipeDescription", mAttachedRecipeInfo.getText());
-                        if (mPostReview.isChecked()) {
-                            map.put("recipeReview", mAttachedRecipeReview.getRating());
-                        }
-                    }
-                    // Saving default user to Firebase Firestore database
-                    extras.putAll(map);
-                    ref.add(extras).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-                                                              @Override
-                                                              public void onComplete(@NonNull Task<DocumentReference> task) {
-                                                                  if(task.isSuccessful()){
-                                                                      final String docID = task.getResult().getId();
-                                                                      map.put("docID", docID);
-                                                                      mDatabase.collection("followers").document(user.getUID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                                          @Override
-                                                                          public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                                              if(task.isSuccessful()){
-                                                                                  if(task.getResult().exists()){
-                                                                                      // Add post to followers map
-                                                                                      DocumentSnapshot doc = task.getResult();
-                                                                                      String space = "map" + (String) doc.get("space3");
-                                                                                      doc.getReference().update(space, map,
-                                                                                              "space1", doc.get("space3"),
-                                                                                              "space2", doc.get("space1"),
-                                                                                              "space3", doc.get("space2"),
-                                                                                              "lastPost", map.get("timestamp")).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                          @Override
-                                                                                          public void onComplete(@NonNull Task<Void> task) {
-                                                                                              mDatabase.collection("users").document(user.getUID()).update("posts", FieldValue.increment(1));
-                                                                                              mPostBodyInput.getText().clear();
-                                                                                              mPostRecipe.setChecked(false);
-                                                                                              mPostReview.setChecked(false);
-                                                                                              mPostPic.setChecked(false);
-
-                                                                                              addPosts(mainView);
-
-                                                                                              // Update the UserInfoPrivate class with this new image URL.
-                                                                                              POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
-                                                                                              loadingDialog.dismissDialog();
-                                                                                          }
-                                                                                      });
-                                                                                  }else{
-                                                                                      //create new followers map
-                                                                                      HashMap<String, Object> newDoc = new HashMap<>();
-                                                                                      ArrayList<String> arrayList = new ArrayList<>();
-                                                                                      arrayList.add(user.getUID());
-                                                                                      newDoc.put("mapA", map);
-                                                                                      newDoc.put("mapB", (HashMap) null);
-                                                                                      newDoc.put("mapC", (HashMap) null);
-                                                                                      newDoc.put("space1", "A");
-                                                                                      newDoc.put("space2", "B");
-                                                                                      newDoc.put("space3", "C");
-                                                                                      newDoc.put("lastPost", map.get("timestamp"));
-                                                                                      newDoc.put("author", user.getUID());
-                                                                                      newDoc.put("users", arrayList);
-                                                                                      mDatabase.collection("followers").document(user.getUID()).set(newDoc).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                          @Override
-                                                                                          public void onComplete(@NonNull Task<Void> task) {
-                                                                                              mDatabase.collection("users").document(user.getUID()).update("posts", FieldValue.increment(1));
-                                                                                              mPostBodyInput.getText().clear();
-                                                                                              mPostRecipe.setChecked(false);
-                                                                                              mPostReview.setChecked(false);
-                                                                                              mPostPic.setChecked(false);
-
-                                                                                              addPosts(mainView);
-
-                                                                                              // Update the UserInfoPrivate class with this new image URL.
-                                                                                              POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
-                                                                                              loadingDialog.dismissDialog();
-                                                                                          }
-                                                                                      });
-                                                                                  }
-                                                                              }
-                                                                          }
-                                                                      });
-                                                                  }
-                                                              }
-                                                          }
-                    );
-
+                }else{
+                    Toast.makeText(getContext(),"You need to either write a post, attach a picture or attach a recipe before you can submit new post.",Toast.LENGTH_SHORT).show();
                 }
-
             }
         });
         mPostRecipe.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -675,7 +722,7 @@ public class FeedFragment extends Fragment {
                         bundle.putBoolean("planner", true); //Condition to let child fragments know access is from planner
 
                         //Creates and launches recipe fragment
-                        recipeFragment = new RecipeFragment(user);
+                        recipeFragment = new RecipeFragment(mUser);
                         recipeFragment.setArguments(bundle);
                         recipeFragment.setTargetFragment(FeedFragment.this, 1);
                         fragmentTransaction = getParentFragmentManager().beginTransaction();
@@ -691,9 +738,9 @@ public class FeedFragment extends Fragment {
                     }
                 } else {
                     mAttachedRecipeImage.setVisibility(View.GONE);
+                    mPostRecipeImageViewLayout.setVisibility(View.GONE);
                     mAttachedRecipeInfo.setVisibility(View.GONE);
                     mAttachedRecipeTitle.setVisibility(View.GONE);
-                    mPicSpacer.setVisibility(View.GONE);
                     mPostReview.setChecked(false);
                 }
             }
@@ -726,12 +773,7 @@ public class FeedFragment extends Fragment {
                 }
             }
         });
-        mPostPic.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
 
-            }
-        });
     }
 
     //  Open our image picker.
@@ -761,20 +803,13 @@ public class FeedFragment extends Fragment {
                         .apply(RequestOptions.centerCropTransform())
                         .into(mUploadedImage);
                 mUploadedImage.setVisibility(View.VISIBLE);
+                mUserUploadedImageViewLayout.setVisibility(View.VISIBLE);
+                mPostRecipeImageViewLayout.setVisibility(View.VISIBLE);
                 mPostPic.setChecked(true);
                 if(mPostRecipe.isChecked()){
-                    mPicSpacer.setVisibility(View.VISIBLE);
                     DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
                     mUploadedImage.setMaxWidth(displayMetrics.widthPixels/2-20);
                     mAttachedRecipeImage.setMaxWidth(displayMetrics.widthPixels/2-20);
-
-//                    if(mUploadedImage.getWidth() > mAttachedRecipeImage.()){
-//                        mUploadedImage.setMaxHeight(mAttachedRecipeImage.getHeight());
-//                    }else{
-//                        mAttachedRecipeImage.setMaxHeight(mUploadedImage.getHeight());
-//                    }
-                }else {
-                    mPicSpacer.setVisibility(View.GONE);
                 }
             }else{
                 mPostPic.setChecked(false);
@@ -807,25 +842,16 @@ public class FeedFragment extends Fragment {
                         .into(mAttachedRecipeImage);
                 attachedRecipeURL = bundle.getString("imageURL");
                 recipeID = bundle.getString("recipeID");
-//                Picasso.get().load(bundle.getString("imageURL")).into(mAttachedRecipeImage);
                 mAttachedRecipeTitle.setText(bundle.getString("recipeTitle"));
                 mAttachedRecipeInfo.setText(bundle.getString("recipeDescription"));
                 mAttachedRecipeTitle.setVisibility(View.VISIBLE);
                 mAttachedRecipeInfo.setVisibility(View.VISIBLE);
                 mAttachedRecipeImage.setVisibility(View.VISIBLE);
+                mPostRecipeImageViewLayout.setVisibility(View.VISIBLE);
                 if(mPostPic.isChecked()){
-                    mPicSpacer.setVisibility(View.VISIBLE);
                     DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
                     mUploadedImage.setMaxWidth(displayMetrics.widthPixels/2-20);
                     mAttachedRecipeImage.setMaxWidth(displayMetrics.widthPixels/2-20);
-//                    if(mUploadedImage.getHeight() > mAttachedRecipeImage.getHeight()){
-//                        mUploadedImage.setMaxHeight(mAttachedRecipeImage.getHeight());
-//                    }else{
-//                        mAttachedRecipeImage.setMaxHeight(mUploadedImage.getHeight());
-//                    }
-
-                }else{
-                    mPicSpacer.setVisibility(View.GONE);
                 }
 
                 //Removes recipe fragment overlay and makes planner fragment visible
@@ -834,6 +860,19 @@ public class FeedFragment extends Fragment {
                 requireView().setVisibility(View.VISIBLE);
 
             }
+        }else if (requestCode != IMAGE_REQUEST_CODE){
+
+            fragmentTransaction = getParentFragmentManager().beginTransaction();
+            fragmentTransaction.remove(recipeFragment).commitNow();
+            requireView().setVisibility(View.VISIBLE);
+            //Hides menu options
+            sortButton.setVisible(false);
+            //Clears search view
+            searchView.clearFocus();
+            searchView.onActionViewCollapsed();
+            searchView.setVisibility(View.INVISIBLE);
+            // removes check
+            mPostRecipe.setChecked(false);
         }
     }
 
@@ -843,7 +882,7 @@ public class FeedFragment extends Fragment {
      *  @param uri - The unique uri of the image file location from the users storage.
      *  @throws ImageException - Throws if the image file is too large or the format isn't a supported image format.
      */
-    protected void checkImage(Uri uri) throws ImageException {
+    private void checkImage(Uri uri) throws ImageException {
 
         //  If the image files size is greater than the max file size in mb converted to bytes throw an exception and return this issue to the user.
         if(getSize(this.getContext(), uri) > MAX_IMAGE_FILE_SIZE_IN_MB * 1000000){
@@ -872,36 +911,7 @@ public class FeedFragment extends Fragment {
         }
     }
 
-//    /** Upload the image to Firebase. Initiated before saving preferences if the format and size is supported to give some time for the app to upload the image.
-//     *  Does not update the users reference to the image. This is updated after saving the users preferences.
-//     *
-//     * @param uri - The unique uri of the image file location from the users storage.
-//     * @throws ImageException - Thrown if URL cannot be retrieved. This will only fail if there is a reference to a blank file.
-//     *  In normal operation this shouldn't happen.
-//     */
-//    private void uploadImage(Uri uri) throws ImageException {
-//        checkImage(uri); // Check the image doesn't throw any exceptions
-//
-//        POST_IS_UPLOADING = true; // State that the image is still uploading and therefore we shouldn't save a reference on firebase to it yet.
-//
-//        /*  Create a unique reference of the format. 'image/profile/[UNIQUE UID]/profile_image.[EXTENSION].
-//            Whereby [UNIQUE UID] = the Unique id of the user, [EXTENSION] = file image extension. E.g. .jpg,.png. */
-//        StorageReference mImageStorage = mStorageReference.child("images/posts/" + user.getUID() + "/IMAGEID" + (user.getPosts()+1)); //todo input image id
-//
-//        //  Check if the upload fails
-//        mImageStorage.putFile(uri).addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Failed to upload profile image.", Toast.LENGTH_SHORT).show()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-//            @Override
-//            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-//                mImageStorage.getDownloadUrl().addOnSuccessListener(locationUri -> { // Successful upload.
-//                    // TODO set image URL for post - only save when uploading post
-//                    //uploadedImageURL = locationUri.toString(); // Update the UserInfoPrivate class with this new image URL.
-//                    POST_IS_UPLOADING = false; // State we have finished uploading (a reference exists).
-//                }).addOnFailureListener(e -> {
-//                    throw new RuntimeException("Unable to grab image URL from Firebase for image URL being uploaded currently. This shouldn't happen.");
-//                });
-//            }
-//        });
-//    }
+
 
     //Opens info dialog for selected recipe
     private void openRecipeInfo(HashMap<String, Object> map) {
@@ -919,9 +929,11 @@ public class FeedFragment extends Fragment {
 
     //Quick function to reset search menu functionality
     private void setSearch() {
+        Home home = (Home) getActivity();
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
+                prefs = home.getSearchPrefs();
                 SearchQuery query = new SearchQuery( s, prefs);
                 openRecipeDialog(query);
                 return false;
@@ -937,8 +949,9 @@ public class FeedFragment extends Fragment {
     //Opens list fragment on searching
     private void openRecipeDialog(SearchQuery query) {
         //Creates and launches fragment with required query
-        PlannerListFragment plannerListFragment = new PlannerListFragment(user);
+        PlannerListFragment plannerListFragment = new PlannerListFragment(mUser);
         plannerListFragment.setValue(query.getQuery());
+        plannerListFragment.setIndex(query.getIndex());
         plannerListFragment.setTargetFragment(this, 1);
         plannerListFragment.show(getParentFragmentManager(), "search");
     }
@@ -947,35 +960,148 @@ public class FeedFragment extends Fragment {
      * On click of a recipe a new recipe info fragment is opened and the document is sent through
      * This saves on downloading the data again from the database
      */
-    public void itemSelected(Map<String, Object> document) {
+    public void itemSelected(Map<String, Object> document, Bundle mBundle,TextView likes, CheckBox likedOrNot, TextView numComments, View view) {
 
-        //Takes ingredient array from snap shot and reformats before being passed through to fragment
-//        ArrayList<String> ingredientArray = new ArrayList<>();
-//
-//        Map<String, Map<String, Object>> test = (Map) document.getData().get("Ingredients");
-//        Iterator hmIterator = test.entrySet().iterator();
-//
-//        while (hmIterator.hasNext()) {
-//            Map.Entry mapElement = (Map.Entry) hmIterator.next();
-//            String string = mapElement.getKey().toString() + ": " + mapElement.getValue().toString();
-//            ingredientArray.add(string);
-//        }
-//
-//        //Creating a bundle so all data needed from firestore query snapshot can be passed through into fragment class
-//        Bundle bundle = new Bundle();
-//        bundle.putStringArrayList("ingredientList", ingredientArray);
-//        bundle.putString("recipeID", document.getId());
-//        bundle.putString("xmlURL", document.get("xml_url").toString());
-//        bundle.putString("recipeTitle", document.get("Name").toString());
-//        bundle.putString("rating", document.get("score").toString());
-//        bundle.putString("imageURL", document.get("imageURL").toString());
-//        bundle.putString("recipeDescription", document.get("Description").toString());
-//        bundle.putString("chefName", document.get("Chef").toString());
-//        bundle.putSerializable("user", user);
-//
-//
-//        RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
-//        recipeDialogFragment.setArguments(bundle);
-//        recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");
+        PostPage postDialogFragment = new PostPage(likes, likedOrNot, numComments, view);
+        postDialogFragment.setArguments(mBundle);
+        postDialogFragment.setTargetFragment(this, 1);
+        postDialogFragment.show(getFragmentManager(), "Show post dialog fragment");
+
     }
+
+
+    /**
+     * This method checks what comment is selected and opens up a menu to either open up another
+     * users profile or if the comment was made my this user, user can delete the comment.
+     * @param document
+     * @param menu
+     */
+    public void menuSelected(HashMap document, View menu){
+        //Creating the instance of PopupMenu
+        PopupMenu popup = new PopupMenu(getContext(), menu);
+        //Inflating the Popup using xml file
+        popup.getMenuInflater().inflate(R.menu.menu_comment, popup.getMenu());
+        if(document.get("author").toString().equals(mUser.getUID())){
+            popup.getMenu().getItem(0).setVisible(false);
+            popup.getMenu().getItem(1).setVisible(false);
+            popup.getMenu().getItem(2).setVisible(true);
+        }else{
+            popup.getMenu().getItem(0).setVisible(true);
+            popup.getMenu().getItem(1).setVisible(true);
+            popup.getMenu().getItem(2).setVisible(false);
+        }
+
+        //registering popup with OnMenuItemClickListener
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            public boolean onMenuItemClick(
+                    MenuItem item) {
+                // Give each item functionality
+                switch (item.getItemId()) {
+                    case R.id.viewCommentProfile:
+                        Log.e(TAG,"Clicked open profile!");
+                        //TODO add functionality to open users profile in new fragment
+                        break;
+                    case R.id.reportComment:
+                        Log.e(TAG,"Report comment clicked!");
+                        //TODO add functionality to report this comment
+                        break;
+                    case R.id.deleteComment:
+                        Log.e(TAG,"Clicked delete comment!");
+                        final String deleteDocID = (String) document.get("docID");
+                        deletePost(deleteDocID);
+
+                        break;
+                }
+                return true;
+            }
+        });
+
+        popup.show();//showing popup menu
+    }
+
+    /**
+     * Adding capability to delete post from post page
+     * @param deleteDocID
+     */
+    public void deletePost(String deleteDocID){
+        mDatabase.collection("followers").document(mUser.getUID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()){
+                    if(task.getResult().exists()){
+                        // Add post to followers map
+                        DocumentSnapshot doc = task.getResult();
+                        if(((HashMap)doc.get("mapA")) != null){
+                            if(((HashMap)doc.get("mapA")).get("docID").equals(deleteDocID)){
+                                String map = "mapA";
+                                mDatabase.collection("followers").document(mUser.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                mDatabase.collection("users").document(mUser.getUID()).update("livePosts", FieldValue.increment(- 1));
+                                                addPosts(mainView);
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        }else if(((HashMap)doc.get("mapB")) != null){
+                            if(((HashMap)doc.get("mapB")).get("docID").equals(deleteDocID)){
+                                String map = "mapB";
+                                mDatabase.collection("followers").document(mUser.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                mDatabase.collection("users").document(mUser.getUID()).update("livePosts", FieldValue.increment(- 1));
+                                                addPosts(mainView);
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        }else if(((HashMap)doc.get("mapC")) != null){
+                            if(((HashMap)doc.get("mapC")).get("docID").equals(deleteDocID)){
+                                String map = "mapC";
+                                mDatabase.collection("followers").document(mUser.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                mDatabase.collection("users").document(mUser.getUID()).update("livePosts", FieldValue.increment(- 1));
+                                                addPosts(mainView);
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        }else{
+                            mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    mDatabase.collection("users").document(mUser.getUID()).update("livePosts", FieldValue.increment(- 1));
+                                    addPosts(mainView);
+                                }
+                            });
+                        }
+                    }else{
+                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                mDatabase.collection("users").document(mUser.getUID()).update("livePosts", FieldValue.increment(- 1));
+                                addPosts(mainView);
+                            }
+                        });
+                    }
+                }
+            }
+        });
+    }
+
+
+
 }

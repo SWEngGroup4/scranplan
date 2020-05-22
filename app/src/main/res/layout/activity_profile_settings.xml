@@ -93,28 +93,12 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
 
-            <Switch
-                android:id="@+id/private_or_public"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="20dp"
-                android:background="#36675B7A"
-                android:checked="false"
-                android:onClick="onSwitchClicked"
-                android:padding="10sp"
-                android:text="Private profile"
-                android:textSize="13sp"
-                tools:checked="true"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/settings_privacy"/>
-
-
             <TextView
                 android:id="@+id/settings_privacy"
                 android:layout_width="170dp"
                 android:layout_height="23dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="24dp"
+                android:layout_marginStart="16sp"
+                android:layout_marginTop="15dp"
                 android:text="Profile Visibility"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 app:layout_constraintStart_toStartOf="parent"
@@ -274,7 +258,7 @@
                         android:checked="false"
                         android:onClick="onSwitchClicked"
                         android:padding="6sp"
-                        android:text="@string/feed"
+                        android:text="feed"
                         android:textSize="13sp"
                         tools:checked="true" />
                 </TableRow>

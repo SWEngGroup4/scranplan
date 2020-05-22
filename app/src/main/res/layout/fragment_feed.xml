@@ -3,12 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/FrameLayoutid"
     tools:context="com.group4sweng.scranplan.Social.FeedFragment"
     android:background="#A6AAC9">
 
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <LinearLayout
@@ -179,58 +180,136 @@
 
 
 
+<!--                <LinearLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:padding="5sp">-->
+<!--                    <Space-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="1dp"-->
+<!--                        android:minWidth="5sp"-->
+<!--                        android:layout_weight="1" >-->
+<!--                    </Space>-->
+
+<!--                    <ImageView-->
+<!--                        android:id="@+id/postRecipeImageView"-->
+<!--                        android:maxHeight="250sp"-->
+<!--                        android:maxWidth="250sp"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:adjustViewBounds="true"-->
+<!--                        android:scaleType="centerCrop"-->
+<!--                        android:layout_gravity="center_horizontal"-->
+<!--                        android:layout_centerInParent="true"-->
+<!--                        android:src="@drawable/scran"-->
+<!--                        android:visibility="gone"-->
+<!--                        android:layout_marginHorizontal="5sp"/>-->
+<!--                    <Space-->
+<!--                        android:id="@+id/picSpacer"-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="1dp"-->
+<!--                        android:paddingHorizontal="5sp"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:visibility="gone" >-->
+<!--                    </Space>-->
+
+<!--                    <ImageView-->
+<!--                        android:id="@+id/userUploadedImageView"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:maxHeight="250sp"-->
+<!--                        android:maxWidth="250sp"-->
+<!--                        android:layout_gravity="center_horizontal"-->
+<!--                        android:scaleType="centerCrop"-->
+<!--                        android:layout_centerInParent="true"-->
+<!--                        android:adjustViewBounds="true"-->
+<!--                        android:src="@drawable/scran"-->
+<!--                        android:visibility="gone"-->
+<!--                        android:layout_marginHorizontal="5sp"/>-->
+<!--                    <Space-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="1dp"-->
+<!--                        android:minWidth="5sp"-->
+<!--                        android:layout_weight="1" >-->
+<!--                    </Space>-->
+<!--                </LinearLayout>-->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="5sp">
+                    android:paddingVertical="5sp"
+                    android:paddingHorizontal="2sp"
+                    android:orientation="horizontal">
                     <Space
                         android:layout_width="0dp"
                         android:layout_height="1dp"
-                        android:minWidth="5sp"
+                        android:minWidth="20sp"
                         android:layout_weight="1" >
                     </Space>
 
-                    <ImageView
-                        android:id="@+id/postRecipeImageView"
-                        android:maxHeight="250sp"
-                        android:maxWidth="250sp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        android:scaleType="centerCrop"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_centerInParent="true"
-                        android:src="@drawable/scran"
-                        android:visibility="gone"
-                        android:layout_marginHorizontal="5sp"/>
-                    <Space
-                        android:id="@+id/picSpacer"
-                        android:layout_width="0dp"
-                        android:layout_height="1dp"
-                        android:paddingHorizontal="5sp"
-                        android:layout_weight="1"
-                        android:visibility="gone" >
-                    </Space>
 
-                    <ImageView
-                        android:id="@+id/userUploadedImageView"
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/postRecipeImageViewLayout"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:maxHeight="250sp"
-                        android:maxWidth="250sp"
                         android:layout_gravity="center_horizontal"
-                        android:scaleType="centerCrop"
-                        android:layout_centerInParent="true"
-                        android:adjustViewBounds="true"
-                        android:src="@drawable/scran"
                         android:visibility="gone"
-                        android:layout_marginHorizontal="5sp"/>
+                        android:paddingHorizontal="10sp">
+
+                        <ImageView
+                            android:id="@+id/postRecipeImageView"
+                            android:layout_width="150sp"
+                            android:layout_height="0dp"
+                            android:scaleType="centerCrop"
+                            android:adjustViewBounds="true"
+                            app:layout_constraintDimensionRatio="1:1"
+                            android:src="@drawable/scran"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            android:visibility="gone"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_centerInParent="true"
+                            android:maxHeight="250sp"
+                            android:maxWidth="250sp"/>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/userUploadedImageViewLayout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:visibility="gone"
+                        android:paddingHorizontal="10sp">
+
+                        <ImageView
+                            android:id="@+id/userUploadedImageView"
+                            android:layout_width="150sp"
+                            android:layout_height="0dp"
+                            android:scaleType="centerCrop"
+                            android:adjustViewBounds="true"
+                            app:layout_constraintDimensionRatio="1:1"
+                            android:src="@drawable/scran"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            android:visibility="gone"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_centerInParent="true"
+                            android:maxHeight="250sp"
+                            android:maxWidth="250sp"/>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
                     <Space
                         android:layout_width="0dp"
                         android:layout_height="1dp"
-                        android:minWidth="5sp"
+                        android:minWidth="20sp"
                         android:layout_weight="1" >
                     </Space>
+
+
+
                 </LinearLayout>
 
                 <LinearLayout
@@ -318,7 +397,7 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/postsList"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="wrap_content" />
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 </FrameLayout>
