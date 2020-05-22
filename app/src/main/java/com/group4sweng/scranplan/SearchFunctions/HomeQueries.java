@@ -33,7 +33,7 @@ public class HomeQueries {
         queries.put("score", buildQuery(user).orderBy("score", Query.Direction.DESCENDING));
         queries.put("votes", buildQuery(user).orderBy("votes", Query.Direction.DESCENDING));
         queries.put("timestamp", buildQuery(user).orderBy("timestamp", Query.Direction.DESCENDING));
-        queries.put("favourite", ref.whereArrayContains("favourite", user.getUID().hashCode()));
+        queries.put("favourite", ref.whereArrayContains("favourite", user.getUID()));
         if(!user.getPreferences().isVegan()){
             queries.put("topVegan", buildQuery(user).whereEqualTo("vegan", true).orderBy("score", Query.Direction.DESCENDING));
             if(!user.getPreferences().isVegetarian()){

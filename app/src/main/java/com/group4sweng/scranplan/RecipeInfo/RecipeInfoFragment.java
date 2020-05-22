@@ -459,8 +459,12 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
 
         mDataRef = mDatabase.collection("recipes");
         final DocumentReference docRef = mDataRef.document(recipeID);
-        final int user = mUser.getUID().hashCode();
 
+        if (isFavourite) {
+            mFavourite.setChecked(true);
+        } else {
+            mFavourite.setChecked(false);
+        }
         /*
          * After each operation, it will show the text "Added to favourites!" or "Removed from favourites!".
          * If the current use ID doesn't exist in the "favourite" array, the ID will be added to it and the
@@ -471,7 +475,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (mFavourite.isChecked()) {
                     isFavourite = true;
-                    docRef.update("favourite", FieldValue.arrayUnion(user)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    docRef.update("favourite", FieldValue.arrayUnion(mUser.getUID())).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             Toast.makeText(getContext(), "Added to favourites!",
@@ -481,7 +485,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
                     });
                 } else {
                     isFavourite = false;
-                    docRef.update("favourite", FieldValue.arrayRemove(user)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    docRef.update("favourite", FieldValue.arrayRemove(mUser.getUID())).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             Toast.makeText(getContext(), "Removed from favourites!",
