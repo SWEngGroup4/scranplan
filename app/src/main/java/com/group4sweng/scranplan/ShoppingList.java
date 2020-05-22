@@ -41,8 +41,6 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
     ArrayList<String> newList2 = new ArrayList<>();
     ArrayList<String> newList3 = new ArrayList<>();
 
-
-
     Button msaveButton;
     Button mShowButton;
 
@@ -94,12 +92,13 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
             newList2.add(Collections.frequency(newList, key) + " Times : " + key);
             java.util.Collections.sort(newList2, Collator.getInstance());
         }
+            RecyclerView recyclerView = findViewById(R.id.rvShoppingList);
 
-        RecyclerView recyclerView = findViewById(R.id.rvShoppingList);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new RecyclerViewAdaptor(this, newList2);
-        adapter.setClickListener(this);
-        recyclerView.setAdapter(adapter);
+            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+            adapter = new RecyclerViewAdaptor(this, newList2);
+            adapter.setClickListener(this);
+            recyclerView.setAdapter(adapter);
+
     }
 
     @Override
@@ -115,20 +114,15 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
 
         msaveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                if (newList2 != null) {
-                    for (int x = 0; x < 100; x++) {
-                      //  newList3.add(newList2.get(x));
-                        newList3.addAll(newList2);
-                        System.out.println(newList3);
-                    }
-                }
+                        System.out.println(newList2);
 
             }
         });
+
         mShowButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
 
-                System.out.println(newList3);
+                System.out.println(newList2);
 
             }
         });
