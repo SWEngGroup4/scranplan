@@ -136,6 +136,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
 
         builder.setView(layout);
 
+        //This method holds all the arguments from the bundle
         initBundleItems(layout, getArguments());
 
         initPageItems(layout);
@@ -211,7 +212,6 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         xmlPresentation = bundle.getString("xmlURL");
         planner = bundle.getBoolean("planner");
         recipeRating = bundle.getString("rating");
-        recipeRating = bundle.getString("rating");
         reheat = bundle.getString("reheat");
         noEggs = bundle.getBoolean("noEggs");
         noMilk = bundle.getBoolean("noMilk");
@@ -226,6 +226,9 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
 
         canFreeze = bundle.getBoolean("canFreeze");
         fridgeTime = bundle.getString("fridgeDays");
+        favouriteRecipe = getArguments().getStringArrayList("favourite");
+        mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
+        isFavourite = getArguments().getBoolean("isFav");
 
     }
 
@@ -329,7 +332,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
                         fragment = new RecipeIngredientFragment();
                         break;
                     case 1:
-                        fragment = new RecipeCommentsFragment();
+                        fragment = new RecipeReviewFragment(mUser);
                         break;
 
                 }

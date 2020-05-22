@@ -19,7 +19,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".PublicProfile" />
+        <activity android:name=".Social.PostPage"></activity>
+        <activity android:name=".PublicProfile"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity android:name=".ProfileSettings" />
         <activity android:name=".Presentation.Presentation"
             android:screenOrientation="portrait"
@@ -52,6 +54,7 @@
         <meta-data
             android:name="io.sentry.dsn"
             android:value="https://e6648ff9c7d346bc98a8fd6aabb5738a@sentry.io/2102064" />
+
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />

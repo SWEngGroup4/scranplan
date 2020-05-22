@@ -63,4 +63,5 @@ public class PlannerListFragment extends SearchListFragment {
         }
     }
 
+
 }

@@ -22,6 +22,8 @@ import static org.junit.Assert.*;
 
 /**
  * LoginTest class
+ *  Author(s): LNewman
+ *  (c) CoDev 2020
  * JUnit testing for the Login class testing all components
  *
  * -- USER STORY TESTS LINKED WITH ---
