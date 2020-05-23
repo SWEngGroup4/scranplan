@@ -337,7 +337,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
                         fragment = new RecipeIngredientFragment();
                         break;
                     case 1:
-                        fragment = new RecipeReviewFragment();
+                        fragment = new RecipeReviewFragment(mUser);
                         //creating new bundle to pass through relative information to the review fragment
                         Bundle reviewBundle = new Bundle();
                         reviewBundle.putSerializable("ratingMap", ratingMap);

@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -27,6 +28,7 @@ import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
 
+import java.sql.Time;
 import java.util.HashMap;
 import java.util.List;
 
@@ -35,6 +37,7 @@ public class recipeReviewRecyclerAdapter extends RecyclerView.Adapter <recipeRev
     private List <reviewData> mData;
     private RecipeReviewFragment mRecipeReview;
     private UserInfoPrivate user;
+    private String mRecipeID;
 
     /**  Firebase **/
     FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
@@ -47,16 +50,20 @@ public class recipeReviewRecyclerAdapter extends RecyclerView.Adapter <recipeRev
         private String rating;
         private String recipePic;
         private String timeStamp;
+        private HashMap<String, Object> document;
 
-        public reviewData(String textBody, String userID, String rating, Timestamp timeStampIn,String recipePic, String postID){
+        public reviewData(HashMap<String, Object> doc){
 
-            this.textBody = textBody;
-            this.userID = userID;
-            this.rating = rating;
-            this.recipePic = recipePic;
-            String temp = timeStampIn.toDate().toString();
-            this.timeStamp = temp;
-            this.postID = postID;
+            this.document = doc;
+            this.textBody = document.get("body").toString();
+            this.userID = document.get("author").toString();
+            this.rating = document.get("overallRating").toString();
+            if(document.get("userImage") != null){
+                this.recipePic = document.get("userImage").toString();
+            }
+            Timestamp time = (Timestamp) document.get("timeStamp");
+            this.timeStamp = time.toDate().toString();
+            this.postID = document.get("postID").toString();
 
         }
 
@@ -89,8 +96,8 @@ public class recipeReviewRecyclerAdapter extends RecyclerView.Adapter <recipeRev
             holder.author.setText("past user");
         }
 
+        //Checks to see if the text of the review is not null and displays it
         if(mData.get(position).textBody != null) {
-
             holder.postBody.setText(mData.get(position).textBody);
         }
         else{
@@ -98,6 +105,8 @@ public class recipeReviewRecyclerAdapter extends RecyclerView.Adapter <recipeRev
             holder.postBody.setText("deleted");
         }
 
+        //Checks to see if there is a image url present. If one is present then the picture is displayed.
+        // If the image url is null then the imageView is set to gone
         if(mData.get(position).recipePic != null) {
 
             holder.recipeImageView.setVisibility(View.VISIBLE);
@@ -108,8 +117,10 @@ public class recipeReviewRecyclerAdapter extends RecyclerView.Adapter <recipeRev
             Log.e("FdRc", "User details retrieval : Unable to retrieve user document in Firestore ");
         }
 
+        //Displays the rating and the timestamp associated to the review
         holder.rating.setRating(Float.parseFloat(mData.get(position).rating));
         holder.timeStamp.setText(mData.get(position).timeStamp);
+
 
         mDatabase.collection("likes").document(mData.get(position).postID + "-" + user.getUID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -158,6 +169,21 @@ public class recipeReviewRecyclerAdapter extends RecyclerView.Adapter <recipeRev
             }
         });
 
+        holder.mReviewMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mRecipeReview != null) {
+                    if (mData.get(holder.getAdapterPosition()).document != null) {
+                        mRecipeReview.menuSelected(mData.get(holder.getAdapterPosition()).document, holder.mReviewMenu);
+                        Log.e("COMMENT RECYCLER", "Add send to profile on click");
+                    }
+                }else{
+                    Log.e("COMMENT RECYCLER", "Issue with no component in onBindViewHolder");
+                }
+
+            }
+        });
+
     }
 
     @Override
@@ -177,6 +203,7 @@ public class recipeReviewRecyclerAdapter extends RecyclerView.Adapter <recipeRev
         private boolean likedB4;
         private TextView numLikes;
         private ImageView recipeImageView;
+        private ImageButton mReviewMenu;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -189,13 +216,15 @@ public class recipeReviewRecyclerAdapter extends RecyclerView.Adapter <recipeRev
             numLikes = itemView.findViewById(R.id.postNumLike);
             cardView = itemView.findViewById(R.id.postCardView);
             recipeImageView = itemView.findViewById(R.id.postRecipeImageViewAdapter);
+            mReviewMenu = itemView.findViewById(R.id.postMenu);
 
         }
     }
 
-    public recipeReviewRecyclerAdapter(RecipeReviewFragment reviewFragment, List<reviewData> data, UserInfoPrivate user){
+    public recipeReviewRecyclerAdapter(RecipeReviewFragment reviewFragment, List<reviewData> data, UserInfoPrivate user, String mRecipeID){
 
         mRecipeReview = reviewFragment;
+        this.mRecipeID = mRecipeID;
         mData = data;
         this.user = user;
 

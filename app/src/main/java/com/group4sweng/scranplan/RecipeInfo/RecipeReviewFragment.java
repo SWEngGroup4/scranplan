@@ -70,6 +70,7 @@ public class RecipeReviewFragment extends FeedFragment {
     private Boolean reviewMade;
     private String postID;
     private String oldUserStarRating;
+    private ImageButton mReviewMenu;
 
     protected HashMap<String, Double> ratingMap;
 
@@ -77,6 +78,8 @@ public class RecipeReviewFragment extends FeedFragment {
 
     CollectionReference reviewRef, postRef;
     DocumentReference reviewDocRef;
+
+    protected static boolean POST_IS_UPLOADING = false; // Boolean to determine if the image is uploading currently.
 
     private double getNewRating;
     private double oldOverallRating;
@@ -86,8 +89,9 @@ public class RecipeReviewFragment extends FeedFragment {
     private double newTotalRates;
     final String TAG = "Data";
 
-    public RecipeReviewFragment() {
-        super();
+    public RecipeReviewFragment(UserInfoPrivate userSent) {
+        super(userSent);
+        mUser = userSent;
     }
 
     // Auto-generated super method
@@ -150,6 +154,7 @@ public class RecipeReviewFragment extends FeedFragment {
 
                         reviewMade = true;
 
+
                     } else {
                         Log.e("FdRc", "Unable to retrieve user document in Firestore ");
                         reviewMade = false;
@@ -173,9 +178,9 @@ public class RecipeReviewFragment extends FeedFragment {
         mRecipeTitle = getArguments().getString("recipeTitle");
         mRecipeDescription = getArguments().getString("recipeDescription");
 
-        user = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
+        mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
 
-        docID = user.getUID() + "-" + mRecipeID;
+        docID = mUser.getUID() + "-" + mRecipeID;
 
         postRef = mDatabase.collection("posts");
         reviewRef = mDatabase.collection("reviews");
@@ -186,6 +191,8 @@ public class RecipeReviewFragment extends FeedFragment {
         mReviewIcon = layout.findViewById(R.id.reviewIcon);
         mRecipeRate = layout.findViewById(R.id.recipeRate);
         mRecipeReviewImage = layout.findViewById(R.id.userUploadedImageView);
+        mReviewMenu = layout.findViewById(R.id.postMenu);
+
 
     }
 
@@ -294,7 +301,7 @@ public class RecipeReviewFragment extends FeedFragment {
             postsMap.put("body", body);
             postsMap.put("overallRating", getNewRating);
             postsMap.put("timestamp", FieldValue.serverTimestamp());
-            postsMap.put("author", user.getUID());
+            postsMap.put("author", mUser.getUID());
             postsMap.put("isPic", mPostPic.isChecked());
             postsMap.put("isRecipe", true);
             postsMap.put("isReview", true);
@@ -316,7 +323,7 @@ public class RecipeReviewFragment extends FeedFragment {
 
                         /*  Create a unique reference of the format. 'image/profile/[UNIQUE UID]/profile_image.[EXTENSION].
                             Whereby [UNIQUE UID] = the Unique id of the user, [EXTENSION] = file image extension. E.g. .jpg,.png. */
-                    StorageReference mImageStorage = mStorageReference.child("images/posts/" + user.getUID() + "/IMAGEID" + (user.getPosts() + 1)); //todo input image id
+                    StorageReference mImageStorage = mStorageReference.child("images/posts/" + mUser.getUID() + "/IMAGEID" + (mUser.getPosts() + 1)); //todo input image id
 
                     //  Check if the upload fails
                     mImageStorage.putFile(mImageUri).addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Failed to upload profile image.", Toast.LENGTH_SHORT).show()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -329,10 +336,10 @@ public class RecipeReviewFragment extends FeedFragment {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         //Document ID for review post
-                                        docID = user.getUID() + "-" + mRecipeID;
+                                        docID = mUser.getUID() + "-" + mRecipeID;
 
 
-                                        reviewMap.put("user", user.getUID());
+                                        reviewMap.put("user", mUser.getUID());
                                         reviewMap.put("overallRating", getNewRating);
                                         reviewMap.put("post", postRef.getId());
                                         reviewMap.put("timestamp", FieldValue.serverTimestamp());
@@ -343,8 +350,8 @@ public class RecipeReviewFragment extends FeedFragment {
                                         reviewDocRef.set(reviewMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
-                                                mDatabase.collection("users").document(user.getUID()).update("posts", FieldValue.increment(1),"livePosts", FieldValue.increment(1));
-                                                user.setPosts(user.getPosts()+1);
+                                                mDatabase.collection("users").document(mUser.getUID()).update("posts", FieldValue.increment(1),"livePosts", FieldValue.increment(1));
+                                                mUser.setPosts(mUser.getPosts()+1);
                                                 addPosts(layout);
                                             }
                                         });
@@ -371,10 +378,10 @@ public class RecipeReviewFragment extends FeedFragment {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         //Document ID for review post
-                        docID = user.getUID() + "-" + mRecipeID;
+                        docID = mUser.getUID() + "-" + mRecipeID;
                         //HashMap<String, Object> reviewMap = new HashMap<>();
 
-                        reviewMap.put("user", user.getUID());
+                        reviewMap.put("user", mUser.getUID());
                         reviewMap.put("overallRating", getNewRating);
                         reviewMap.put("post", postRef.getId());
                         reviewMap.put("timestamp", FieldValue.serverTimestamp());
@@ -385,8 +392,8 @@ public class RecipeReviewFragment extends FeedFragment {
                         reviewDocRef.set(reviewMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
-                                mDatabase.collection("users").document(user.getUID()).update("posts", FieldValue.increment(1),"livePosts", FieldValue.increment(1));
-                                user.setPosts(user.getPosts()+1);
+                                mDatabase.collection("users").document(mUser.getUID()).update("posts", FieldValue.increment(1),"livePosts", FieldValue.increment(1));
+                                mUser.setPosts(mUser.getPosts()+1);
                                 addPosts(layout);
                             }
                         });
@@ -405,7 +412,7 @@ public class RecipeReviewFragment extends FeedFragment {
             postsMap.put("body", body);
             postsMap.put("overallRating", getNewRating);
             postsMap.put("timestamp", FieldValue.serverTimestamp());
-            postsMap.put("author", user.getUID());
+            postsMap.put("author", mUser.getUID());
             postsMap.put("isPic", mPostPic.isChecked());
             postsMap.put("isRecipe", true);
             postsMap.put("isReview", true);
@@ -427,7 +434,7 @@ public class RecipeReviewFragment extends FeedFragment {
 
                         /*  Create a unique reference of the format. 'image/profile/[UNIQUE UID]/profile_image.[EXTENSION].
                             Whereby [UNIQUE UID] = the Unique id of the user, [EXTENSION] = file image extension. E.g. .jpg,.png. */
-                    StorageReference mImageStorage = mStorageReference.child("images/posts/" + user.getUID() + "/IMAGEID" + (user.getPosts() + 1)); //todo input image id
+                    StorageReference mImageStorage = mStorageReference.child("images/posts/" + mUser.getUID() + "/IMAGEID" + (mUser.getPosts() + 1)); //todo input image id
 
                     //  Check if the upload fails
                     mImageStorage.putFile(mImageUri).addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Failed to upload profile image.", Toast.LENGTH_SHORT).show()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -440,10 +447,10 @@ public class RecipeReviewFragment extends FeedFragment {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         //Document ID for review post
-                                        docID = user.getUID() + "-" + mRecipeID;
+                                        docID = mUser.getUID() + "-" + mRecipeID;
 
 
-                                        reviewMap.put("user", user.getUID());
+                                        reviewMap.put("mUser", mUser.getUID());
                                         reviewMap.put("overallRating", getNewRating);
                                         reviewMap.put("post", postRef.getId());
                                         reviewMap.put("timestamp", FieldValue.serverTimestamp());
@@ -454,13 +461,13 @@ public class RecipeReviewFragment extends FeedFragment {
                                         reviewDocRef.set(reviewMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
-                                                mDatabase.collection("users").document(user.getUID()).update("posts", FieldValue.increment(1));
-                                                user.setPosts(user.getPosts()+1);
+                                                mDatabase.collection("mUsers").document(mUser.getUID()).update("posts", FieldValue.increment(1));
+                                                mUser.setPosts(mUser.getPosts()+1);
                                                 addPosts(layout);
                                             }
                                         });
 
-                                        // Update the UserInfoPrivate class with this new image URL.
+                                        // Update the mUserInfoPrivate class with this new image URL.
                                         POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
                                         loadingDialog.dismissDialog();
                                         reviewMade = true;
@@ -482,10 +489,10 @@ public class RecipeReviewFragment extends FeedFragment {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         //Document ID for review post
-                        docID = user.getUID() + "-" + mRecipeID;
+                        docID = mUser.getUID() + "-" + mRecipeID;
                         //HashMap<String, Object> reviewMap = new HashMap<>();
 
-                        reviewMap.put("user", user.getUID());
+                        reviewMap.put("mUser", mUser.getUID());
                         reviewMap.put("overallRating", getNewRating);
                         reviewMap.put("post", postRef.getId());
                         reviewMap.put("timestamp", FieldValue.serverTimestamp());
@@ -496,13 +503,13 @@ public class RecipeReviewFragment extends FeedFragment {
                         reviewDocRef.set(reviewMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
-                                mDatabase.collection("users").document(user.getUID()).update("posts", FieldValue.increment(1));
-                                user.setPosts(user.getPosts()+1);
+                                mDatabase.collection("mUsers").document(mUser.getUID()).update("posts", FieldValue.increment(1));
+                                mUser.setPosts(mUser.getPosts()+1);
                                 addPosts(layout);
                             }
                         });
 
-                        // Update the UserInfoPrivate class with this new image URL.
+                        // Update the mUserInfoPrivate class with this new image URL.
                         POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
                         loadingDialog.dismissDialog();
                     }
@@ -524,7 +531,7 @@ public class RecipeReviewFragment extends FeedFragment {
         RecyclerView.LayoutManager rManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(rManager);
         data = new ArrayList<>();
-        final RecyclerView.Adapter rAdapter = new recipeReviewRecyclerAdapter(RecipeReviewFragment.this, data, user);
+        final RecyclerView.Adapter rAdapter = new recipeReviewRecyclerAdapter(RecipeReviewFragment.this, data, mUser, mRecipeID);
         recyclerView.setAdapter(rAdapter);
         query = postRef.whereEqualTo("recipeID", mRecipeID).whereEqualTo("isReview", true).orderBy("timestamp", Query.Direction.DESCENDING).limit(10);
         Log.e(TAG, "RECIPE ID" + mRecipeID);
@@ -539,29 +546,29 @@ public class RecipeReviewFragment extends FeedFragment {
 
                         for (DocumentSnapshot document : task.getResult()) {
                             //Pass all data from document
-                            String test = null;
+                            String userImage = null;
                             if ((Boolean) document.get("isPic")){
-                                test = document.get("uploadedImageURL").toString();
+                                userImage = document.get("uploadedImageURL").toString();
                             }
-                            data.add(new recipeReviewRecyclerAdapter.reviewData(
-                                    document.get("body").toString(),
-                                    document.get("author").toString(),
-                                    document.get("overallRating").toString(),
-                                    (Timestamp) document.get("timestamp"),
-                                    test,
-                                    document.getId()
-                            ));
+                            HashMap<String, Object> doc = new HashMap<>();
+                            doc.put("body", document.get("body").toString());
+                            doc.put("author", document.get("author").toString());
+                            doc.put("overallRating", document.get("overallRating").toString());
+                            doc.put("timeStamp", (Timestamp) document.get("timestamp"));
+                            doc.put("userImage", userImage);
+                            doc.put("postID", document.getId());
+                            data.add(new recipeReviewRecyclerAdapter.reviewData(doc));
                         }
                         rAdapter.notifyDataSetChanged();
-                        // Set the last document as last user can see
+                        // Set the last document as last mUser can see
                         if(task.getResult().size() != 0){
                             lastVisible = task.getResult().getDocuments().get(task.getResult().size() - 1);
                         }else{
-                            // If no data returned, user notified
+                            // If no data returned, mUser notified
                             isLastItemReached = true;
 //
                         }
-                        // check if user has scrolled through the view
+                        // check if mUser has scrolled through the view
                         RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
                             @Override
                             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -570,11 +577,11 @@ public class RecipeReviewFragment extends FeedFragment {
                                     isScrolling = true;
                                 }
                             }
-                            // If user is scrolling and has reached the end, more data is loaded
+                            // If mUser is scrolling and has reached the end, more data is loaded
                             @Override
                             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                                 super.onScrolled(recyclerView, dx, dy);
-                                // Checking if user is at the end
+                                // Checking if mUser is at the end
                                 LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
                                 int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
                                 int visibleItemCount = linearLayoutManager.getChildCount();
@@ -589,18 +596,18 @@ public class RecipeReviewFragment extends FeedFragment {
                                             if (t.isSuccessful()) {
                                                 for (DocumentSnapshot d : t.getResult()) {
                                                     //Pass all data from document
-                                                    String test = null;
+                                                    String userImage = null;
                                                     if ((Boolean) d.get("isPic")){
-                                                        test = d.get("uploadedImageURL").toString();
+                                                        userImage = d.get("uploadedImageURL").toString();
                                                     }
-                                                    data.add(new recipeReviewRecyclerAdapter.reviewData(
-                                                            d.get("body").toString(),
-                                                            d.get("author").toString(),
-                                                            d.get("overallRating").toString(),
-                                                            (Timestamp) d.get("timestamp"),
-                                                            test,
-                                                            d.getId()
-                                                    ));
+                                                    HashMap<String, Object> doc = new HashMap<>();
+                                                    doc.put("body", d.get("body").toString());
+                                                    doc.put("author", d.get("author").toString());
+                                                    doc.put("overallRating", d.get("overallRating").toString());
+                                                    doc.put("timeStamp", (Timestamp) d.get("timestamp"));
+                                                    doc.put("userImage", userImage);
+                                                    doc.put("postID", d.getId());
+                                                    data.add(new recipeReviewRecyclerAdapter.reviewData(doc));
                                                 }
                                                 if(isLastItemReached){
                                                     // Last comment reached
@@ -636,6 +643,25 @@ public class RecipeReviewFragment extends FeedFragment {
     protected void checkImage(Uri uri) throws ImageException {
         super.checkImage(uri);
 
+    }
+
+    /**
+     * This method checks what comment is selected and opens up a menu to either open up another
+     * users profile or if the comment was made my this user, user can delete the comment.
+     * @param document
+     * @param menu
+     */
+    public void menuSelected(HashMap document, View menu){
+        super.menuSelected(document,menu);
+
+    }
+
+    /**
+     * Adding capability to delete post from post page
+     * @param deleteDocID
+     */
+    public void deletePost(String deleteDocID){
+        super.deletePost(deleteDocID);
     }
 
 }
