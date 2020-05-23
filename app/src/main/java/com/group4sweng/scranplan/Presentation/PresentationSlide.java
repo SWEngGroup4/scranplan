@@ -35,7 +35,7 @@ public class PresentationSlide extends RelativeLayout {
         this.slideWidth = slideWidth;
         this.slideHeight = slideHeight;
 
-        graphicsView = new GraphicsView(getContext(), false);
+        graphicsView = new GraphicsView(getContext(), slideHeight, slideWidth, false);
         this.addView(graphicsView);
 
         LayoutParams layoutParams = new LayoutParams(slideWidth, slideHeight);
@@ -128,14 +128,14 @@ public class PresentationSlide extends RelativeLayout {
     }
 
     public void addTriangle(XmlParser.Triangle triangle) {
-        Triangle newTriangle = new Triangle(Math.round(slideWidth * (triangle.xPos1 / 100)),
-                Math.round(slideHeight * (triangle.yPos1 / 100)),
-                Math.round(slideWidth * (triangle.xPos2 / 100)),
-                Math.round(slideHeight * (triangle.yPos2 / 100)),
-                Math.round(slideWidth * (triangle.xPos3 / 100)),
-                Math.round(slideHeight * (triangle.yPos3 / 100)),
-                triangle.fillColor, triangle.shading);
-        graphicsView.addTriangle(newTriangle, triangle.startTime, triangle.endTime);
+//        Triangle newTriangle = new Triangle(Math.round(slideWidth * (triangle.xPos1 / 100)),
+//                Math.round(slideHeight * (triangle.yPos1 / 100)),
+//                Math.round(slideWidth * (triangle.xPos2 / 100)),
+//                Math.round(slideHeight * (triangle.yPos2 / 100)),
+//                Math.round(slideWidth * (triangle.xPos3 / 100)),
+//                Math.round(slideHeight * (triangle.yPos3 / 100)),
+//                triangle.fillColor, triangle.shading);
+//        graphicsView.addTriangle(newTriangle, triangle.startTime, triangle.endTime);
     }
 
     //Add image element to file

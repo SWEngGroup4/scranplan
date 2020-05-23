@@ -4,19 +4,18 @@ import android.util.Xml;
 
 import org.xmlpull.v1.XmlSerializer;
 
-import java.io.StringWriter;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 import com.group4sweng.scranplan.Xml.XmlParser.*;
 
 public class XmlSerializar {
 
-    public String compile(DocumentInfo documentInfo, Defaults defaults, ArrayList<Slide> slides) {
+    public void compile(FileOutputStream fileOutputStream, DocumentInfo documentInfo, Defaults defaults, ArrayList<Slide> slides) {
         XmlSerializer xmlSerializar = Xml.newSerializer();
-        StringWriter writer = new StringWriter();
 
         try {
-            xmlSerializar.setOutput(writer);
+            xmlSerializar.setOutput(fileOutputStream, "UTF-8");
             xmlSerializar.startDocument("UTF-8", true);
             xmlSerializar.startTag("", "slideshow");
 
@@ -28,7 +27,7 @@ public class XmlSerializar {
 
             xmlSerializar.endTag("", "slideshow");
             xmlSerializar.endDocument();
-            return writer.toString();
+            fileOutputStream.close();
 
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -59,7 +58,7 @@ public class XmlSerializar {
             xmlSerializar.text(documentInfo.comment);
             xmlSerializar.endTag("", "comment");
 
-            xmlSerializar.endTag("", "documentInfo");
+            xmlSerializar.endTag("", "documentinfo");
             return true;
         } catch (Exception e) {
             return false;
@@ -84,7 +83,7 @@ public class XmlSerializar {
 
             xmlSerializer.startTag("", "fontcolor");
             xmlSerializer.text(defaults.fontColor);
-            xmlSerializer.endTag("", "fontsize");
+            xmlSerializer.endTag("", "fontcolor");
 
             xmlSerializer.startTag("", "linecolor");
             xmlSerializer.text(defaults.lineColor);
@@ -100,7 +99,7 @@ public class XmlSerializar {
 
             xmlSerializer.startTag("", "slideheight");
             xmlSerializer.text(defaults.slideHeight.toString());
-            xmlSerializer.endTag("", "slidewidth");
+            xmlSerializer.endTag("", "slideheight");
 
             xmlSerializer.endTag("", "defaults");
             return true;
@@ -174,18 +173,12 @@ public class XmlSerializar {
             if (!slide.triangles.isEmpty()) {
                 for (Triangle triangle : slide.triangles) {
                     xmlSerializer.startTag("", "triangle");
-                    xmlSerializer.attribute("", "xpos1",
-                            triangle.xPos1.toString());
-                    xmlSerializer.attribute("", "ypos1",
-                            triangle.yPos1.toString());
-                    xmlSerializer.attribute("", "xpos2",
-                            triangle.xPos2.toString());
-                    xmlSerializer.attribute("", "ypos",
-                            triangle.yPos2.toString());
-                    xmlSerializer.attribute("", "xpos3",
-                            triangle.xPos3.toString());
-                    xmlSerializer.attribute("", "ypos3",
-                            triangle.yPos3.toString());
+                    xmlSerializer.attribute("", "xstart",
+                            triangle.centreX.toString());
+                    xmlSerializer.attribute("", "ystart",
+                            triangle.centreY.toString());
+                    xmlSerializer.attribute("", "width",
+                            triangle.width.toString());
                     xmlSerializer.attribute("", "fillcolor", triangle.fillColor);
                     xmlSerializer.attribute("", "starttime",
                             triangle.startTime.toString());

@@ -20,8 +20,8 @@ public class IngredientRecyclerAdapter extends RecyclerView.Adapter<IngredientRe
     private List<IngredientData> mData;
 
     static class IngredientData implements Parcelable {
-        private String ingredient;
-        private String measurement;
+        public String ingredient;
+        public String measurement;
 
         IngredientData(String ingredient, String measurement) {
             this.ingredient = ingredient;

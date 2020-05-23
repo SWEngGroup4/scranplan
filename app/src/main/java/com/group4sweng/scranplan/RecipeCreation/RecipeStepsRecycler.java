@@ -3,7 +3,7 @@ package com.group4sweng.scranplan.RecipeCreation;
 import android.net.Uri;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
+import android.util.Xml;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,9 +17,13 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.group4sweng.scranplan.Drawing.Rectangle;
+import com.group4sweng.scranplan.Drawing.Triangle;
 import com.group4sweng.scranplan.R;
+import com.group4sweng.scranplan.Xml.XmlParser;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RecipeStepsRecycler extends RecyclerView.Adapter<RecipeStepsRecycler.ViewHolder> {
@@ -35,9 +39,10 @@ public class RecipeStepsRecycler extends RecyclerView.Adapter<RecipeStepsRecycle
         private boolean audioChanged = false;
         private Float timer;
         private boolean timerChanged = false;
+        private ArrayList<XmlParser.Shape> shapes;
+        private ArrayList<XmlParser.Triangle> triangles;
 
         StepData(Uri media, String description, Float timer) {
-            Log.d("Test", "StepData");
             this.media = media;
             this.description = description;
             this.timer = timer;
@@ -67,12 +72,38 @@ public class RecipeStepsRecycler extends RecyclerView.Adapter<RecipeStepsRecycle
             this.audioChanged = false;
         }
 
+        void setTimer(Float timer) {
+            this.timer = timer;
+        }
+
+        Float getimer() {
+            return this.timer;
+        }
+
         void showTimer() {
             timerChanged = true;
         }
 
         void removeTimer() {
+            this.timer = null;
             timerChanged = false;
+        }
+
+        void setGraphics(ArrayList<XmlParser.Shape> shapes, ArrayList<XmlParser.Triangle> triangles) {
+            this.shapes = shapes;
+            this.triangles = triangles;
+        }
+
+        ArrayList<XmlParser.Shape> getShapes() {
+            if (shapes == null)
+                shapes = new ArrayList<>();
+            return shapes;
+        }
+
+        ArrayList<XmlParser.Triangle> getTriangles() {
+            if (triangles == null)
+                triangles = new ArrayList<>();
+            return triangles;
         }
     }
 
@@ -188,6 +219,8 @@ public class RecipeStepsRecycler extends RecyclerView.Adapter<RecipeStepsRecycle
             holder.addTimer.setText("Add timer");
             holder.addTimer.setOnClickListener(v -> mRecipeSteps.addTimer(position));
         }
+
+        holder.addGraphics.setOnClickListener(v -> mRecipeSteps.addGraphics(position));
 
     }
 

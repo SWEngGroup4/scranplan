@@ -28,6 +28,7 @@ import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 
 public class BasicInfo extends Fragment {
@@ -57,10 +58,11 @@ public class BasicInfo extends Fragment {
     private InputMethodManager imm;
 
     private ArrayList<IngredientData> mIngredientList;
+    private HashMap<String, String> mIngredientMap;
     private RecyclerView.Adapter mAdapter;
 
     private Integer imageRequestCode = 1;
-    private Bitmap imageBitmap;
+    private Uri imageUri;
     private Boolean imageSet = false;
 
     // Auto-generated super method
@@ -103,6 +105,7 @@ public class BasicInfo extends Fragment {
         mSubmit = view.findViewById(R.id.createRecipeSubmit);
 
         mIngredientList = new ArrayList<>();
+        mIngredientMap = new HashMap<>();
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
         mIngredients.setLayoutManager(manager);
         mAdapter = new IngredientRecyclerAdapter(mIngredientList);
@@ -131,6 +134,7 @@ public class BasicInfo extends Fragment {
             mIngredientMeasurement.setText("");
 
             mIngredientList.add(new IngredientData(ingredientName, ingredientMeasurement));
+
             mAdapter.notifyDataSetChanged();
         });
 
@@ -162,21 +166,42 @@ public class BasicInfo extends Fragment {
                         Toast.LENGTH_SHORT).show();
             else {
                 Bundle bundle = new Bundle();
-                bundle.putString("name", String.valueOf(mRecipeName.getText()));
+                bundle.putString("Name", String.valueOf(mRecipeName.getText()));
                 bundle.putFloat("serves", Float.parseFloat(String.valueOf(mRecipeServes.getText())));
-                bundle.putString("desc", String.valueOf(mRecipeDesc.getText()));
-                bundle.putParcelable("image", imageBitmap);
-                bundle.putParcelableArrayList("ingredients", mIngredientList);
-                bundle.putBoolean("eggs", mEggs.isChecked());
-                bundle.putBoolean("lactose", mLactose.isChecked());
-                bundle.putBoolean("nuts", mNuts.isChecked());
-                bundle.putBoolean("shellfish", mShellfish.isChecked());
-                bundle.putBoolean("soya", mSoya.isChecked());
-                bundle.putBoolean("gluten", mGluten.isChecked());
-                bundle.putString("diet", mDietDropdown.getSelectedItem().toString());
+                bundle.putString("Description", String.valueOf(mRecipeDesc.getText()));
+                bundle.putString("imageURL", imageUri.toString());
+                for (IngredientData ingredientData : mIngredientList) {
+                    mIngredientMap.put(ingredientData.ingredient, ingredientData.measurement);
+                }
+                bundle.putSerializable("Ingredients-", mIngredientMap);
+                bundle.putBoolean("noEggs", !mEggs.isChecked());
+                bundle.putBoolean("noMilk", !mLactose.isChecked());
+                bundle.putBoolean("noNuts", !mNuts.isChecked());
+                bundle.putBoolean("noShellfish", !mShellfish.isChecked());
+                bundle.putBoolean("noSoy", !mSoya.isChecked());
+                bundle.putBoolean("noWheat", !mGluten.isChecked());
+                if (mDietDropdown.getSelectedItem().toString().equals("Vegan")) {
+                    bundle.putBoolean("vegan", true);
+                    bundle.putBoolean("vegetarian", true);
+                    bundle.putBoolean("pescatarian", true);
+                } else if (mDietDropdown.getSelectedItem().toString().equals("Vegetarian")) {
+                    bundle.putBoolean("vegan", false);
+                    bundle.putBoolean("vegetarian", true);
+                    bundle.putBoolean("pescatarian", true);
+                } else if (mDietDropdown.getSelectedItem().toString().equals("Pescetarian")) {
+                    bundle.putBoolean("vegan", false);
+                    bundle.putBoolean("vegetarian", false);
+                    bundle.putBoolean("pescatarian", true);
+                } else {
+                    bundle.putBoolean("vegan", false);
+                    bundle.putBoolean("vegetarian", false);
+                    bundle.putBoolean("pescatarian", false);
+                }
                 if (mFridge.isChecked())
                     bundle.putFloat("fridge", Float.parseFloat(String.valueOf(mFridgeDays.getText())));
-                bundle.putBoolean("freeze", mFrozen.isChecked());
+                else
+                    bundle.putFloat("fridge", 0);
+                bundle.putBoolean("freezer", mFrozen.isChecked());
                 bundle.putString("reheat", String.valueOf(mReheat.getText()));
 
                 ((RecipeCreation) requireActivity()).stepComplete(1, bundle);
@@ -190,15 +215,8 @@ public class BasicInfo extends Fragment {
 
         if (resultCode == Activity.RESULT_OK)
             if (requestCode == imageRequestCode) {
-                Uri image = data.getData();
-
-                try {
-                    imageBitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), image);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                Picasso.get().load(image).fit().centerCrop().into(mRecipeImage);
+                imageUri = data.getData();
+                Picasso.get().load(imageUri).fit().centerCrop().into(mRecipeImage);
                 imageSet = true;
             }
     }

@@ -7,6 +7,17 @@ public class Line extends Shape {
     private Integer xEnd;
     private Integer yEnd;
 
+    public Line(Integer xStart, Integer yStart, Integer xEnd, Integer yEnd)
+    {
+        super();
+        this.xStart = xStart;
+        this.yStart = yStart;
+        this.xEnd = xEnd;
+        this.yEnd = yEnd;
+
+        this.paint.setStrokeWidth(5f);
+    }
+
     public Line(Integer xStart, Integer yStart, Integer xEnd, Integer yEnd, String colour)
     {
         super(colour);

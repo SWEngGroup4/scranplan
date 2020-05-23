@@ -1,13 +1,14 @@
 package com.group4sweng.scranplan.RecipeCreation;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -15,11 +16,13 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
 import com.flask.colorpicker.ColorPickerView;
-import com.flask.colorpicker.builder.ColorPickerClickListener;
 import com.flask.colorpicker.builder.ColorPickerDialogBuilder;
 import com.group4sweng.scranplan.R;
 
+import java.util.Objects;
+
 public class RecipeDefaultsCreation extends AppCompatDialogFragment {
+
     private Button mBackgroundButton;
     private Spinner mSlideFont;
     private Spinner mFontSize;
@@ -39,10 +42,11 @@ public class RecipeDefaultsCreation extends AppCompatDialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        getDialog().setTitle("Slide settings");
+        Objects.requireNonNull(getDialog()).setTitle("Slide settings");
 
         View layout = inflater.inflate(R.layout.create_recipe_dialog, container, false);
 
+        assert getArguments() != null;
         initBundleItems(getArguments());
         initPageItems(layout);
         initPageListeners(layout);
@@ -57,22 +61,30 @@ public class RecipeDefaultsCreation extends AppCompatDialogFragment {
         mFontColour = bundle.getInt("fontColour");
     }
 
-    private void initPageItems(View view) {
-        mBackgroundButton = view.findViewById(R.id.slideBackgroundPicker);
+    private void initPageItems(View v) {
+        mBackgroundButton = v.findViewById(R.id.slideBackgroundPicker);
         mBackgroundButton.setBackgroundColor(mBackgroundColour);
 
-        mSlideFont = view.findViewById(R.id.slideDefaultsFontSelect);
-        mFontSize = view.findViewById(R.id.slideDefaultsFontSize);
+        mSlideFont = v.findViewById(R.id.slideDefaultsFontSelect);
+        ArrayAdapter<CharSequence> fontAdapter = ArrayAdapter.createFromResource(v.getContext(), R.array.rcFonts, R.layout.support_simple_spinner_dropdown_item);
+        fontAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
+        mSlideFont.setAdapter(fontAdapter);
+        mSlideFont.setSelection(fontAdapter.getPosition(mFont));
 
-        mFontColourButton = view.findViewById(R.id.fontColourPicker);
+        mFontSize = v.findViewById(R.id.slideDefaultsFontSize);
+        ArrayAdapter<CharSequence> sizeAdapter = ArrayAdapter.createFromResource(v.getContext(), R.array.rcFontSize, R.layout.support_simple_spinner_dropdown_item);
+        mFontSize.setAdapter(sizeAdapter);
+        mFontSize.setSelection(sizeAdapter.getPosition(mSize));
+
+        mFontColourButton = v.findViewById(R.id.fontColourPicker);
         mFontColourButton.setBackgroundColor(mFontColour);
 
-        mSubmit = view.findViewById(R.id.slideDefaultsSubmit);
+        mSubmit = v.findViewById(R.id.slideDefaultsSubmit);
     }
 
-    private void initPageListeners(View view) {
-        mBackgroundButton.setOnClickListener(v -> ColorPickerDialogBuilder
-            .with(getContext())
+    private void initPageListeners(View v) {
+        mBackgroundButton.setOnClickListener(view -> ColorPickerDialogBuilder
+            .with(v.getContext())
             .setTitle("Choose color")
             .initialColor(Color.WHITE)
             .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
@@ -88,8 +100,32 @@ public class RecipeDefaultsCreation extends AppCompatDialogFragment {
             .show()
         );
 
-        mFontColourButton.setOnClickListener(v -> ColorPickerDialogBuilder
-            .with(getContext())
+        mSlideFont.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                mFont = mSlideFont.getSelectedItem().toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        mFontSize.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                mSize = mFontSize.getSelectedItem().toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        mFontColourButton.setOnClickListener(view -> ColorPickerDialogBuilder
+            .with(v.getContext())
             .setTitle("Choose color")
             .initialColor(Color.WHITE)
             .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
@@ -105,14 +141,14 @@ public class RecipeDefaultsCreation extends AppCompatDialogFragment {
             .show()
         );
 
-        mSubmit.setOnClickListener(v -> {
+        mSubmit.setOnClickListener(view -> {
             Intent intent = new Intent();
             intent.putExtra("backColour", mBackgroundColour);
             intent.putExtra("font", mFont);
             intent.putExtra("size", mSize);
             intent.putExtra("fontColour", mFontColour);
 
-            getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+            Objects.requireNonNull(getTargetFragment()).onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
             dismiss();
         });
     }

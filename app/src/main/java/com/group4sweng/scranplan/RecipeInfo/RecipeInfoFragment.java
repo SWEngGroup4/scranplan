@@ -455,7 +455,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         mFavourite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!isFavourite) {
+                    if (!isFavourite) {
                     isFavourite = true;
                     docRef.update("favourite", FieldValue.arrayUnion(user)).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override

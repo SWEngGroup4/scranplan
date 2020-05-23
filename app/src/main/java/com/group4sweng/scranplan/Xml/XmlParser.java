@@ -8,6 +8,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -325,12 +326,9 @@ public class XmlParser {
     private Triangle readTriangle(XmlPullParser parser) throws IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, null, "triangle");
 
-        Float xPos1 = Float.valueOf(parser.getAttributeValue(null, "xpos1"));
-        Float yPos1 = Float.valueOf(parser.getAttributeValue(null, "ypos1"));
-        Float xPos2 = Float.valueOf(parser.getAttributeValue(null, "xpos2"));
-        Float yPos2 = Float.valueOf(parser.getAttributeValue(null, "ypos2"));
-        Float xPos3 = Float.valueOf(parser.getAttributeValue(null, "xpos3"));
-        Float yPos3 = Float.valueOf(parser.getAttributeValue(null, "ypos3"));
+        Float xstart = Float.valueOf(parser.getAttributeValue(null, "xstart"));
+        Float ystart = Float.valueOf(parser.getAttributeValue(null, "ystart"));
+        Float width = Float.valueOf(parser.getAttributeValue(null, "width"));
         String fillColor = parser.getAttributeValue(null, "fillcolor");
         Integer startTime = Integer.valueOf(parser.getAttributeValue(null, "starttime"));
         Integer endTime = Integer.valueOf(parser.getAttributeValue(null, "endtime"));
@@ -338,7 +336,7 @@ public class XmlParser {
 
         parser.nextTag();
 
-        return new Triangle(xPos1, yPos1, xPos2, yPos2, xPos3, yPos3, fillColor, startTime, endTime, shading);
+        return new Triangle(xstart, ystart, width, fillColor, startTime, endTime, shading);
     }
 
     private Shading readShading(XmlPullParser parser) throws  IOException, XmlPullParserException {
@@ -600,7 +598,7 @@ public class XmlParser {
         }
     }
 
-    public static class Shape {
+    public static class Shape implements Serializable {
         public final String type; //TODO - the type for this is "'oval'|'rectangle'" so needs changing from String
         public final Float xStart;
         public final Float yStart;
@@ -626,27 +624,20 @@ public class XmlParser {
         }
     }
 
-    public static class Triangle {
-        public final Float xPos1;
-        public final Float yPos1;
-        public final Float xPos2;
-        public final Float yPos2;
-        public final Float xPos3;
-        public final Float yPos3;
+    public static class Triangle implements Serializable {
+        public final Float centreX;
+        public final Float centreY;
+        public final Float width;
         public final String fillColor;
         public final Integer startTime;
         public final Integer endTime;
         public final Shading shading;
 
-        public Triangle(Float xPos1, Float yPos1, Float xPos2, Float yPos2,
-                        Float xPos3, Float yPos3, String fillColor,
+        public Triangle(Float centreX, Float centreY, Float width, String fillColor,
                         Integer startTime, Integer endTime, Shading shading) {
-            this.xPos1 = xPos1;
-            this.yPos1 = yPos1;
-            this.xPos2 = xPos2;
-            this.yPos2 = yPos2;
-            this.xPos3 = xPos3;
-            this.yPos3 = yPos3;
+            this.centreX = centreX;
+            this.centreY = centreY;
+            this.width = width;
             this.fillColor = fillColor;
             this.startTime = startTime;
             this.endTime = endTime;

@@ -6,24 +6,45 @@ import android.graphics.Paint;
 import android.graphics.RadialGradient;
 import android.graphics.Shader;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+
 public class Shape {
 
     Paint paint;
+    Boolean selected;
     private Integer colour;
+
+    private int[] colors = {Color.RED, Color.GREEN, Color.BLUE};
+    private int color = 0;
+
+    Shape() {
+        this.colour = colors[color];
+
+        paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setColor(this.colour);
+        selected = false;
+    }
 
     Shape(String colour) {
         this.colour = Color.parseColor(colour);
 
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setColor(this.colour);
+        selected = false;
     }
 
     void setPaintColour(Integer colour) {
+        this.colour = colour;
         paint.setColor(colour);
     }
 
-    Integer getPaintColour() {
-        return paint.getColor();
+    void setSelected() {
+        selected = true;
+    }
+
+    void clearSelected() {
+        selected = false;
     }
 
     public Integer getColour() {

@@ -1,121 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <com.group4sweng.scranplan.Drawing.CustomView
-        android:id="@+id/customView"
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/horizontalGuideline"
         android:layout_width="match_parent"
-        app:square_color="@color/square_color"
-        app:square_size="@dimen/square_size"
-        android:layout_height="500dp" />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.8" />
 
-    <Button
-        android:id="@+id/btn_swap_color"
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline33"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.33" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideLine66"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/customView"
-        android:layout_marginLeft="600dp"
-        android:text="Swap Colour  " />
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.66" />
+
+    <LinearLayout
+        android:id="@+id/graphicsLayout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/horizontalGuideline"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+    </LinearLayout>
 
     <Button
-        android:id="@+id/btn_add_circle"
-        android:layout_width="wrap_content"
+        android:id="@+id/graphicsOval"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_below="@id/customView"
-        android:layout_marginLeft="50dp"
-        android:text="    Add Circle     " />
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="4dp"
+        android:text="Circle"
+        app:layout_constraintEnd_toStartOf="@+id/guideline33"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/horizontalGuideline" />
 
     <Button
-        android:id="@+id/btn_add_square"
-        android:layout_width="wrap_content"
+        android:id="@+id/graphicsTri"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_below="@id/customView"
-        android:layout_marginLeft="200dp"
-        android:text="   Add Square     " />
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="Triangle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideLine66"
+        app:layout_constraintTop_toTopOf="@+id/horizontalGuideline" />
 
     <Button
-        android:id="@+id/btn_delete_circle"
-        android:layout_width="wrap_content"
+        android:id="@+id/graphicsRect"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_below="@id/customView"
-        android:layout_marginTop="50dp"
-        android:layout_marginLeft="50dp"
-        android:text="Delete Circle     " />
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="4dp"
+        android:text="Rectangle"
+        app:layout_constraintEnd_toStartOf="@+id/guideLine66"
+        app:layout_constraintStart_toStartOf="@+id/guideline33"
+        app:layout_constraintTop_toBottomOf="@+id/graphicsLayout" />
 
     <Button
-        android:id="@+id/btn_delete_square"
-        android:layout_width="wrap_content"
+        android:id="@+id/graphicsCol"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_below="@id/customView"
-        android:layout_marginTop="50dp"
-        android:layout_marginLeft="200dp"
-        android:text="Delete Square  " />
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="4dp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline33"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/graphicsOval" />
 
     <Button
-        android:id="@+id/btn_hollow"
-        android:layout_width="wrap_content"
+        android:id="@+id/graphicsDel"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_below="@id/customView"
-        android:layout_marginTop="50dp"
-        android:layout_marginLeft="400dp"
-        android:text="Hollow" />
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="4dp"
+        android:text="Delete selected"
+        app:layout_constraintEnd_toStartOf="@+id/graphicsSubmit"
+        app:layout_constraintStart_toStartOf="@+id/guideline33"
+        app:layout_constraintTop_toBottomOf="@+id/graphicsRect" />
 
     <Button
-        android:id="@+id/btn_fill"
-        android:layout_width="wrap_content"
+        android:id="@+id/graphicsSubmit"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_below="@id/customView"
-        android:layout_marginTop="0dp"
-        android:layout_marginLeft="400dp"
-        android:text="Fill" />
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="Submit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/graphicsDel"
+        app:layout_constraintTop_toBottomOf="@+id/graphicsTri" />
 
-    <Button
-        android:id="@+id/btn_bigger"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/customView"
-        android:layout_marginTop="0dp"
-        android:layout_marginLeft="500dp"
-        android:text="+ " />
-
-    <Button
-        android:id="@+id/btn_smaller"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/customView"
-        android:layout_marginTop="50dp"
-        android:layout_marginLeft="500dp"
-        android:text="- " />
-
-    <Button
-        android:id="@+id/btn_draw"
-        android:layout_width="39dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/customView"
-        android:layout_marginLeft="350dp"
-        android:layout_marginTop="25dp"
-        android:text="/" />
-
-    <Button
-        android:id="@+id/btn_add_triangle"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/customView"
-        android:layout_marginLeft="250dp"
-        android:layout_marginTop="100dp"
-        android:text="Add triangle" />
-
-    <Button
-        android:id="@+id/btn_delete_triangle"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/customView"
-        android:layout_marginLeft="50dp"
-        android:layout_marginTop="100dp"
-        android:text="Delete triangle" />
-
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -136,15 +136,9 @@ public class InitialUserCustomisation extends AppCompatActivity {
 
     private void initPageListeners() {
         mSkipButton.setOnClickListener(new View.OnClickListener() {
-            @Override
             public void onClick(View view) {
                 //skip button takes user directly to the main page
-                Log.e(TAG, "Initial user returning to main activity");
-
-                Intent returningIntent = new Intent();
-                setResult(RESULT_OK, returningIntent);
-
-                finish();
+                Log.e(TAG, "Initial user returning to home");        finishActivity();
             }
         });
 
