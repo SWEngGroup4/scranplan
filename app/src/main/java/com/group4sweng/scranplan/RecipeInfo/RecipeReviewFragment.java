@@ -147,9 +147,8 @@ public class RecipeReviewFragment extends FeedFragment {
 
                                 if ((Boolean) d.get("isPic")){
                                     Picasso.get().load(d.get("uploadedImageURL").toString()).into(mRecipeReviewImage);
+                                    mPostPic.setChecked(true);
                                 }
-
-                                mPostPic.setChecked(true);
 
                             }
                         });
@@ -160,6 +159,7 @@ public class RecipeReviewFragment extends FeedFragment {
                     } else {
                         Log.e("FdRc", "Unable to retrieve user document in Firestore ");
                         reviewMade = false;
+                        mPostPic.setChecked(false);
                     }
                 }
             }
@@ -269,7 +269,7 @@ public class RecipeReviewFragment extends FeedFragment {
 
         }
 
-        newTotalRates = ratingMap.get("totalRates") + 1;
+        newTotalRates = ratingMap.get("totalRates") + 1f;
         newOverallRating = ((ratingMap.get("overallRating") * ratingMap.get("totalRates")) + getNewRating) / newTotalRates;
 
         ratingMap.put("overallRating", newOverallRating);

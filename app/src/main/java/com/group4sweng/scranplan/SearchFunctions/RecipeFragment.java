@@ -640,7 +640,6 @@ public class RecipeFragment extends Fragment {
         mBundle.putString("recipeID", document.getId());
         mBundle.putString("xmlURL", document.get("xml_url").toString());
         mBundle.putString("recipeTitle", document.get("Name").toString());
-        //mBundle.putString("rating", document.get("score").toString());
         mBundle.putString("imageURL", document.get("imageURL").toString());
         mBundle.putString("recipeDescription", document.get("Description").toString());
         mBundle.putString("chefName", document.get("Chef").toString());
