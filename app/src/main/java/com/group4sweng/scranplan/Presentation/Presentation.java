@@ -38,6 +38,7 @@ import com.github.aakira.expandablelayout.ExpandableLayoutListener;
 import com.github.aakira.expandablelayout.ExpandableRelativeLayout;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -46,6 +47,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.group4sweng.scranplan.Exceptions.AudioPlaybackException;
 import com.group4sweng.scranplan.R;
+import com.group4sweng.scranplan.Social.CommentRecyclerAdapter;
 import com.group4sweng.scranplan.SoundHandler.AudioURL;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.group4sweng.scranplan.Xml.XmlParser;
@@ -353,20 +355,19 @@ public class Presentation extends AppCompatActivity {
         /* Setting up the post comment listener, removing the text from the box and saving
          it as a new document in the Firestore, the data is also reloaded */
             mPostComment.setOnClickListener(v -> {
-                String content = mInputComment.getText().toString();
-                mInputComment.getText().clear();
-
-                CollectionReference ref = mDatabase.collection("recipes").document(recipeID).collection("slide" + currentSlide[0].toString());
-                Log.e(TAG, "Added new doc ");
-                // Saving the comment as a new document
-                HashMap<String, Object> map = new HashMap<>();
-                map.put("authorID", mUser.getUID());
-                map.put("author", mUser.getDisplayName());
-                map.put("comment", content);
-                map.put("timestamp", FieldValue.serverTimestamp());
-                // Saving default user to Firebase Firestore database
-                ref.add(map);
-                addFirestoreComments(currentSlide[0].toString());
+            String content = mInputComment.getText().toString();
+            mInputComment.getText().clear();
+            CollectionReference ref = mDatabase.collection("recipes").document(recipeID).collection("slide" + currentSlide[0].toString());
+            Log.e(TAG, "Added new doc ");
+            // Saving the comment as a new document
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("authorID", mUser.getUID());
+            map.put("likes", 0);
+            map.put("comment", content);
+            map.put("timestamp", FieldValue.serverTimestamp());
+            // Saving default user to Firebase Firestore database
+            ref.add(map);
+            addFirestoreComments(currentSlide[0].toString());
 
 
             });
@@ -525,7 +526,7 @@ public class Presentation extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         RecyclerView.LayoutManager rManager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(rManager);
-        final RecyclerView.Adapter rAdapter = new CommentRecyclerAdapter(Presentation.this, data, currentSlide);
+        final RecyclerView.Adapter rAdapter = new CommentRecyclerAdapter(Presentation.this, data, currentSlide, mUser, recipeID);
         recyclerView.setAdapter(rAdapter);
         query = mDatabase.collection("recipes").document(recipeID).collection("slide" + currentSlide).limit(5).orderBy("timestamp");
 
@@ -541,8 +542,11 @@ public class Presentation extends AppCompatActivity {
                             data.add(new CommentRecyclerAdapter.CommentData(
                                     document,
                                     document.get("authorID").toString(),
-                                    document.get("author").toString(),
-                                    document.get("comment").toString()
+                                    document.get("comment").toString(),
+                                    (Timestamp) document.getTimestamp("timestamp"),
+                                    document.get("likes").toString(),
+                                    document.getId()
+
                             ));
                         }
                         rAdapter.notifyDataSetChanged();
@@ -555,8 +559,10 @@ public class Presentation extends AppCompatActivity {
                             data.add(new CommentRecyclerAdapter.CommentData(
                                     null,
                                     null,
-                                    "No more results",
-                                    "No comments yet for this step, be the first!"
+                                    "No comments yet for this step, be the first!",
+                                    null,
+                                    null,
+                                    null
                             ));
                         }
                         // check if user has scrolled through the view
@@ -589,8 +595,10 @@ public class Presentation extends AppCompatActivity {
                                                     data.add(new CommentRecyclerAdapter.CommentData(
                                                             d,
                                                             d.get("authorID").toString(),
-                                                            d.get("author").toString(),
-                                                            d.get("comment").toString()
+                                                            d.get("comment").toString(),
+                                                            (Timestamp) d.getTimestamp("timestamp"),
+                                                            d.get("likes").toString(),
+                                                            d.getId()
                                                     ));
                                                 }
                                                 if(isLastItemReached){

@@ -54,6 +54,7 @@ public class UserInfoPrivateTest {
         map.put("firstPresentationLaunch", true);
         map.put("firstMealPlannerLaunch", true);
         map.put("kudos", (long) 0);
+        map.put("posts", (long) 0);
 
         map.put("privateProfileEnabled", false);
         privacyPublic.put("display_username", true);

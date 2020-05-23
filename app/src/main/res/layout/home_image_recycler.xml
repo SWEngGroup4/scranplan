@@ -46,6 +46,7 @@
                 android:theme="@style/RatingBar"
                 style="?android:attr/ratingBarStyleSmall"/>
 
+
         </RelativeLayout>
 
     </androidx.cardview.widget.CardView>

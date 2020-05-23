@@ -1,4 +1,4 @@
-package com.group4sweng.scranplan;
+package com.group4sweng.scranplan.SearchFunctions;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -28,12 +28,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.group4sweng.scranplan.Home;
+import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
-import com.group4sweng.scranplan.SearchFunctions.HomeQueries;
-import com.group4sweng.scranplan.SearchFunctions.HomeRecyclerAdapter;
-import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
-import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
-import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.ArrayList;
@@ -41,6 +38,10 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
+ * Class for the home page fragment containing horizontal meals to scroll though.
+ * Author(s): LNewman
+ * (c) CoDev 2020
+ *
  * This class builds the horizontal scrolls of custom preference recipe selection for the user on the
  * home screen. Each of these scrolls is infinite in length, loading 5 recipes at a time to minimise
  * reads from the Firestore yet still giving the user an infinite and responsive experience with
@@ -107,8 +108,19 @@ public class RecipeFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_recipe, container, false);
 
-        if (getArguments() != null)
+        if (getArguments() != null) {
             planner = getArguments().getBoolean("planner");
+            if(planner){
+                view.findViewById(R.id.recipeFragmentReturnButton).setVisibility(View.VISIBLE);
+                view.findViewById(R.id.recipeFragmentReturnButton).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Fragment fragment = getTargetFragment();
+                        getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, new Intent());
+                    }
+                });
+            }
+        }
         else planner = false;
 
         if (planner) {
@@ -123,6 +135,7 @@ public class RecipeFragment extends Fragment {
         }
 
         Home home = (Home) getActivity();
+
         if (home != null) {
             searchView = home.getSearchView();
             sortView = home.getSortView();
@@ -151,7 +164,6 @@ public class RecipeFragment extends Fragment {
             }
         }
 
-        // Grabs screen size for % layout TODO - change to density pixels + NullPointerException check
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
 
         // Procedurally fills topLayout with imageButton content

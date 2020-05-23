@@ -10,6 +10,12 @@
     <string name="planner_breakfast">Breakfast</string>
     <string name="planner_lunch">Lunch</string>
     <string name="planner_dinner">Dinner</string>
+    <string name="post_title">Post title</string>
+    <string name="enter_post_text_here">Enter post text here...</string>
+    <string name="recipe">+ Recipe</string>
+    <string name="review">+ Review</string>
+    <string name="image">+ Image</string>
+    <string name="post">Post</string>
     <string name="submit">Submit</string>
 
 <!--    Recipe creation strings-->

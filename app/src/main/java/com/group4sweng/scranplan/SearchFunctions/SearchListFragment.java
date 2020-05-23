@@ -11,6 +11,7 @@ import android.widget.AbsListView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -35,12 +36,19 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
+ * Building search list infinite scroll fragment.
+ * Author(s): LNewman, NBillis
+ * (c) CoDev 2020
+ *
+ *
  *  This class takes a Firestore query and returns a fragment consisting of an infinite list,
  *  that goes of for as long as there is data delivered to the user in blocks of 5 items.
  *  Each item will be presented as just an image, title and description, users can click these images
  *  to get further information about a recipe
  */
 public class SearchListFragment extends AppCompatDialogFragment {
+
+    int numberOfColumns = 2;
 
     final String TAG = "SearchScreen";
     private static final String ALGOLIA_APP_ID = "WK13YORECK";
@@ -88,7 +96,7 @@ public class SearchListFragment extends AppCompatDialogFragment {
         // Creating a list of the data and building all variables to add to recycler view
         final RecyclerView recyclerView = view.findViewById(R.id.recipeList);
         recyclerView.setHasFixedSize(true);
-        RecyclerView.LayoutManager rManager = new LinearLayoutManager(getContext());
+        RecyclerView.LayoutManager rManager = new GridLayoutManager(getContext(), numberOfColumns);
         recyclerView.setLayoutManager(rManager);
         final RecyclerView.Adapter rAdapter = new SearchRecyclerAdapter(SearchListFragment.this, data);
         recyclerView.setAdapter(rAdapter);
