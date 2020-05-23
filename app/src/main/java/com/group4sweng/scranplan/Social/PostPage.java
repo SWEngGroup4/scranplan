@@ -35,7 +35,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.group4sweng.scranplan.LoadingDialog;
+import com.group4sweng.scranplan.Administration.LoadingDialog;
 import com.group4sweng.scranplan.R;
 import com.squareup.picasso.Picasso;
 

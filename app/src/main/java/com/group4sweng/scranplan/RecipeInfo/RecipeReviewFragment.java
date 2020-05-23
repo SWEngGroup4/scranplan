@@ -21,7 +21,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
@@ -29,29 +28,22 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.group4sweng.scranplan.Exceptions.ImageException;
-import com.group4sweng.scranplan.LoadingDialog;
+import com.group4sweng.scranplan.Administration.LoadingDialog;
 import com.group4sweng.scranplan.R;
-import com.group4sweng.scranplan.SearchFunctions.HomeRecyclerAdapter;
-import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
-import com.group4sweng.scranplan.SearchFunctions.SearchRecyclerAdapter;
 import com.group4sweng.scranplan.Social.FeedFragment;
-import com.group4sweng.scranplan.Social.FeedRecyclerAdapter;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
-import static java.sql.Types.NULL;
 
 
 public class RecipeReviewFragment extends FeedFragment {
