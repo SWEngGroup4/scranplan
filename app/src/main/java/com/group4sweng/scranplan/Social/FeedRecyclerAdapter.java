@@ -277,11 +277,8 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
                         mDatabase.collection("posts").document(mDataset.get(position).postID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> nextTask) {
-
                                 DocumentSnapshot d = nextTask.getResult();
-
                                 holder.numLikes.setText(d.get("likes").toString());
-
                             }
                         });
                     }else{

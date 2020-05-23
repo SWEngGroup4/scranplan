@@ -134,11 +134,8 @@ public class recipeReviewRecyclerAdapter extends RecyclerView.Adapter <recipeRev
                         mDatabase.collection("posts").document(mData.get(position).postID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> nextTask) {
-
                                 DocumentSnapshot d = nextTask.getResult();
-
                                 holder.numLikes.setText(d.get("likes").toString());
-
                             }
                         });
                     }else{
