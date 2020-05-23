@@ -54,7 +54,8 @@
         <meta-data
             android:name="io.sentry.dsn"
             android:value="https://e6648ff9c7d346bc98a8fd6aabb5738a@sentry.io/2102064" />
-
+        <meta-data android:name="io.sentry.session-tracking.enable" android:value="true" />
+        <meta-data android:name="io.sentry.release" android:value="com.group4sweng.scranplan@1.3.4" />
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
