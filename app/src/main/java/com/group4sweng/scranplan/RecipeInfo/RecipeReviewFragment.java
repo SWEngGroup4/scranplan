@@ -78,6 +78,7 @@ public class RecipeReviewFragment extends FeedFragment {
 
     CollectionReference reviewRef, postRef;
     DocumentReference reviewDocRef;
+    View layout;
 
     protected static boolean POST_IS_UPLOADING = false; // Boolean to determine if the image is uploading currently.
 
@@ -104,7 +105,8 @@ public class RecipeReviewFragment extends FeedFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View layout = inflater.inflate(R.layout.fragment_feed, null);
+        View view = inflater.inflate(R.layout.fragment_feed, null);
+        layout = view;
 
         initPageItems(layout);
         displayItems(layout);
@@ -461,7 +463,7 @@ public class RecipeReviewFragment extends FeedFragment {
                                         reviewDocRef.set(reviewMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
-                                                mDatabase.collection("mUsers").document(mUser.getUID()).update("posts", FieldValue.increment(1));
+                                                mDatabase.collection("users").document(mUser.getUID()).update("posts", FieldValue.increment(1));
                                                 mUser.setPosts(mUser.getPosts()+1);
                                                 addPosts(layout);
                                             }
@@ -662,6 +664,30 @@ public class RecipeReviewFragment extends FeedFragment {
      */
     public void deletePost(String deleteDocID){
         super.deletePost(deleteDocID);
+    }
+
+    /**
+     * Updating the follows section of firebase when creating a new post
+     * @param map
+     */
+    protected void updateFollowers(HashMap map){
+        super.updateFollowers(map);
+    }
+
+    /**
+     * Reset the screen once a new post has been completed
+     */
+    @Override
+    protected void postComplete(){
+        mDatabase.collection("users").document(mUser.getUID()).update("posts", FieldValue.increment(1), "livePosts", FieldValue.increment(1)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                                                                                                                        @Override
+                                                                                                                                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                                                                                                                                            mUser.setPosts(mUser.getPosts()+1);
+                                                                                                                                                                            mPostBodyInput.getText().clear();
+                                                                                                                                                                            addPosts(layout);
+                                                                                                                                                                        }
+                                                                                                                                                                    }
+        );
     }
 
 }
