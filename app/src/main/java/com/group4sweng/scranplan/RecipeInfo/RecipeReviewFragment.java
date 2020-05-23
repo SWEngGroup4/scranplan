@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -54,6 +55,7 @@ public class RecipeReviewFragment extends FeedFragment {
     private CheckBox mReviewIcon;
     private TextView mRecipeRate;
     private ImageView mRecipeReviewImage;
+    private ConstraintLayout mReviewImagelayout;
     private String mRecipeID;
     private String mRecipeImage;
     private String mRecipeTitle;
@@ -137,10 +139,12 @@ public class RecipeReviewFragment extends FeedFragment {
                                 mPostBodyInput.setText(d.get("body").toString());
 
                                 if ((Boolean) d.get("isPic")){
+                                    mReviewImagelayout.setVisibility(View.VISIBLE);
                                     mRecipeReviewImage.setVisibility(View.VISIBLE);
-                                    Picasso.get().load(d.get("uploadedImageURL").toString()).into(mRecipeReviewImage);
+                                    Picasso.get().load((String) d.get("uploadedImageURL")).into(mRecipeReviewImage);
                                     mPostPic.setChecked(true);
                                 }
+
 
                             }
                         });
@@ -186,6 +190,7 @@ public class RecipeReviewFragment extends FeedFragment {
         mRecipeRate = layout.findViewById(R.id.recipeRate);
         mRecipeReviewImage = layout.findViewById(R.id.userUploadedImageView);
         mReviewMenu = layout.findViewById(R.id.postMenu);
+        mReviewImagelayout = layout.findViewById(R.id.userUploadedImageViewLayout);
 
 
     }
