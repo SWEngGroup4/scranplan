@@ -1008,14 +1008,15 @@ public class FeedFragment extends Fragment {
                         break;
                     case R.id.reportComment:
                         Log.e(TAG,"Report comment clicked!");
-                        //TODO add functionality to report this comment
 
+                        //HashMap with relevant information to be sent for reporting
                         HashMap<String, Object> reportsMap = new HashMap<>();
                         reportsMap.put("postID", document.get("postID").toString());
                         reportsMap.put("usersID", document.get("author").toString());
 
-                        ContentReporting postReport = new ContentReporting(getActivity(), reportsMap);
-                        postReport.startReportingDialog();
+                        //creating a dialog box on screen so that the user can report an issue
+                        reportContent = new ContentReporting(getActivity(), reportsMap);
+                        reportContent.startReportingDialog();
 
                         break;
                     case R.id.deleteComment:

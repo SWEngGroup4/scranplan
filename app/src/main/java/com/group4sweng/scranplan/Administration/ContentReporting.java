@@ -3,21 +3,14 @@ package com.group4sweng.scranplan.Administration;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.group4sweng.scranplan.MainActivity;
-import com.group4sweng.scranplan.R;
-
 import java.util.HashMap;
 
-import static androidx.test.InstrumentationRegistry.getContext;
 
 public class ContentReporting {
 
@@ -33,26 +26,25 @@ public class ContentReporting {
     public void startReportingDialog(){
         AlertDialog.Builder report = new AlertDialog.Builder(activity);
 
-//        LayoutInflater inflater = activity.getLayoutInflater();
-//        View view = inflater.inflate(null, null);
-//        report.setView(view);
-
+        //Alert dialog box appears on screen and allows the user to type in their issue
         final EditText edittext = new EditText(activity);
         report.setMessage("What is the issue you would like to report?");
         report.setTitle("Report Content");
 
-        report.setView(edittext);
+        report.setView(edittext); //users can type in their issue
 
         report.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                String usersContentReport = edittext.getText().toString();
+                String usersContentReport = edittext.getText().toString(); // gets issue as string to be passed into map
 
                 document.put("report", usersContentReport);
 
+                //takes the map and puts it onto the firebase
                 CollectionReference reportRef = mDatabase.collection("reporting");
                 DocumentReference documentReference = reportRef.document();
                 documentReference.set(document);
 
+                //Toast to thank the user for their feedback
                 Toast.makeText(activity, "Thank you for your feedback",
                         Toast.LENGTH_SHORT).show();
             }
