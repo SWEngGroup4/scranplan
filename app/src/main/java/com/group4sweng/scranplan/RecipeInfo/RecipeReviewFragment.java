@@ -295,22 +295,22 @@ public class RecipeReviewFragment extends FeedFragment {
         HashMap<String, Object> postsMap = new HashMap<>();
         HashMap<String, Object> reviewMap = new HashMap<>();
 
-        if (!reviewMade) {
-            // Creating map to store data in posts collection
+        // Creating map to store data in posts collection
+        postsMap.put("comments", 0);
+        postsMap.put("likes", 0);
+        postsMap.put("body", body);
+        postsMap.put("overallRating", getNewRating);
+        postsMap.put("timestamp", FieldValue.serverTimestamp());
+        postsMap.put("author", mUser.getUID());
+        postsMap.put("isPic", mPostPic.isChecked());
+        postsMap.put("isRecipe", true);
+        postsMap.put("isReview", true);
+        postsMap.put("recipeDescription", mRecipeDescription);
+        postsMap.put("recipeTitle", mRecipeTitle);
+        postsMap.put("recipeID", mRecipeID);
+        postsMap.put("recipeImageURL", mRecipeImage);
 
-            postsMap.put("comments", 0);
-            postsMap.put("likes", 0);
-            postsMap.put("body", body);
-            postsMap.put("overallRating", getNewRating);
-            postsMap.put("timestamp", FieldValue.serverTimestamp());
-            postsMap.put("author", mUser.getUID());
-            postsMap.put("isPic", mPostPic.isChecked());
-            postsMap.put("isRecipe", true);
-            postsMap.put("isReview", true);
-            postsMap.put("recipeDescription", mRecipeDescription);
-            postsMap.put("recipeTitle", mRecipeTitle);
-            postsMap.put("recipeID", mRecipeID);
-            postsMap.put("recipeImageURL", mRecipeImage);
+        if (!reviewMade) {
 
             //Saving map to the firestore
             DocumentReference postRef = mDatabase.collection("posts").document();
@@ -352,9 +352,11 @@ public class RecipeReviewFragment extends FeedFragment {
                                         reviewDocRef.set(reviewMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
-                                                mDatabase.collection("users").document(mUser.getUID()).update("posts", FieldValue.increment(1),"livePosts", FieldValue.increment(1));
-                                                mUser.setPosts(mUser.getPosts()+1);
-                                                addPosts(layout);
+//                                                mDatabase.collection("users").document(mUser.getUID()).update("posts", FieldValue.increment(1),"livePosts", FieldValue.increment(1));
+//                                                mUser.setPosts(mUser.getPosts()+1);
+//                                                addPosts(layout);
+                                                postsMap.put("docID", postRef.getId());
+                                                updateFollowers(postsMap);
                                             }
                                         });
 
@@ -394,9 +396,11 @@ public class RecipeReviewFragment extends FeedFragment {
                         reviewDocRef.set(reviewMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
-                                mDatabase.collection("users").document(mUser.getUID()).update("posts", FieldValue.increment(1),"livePosts", FieldValue.increment(1));
-                                mUser.setPosts(mUser.getPosts()+1);
-                                addPosts(layout);
+//                                mDatabase.collection("users").document(mUser.getUID()).update("posts", FieldValue.increment(1),"livePosts", FieldValue.increment(1));
+//                                mUser.setPosts(mUser.getPosts()+1);
+//                                addPosts(layout);
+                                postsMap.put("docID", postRef.getId());
+                                updateFollowers(postsMap);
                             }
                         });
 
@@ -409,20 +413,6 @@ public class RecipeReviewFragment extends FeedFragment {
             }
         }
         else{
-            postsMap.put("comments", 0);
-            postsMap.put("likes", 0);
-            postsMap.put("body", body);
-            postsMap.put("overallRating", getNewRating);
-            postsMap.put("timestamp", FieldValue.serverTimestamp());
-            postsMap.put("author", mUser.getUID());
-            postsMap.put("isPic", mPostPic.isChecked());
-            postsMap.put("isRecipe", true);
-            postsMap.put("isReview", true);
-            postsMap.put("recipeDescription", mRecipeDescription);
-            postsMap.put("recipeTitle", mRecipeTitle);
-            postsMap.put("recipeID", mRecipeID);
-            postsMap.put("recipeImageURL", mRecipeImage);
-
             //Saving map to the firestore
             DocumentReference postRef = mDatabase.collection("posts").document(postID);
             Log.e(TAG, "Added new post ");
@@ -463,9 +453,11 @@ public class RecipeReviewFragment extends FeedFragment {
                                         reviewDocRef.set(reviewMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
-                                                mDatabase.collection("users").document(mUser.getUID()).update("posts", FieldValue.increment(1));
-                                                mUser.setPosts(mUser.getPosts()+1);
-                                                addPosts(layout);
+//                                                mDatabase.collection("users").document(mUser.getUID()).update("posts", FieldValue.increment(1));
+//                                                mUser.setPosts(mUser.getPosts()+1);
+//                                                addPosts(layout);
+                                                postsMap.put("docID", postRef.getId());
+                                                updateFollowers(postsMap);
                                             }
                                         });
 
@@ -505,9 +497,11 @@ public class RecipeReviewFragment extends FeedFragment {
                         reviewDocRef.set(reviewMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
-                                mDatabase.collection("mUsers").document(mUser.getUID()).update("posts", FieldValue.increment(1));
-                                mUser.setPosts(mUser.getPosts()+1);
-                                addPosts(layout);
+//                                mDatabase.collection("mUsers").document(mUser.getUID()).update("posts", FieldValue.increment(1));
+//                                mUser.setPosts(mUser.getPosts()+1);
+//                                addPosts(layout);
+                                postsMap.put("docID", postRef.getId());
+                                updateFollowers(postsMap);
                             }
                         });
 
