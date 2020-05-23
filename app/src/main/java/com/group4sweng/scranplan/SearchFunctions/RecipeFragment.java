@@ -89,7 +89,7 @@ public class RecipeFragment extends Fragment {
     private boolean isLastItemReachedFave = false;
 
     // Adverts
-    public static final int NUMBER_OF_ADS = 1;
+    public static final int NUMBER_OF_ADS = 2;
     private AdLoader adLoader;
 
     // List of native ads that have been successfully loaded.
@@ -602,7 +602,7 @@ public class RecipeFragment extends Fragment {
             // If scroll views fail due to no user, this error is reported
             Log.e(TAG, "ERROR: Loading scroll views - We were unable to find user.");
         }
-        if(dataScore != null){ loadNativeAds();}
+        if(dataVotes != null && dataScore != null && dataTime != null){ loadNativeAds();}
         return view;
     }
 
@@ -660,17 +660,21 @@ public class RecipeFragment extends Fragment {
         }
 
         int offset;
-        if(mNativeAds.size() > 2 ){
-             offset = (dataScore.size() / mNativeAds.size()) + 1;
+        int offsetTime;
+        if(mNativeAds.size() >= 2 ){
+             offset = ((dataScore.size() / mNativeAds.size())/2) + 1;
+             offsetTime = ((dataScore.size() / mNativeAds.size())/4) + 1;
         }else {
              offset = (dataScore.size() / 2) + 1;
+             offsetTime = (dataScore.size() / 4) + 1;
         }
 
         int index = 0;
         for (UnifiedNativeAd ad : mNativeAds) {
-            dataScore.add(index,ad);
+            // Top Score Doesn't display ads
+           // dataScore.add(index + offset,ad);
             dataVotes.add(index + offset,ad);
-            dataTime.add(index + offset,ad);
+            dataTime.add(index + offsetTime,ad);
             index = index + offset;
         }
         /* TODO remove for premium membership
