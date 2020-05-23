@@ -143,9 +143,9 @@ public class RecipeReviewFragment extends FeedFragment {
 
                                 DocumentSnapshot d = nextTask.getResult();
                                 mPostBodyInput.setText(d.get("body").toString());
-                                mRecipeReviewImage.setVisibility(View.VISIBLE);
 
                                 if ((Boolean) d.get("isPic")){
+                                    mRecipeReviewImage.setVisibility(View.VISIBLE);
                                     Picasso.get().load(d.get("uploadedImageURL").toString()).into(mRecipeReviewImage);
                                     mPostPic.setChecked(true);
                                 }

@@ -2,12 +2,15 @@ package com.group4sweng.scranplan.Social;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.text.Editable;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -51,6 +54,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.group4sweng.scranplan.Administration.ContentReporting;
 import com.group4sweng.scranplan.Exceptions.ImageException;
 import com.group4sweng.scranplan.Home;
 import com.group4sweng.scranplan.LoadingDialog;
@@ -100,6 +104,7 @@ public class FeedFragment extends Fragment {
     float ratingNum;
 
     protected LoadingDialog loadingDialog;
+    protected ContentReporting reportContent;
 
     //Score scroll info
     List<FeedRecyclerAdapter.FeedPostPreviewData> data;
@@ -1004,6 +1009,14 @@ public class FeedFragment extends Fragment {
                     case R.id.reportComment:
                         Log.e(TAG,"Report comment clicked!");
                         //TODO add functionality to report this comment
+
+                        HashMap<String, Object> reportsMap = new HashMap<>();
+                        reportsMap.put("postID", document.get("postID").toString());
+                        reportsMap.put("usersID", document.get("author").toString());
+
+                        ContentReporting postReport = new ContentReporting(getActivity(), reportsMap);
+                        postReport.startReportingDialog();
+
                         break;
                     case R.id.deleteComment:
                         Log.e(TAG,"Clicked delete comment!");
