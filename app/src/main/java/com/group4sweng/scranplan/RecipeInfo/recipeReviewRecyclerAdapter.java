@@ -80,6 +80,7 @@ public class recipeReviewRecyclerAdapter extends RecyclerView.Adapter <recipeRev
     @Override
     public void onBindViewHolder(@NonNull recipeReviewRecyclerAdapter.ViewHolder holder, int position) {
 
+        //Checks to see if the author of the review still has an active account before displaying name
         if(mData.get(position).userID != null) {
             mDatabase.collection("users").document(mData.get(position).userID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
@@ -93,7 +94,7 @@ public class recipeReviewRecyclerAdapter extends RecyclerView.Adapter <recipeRev
             });
         }else{
             Log.e("FdRc", "User details retrieval : Unable to retrieve user document in Firestore ");
-            holder.author.setText("past user");
+            holder.author.setText("past user"); //Replaces authors name in event of deletion
         }
 
         //Checks to see if the text of the review is not null and displays it
@@ -122,6 +123,7 @@ public class recipeReviewRecyclerAdapter extends RecyclerView.Adapter <recipeRev
         holder.timeStamp.setText(mData.get(position).timeStamp);
 
 
+        //Functionality for the like system on posts
         mDatabase.collection("likes").document(mData.get(position).postID + "-" + user.getUID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -129,6 +131,16 @@ public class recipeReviewRecyclerAdapter extends RecyclerView.Adapter <recipeRev
                     if(task.getResult().exists()){
                         holder.likedB4 = true;
                         holder.likedOrNot.setChecked((boolean)task.getResult().get("liked"));
+                        mDatabase.collection("posts").document(mData.get(position).postID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> nextTask) {
+
+                                DocumentSnapshot d = nextTask.getResult();
+
+                                holder.numLikes.setText(d.get("likes").toString());
+
+                            }
+                        });
                     }else{
                         holder.likedB4 = false;
                         holder.likedOrNot.setChecked(false);
@@ -169,6 +181,7 @@ public class recipeReviewRecyclerAdapter extends RecyclerView.Adapter <recipeRev
             }
         });
 
+        //calls the menu for the reviews once clicked. From here, if it is the users post they can delete
         holder.mReviewMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -274,6 +274,16 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
                     if(task.getResult().exists()){
                         holder.likedB4 = true;
                         holder.likedOrNot.setChecked((boolean)task.getResult().get("liked"));
+                        mDatabase.collection("posts").document(mDataset.get(position).postID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> nextTask) {
+
+                                DocumentSnapshot d = nextTask.getResult();
+
+                                holder.numLikes.setText(d.get("likes").toString());
+
+                            }
+                        });
                     }else{
                         holder.likedB4 = false;
                         holder.likedOrNot.setChecked(false);
