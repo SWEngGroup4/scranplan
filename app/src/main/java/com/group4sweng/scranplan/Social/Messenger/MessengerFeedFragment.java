@@ -335,8 +335,7 @@ public class MessengerFeedFragment extends FeedFragment {
 
     @Override
     /**
-     * Adding all posts for current user to the feed - implementing an infinite scroll for all
-     * followers 3 most recent posts
+     * Adding all posts for current user to the feed
      * @param view
      */
     protected void addPosts(View view) {
@@ -365,73 +364,72 @@ public class MessengerFeedFragment extends FeedFragment {
                         for (DocumentSnapshot document : task.getResult()) {
                             Log.e("FEED", "I have found a doc");
                             posts.add((HashMap) document.getData());
-
-                            for (int i = 0; i < posts.size(); i++) {
-                                data.add(new MessengerFeedRecyclerAdapter.FeedPostPreviewData(
-                                        posts.get(i)));
-                            }
-                            rAdapter.notifyDataSetChanged();
-                            if (task.getResult().size() != 0) {
-                                lastVisible = task.getResult().getDocuments().get(task.getResult().size() - 1);
-                            } else {
-                                isLastItemReached = true;
-                            }
-                            // Track users location to check if new data download is required
-                            RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
-                                @Override
-                                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                                    super.onScrollStateChanged(recyclerView, newState);
-                                    if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
-                                        isScrolling = true;
-                                    }
+                        }
+                        for (int i = 0; i < posts.size(); i++) {
+                            data.add(new MessengerFeedRecyclerAdapter.FeedPostPreviewData(
+                                    posts.get(i)));
+                        }
+                        rAdapter.notifyDataSetChanged();
+                        if (task.getResult().size() != 0) {
+                            lastVisible = task.getResult().getDocuments().get(task.getResult().size() - 1);
+                        } else {
+                            isLastItemReached = true;
+                        }
+                        // Track users location to check if new data download is required
+                        RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+                            @Override
+                            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                                super.onScrollStateChanged(recyclerView, newState);
+                                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                                    isScrolling = true;
                                 }
+                            }
 
-                                // If scrolled to end then download new data and check if we are out of data
-                                @Override
-                                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                                    super.onScrolled(recyclerView, dx, dy);
+                            // If scrolled to end then download new data and check if we are out of data
+                            @Override
+                            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                                super.onScrolled(recyclerView, dx, dy);
 
-                                    LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
-                                    int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
-                                    int visibleItemCount = linearLayoutManager.getChildCount();
-                                    int totalItemCount = linearLayoutManager.getItemCount();
+                                LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
+                                int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+                                int visibleItemCount = linearLayoutManager.getChildCount();
+                                int totalItemCount = linearLayoutManager.getItemCount();
 
-                                    if (isScrolling && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReached) {
-                                        isScrolling = false;
-                                        Query nextQuery = query.startAfter(lastVisible);
-                                        nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<QuerySnapshot> t) {
-                                                if (t.isSuccessful()) {
-                                                    ArrayList<HashMap> postsNext = new ArrayList<>();
-                                                    for (DocumentSnapshot d : t.getResult()) {
-                                                        Log.e("FEED", "I have found a doc");
-                                                        postsNext.add((HashMap) d.getData());
+                                if (isScrolling && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReached) {
+                                    isScrolling = false;
+                                    Query nextQuery = query.startAfter(lastVisible);
+                                    nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<QuerySnapshot> t) {
+                                            if (t.isSuccessful()) {
+                                                ArrayList<HashMap> postsNext = new ArrayList<>();
+                                                for (DocumentSnapshot d : t.getResult()) {
+                                                    Log.e("FEED", "I have found a doc");
+                                                    postsNext.add((HashMap) d.getData());
+                                                }
 
-                                                        for (int i = 0; i < postsNext.size(); i++) {
-                                                            data.add(new MessengerFeedRecyclerAdapter.FeedPostPreviewData(
-                                                                    postsNext.get(i)));
-                                                        }
-                                                        if (isLastItemReached) {
-                                                            // Add end here
-                                                        }
-                                                        rAdapter.notifyDataSetChanged();
-                                                        if (t.getResult().size() != 0) {
-                                                            lastVisible = t.getResult().getDocuments().get(t.getResult().size() - 1);
-                                                        }
+                                                for (int i = 0; i < postsNext.size(); i++) {
+                                                    data.add(new MessengerFeedRecyclerAdapter.FeedPostPreviewData(
+                                                            postsNext.get(i)));
+                                                }
+                                                if (isLastItemReached) {
+                                                    // Add end here
+                                                }
+                                                rAdapter.notifyDataSetChanged();
+                                                if (t.getResult().size() != 0) {
+                                                    lastVisible = t.getResult().getDocuments().get(t.getResult().size() - 1);
+                                                }
 
-                                                        if (t.getResult().size() < 5) {
-                                                            isLastItemReached = true;
-                                                        }
-                                                    }
+                                                if (t.getResult().size() < 5) {
+                                                    isLastItemReached = true;
                                                 }
                                             }
-                                        });
-                                    }
+                                        }
+                                    });
                                 }
-                            };
-                            recyclerView.addOnScrollListener(onScrollListener);
-                        }
+                            }
+                        };
+                        recyclerView.addOnScrollListener(onScrollListener);
                     }
                 }
             });
@@ -447,10 +445,10 @@ public class MessengerFeedFragment extends FeedFragment {
                                                           if (task.isSuccessful()) {
                                                               final String docID = task.getResult().getId();
                                                               map.put("docID", docID);
-                                                              if (mPostReview.isChecked() && mPostRecipe.isChecked()) {
-                                                                  newRatings.put("post", docID);
-                                                                  mDatabase.collection("reviews").document(mUser.getUID() + "-" + recipeID).set(newRatings);
-                                                              }
+//                                                              if (mPostReview.isChecked() && mPostRecipe.isChecked()) {
+//                                                                  newRatings.put("post", docID);
+//                                                                  mDatabase.collection("reviews").document(mUser.getUID() + "-" + recipeID).set(newRatings);
+//                                                              }
                                                               postComplete();
 //                                                              updateFollowers(map);
                                                           }
@@ -460,10 +458,10 @@ public class MessengerFeedFragment extends FeedFragment {
         } else {
             ref.document(newPostID).set(extras);
             map.put("docID", newPostID);
-            if (mPostReview.isChecked() && mPostRecipe.isChecked()) {
-                newRatings.put("post", newPostID);
-                mDatabase.collection("reviews").document(mUser.getUID() + "-" + recipeID).set(newRatings);
-            }
+//            if (mPostReview.isChecked() && mPostRecipe.isChecked()) {
+//                newRatings.put("post", newPostID);
+//                mDatabase.collection("reviews").document(mUser.getUID() + "-" + recipeID).set(newRatings);
+//            }
             postComplete();
 //            updateFollowers(map);
         }

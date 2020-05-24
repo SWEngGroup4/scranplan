@@ -1,6 +1,5 @@
 package com.group4sweng.scranplan.Social.Messenger;
 
-import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -203,15 +202,15 @@ public class MessengerFeedRecyclerAdapter extends RecyclerView.Adapter<Messenger
      */
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        if(mDataset.get(position).authorUID != null){
+        if (mDataset.get(position).authorUID != null) {
             mDatabase.collection("users").document(mDataset.get(position).authorUID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                     if (task.isSuccessful()) {
-                        holder.authorName = (String)task.getResult().get("displayName");
-                        holder.authorPicURL = (String)task.getResult().get("imageURL");
-                        holder.author.setText((String)task.getResult().get("displayName"));
-                        if(task.getResult().get("imageURL") != null){
+                        holder.authorName = (String) task.getResult().get("displayName");
+                        holder.authorPicURL = (String) task.getResult().get("imageURL");
+                        holder.author.setText((String) task.getResult().get("displayName"));
+                        if (task.getResult().get("imageURL") != null) {
                             Glide.with(holder.authorPic.getContext())
                                     .load(task.getResult().get("imageURL"))
                                     .apply(RequestOptions.circleCropTransform())
@@ -219,25 +218,25 @@ public class MessengerFeedRecyclerAdapter extends RecyclerView.Adapter<Messenger
                             holder.authorPic.setVisibility(View.VISIBLE);
                         }
 
-                    }else {
+                    } else {
                         Log.e("FdRc", "User details retrieval : Unable to retrieve user document in Firestore ");
                         holder.author.setText("");
                     }
                 }
             });
-        }else {
+        } else {
             Log.e("FdRc", "User UID null");
             holder.author.setText("");
         }
 
         holder.timeStamp.setText(mDataset.get(position).timeStamp);
         holder.body.setText(mDataset.get(position).body);
-        if(mDataset.get(position).uploadedImageURL != null){
+        if (mDataset.get(position).uploadedImageURL != null) {
             holder.picLayout.setVisibility(View.VISIBLE);
             holder.uploadedImageView.setVisibility(View.VISIBLE);
             Picasso.get().load(mDataset.get(position).uploadedImageURL).into(holder.uploadedImageView);
         }
-        if(mDataset.get(position).isRecipe){
+        if (mDataset.get(position).isRecipe) {
             holder.recipeLayout.setVisibility(View.VISIBLE);
             holder.recipeTitle.setVisibility(View.VISIBLE);
             holder.recipeDescription.setVisibility(View.VISIBLE);
@@ -249,39 +248,40 @@ public class MessengerFeedRecyclerAdapter extends RecyclerView.Adapter<Messenger
 //                    .load(mDataset.get(position).recipeImageURL)
 //                    .apply(RequestOptions.centerCropTransform())
 //                    .into(holder.recipeImageView);
-            if(mDataset.get(position).isReview){
+            if (mDataset.get(position).isReview) {
                 holder.recipeRating.setVisibility(View.VISIBLE);
                 holder.recipeRating.setRating(mDataset.get(position).review);
             }
         }
         Log.e("FdRc", "searching for post: " + mDataset.get(position).postID);
-        try{
-        mDatabase.collection("posts").document(mDataset.get(position).postID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    //TODO handle the null exeption
-                    try{
-                        holder.numLikes.setText(task.getResult().get("likes").toString());
-                        holder.numComments.setText(task.getResult().get("comments").toString());}
-                    catch (Exception e){
-                        Sentry.captureException(e);
+        try {
+            mDatabase.collection("posts").document(mDataset.get(position).postID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        //TODO handle the null exeption
+                        try {
+                            holder.numLikes.setText(task.getResult().get("likes").toString());
+                            holder.numComments.setText(task.getResult().get("comments").toString());
+                        } catch (Exception e) {
+                            Sentry.captureException(e);
+                        }
+                    } else {
+                        Log.e("FdRc", "User details retrieval : Unable to retrieve user document in Firestore ");
                     }
-                }else {
-                    Log.e("FdRc", "User details retrieval : Unable to retrieve user document in Firestore ");
                 }
-            }
-        });}catch (Exception e){
+            });
+        } catch (Exception e) {
             Sentry.captureException(e);
         }
         mDatabase.collection("likes").document(mDataset.get(position).postID + "-" + user.getUID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    if(task.getResult().exists()){
+                    if (task.getResult().exists()) {
                         holder.likedB4 = true;
-                        holder.likedOrNot.setChecked((boolean)task.getResult().get("liked"));
-                    }else{
+                        holder.likedOrNot.setChecked((boolean) task.getResult().get("liked"));
+                    } else {
                         holder.likedB4 = false;
                         holder.likedOrNot.setChecked(false);
                     }
@@ -290,9 +290,9 @@ public class MessengerFeedRecyclerAdapter extends RecyclerView.Adapter<Messenger
                         public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                             if (holder.likedOrNot.isChecked()) {
                                 Log.e("FERC", "liked post");
-                                if(holder.likedB4){
+                                if (holder.likedB4) {
                                     mDatabase.collection("likes").document(mDataset.get(position).postID + "-" + user.getUID()).update("liked", true);
-                                }else{
+                                } else {
                                     holder.likedB4 = true;
                                     HashMap<String, Object> likePost = new HashMap<>();
                                     likePost.put("liked", true);
@@ -301,7 +301,7 @@ public class MessengerFeedRecyclerAdapter extends RecyclerView.Adapter<Messenger
                                     mDatabase.collection("likes").document(mDataset.get(position).postID + "-" + user.getUID()).set(likePost);
                                 }
                                 mDatabase.collection("posts").document(mDataset.get(position).postID).update("likes", FieldValue.increment(+1));
-                                int newLiked = Integer.parseInt((String) holder.numLikes.getText())+1;
+                                int newLiked = Integer.parseInt((String) holder.numLikes.getText()) + 1;
                                 String test = String.valueOf(newLiked);
                                 holder.numLikes.setText(test);
 
@@ -309,13 +309,13 @@ public class MessengerFeedRecyclerAdapter extends RecyclerView.Adapter<Messenger
                                 Log.e("FERC", "unliked post");
                                 mDatabase.collection("likes").document(mDataset.get(position).postID + "-" + user.getUID()).update("liked", false);
                                 mDatabase.collection("posts").document(mDataset.get(position).postID).update("likes", FieldValue.increment(-1));
-                                int newLiked = Integer.parseInt((String) holder.numLikes.getText())-1;
+                                int newLiked = Integer.parseInt((String) holder.numLikes.getText()) - 1;
                                 String test = String.valueOf(newLiked);
                                 holder.numLikes.setText(test);
                             }
                         }
                     });
-                }else {
+                } else {
                     Log.e("FdRc", "User details retrieval : Unable to retrieve user document in Firestore ");
                 }
             }
@@ -323,81 +323,63 @@ public class MessengerFeedRecyclerAdapter extends RecyclerView.Adapter<Messenger
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mFeedFragment != null || mProfilePosts != null){
-                    Bundle mBundle = new Bundle();
-                    mBundle.putString("authorID", mDataset.get(position).authorUID);
-                    mBundle.putString("postID", mDataset.get(position).postID);
-                    mBundle.putString("authorName", holder.authorName);
-                    mBundle.putString("authorPicURL", holder.authorPicURL);
-                    mBundle.putBoolean("likedB4", holder.likedB4);
-                    mBundle.putString("body", mDataset.get(position).body);
-                    mBundle.putBoolean("isRecipe", mDataset.get(position).isRecipe);
-                    if(mDataset.get(position).isRecipe){
-                        mBundle.putString("recipeTitle", mDataset.get(position).recipeTitle);
-                        mBundle.putString("recipeDescription", mDataset.get(position).recipeDescription);
-                        mBundle.putString("recipeImageURL", mDataset.get(position).recipeImageURL);
-                        mBundle.putBoolean("isReview", mDataset.get(position).isReview);
-                        if(mDataset.get(position).isReview){
-                            mBundle.putFloat("overallRating", mDataset.get(position).review);
-                        }
-                    }
-                    if(mDataset.get(position).isPic) {
-                        mBundle.putString("uploadedImageURL", mDataset.get(position).uploadedImageURL);
-                    }
-                    mBundle.putString("timestamp", mDataset.get(position).timeStamp);
-
-                    if(mFeedFragment != null){
-                        mFeedFragment.itemSelected(mDataset.get(holder.getAdapterPosition()).document, mBundle, holder.numLikes, holder.likedOrNot, holder.numComments, holder.cardView);
-                    }else{
-                        mProfilePosts.itemSelected(mDataset.get(holder.getAdapterPosition()).document, mBundle, holder.numLikes, holder.likedOrNot, holder.numComments, holder.cardView);
-                    }
-
-
-
-                    mDatabase.collection("likes").document(mDataset.get(position).postID + "-" + user.getUID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if (task.isSuccessful()) {
-                                if(task.getResult().exists()){
-                                    holder.likedB4 = true;
-                                    holder.likedOrNot.setChecked((boolean)task.getResult().get("liked"));
-                                }else{
-                                    holder.likedB4 = false;
-                                    holder.likedOrNot.setChecked(false);
-                                }
-                            }else {
-                                Log.e("FdRc", "User details retrieval : Unable to retrieve user document in Firestore ");
-                            }
-                        }
-                    });
-
-                }else{
-                    Log.e("FEED RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
-                }
-
-            }
-        });
-
-        holder.menu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mFeedFragment != null) {
-                    if (mDataset.get(holder.getAdapterPosition()).document != null) {
-                        mFeedFragment.menuSelected(mDataset.get(holder.getAdapterPosition()).document, holder.menu);
-                        Log.e("COMMENT RECYCLER", "Add send to profile on click");
-                    }
-                }else if(mProfilePosts != null){
-                    if(mDataset.get(holder.getAdapterPosition()).document != null){
-                        mProfilePosts.menuSelected(mDataset.get(holder.getAdapterPosition()).document, holder.menu);
-                        Log.e("COMMENT RECYCLER", "Add send to profile on click");
-                    }
-                }else{
-                    Log.e("COMMENT RECYCLER", "Issue with no component in onBindViewHolder");
-                }
+//                if (mFeedFragment != null || mProfilePosts != null){
+//                    Bundle mBundle = new Bundle();
+//                    mBundle.putString("authorID", mDataset.get(position).authorUID);
+//                    mBundle.putString("postID", mDataset.get(position).postID);
+//                    mBundle.putString("authorName", holder.authorName);
+//                    mBundle.putString("authorPicURL", holder.authorPicURL);
+//                    mBundle.putBoolean("likedB4", holder.likedB4);
+//                    mBundle.putString("body", mDataset.get(position).body);
+//                    mBundle.putBoolean("isRecipe", mDataset.get(position).isRecipe);
+//                    if(mDataset.get(position).isRecipe){
+//                        mBundle.putString("recipeTitle", mDataset.get(position).recipeTitle);
+//                        mBundle.putString("recipeDescription", mDataset.get(position).recipeDescription);
+//                        mBundle.putString("recipeImageURL", mDataset.get(position).recipeImageURL);
+//                        mBundle.putBoolean("isReview", mDataset.get(position).isReview);
+//                        if(mDataset.get(position).isReview){
+//                            mBundle.putFloat("overallRating", mDataset.get(position).review);
+//                        }
+//                    }
+//                    if(mDataset.get(position).isPic) {
+//                        mBundle.putString("uploadedImageURL", mDataset.get(position).uploadedImageURL);
+//                    }
+//                    mBundle.putString("timestamp", mDataset.get(position).timeStamp);
+//
+//                    if(mFeedFragment != null){
+//                        mFeedFragment.itemSelected(mDataset.get(holder.getAdapterPosition()).document, mBundle, holder.numLikes, holder.likedOrNot, holder.numComments, holder.cardView);
+//                    }else{
+//                        mProfilePosts.itemSelected(mDataset.get(holder.getAdapterPosition()).document, mBundle, holder.numLikes, holder.likedOrNot, holder.numComments, holder.cardView);
+//                    }
+//
+//
+//
+//                    mDatabase.collection("likes").document(mDataset.get(position).postID + "-" + user.getUID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//                        @Override
+//                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                            if (task.isSuccessful()) {
+//                                if(task.getResult().exists()){
+//                                    holder.likedB4 = true;
+//                                    holder.likedOrNot.setChecked((boolean)task.getResult().get("liked"));
+//                                }else{
+//                                    holder.likedB4 = false;
+//                                    holder.likedOrNot.setChecked(false);
+//                                }
+//                            }else {
+//                                Log.e("FdRc", "User details retrieval : Unable to retrieve user document in Firestore ");
+//                            }
+//                        }
+//                    });
+//
+//                }else{
+//                    Log.e("FEED RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
+//                }
+//
+//            }
+//        });
 
             }
         });
-
     }
 
     // Getting dataset size
