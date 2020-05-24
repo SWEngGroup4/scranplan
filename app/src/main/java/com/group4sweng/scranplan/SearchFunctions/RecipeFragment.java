@@ -101,7 +101,7 @@ public class RecipeFragment extends Fragment {
     private SearchPrefs prefs;
 
     private Bundle mBundle;
-    private Boolean planner;
+    private Boolean planner = false;
 
     // Auto-generated super method
     @Override

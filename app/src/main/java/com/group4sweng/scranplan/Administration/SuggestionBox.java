@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -38,29 +40,14 @@ public class SuggestionBox {
 
         report.setView(edittext); //users can type in their issue
 
-
-
-        String usersSuggestion = edittext.getText().toString(); // gets issue as string to be passed into map
-
+        //Create the submit button
         report.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
 
-
-                map = new HashMap<>();
-                map.put("suggestion", usersSuggestion);
-                map.put("userID", userID);
-
-                //takes the map and puts it onto the firebase
-                CollectionReference reportRef = mDatabase.collection("suggestions");
-                DocumentReference documentReference = reportRef.document();
-                documentReference.set(map);
-
-                //Toast to thank the user for their feedback
-                Toast.makeText(activity, "Thank you for your feedback",
-                        Toast.LENGTH_SHORT).show();
             }
         });
 
+        //Create the cancel button
         report.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 dialog.dismiss();
@@ -68,8 +55,37 @@ public class SuggestionBox {
         });
 
 
-        report.show();
+        AlertDialog alertDialog = report.create();
+        alertDialog.show();
 
+        //Make sure the user cannot submit a null string
+        Button theButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        theButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String usersSuggestion = edittext.getText().toString(); // gets issue as string to be passed into map
+
+                if (usersSuggestion.length() > 4) {
+                    map = new HashMap<>();
+                    map.put("suggestion", usersSuggestion);
+                    map.put("userID", userID);
+
+                    //takes the map and puts it onto the firebase
+                    CollectionReference reportRef = mDatabase.collection("suggestions");
+                    DocumentReference documentReference = reportRef.document();
+                    documentReference.set(map);
+
+                    //Toast to thank the user for their feedback
+                    Toast.makeText(activity, "Thank you for your feedback",
+                            Toast.LENGTH_SHORT).show();
+                    alertDialog.dismiss();
+                } else {
+                    Toast.makeText(activity, "Please leave some feedback, thank you", Toast.LENGTH_SHORT).show();
+                }
+
+
+            }
+        });
 
     }
 

@@ -30,8 +30,10 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.Administration.LoadingDialog;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
+import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
 
@@ -57,6 +59,9 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
     private UserInfoPrivate user;
     private View view;
     private RecipeInfoFragment mRecipeInfoFragment;
+
+    Activity mActivity;
+    LoadingDialog loadingDialog;
 
 
 
@@ -141,7 +146,10 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
         private ConstraintLayout recipeLayout;
         private ConstraintLayout picLayout;
 
+
         private ImageButton menu;
+
+
 
         private ViewHolder(View v) {
             super(v);
@@ -172,9 +180,10 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
      * @param feedFragment
      * @param dataset
      */
-    public FeedRecyclerAdapter(FeedFragment feedFragment, List<FeedPostPreviewData> dataset ,UserInfoPrivate user, View view) {
+    public FeedRecyclerAdapter(FeedFragment feedFragment, List<FeedPostPreviewData> dataset ,UserInfoPrivate user, View view, Activity activity) {
         mFeedFragment = feedFragment;
         mDataset = dataset;
+        mActivity = activity;
         this.user = user;
         this.view = view;
     }
@@ -184,9 +193,10 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
      * @param profilePosts
      * @param dataset
      */
-    public FeedRecyclerAdapter(ProfilePosts profilePosts, List<FeedPostPreviewData> dataset ,UserInfoPrivate user, View mView) {
+    public FeedRecyclerAdapter(ProfilePosts profilePosts, List<FeedPostPreviewData> dataset ,UserInfoPrivate user, View mView, Activity activity) {
         mProfilePosts = profilePosts;
         mDataset = dataset;
+        mActivity = activity;
         this.user = user;
         view = mView;
     }
@@ -344,6 +354,7 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
                         mBundle.putString("recipeDescription", mDataset.get(position).recipeDescription);
                         mBundle.putString("recipeImageURL", mDataset.get(position).recipeImageURL);
                         mBundle.putBoolean("isReview", mDataset.get(position).isReview);
+                        mBundle.putString("recipeID", mDataset.get(position).recipeID);
                         if(mDataset.get(position).isReview){
                             mBundle.putFloat("overallRating", mDataset.get(position).review);
                         }
@@ -408,9 +419,28 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
         holder.recipeImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                mRecipeInfoFragment = new RecipeInfoFragment();
-//                mRecipeInfoFragment.show();
-                
+
+                LoadingDialog loadingDialog = new LoadingDialog(mActivity);
+                loadingDialog.startLoadingDialog();
+
+                mDatabase.collection("recipes").document(mDataset.get(position).recipeID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            if (task.getResult().exists()) {
+
+                                DocumentSnapshot document = task.getResult();
+                                mFeedFragment.recipeSelected(document);
+
+                                loadingDialog.dismissDialog();
+
+                            }
+                        }
+                    }
+                });
+
+
+
             }
         });
 

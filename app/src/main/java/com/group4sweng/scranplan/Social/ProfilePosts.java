@@ -136,7 +136,7 @@ public class ProfilePosts extends Fragment {
         //recyclerView.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels));
         // Array to score downloaded data
         data = new ArrayList<>();
-        final RecyclerView.Adapter rAdapter = new FeedRecyclerAdapter( this, data, user, view);
+        final RecyclerView.Adapter rAdapter = new FeedRecyclerAdapter( this, data, user, view, getActivity());
         recyclerView.setAdapter(rAdapter);
         Log.e(TAG, "ERROR: Loading social feed - We were unable to find user. ->" + searchUID);
         query = mColRef.whereEqualTo("author", searchUID).orderBy("timestamp", Query.Direction.DESCENDING).limit(postsLoaded);
