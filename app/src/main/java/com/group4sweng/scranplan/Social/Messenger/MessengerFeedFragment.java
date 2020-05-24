@@ -23,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -34,9 +35,12 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -50,6 +54,8 @@ import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import io.sentry.core.Sentry;
 
 public class MessengerFeedFragment extends FeedFragment {
 
@@ -354,82 +360,96 @@ public class MessengerFeedFragment extends FeedFragment {
         if (query != null) {
             Log.e(TAG, "User is searching the following query: " + query.toString());
             // Query listener to add data to view
+            query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                @Override
+                public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                    if(e!= null){
+                        Log.w(TAG, "listen Failed",e);
+                        Sentry.captureException(e);
+                        return;
+                    }
+                    Log.e("FEED", "UID = " + mUser.getUID());
+                    Log.e("FEED", "task success");
+                    ArrayList<HashMap> posts = new ArrayList<>();
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        Log.e("FEED", "I have found a doc");
+                        posts.add((HashMap) document.getData());
+                    }
+                    for (int i = 0; i < posts.size(); i++) {
+                        data.add(new MessengerFeedRecyclerAdapter.FeedPostPreviewData(
+                                posts.get(i)));
+                    }
+                    rAdapter.notifyDataSetChanged();
+                    if (queryDocumentSnapshots.size() != 0) {
+                        lastVisible = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
+                    } else {
+                        isLastItemReached = true;
+                    }
+                    // Track users location to check if new data download is required
+                    RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+                        @Override
+                        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                            super.onScrollStateChanged(recyclerView, newState);
+                            if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                                isScrolling = true;
+                            }
+                        }
+
+                        // If scrolled to end then download new data and check if we are out of data
+                        @Override
+                        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                            super.onScrolled(recyclerView, dx, dy);
+
+                            LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
+                            int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+                            int visibleItemCount = linearLayoutManager.getChildCount();
+                            int totalItemCount = linearLayoutManager.getItemCount();
+
+                            if (isScrolling && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReached) {
+                                isScrolling = false;
+                                Query nextQuery = query.startAfter(lastVisible);
+                                nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<QuerySnapshot> t) {
+                                        if (t.isSuccessful()) {
+                                            ArrayList<HashMap> postsNext = new ArrayList<>();
+                                            for (DocumentSnapshot d : t.getResult()) {
+                                                Log.e("FEED", "I have found a doc");
+                                                postsNext.add((HashMap) d.getData());
+                                            }
+
+                                            for (int i = 0; i < postsNext.size(); i++) {
+                                                data.add(new MessengerFeedRecyclerAdapter.FeedPostPreviewData(
+                                                        postsNext.get(i)));
+                                            }
+                                            if (isLastItemReached) {
+                                                // Add end here
+                                            }
+                                            rAdapter.notifyDataSetChanged();
+                                            if (t.getResult().size() != 0) {
+                                                lastVisible = t.getResult().getDocuments().get(t.getResult().size() - 1);
+                                            }
+
+                                            if (t.getResult().size() < 5) {
+                                                isLastItemReached = true;
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    };
+                    recyclerView.addOnScrollListener(onScrollListener);
+
+
+                }
+            });
+
             query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     if (task.isSuccessful()) {
-                        Log.e("FEED", "UID = " + mUser.getUID());
-                        Log.e("FEED", "task success");
-                        ArrayList<HashMap> posts = new ArrayList<>();
-                        for (DocumentSnapshot document : task.getResult()) {
-                            Log.e("FEED", "I have found a doc");
-                            posts.add((HashMap) document.getData());
-                        }
-                        for (int i = 0; i < posts.size(); i++) {
-                            data.add(new MessengerFeedRecyclerAdapter.FeedPostPreviewData(
-                                    posts.get(i)));
-                        }
-                        rAdapter.notifyDataSetChanged();
-                        if (task.getResult().size() != 0) {
-                            lastVisible = task.getResult().getDocuments().get(task.getResult().size() - 1);
-                        } else {
-                            isLastItemReached = true;
-                        }
-                        // Track users location to check if new data download is required
-                        RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
-                            @Override
-                            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                                super.onScrollStateChanged(recyclerView, newState);
-                                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
-                                    isScrolling = true;
-                                }
-                            }
 
-                            // If scrolled to end then download new data and check if we are out of data
-                            @Override
-                            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                                super.onScrolled(recyclerView, dx, dy);
-
-                                LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
-                                int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
-                                int visibleItemCount = linearLayoutManager.getChildCount();
-                                int totalItemCount = linearLayoutManager.getItemCount();
-
-                                if (isScrolling && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReached) {
-                                    isScrolling = false;
-                                    Query nextQuery = query.startAfter(lastVisible);
-                                    nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<QuerySnapshot> t) {
-                                            if (t.isSuccessful()) {
-                                                ArrayList<HashMap> postsNext = new ArrayList<>();
-                                                for (DocumentSnapshot d : t.getResult()) {
-                                                    Log.e("FEED", "I have found a doc");
-                                                    postsNext.add((HashMap) d.getData());
-                                                }
-
-                                                for (int i = 0; i < postsNext.size(); i++) {
-                                                    data.add(new MessengerFeedRecyclerAdapter.FeedPostPreviewData(
-                                                            postsNext.get(i)));
-                                                }
-                                                if (isLastItemReached) {
-                                                    // Add end here
-                                                }
-                                                rAdapter.notifyDataSetChanged();
-                                                if (t.getResult().size() != 0) {
-                                                    lastVisible = t.getResult().getDocuments().get(t.getResult().size() - 1);
-                                                }
-
-                                                if (t.getResult().size() < 5) {
-                                                    isLastItemReached = true;
-                                                }
-                                            }
-                                        }
-                                    });
-                                }
-                            }
-                        };
-                        recyclerView.addOnScrollListener(onScrollListener);
                     }
                 }
             });

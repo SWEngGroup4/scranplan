@@ -97,7 +97,9 @@ public class MessengerFeedRecyclerAdapter extends RecyclerView.Adapter<Messenger
             this.document = doc;
             this.postID = (String) document.get("docID");
             Timestamp time = (Timestamp) document.get("timestamp");
-            this.timeStamp = time.toDate().toString();
+            try{ this.timeStamp = time.toDate().toString();}catch (Exception e){
+                Sentry.captureException(e);
+            }
             this.isRecipe = (boolean) document.get("isRecipe");
             this.isPic = (boolean) document.get("isPic");
             if(document.get("overallRating") != null){
