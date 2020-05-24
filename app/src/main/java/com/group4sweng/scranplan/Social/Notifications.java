@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDialogFragment;
@@ -43,18 +44,16 @@ public class Notifications extends AppCompatDialogFragment {
     FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
 
     public Notifications(UserInfoPrivate user){
-        mUser = user;
+        this.mUser = user;
     }
     List<NotificationRecyclerAdapter.NotificationData> data;
 
-    View bottomView;
-    NestedScrollView postScrollView;
 
     /**  Comment additions **/
     private boolean isScrolling = false;
     private boolean isLastItemReached = false;
     private DocumentSnapshot lastVisible;
-    private RecyclerView commentList;
+    private RecyclerView notificationList;
     private Query query;
     com.group4sweng.scranplan.UserInfo.UserInfoPrivate mUser;
 
@@ -71,8 +70,8 @@ public class Notifications extends AppCompatDialogFragment {
                              Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-        View layout = inflater.inflate(R.layout.post_page, null);
-        postScrollView = layout.findViewById(R.id.postScrollView);
+        View layout = inflater.inflate(R.layout.fragment_notifications, null);
+        notificationList = layout.findViewById(R.id.notificationList);
 
         builder.setView(layout);
 
@@ -107,7 +106,7 @@ public class Notifications extends AppCompatDialogFragment {
         data = new ArrayList<>();
 
         // Creating a list of the data and building all variables to add to recycler view
-        final RecyclerView recyclerView = commentList;
+        final RecyclerView recyclerView = notificationList;
         recyclerView.setHasFixedSize(true);
         RecyclerView.LayoutManager rManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(rManager);
@@ -125,12 +124,12 @@ public class Notifications extends AppCompatDialogFragment {
                     {
                         for (DocumentSnapshot document : task.getResult()) {
                             data.add(new NotificationRecyclerAdapter.NotificationData(
+                                    (boolean) document.get("ifRequested"),
                                     document,
-                                    document.get("authorID").toString(),
-                                    document.get("comment").toString(),
+                                    document.get("senderID").toString(),
+                                    document.get("body").toString(),
                                     (Timestamp) document.getTimestamp("timestamp"),
-                                    document.get("likes").toString(),
-                                    document.getId()
+                                    (String) document.get("relatedPostID")
                             ));
                         }
                         rAdapter.notifyDataSetChanged();
@@ -141,64 +140,69 @@ public class Notifications extends AppCompatDialogFragment {
                             // If no data returned, user notified
                             isLastItemReached = true;
                             data.add(new NotificationRecyclerAdapter.NotificationData(
+                                    false,
                                     null,
                                     null,
-                                    "No comments here yet, be the first!",
-                                    null,
+                                    "No notifications yet!",
                                     null,
                                     null
                             ));
                         }
                         // check if user has scrolled through the view
-
-                        NestedScrollView.OnScrollChangeListener onScrollListener = new NestedScrollView.OnScrollChangeListener() {
+                        RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
                             @Override
-                            public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-                                if (v.getChildAt(v.getChildCount() - 1) != null) {
-                                    if ((scrollY >= (v.getChildAt(v.getChildCount() - 1).getMeasuredHeight() - v.getMeasuredHeight())) &&
-                                            scrollY > oldScrollY) {
-
-                                        LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
-                                        int visibleItemCount = linearLayoutManager.getChildCount();
-                                        int totalItemCount = linearLayoutManager.getItemCount();
-                                        int pastVisiblesItems = linearLayoutManager.findFirstVisibleItemPosition();
-                                        if ((visibleItemCount + pastVisiblesItems) >= totalItemCount && !isLastItemReached) {
-                                            Query nextQuery = query.startAfter(lastVisible);
-                                            nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<QuerySnapshot> t) {
-                                                    if (t.isSuccessful()) {
-                                                        Log.e("TIME", "SEARCHING FOR MORE POSTS");
-                                                        for (DocumentSnapshot d : t.getResult()) {
-                                                            data.add(new NotificationRecyclerAdapter.NotificationData(
-                                                                    d,
-                                                                    d.get("authorID").toString(),
-                                                                    d.get("comment").toString(),
-                                                                    (Timestamp) d.getTimestamp("timestamp"),
-                                                                    d.get("likes").toString(),
-                                                                    d.getId()
-                                                            ));
-                                                        }
-                                                        if (isLastItemReached) {
-                                                            // Add end here
-                                                        }
-                                                        rAdapter.notifyDataSetChanged();
-                                                        if (t.getResult().size() != 0) {
-                                                            lastVisible = t.getResult().getDocuments().get(t.getResult().size() - 1);
-                                                        }
-
-                                                        if (t.getResult().size() < 5) {
-                                                            isLastItemReached = true;
-                                                        }
-                                                    }
+                            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                                super.onScrollStateChanged(recyclerView, newState);
+                                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                                    isScrolling = true;
+                                }
+                            }
+                            // If user is scrolling and has reached the end, more data is loaded
+                            @Override
+                            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                                super.onScrolled(recyclerView, dx, dy);
+                                // Checking if user is at the end
+                                LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
+                                int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+                                int visibleItemCount = linearLayoutManager.getChildCount();
+                                int totalItemCount = linearLayoutManager.getItemCount();
+                                // If found to have reached end, more data is requested from the server in the same manner
+                                if (isScrolling && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReached) {
+                                    isScrolling = false;
+                                    Query nextQuery = query.startAfter(lastVisible);
+                                    nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<QuerySnapshot> t) {
+                                            if (t.isSuccessful()) {
+                                                for (DocumentSnapshot d : t.getResult()) {
+                                                    data.add(new NotificationRecyclerAdapter.NotificationData(
+                                                            (boolean) d.get("ifRequested"),
+                                                            d,
+                                                            d.get("senderID").toString(),
+                                                            d.get("body").toString(),
+                                                            (Timestamp) d.getTimestamp("timestamp"),
+                                                            d.get("relatedPostID").toString()
+                                                    ));
                                                 }
-                                            });
+                                                if(isLastItemReached){
+                                                    // Last comment reached
+                                                }
+                                                rAdapter.notifyDataSetChanged();
+                                                if (t.getResult().size() != 0) {
+                                                    lastVisible = t.getResult().getDocuments().get(t.getResult().size() - 1);
+                                                }
+
+                                                if (t.getResult().size() < 5) {
+                                                    isLastItemReached = true;
+                                                }
+                                            }
                                         }
-                                    }
+                                    });
                                 }
                             }
                         };
-                        postScrollView.setOnScrollChangeListener(onScrollListener);
+                        recyclerView.addOnScrollListener(onScrollListener);
+
                     }
                 }
             }

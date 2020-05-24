@@ -2,6 +2,7 @@
 package com.group4sweng.scranplan;
 
 import android.app.AlertDialog;
+import android.app.Notification;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -27,19 +28,28 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.MealPlanner.PlannerFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
 import com.group4sweng.scranplan.Social.FeedFragment;
+import com.group4sweng.scranplan.Social.NotificationRecyclerAdapter;
+import com.group4sweng.scranplan.Social.Notifications;
 import com.group4sweng.scranplan.Social.PostPage;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import io.sentry.core.Sentry;
 import io.sentry.core.protocol.User;
@@ -95,6 +105,9 @@ public class Home extends AppCompatActivity {
     CheckBox mChefBox;
     SideMenu mSideMenu;
 
+    String notifications;
+    MenuItem notificationMenuItem;
+
     // Side menu variable
     NavigationView navigationView;
 
@@ -134,6 +147,7 @@ public class Home extends AppCompatActivity {
         mSideMenu.mMenuToolbar = findViewById(R.id.toolbar);
         mSideMenu.mMenuDrawer = findViewById(R.id.drawer_layout);
         mSideMenu.mNavigationView = findViewById(R.id.side_menu);
+        notificationMenuItem = mSideMenu.mNavigationView.findViewById(R.id.nav_notifications);
         setSupportActionBar(mSideMenu.mMenuToolbar);
         mSideMenu.init(this, this);
 
@@ -210,6 +224,24 @@ public class Home extends AppCompatActivity {
 
     }
 
+    private void checkForNotifications(){
+        database.collection("users").document(mUser.getUID()).collection("notifications").orderBy("timestamp", Query.Direction.DESCENDING).limit(6).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if(task.isSuccessful()){
+                    if(task.getResult() != null){
+                        if((task.getResult().size()) == 6){
+                            notifications = "5+";
+                        }else{
+                            notifications = Integer.toString(task.getResult().size());
+                        }
+                        notificationMenuItem.setTitle("Notifications (" + notifications + ")");
+                    }
+                }
+            }
+        });
+    }
+
     /**
      *  Connecting up elements on the screen to variable names
      */
@@ -247,10 +279,19 @@ public class Home extends AppCompatActivity {
                         //setResult(RESULT_OK, intentProfile);
                         startActivity(intentProfile);
                         break;
+                    case R.id.nav_test:
+                        Log.e(TAG,"Clicked public profile!");
+
+                        Intent intentProfileT = new Intent(mContext, PublicProfile.class);
+                        intentProfileT.putExtra("UID", "QF2YfN71I0Uq3GnTcqYZf0d94Ep2");
+
+                        intentProfileT.putExtra("user", mUser);
+                        //setResult(RESULT_OK, intentProfile);
+                        startActivity(intentProfileT);
+                        break;
                     case R.id.nav_notifications:
-//                        PostPage postDialogFragment = new Notifications(mUser);
-//                        postDialogFragment.setTargetFragment(this, 1);
-//                        postDialogFragment.show(getFragmentManager(), "Show post dialog fragment");
+                        Notifications notificationDialogFragment = new Notifications(mUser);
+                        notificationDialogFragment.show(fragmentManager, "Show notification dialog fragment");
                         break;
                     case R.id.nav_editProfile:
                         Intent intentSettings = new Intent(mContext, ProfileSettings.class);

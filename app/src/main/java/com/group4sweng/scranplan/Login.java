@@ -329,6 +329,8 @@ public class Login extends AppCompatActivity{
                     map.put("firstMealPlannerLaunch", true);
                     map.put("kudos", (long) 0);
                     map.put("posts", (long) 0);
+                    map.put("followers", (long) 0);
+                    map.put("following", (long) 0);
 
                     map.put("privateProfileEnabled", false);
                     privacyPublic.put("display_username", true);
@@ -461,6 +463,14 @@ public class Login extends AppCompatActivity{
                                             map.put("firstPresentationLaunch", document.get("firstPresentationLaunch"));
                                             map.put("firstMealPlannerLaunch", document.get("firstMealPlannerLaunch"));
                                             map.put("posts", document.get("posts"));
+                                            if(document.get("followers") != null){
+                                                map.put("followers", document.get("followers"));
+                                                map.put("following", document.get("following"));
+                                            }else{
+                                                map.put("followers", (long) 0);
+                                                map.put("following", (long) 0);
+                                                document.getReference().update("followers", (long) 0, "following", (long) 0);
+                                            }
 
                                             @SuppressWarnings("unchecked")
                                             HashMap<String, Object> preferences = (HashMap<String, Object>) document.get("preferences");

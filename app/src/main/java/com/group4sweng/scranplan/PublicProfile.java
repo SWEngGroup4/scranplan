@@ -26,7 +26,9 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.Social.ProfilePictures;
 import com.group4sweng.scranplan.Social.ProfilePosts;
@@ -68,6 +70,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     private String UID;
     protected UserInfoPrivate mUserProfile;
     private boolean followed = false;
+    private boolean privateProfile;
 
     Fragment fragment;
     FrameLayout frameLayout;
@@ -188,6 +191,61 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     }
 
     private void initPageListeners(){
+        mFollowButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(privateProfile){
+                    mFollowButton.setVisibility(View.GONE);
+                    mRequestedButton.setVisibility(View.VISIBLE);
+                    mDatabase.collection("followers").document(UID).update("requested", FieldValue.arrayUnion(mUserProfile.getUID()));
+                    HashMap<String,Object> map = new HashMap<>();
+                    map.put("body", "has requested to follow you:");
+                    map.put("ifRequested", true);
+                    map.put("senderID", mUserProfile.getUID());
+                    map.put("timestamp", FieldValue.serverTimestamp());
+                    mDatabase.collection("users").document(UID).collection("notifications").add(map);
+                }else{
+                    mFollowButton.setVisibility(View.GONE);
+                    mFollowedButton.setVisibility(View.VISIBLE);
+                    mDatabase.collection("followers").document(UID).update("users", FieldValue.arrayUnion(mUserProfile.getUID()));
+                    mDatabase.collection("users").document(UID).update("followers", FieldValue.increment(1));
+                    String newFollowers = Integer.toString(Integer.parseInt(mFollowers.getText().toString())+1);
+                    mFollowers.setText(newFollowers);
+                    mDatabase.collection("users").document(mUserProfile.getUID()).update("following", FieldValue.increment(1));
+                }
+
+            }
+        });
+
+        mRequestedButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mFollowButton.setVisibility(View.VISIBLE);
+                mRequestedButton.setVisibility(View.GONE);
+                mDatabase.collection("followers").document(UID).update("requested", FieldValue.arrayRemove(mUserProfile.getUID()));
+                mDatabase.collection("users").document(UID).collection("notifications").whereEqualTo("ifRequested", true).whereEqualTo("senderID", mUserProfile.getUID()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        for(DocumentSnapshot document : task.getResult()) {
+                            document.getReference().delete();
+                        }
+                    }
+                });
+            }
+        });
+
+        mFollowedButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mFollowButton.setVisibility(View.VISIBLE);
+                mFollowedButton.setVisibility(View.GONE);
+                mDatabase.collection("followers").document(UID).update("users", FieldValue.arrayRemove(mUserProfile.getUID()));
+                mDatabase.collection("users").document(UID).update("followers", FieldValue.increment(-1));
+                mDatabase.collection("users").document(mUserProfile.getUID()).update("following", FieldValue.increment(-1));
+                finish();
+                startActivity(getIntent());
+            }
+        });
         // Listener for layout tab selection
         mStreamTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -315,9 +373,14 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                             ArrayList followers = (ArrayList) document.get("users");
                             if(followers.contains(mUserProfile.getUID())){
                                 mFollowButton.setVisibility(View.GONE);
-                                //mFollowedButton.setVisibility(View.VISIBLE);
-                                mRequestedButton.setVisibility(View.VISIBLE);
+                                mFollowedButton.setVisibility(View.VISIBLE);
                                 followed = true;
+                            }else{
+                                ArrayList requested = (ArrayList) document.get("requested");
+                                if(requested.contains(mUserProfile.getUID())){
+                                    mFollowButton.setVisibility(View.GONE);
+                                    mRequestedButton.setVisibility(View.VISIBLE);
+                                }
                             }
                         }
                     }
@@ -352,6 +415,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                         loadInPrivacySettings(privacy); // Load in privacy settings first (always)
                         loadProfile(document); // Then we load the public users profile.
                     }
+                    privateProfile = (boolean) document.get("privateProfileEnabled");
                     postsFollowersFollowing(document);
                     loadKudosAndRecipes(document);
                     initKudosIconPressListener();
@@ -392,6 +456,20 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
      */
     private void postsFollowersFollowing(DocumentSnapshot profile){
         String postsString =  Long.toString(((long) profile.get("livePosts")));
+        if(profile.get("followers") == null){
+            mFollowers.setText("0");
+            mFollowing.setText("0");
+            if(UID != null){
+                mDatabase.collection("users").document(UID).update("followers", 0, "following", 0);
+            }else{
+                mDatabase.collection("users").document(mUserProfile.getUID()).update("followers", 0, "following", 0);
+            }
+        }else{
+            String followingString =  Long.toString(((long) profile.get("following")));
+            String followersString =  Long.toString(((long) profile.get("followers")));
+            mFollowing.setText(followingString);
+            mFollowers.setText(followersString);
+        }
 
         mPosts.setText(postsString);
 

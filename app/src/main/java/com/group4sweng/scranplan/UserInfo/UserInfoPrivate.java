@@ -39,6 +39,9 @@ public class UserInfoPrivate implements Serializable, Cloneable{
     private boolean firstAppLaunch;
     private boolean firstPresentationLaunch;
     private boolean firstMealPlannerLaunch;
+    private long followers;
+    private long following;
+
 
     //  HashMap privacy values are Boolean values of: 'display_username', 'display_about_me', 'display_recipes', 'display_profile_image' & 'display_feed'.
     private HashMap<String, Object> privacyPublic;
@@ -61,6 +64,8 @@ public class UserInfoPrivate implements Serializable, Cloneable{
      */
     public UserInfoPrivate(HashMap<String, Object> map, HashMap<String, Object> prefs, HashMap<String, Object> privacyPrivate, HashMap<String, Object> privacyPublic) {
         this.posts = (long) map.get("posts");
+        this.followers = (long) map.get("followers");
+        this.following = (long) map.get("following");
         this.email = (String) map.get("email");
         this.UID = (String) map.get("UID");
         this.displayName = (String) map.get("displayName");
@@ -273,4 +278,19 @@ public class UserInfoPrivate implements Serializable, Cloneable{
     }
 
 
+    public long getFollowing() {
+        return following;
+    }
+
+    public void setFollowing(long following) {
+        this.following = following;
+    }
+
+    public long getFollowers() {
+        return followers;
+    }
+
+    public void setFollowers(long followers) {
+        this.followers = followers;
+    }
 }

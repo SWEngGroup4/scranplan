@@ -491,9 +491,9 @@ public class Presentation extends AppCompatActivity {
                 switch (item.getItemId()) {
                     case R.id.viewCommentProfile:
                         Log.e(TAG,"Clicked open profile!");
-                        Intent intentProfile = new Intent(getContext(), PublicProfile.class);
+                        Intent intentProfile = new Intent(getApplicationContext(), PublicProfile.class);
 
-                        intentProfile.putExtra("UID", (String) document.get("author"));
+                        intentProfile.putExtra("UID", (String) document.get("authorID"));
                         intentProfile.putExtra("user", mUser);
                         //setResult(RESULT_OK, intentProfile);
                         startActivity(intentProfile);

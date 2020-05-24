@@ -1,5 +1,6 @@
 package com.group4sweng.scranplan.Social;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
@@ -61,7 +63,7 @@ public class NotificationRecyclerAdapter extends RecyclerView.Adapter<Notificati
                 this.timestamp = timestamp.toDate().toString();
             }
             this.ifRequest = ifRequest;
-            if(ifRequest){
+            if(!ifRequest){
                 this.relatedPostID = postID;
             }
         }
@@ -137,10 +139,13 @@ public class NotificationRecyclerAdapter extends RecyclerView.Adapter<Notificati
                     if(task.isSuccessful()){
                         DocumentSnapshot doc = task.getResult();
                         if(doc != null){
+                            holder.senderName.setVisibility(View.VISIBLE);
                             holder.senderName.setText((String)doc.get("displayName"));
+                            Log.e("HIYA","++++++++++++++++++++++++++++++++" + doc.get("imageURL"));
                             if(doc.get("imageURL") != null){
+                                holder.senderPic.setVisibility(View.VISIBLE);
                                 Glide.with(holder.senderPic.getContext())
-                                        .load(doc.get("imageURL"))
+                                        .load((String) doc.get("imageURL"))
                                         .apply(RequestOptions.circleCropTransform())
                                         .into(holder.senderPic);
                             }
@@ -158,6 +163,29 @@ public class NotificationRecyclerAdapter extends RecyclerView.Adapter<Notificati
             holder.timestampLayout.setVisibility(View.VISIBLE);
             holder.timestamp.setText(mDataset.get(position).timestamp);
         }
+
+        holder.accept.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(mDataset.get(position).ifRequest){
+                    mDatabase.collection("followers").document(user.getUID()).update("users", FieldValue.arrayUnion(mDataset.get(position).senderID), "requested", FieldValue.arrayRemove(mDataset.get(position).senderID));
+                    mDatabase.collection("users").document(user.getUID()).update("followers", FieldValue.increment(1));
+                    mDatabase.collection("users").document(mDataset.get(position).senderID).update("following", FieldValue.increment(1));
+                    mDataset.get(position).document.getReference().delete();
+                    holder.cardView.setVisibility(View.GONE);
+                }
+            }
+        });
+        holder.reject.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(mDataset.get(position).ifRequest){
+                    mDatabase.collection("followers").document(user.getUID()).update("requested", FieldValue.arrayRemove(mDataset.get(position).senderID));
+                    mDataset.get(position).document.getReference().delete();
+                    holder.cardView.setVisibility(View.GONE);
+                }
+            }
+        });
 
 
 
