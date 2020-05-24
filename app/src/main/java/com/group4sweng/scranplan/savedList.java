@@ -2,42 +2,56 @@ package com.group4sweng.scranplan;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 
 public class savedList extends AppCompatActivity implements RecyclerViewAdaptor.ItemClickListener  {
     final String TAG = "SavedShoppingList";
 
+    FirebaseApp mApp;
+    FirebaseAuth mAuth;
+
+    //Database references
+    private FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
+    private CollectionReference mUserRef = mDatabase.collection("users");
 
     //User information
     private com.group4sweng.scranplan.UserInfo.UserInfoPrivate mUser;
 
     RecyclerViewAdaptor adapter;
-    ArrayList<String> newList3 = new ArrayList<>();
+    ArrayList<String> viewList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_savedshoppinglist);
 
         mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) getIntent().getSerializableExtra("user");
         Intent i = getIntent();
-        newList3 = i.getStringArrayListExtra("newList3");
+        viewList = i.getStringArrayListExtra("newList3");
 
         if (mUser != null) {
-            RecyclerView recyclerView = findViewById(R.id.ShoppingList);
-            recyclerView.setLayoutManager(new LinearLayoutManager(this));
-            adapter = new RecyclerViewAdaptor(this, newList3);
+            RecyclerView recyclerViewsaved = findViewById(R.id.ShoppingList);
+            recyclerViewsaved.setLayoutManager(new LinearLayoutManager(this));
+            adapter = new RecyclerViewAdaptor(this, viewList);
             adapter.setClickListener(this);
-            recyclerView.setAdapter(adapter);
+            recyclerViewsaved.setAdapter(adapter);
         }
 
     }
@@ -45,9 +59,10 @@ public class savedList extends AppCompatActivity implements RecyclerViewAdaptor.
     @Override
     public void onItemClick(View view, int position) {
 
-        if (newList3 != null) {
-            newList3.remove(position);
+        if (viewList != null) {
+            viewList.remove(position);
         }
+
         adapter.notifyItemRemoved(position);
 
     }

@@ -27,10 +27,6 @@ import java.util.Set;
 public class ShoppingList extends AppCompatActivity implements RecyclerViewAdaptor.ItemClickListener {
 
     final String TAG = "ShoppingList";
-    final FirebaseFirestore database = FirebaseFirestore.getInstance();
-
-    private FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
-    private CollectionReference mUserRef = mDatabase.collection("users");
 
     //User information
     private com.group4sweng.scranplan.UserInfo.UserInfoPrivate mUser;
@@ -41,6 +37,7 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
     ArrayList<String> newList2 = new ArrayList<>();
     ArrayList<String> newList3 = new ArrayList<>();
 
+
     Button msaveButton;
     Button mShowButton;
 
@@ -50,8 +47,9 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shoppinglist);
 
-        mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) getIntent().getSerializableExtra("user");
+        System.out.println(newList3);
 
+        mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) getIntent().getSerializableExtra("user");
         if (mUser != null) {
             AddIngredients();
             initPageListeners();
@@ -65,6 +63,7 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
         if (newList2 != null) {
             newList2.remove(position);
         }
+        adapter.notifyItemChanged(position);
         adapter.notifyItemRemoved(position);
     }
 
@@ -102,17 +101,18 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
     }
 
     private void initPageListeners() {
+
         msaveButton = findViewById(R.id.SavedList);
         mShowButton = findViewById(R.id.ViewSavedList);
 
         msaveButton.setOnClickListener(new View.OnClickListener() {
+
             public void onClick(View view) {
 
+                newList3.clear();
                         for (String ingredient : newList2 ){
                             newList3.add(ingredient);
                         }
-                System.out.println(newList3);
-
             }
         });
 
