@@ -65,7 +65,7 @@ public class SuggestionBox {
             public void onClick(View v) {
                 String usersSuggestion = edittext.getText().toString(); // gets issue as string to be passed into map
 
-                if (usersSuggestion.length() > 4) {
+                if (usersSuggestion.length() > 3) {
                     map = new HashMap<>();
                     map.put("suggestion", usersSuggestion);
                     map.put("userID", userID);

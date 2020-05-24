@@ -2,13 +2,18 @@ package com.group4sweng.scranplan.RecipeInfo;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -313,6 +318,35 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
                 }
             });
         }
+
+        mRecipeImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                openDialog();
+
+            }
+        });
+    }
+
+    private void openDialog(){
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        View subView = inflater.inflate(R.layout.expanded_recipe_image, null);
+        final ImageView subImageView = (ImageView)subView.findViewById(R.id.image);
+        Picasso.get().load(recipeImage).into(subImageView);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+        builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+
+        builder.setView(subView);
+        AlertDialog alertDialog = builder.create();
+
+        builder.show();
     }
 
     /**

@@ -60,7 +60,7 @@ public class ContentReporting {
             public void onClick(View v) {
                 String usersContentReport = edittext.getText().toString(); // gets issue as string to be passed into map
 
-                if(usersContentReport.length() > 4){
+                if(usersContentReport.length() > 3){
                     document.put("report", usersContentReport);
 
                     //takes the map and puts it onto the firebase

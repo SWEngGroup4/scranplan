@@ -33,21 +33,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_begin="288dp" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline6"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_begin="337dp" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline7"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_begin="458dp" />
+            app:layout_constraintGuide_percent="0.36" />
 
 
         <Button
@@ -56,15 +42,13 @@
             android:layout_width="98dp"
             android:layout_height="50dp"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="20dp"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp"
+            android:layout_marginTop="24dp"
             android:text="Lets Cook!"
             android:textColor="#FFFFFF"
             android:textSize="13sp"
-            app:layout_constraintEnd_toStartOf="@+id/addKudos"
-            app:layout_constraintHorizontal_bias="0.439"
-            app:layout_constraintStart_toEndOf="@+id/addFavorite"
+            app:layout_constraintEnd_toStartOf="@+id/guideline7"
+            app:layout_constraintHorizontal_bias="0.285"
+            app:layout_constraintStart_toStartOf="@+id/guideline6"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -84,22 +68,24 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/guideline" />
 
+
         <ImageView
             android:id="@+id/recipeImage"
             android:layout_width="150dp"
             android:layout_height="140dp"
             android:layout_below="@+id/Title"
             android:layout_alignParentStart="true"
+            android:layout_marginStart="5dp"
             android:layout_marginTop="5dp"
+            android:layout_marginEnd="10dp"
             android:padding="10sp"
             app:layout_constraintBottom_toTopOf="@+id/guideline5"
             app:layout_constraintEnd_toStartOf="@+id/guideline12"
-            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintHorizontal_bias="0.217"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/Title"
             app:layout_constraintVertical_bias="0.0"
             app:srcCompat="@drawable/scran" />
-
 
         <TextView
             android:id="@+id/chefName"
@@ -107,6 +93,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/Title"
             android:layout_alignParentEnd="true"
+            android:layout_marginStart="10dp"
             android:layout_marginTop="16dp"
             android:layout_toEndOf="@+id/recipeImage"
             android:ems="10"
@@ -124,6 +111,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/chefName"
+            android:layout_marginStart="10dp"
             android:layout_marginTop="12dp"
             android:layout_marginEnd="112dp"
             android:layout_toEndOf="@+id/recipeImage"
@@ -142,6 +130,7 @@
             android:layout_height="29dp"
             android:layout_below="@+id/ratingBar"
             android:layout_alignParentEnd="true"
+            android:layout_marginStart="10dp"
             android:layout_marginTop="15dp"
             android:layout_toEndOf="@+id/recipeImage"
             android:gravity="left"
@@ -273,27 +262,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_begin="196dp" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline10"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_begin="547dp" />
-
-        <!--        <Button-->
-        <!--            android:id="@+id/changePortions"-->
-        <!--            style="@style/Widget.AppCompat.Button.Small"-->
-        <!--            android:layout_width="150dp"-->
-        <!--            android:layout_height="35dp"-->
-        <!--            android:layout_below="@+id/serves"-->
-        <!--            android:layout_toEndOf="@+id/recipeImage"-->
-        <!--            android:text="Change portions"-->
-        <!--            android:textColor="#000000"-->
-        <!--            android:textSize="12sp"-->
-        <!--            tools:layout_editor_absoluteX="0dp"-->
-        <!--            tools:layout_editor_absoluteY="-4dp" />-->
+            app:layout_constraintGuide_percent="0.5" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline11"
@@ -331,7 +300,7 @@
                     app:layout_constraintBottom_toTopOf="@+id/guideline11"
                     app:layout_constraintEnd_toStartOf="@+id/guideline8"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/guideline7"
+                    app:layout_constraintTop_toBottomOf="@+id/description"
                     app:layout_constraintVertical_bias="0.487" />
 
                 <TextView
@@ -345,7 +314,6 @@
                     android:gravity="left"
                     android:text=""
                     android:textSize="14dp"
-                    app:layout_constraintBottom_toTopOf="@+id/guideline10"
                     app:layout_constraintEnd_toStartOf="@+id/guideline8"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/guideline11" />
@@ -371,7 +339,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="@+id/guideline8"
-                    app:layout_constraintTop_toTopOf="@+id/guideline7" />
+                    app:layout_constraintTop_toBottomOf="@+id/description" />
 
                 <ImageButton
                     android:id="@+id/reheatInfoButton"
@@ -383,7 +351,6 @@
                     android:layout_marginTop="10dp"
                     android:background="@color/colorWindow"
                     android:src="@android:drawable/ic_dialog_info"
-                    app:layout_constraintBottom_toTopOf="@+id/guideline10"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.515"
                     app:layout_constraintStart_toStartOf="@+id/guideline8"
@@ -455,14 +422,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_begin="155dp" />
+            app:layout_constraintGuide_percent="0.4" />
 
         <ImageButton
             android:id="@+id/menu_button"
             android:layout_width="50dp"
             android:layout_height="51dp"
-            android:layout_marginTop="20dp"
             android:layout_marginStart="5dp"
+            android:layout_marginTop="20dp"
             android:layout_marginEnd="5dp"
             android:background="@color/colorWindow"
             android:src="@drawable/vert_menu"
@@ -481,11 +448,12 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+
         <ImageButton
             android:id="@+id/changePortions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="12dp"
             android:layout_marginEnd="10dp"
             android:background="@color/colorWindow"
             android:src="@drawable/fork_knife"
@@ -494,13 +462,13 @@
             app:layout_constraintStart_toEndOf="@+id/serves"
             app:layout_constraintTop_toBottomOf="@+id/ratingBar" />
 
-
         <CheckBox
             android:id="@+id/addKudos"
             android:layout_width="55dp"
             android:layout_height="43dp"
-            android:layout_marginTop="28dp"
-            android:layout_marginEnd="5dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="10dp"
             android:layout_toStartOf="@+id/LetsCook"
             android:layout_toEndOf="@+id/ReturnButton"
             android:background="@drawable/click_kudos"
@@ -510,15 +478,18 @@
             android:maxHeight="60sp"
             android:scaleType="fitCenter"
             android:stateListAnimator="@animator/select"
-            app:layout_constraintEnd_toStartOf="@+id/menu_button"
+            app:layout_constraintEnd_toStartOf="@+id/guideline14"
+            app:layout_constraintHorizontal_bias="0.478"
+            app:layout_constraintStart_toStartOf="@+id/guideline7"
             app:layout_constraintTop_toTopOf="parent" />
 
         <CheckBox
             android:id="@+id/addFavorite"
             android:layout_width="47dp"
             android:layout_height="37dp"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="28dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="10dp"
             android:layout_toStartOf="@+id/LetsCook"
             android:layout_toEndOf="@+id/ReturnButton"
             android:background="@drawable/fav_recipe"
@@ -528,8 +499,40 @@
             android:maxHeight="60sp"
             android:scaleType="fitCenter"
             android:stateListAnimator="@animator/select"
-            app:layout_constraintStart_toEndOf="@+id/ReturnButton"
+            app:layout_constraintEnd_toStartOf="@+id/guideline6"
+            app:layout_constraintHorizontal_bias="0.368"
+            app:layout_constraintStart_toStartOf="@+id/guideline10"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.38" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline7"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.61" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.16" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline14"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.86" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
