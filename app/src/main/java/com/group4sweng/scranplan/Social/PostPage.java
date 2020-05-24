@@ -1,6 +1,7 @@
 package com.group4sweng.scranplan.Social;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,6 +37,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.group4sweng.scranplan.LoadingDialog;
+import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.R;
 import com.squareup.picasso.Picasso;
 
@@ -424,7 +426,12 @@ public class PostPage extends AppCompatDialogFragment {
                 switch (item.getItemId()) {
                     case R.id.viewCommentProfile:
                         Log.e(TAG,"Clicked open profile!");
-                        //TODO add functionality to open users profile in new fragment
+                        Intent intentProfile = new Intent(getContext(), PublicProfile.class);
+
+                        intentProfile.putExtra("UID", (String) document.get("author"));
+                        intentProfile.putExtra("user", mUser);
+                        //setResult(RESULT_OK, intentProfile);
+                        startActivity(intentProfile);
                         break;
                     case R.id.reportComment:
                         Log.e(TAG,"Report comment clicked!");

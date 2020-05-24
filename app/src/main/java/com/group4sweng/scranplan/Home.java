@@ -38,6 +38,7 @@ import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
 import com.group4sweng.scranplan.Social.FeedFragment;
+import com.group4sweng.scranplan.Social.PostPage;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import io.sentry.core.Sentry;
@@ -245,6 +246,11 @@ public class Home extends AppCompatActivity {
                         intentProfile.putExtra("user", mUser);
                         //setResult(RESULT_OK, intentProfile);
                         startActivity(intentProfile);
+                        break;
+                    case R.id.nav_notifications:
+//                        PostPage postDialogFragment = new Notifications(mUser);
+//                        postDialogFragment.setTargetFragment(this, 1);
+//                        postDialogFragment.show(getFragmentManager(), "Show post dialog fragment");
                         break;
                     case R.id.nav_editProfile:
                         Intent intentSettings = new Intent(mContext, ProfileSettings.class);

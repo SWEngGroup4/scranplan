@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -18,6 +19,8 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -64,6 +67,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     //  UID for the user in which we want to retrieve data from.
     private String UID;
     protected UserInfoPrivate mUserProfile;
+    private boolean followed = false;
 
     Fragment fragment;
     FrameLayout frameLayout;
@@ -92,6 +96,9 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     TextView mFollowers;
     TextView mFollowing;
     Button mFollowButton;
+    Button mFollowedButton;
+    Button mRequestedButton;
+    LinearLayout mIsFollowLayout;
 
     //  Whether we should retrieve different information for the user. E.g. username, about me etc...
     private boolean retrieveAboutMe = false, retrieveUsername = false,
@@ -109,10 +116,11 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         //  Gets extra UserProfilePrivate object if one is sent.
         mUserProfile = (UserInfoPrivate) getIntent().getSerializableExtra("user");
 
-        if(mUserProfile != null){ // Check if local data is available to reference. Don't have to grab from firebase.
-            updatePublicProfile(FirebaseLoadType.PARTIAL);
-        } else if(UID != null){ // If not instead search for the profile via the associated UID and reference Firebase.
+
+        if(UID != null){ // If not instead search for the profile via the associated UID and reference Firebase.
             updatePublicProfile(FirebaseLoadType.FULL);
+        } else if(mUserProfile != null){ // Check if local data is available to reference. Don't have to grab from firebase.
+            updatePublicProfile(FirebaseLoadType.PARTIAL);
         } else {
             Log.e(TAG, "Unable to retrieve extra UID intent string. Cannot initialize profile.");
         }
@@ -134,13 +142,15 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     private void updatePublicProfile(FirebaseLoadType flt){
         if(flt == FirebaseLoadType.PARTIAL){
             Log.i(TAG, "Loading local user data");
-            mFollowButton.setVisibility(View.GONE);
+            mIsFollowLayout.setVisibility(View.GONE);
+            followed = true;
             loadInPrivacySettings(mUserProfile.getPublicPrivacy());
             loadLocalProfile();
             loadFirebase(FirebaseLoadType.PARTIAL);
             searchers = mUserProfile.getUID();
         } else if(UID != null){ // If not instead search for the profile via the associated UID and reference Firebase.
             Log.i(TAG, "Loading data from Firebase");
+            checkFollowed();
             loadFirebase(FirebaseLoadType.FULL);
             searchers = UID;
         } else {
@@ -171,6 +181,9 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         mFollowers = findViewById(R.id.followersNum);
         mFollowing = findViewById(R.id.followingNum);
         mFollowButton = findViewById(R.id.followButton);
+        mFollowedButton = findViewById(R.id.followedButton);
+        mRequestedButton = findViewById(R.id.requestedButton);
+        mIsFollowLayout = findViewById(R.id.isFollowLayout);
 
     }
 
@@ -236,7 +249,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     //  Load all the data grabbed from the Firebase document snapshot.
     private void loadProfile(DocumentSnapshot profile) {
         if(retrieveAboutMe) { //  If we are allowed to retrieve this data. do so.
-            mAboutMe.setText((String) profile.get("about"));
+            mAboutMeDesc.setText((String) profile.get("about"));
         } else {
             mAboutMe.setVisibility(View.GONE); // Adjust if the view is visible.
             mAboutMeDesc.setVisibility(View.GONE);
@@ -288,6 +301,28 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
             allergyLayout.setVisibility(View.GONE);
             allergyPressInfo.setVisibility(View.GONE);
             profileSettingsAllergens.setVisibility(View.GONE);
+        }
+    }
+
+    public void checkFollowed(){
+        if(UID != null){
+            mDatabase.collection("followers").document(UID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if(task.isSuccessful()){
+                        DocumentSnapshot document = task.getResult();
+                        if(document != null){
+                            ArrayList followers = (ArrayList) document.get("users");
+                            if(followers.contains(mUserProfile.getUID())){
+                                mFollowButton.setVisibility(View.GONE);
+                                //mFollowedButton.setVisibility(View.VISIBLE);
+                                mRequestedButton.setVisibility(View.VISIBLE);
+                                followed = true;
+                            }
+                        }
+                    }
+                }
+            });
         }
     }
 

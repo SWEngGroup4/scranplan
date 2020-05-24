@@ -97,7 +97,7 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
                 this.recipeTitle = (String) document.get("recipeTitle");
                 this.recipeDescription = (String) document.get("recipeDescription");
                 if(isReview){
-                    double toFloat = (double) document.get("overallRating");
+                     double toFloat = (double) document.get("overallRating");
                     this.review = (float)toFloat;
                 }
             }

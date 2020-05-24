@@ -56,6 +56,7 @@ import com.group4sweng.scranplan.Home;
 import com.group4sweng.scranplan.LoadingDialog;
 import com.group4sweng.scranplan.MealPlanner.PlannerInfoFragment;
 import com.group4sweng.scranplan.MealPlanner.PlannerListFragment;
+import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
@@ -63,7 +64,6 @@ import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -999,7 +999,12 @@ public class FeedFragment extends Fragment {
                 switch (item.getItemId()) {
                     case R.id.viewCommentProfile:
                         Log.e(TAG,"Clicked open profile!");
-                        //TODO add functionality to open users profile in new fragment
+                        Intent intentProfile = new Intent(getContext(), PublicProfile.class);
+
+                        intentProfile.putExtra("UID", (String) document.get("author"));
+                        intentProfile.putExtra("user", mUser);
+                        //setResult(RESULT_OK, intentProfile);
+                        startActivity(intentProfile);
                         break;
                     case R.id.reportComment:
                         Log.e(TAG,"Report comment clicked!");

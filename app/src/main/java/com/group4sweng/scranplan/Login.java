@@ -62,8 +62,8 @@ public class Login extends AppCompatActivity{
     // All button local variables used to give function to XML page
     Button mLoginButton;
     TextView mForgottenPasswordText;
-    Button mFacebookLoginButton;
-    Button mGoogleLoginButton;
+    Button mBackToRegisterButton;
+    Button mBackToLoginButton;
     Button mRegisterButton;
     ImageView mInfoButton;
 
@@ -105,8 +105,8 @@ public class Login extends AppCompatActivity{
 
         mForgottenPasswordText = (TextView) findViewById(R.id.forgottenPasswordText);
 
-        mFacebookLoginButton = (Button) findViewById(R.id.facebookLoginButton);
-        mGoogleLoginButton = (Button) findViewById(R.id.googleLoginButton);
+        mBackToRegisterButton = (Button) findViewById(R.id.backToRegisterButton);
+        mBackToLoginButton = (Button) findViewById(R.id.backToLoginButton);
 
         mRegisterButton = (Button) findViewById(R.id.registerButton);
 
@@ -136,6 +136,8 @@ public class Login extends AppCompatActivity{
                 if(!mLoginInProgress){
                     // First button press, set login components to visible
                     mLoginInProgress = true;
+                    mRegisterButton.setVisibility(View.GONE);
+                    mBackToRegisterButton.setVisibility(View.VISIBLE);
                     mEmailEditText.setVisibility(View.VISIBLE);
                     mPasswordEditText.setVisibility(View.VISIBLE);
                     mConfirmPasswordEditText.setVisibility(View.GONE);
@@ -144,7 +146,14 @@ public class Login extends AppCompatActivity{
                     // Second button press, log user in with entered email and password
                     String email = mEmailEditText.getText().toString();
                     String password =mPasswordEditText.getText().toString();
-                    loginUser(email, password);
+
+                    if(!email.equals("") && !password.equals("")){
+                        // Check both passwords match before registering new user
+                        loginUser(email, password);
+                    }else{
+                        // Display message to user if passwords do not match
+                        Toast.makeText(getApplicationContext(),"One or more of the fields are empty, please fill in all sections of the form.",Toast.LENGTH_SHORT).show();
+                    }
                 }
 
             }
@@ -159,6 +168,8 @@ public class Login extends AppCompatActivity{
             public void onClick(View view) {
                 mLoginInProgress = false;
                 if(!mRegisterInProgress){
+                    mLoginButton.setVisibility(View.GONE);
+                    mBackToLoginButton.setVisibility(View.VISIBLE);
                     // First button press - set all components visible
                     mRegisterInProgress = true;
                     mEmailEditText.setVisibility(View.VISIBLE);
@@ -214,10 +225,20 @@ public class Login extends AppCompatActivity{
         /**
          * Setting Facebook Login button
          */
-        mFacebookLoginButton.setOnClickListener(new View.OnClickListener() {
+        mBackToRegisterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO implement facebook login
+                mLoginInProgress = false;
+                mLoginButton.setVisibility(View.GONE);
+                mBackToLoginButton.setVisibility(View.VISIBLE);
+                mBackToRegisterButton.setVisibility(View.GONE);
+                mRegisterButton.setVisibility(View.VISIBLE);
+                // First button press - set all components visible
+                mRegisterInProgress = true;
+                mEmailEditText.setVisibility(View.VISIBLE);
+                mPasswordEditText.setVisibility(View.VISIBLE);
+                mConfirmPasswordEditText.setVisibility(View.VISIBLE);
+                mDisplayNameText.setVisibility(View.VISIBLE);
 
             }
         });
@@ -225,10 +246,20 @@ public class Login extends AppCompatActivity{
         /**
          * Setting Google Login button
          */
-        mGoogleLoginButton.setOnClickListener(new View.OnClickListener() {
+        mBackToLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO implement google login
+                mRegisterInProgress = false;
+                mLoginInProgress = true;
+                mRegisterButton.setVisibility(View.GONE);
+                mBackToRegisterButton.setVisibility(View.VISIBLE);
+                mBackToLoginButton.setVisibility(View.GONE);
+                mLoginButton.setVisibility(View.VISIBLE);
+                mEmailEditText.setVisibility(View.VISIBLE);
+                mPasswordEditText.setVisibility(View.VISIBLE);
+                mConfirmPasswordEditText.setVisibility(View.GONE);
+                mDisplayNameText.setVisibility(View.GONE);
+
 
             }
         });
