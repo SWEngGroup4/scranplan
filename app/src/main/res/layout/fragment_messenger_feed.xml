@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,40 +8,24 @@
     tools:context="com.group4sweng.scranplan.Social.Messenger.MessengerFeedFragment"
     android:background="#A6AAC9">
 
-
-    <androidx.core.widget.NestedScrollView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/postsList"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="90sp">
+    </androidx.recyclerview.widget.RecyclerView>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="bottom"
-            android:orientation="vertical">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/postsList"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:reverseLayout="true">
-
-            </androidx.recyclerview.widget.RecyclerView>
-
-            <LinearLayout
-                android:id="@+id/topLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" />
-
-        </LinearLayout>
-
-    </androidx.core.widget.NestedScrollView>
+    <LinearLayout
+        android:id="@+id/topLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_gravity="bottom"
         android:gravity="bottom"
         android:orientation="vertical">
@@ -404,4 +388,4 @@
 
 
     </LinearLayout>
-</RelativeLayout>
+</FrameLayout>

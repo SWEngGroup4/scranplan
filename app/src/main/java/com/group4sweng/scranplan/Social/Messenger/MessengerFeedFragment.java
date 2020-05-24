@@ -1,6 +1,10 @@
 package com.group4sweng.scranplan.Social.Messenger;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,11 +14,13 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -24,7 +30,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.Timestamp;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -34,7 +40,6 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.group4sweng.scranplan.Home;
 import com.group4sweng.scranplan.LoadingDialog;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
@@ -86,6 +91,8 @@ public class MessengerFeedFragment extends FeedFragment {
     ConstraintLayout mPostRecipeImageViewLayout;
 
     View mainView;
+    FloatingActionButton mNewMessage;
+
 
     TextView mRecipeRatingText;
     RatingBar mAttachedRecipeReview;
@@ -112,16 +119,18 @@ public class MessengerFeedFragment extends FeedFragment {
     // Database objects for accessing recipes
     private FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
     private CollectionReference mColRef = mDatabase.collection("followers");
+
     // Firebase user collection and storage references.
-    CollectionReference mRef = mDatabase.collection("posts");
+    CollectionReference mRef;
     FirebaseStorage mStorage = FirebaseStorage.getInstance();
     StorageReference mStorageReference = mStorage.getReference();
 
 
-    public MessengerFeedFragment(UserInfoPrivate userSent, UserInfoPrivate messageRecipient) {
+    MessengerFeedFragment(UserInfoPrivate userSent, UserInfoPrivate messageRecipient) {
         super(userSent);
         mUser = userSent;
-        mRecipient = messageRecipient;
+        mRecipient = userSent;
+//        mRecipient = messageRecipient;
     }
 
     // Auto-generated onCreate method (everything happens here)
@@ -132,24 +141,10 @@ public class MessengerFeedFragment extends FeedFragment {
         View view = inflater.inflate(R.layout.fragment_messenger_feed, container, false);
         mainView = view;
         loadingDialog = new LoadingDialog(getActivity());
+        mRef = mDatabase.collection("users").document(mUser.getUID()).collection("userInteractions").document(mRecipient.getUID()).collection("messages");
 
         initPageItems(view);
         initPageListeners();
-
-        Home home = (Home) getActivity();
-        if (home != null) {
-            // Gets search activity from home class and make it invisible
-            searchView = home.getSearchView();
-            sortButton = home.getSortView();
-
-            sortButton.setVisible(false);
-            searchView.setVisibility(View.INVISIBLE);
-
-            //setSearch();
-
-            //Gets search preferences from home class
-            prefs = home.getSearchPrefs();
-        }
 
         addPosts(view);
 
@@ -159,6 +154,183 @@ public class MessengerFeedFragment extends FeedFragment {
             Log.e(TAG, "ERROR: Loading messenger - We were unable to find user.");
         }
         return view;
+    }
+
+    /**
+     *  Connecting up elements on the screen to variable names
+     */
+    @Override
+    protected void initPageItems(View v){
+        //Defining all relevant members of page
+        mPostButton = v.findViewById(R.id.sendPostButton);
+        mPostRecipe = (CheckBox) v.findViewById(R.id.recipeIcon);
+        mPostReview = (CheckBox) v.findViewById(R.id.reviewIcon);
+        mPostPic = (CheckBox) v.findViewById(R.id.imageIcon);
+        mPostBodyInput = v.findViewById(R.id.postBodyInput);
+        mUploadedImage = v.findViewById(R.id.userUploadedImageView);
+        mAttachedRecipeImage = v.findViewById(R.id.postRecipeImageView);
+        mAttachedRecipeTitle = v.findViewById(R.id.postRecipeTitle);
+        mAttachedRecipeInfo =  v.findViewById(R.id.postRecipeDescription);
+        mAttachedRecipeReview = v.findViewById(R.id.postRecipeRating);
+        mRecipeRatingText = v.findViewById(R.id.recipeRate);
+        mUserUploadedImageViewLayout = v.findViewById(R.id.userUploadedImageViewLayout);
+        mPostRecipeImageViewLayout = v.findViewById(R.id.postRecipeImageViewLayout);
+
+
+    }
+
+    /**
+     *  Setting up page listeners for when buttons are pressed
+     */
+    @Override
+    protected void initPageListeners() {
+        mPostPic.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (mPostPic.isChecked()) {
+                    if(mUploadedImage.getVisibility() != View.VISIBLE){
+                        //  Check if the version of Android is above 'Marshmallow' we check for additional permission.
+                        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                            //  Checks if permission has already been granted to read from external storage (our image picker)
+                            if(getContext().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
+                                //   Ask for permission.
+                                String [] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
+                                requestPermissions(permissions, PERMISSION_CODE);
+                                mPostPic.setChecked(false);
+                                imageSelector();
+                            } else {
+                                //  Read permission has been granted already.
+                                mPostPic.setChecked(false);
+                                imageSelector();
+                            }
+                        } else {
+                            mPostPic.setChecked(false);
+                            imageSelector();
+                        }
+                    }
+                } else {
+                    mUploadedImage.setVisibility(View.GONE);
+                    mUserUploadedImageViewLayout.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        mPostButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String body = mPostBodyInput.getText().toString();
+                if(mPostPic.isChecked() || mPostRecipe.isChecked() || !body.equals("")){
+                    loadingDialog.startLoadingDialog();
+                    //TODO set these variables from the addition of these items
+                    Log.e(TAG, "Added new post ");
+                    // Saving the comment as a new document
+                    HashMap<String, Object> map = new HashMap<>();
+                    HashMap<String, Object> extras = new HashMap<>();
+                    extras.put("comments", 0);
+                    extras.put("likes", 0);
+                    map.put("author", mUser.getUID());
+                    map.put("body", body);
+                    map.put("timestamp", FieldValue.serverTimestamp());
+                    map.put("isPic", mPostPic.isChecked());
+                    map.put("isRecipe", mPostRecipe.isChecked());
+                    map.put("isReview", mPostReview.isChecked());
+                    if(mPostPic.isChecked()){
+                        postImageAttached(map, extras, mRef);
+                    }else {
+                        addRecipeInfo(map, extras, mRef);
+                    }
+                }else{
+                    Toast.makeText(getContext(),"You need to either write a post, attach a picture or attach a recipe before you can submit new post.",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        mPostRecipe.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (mPostRecipe.isChecked()) {
+                    if(mAttachedRecipeImage.getVisibility() != View.VISIBLE){
+                        Bundle bundle = new Bundle();
+                        bundle.putBoolean("planner", true); //Condition to let child fragments know access is from planner
+
+                        //Creates and launches recipe fragment
+                        recipeFragment = new RecipeFragment(mUser);
+                        recipeFragment.setArguments(bundle);
+                        recipeFragment.setTargetFragment(MessengerFeedFragment.this, 1);
+                        fragmentTransaction = getParentFragmentManager().beginTransaction();
+                        fragmentTransaction.add(R.id.frameLayout, recipeFragment); //Overlays fragment on existing one
+                        fragmentTransaction.commitNow(); //Waits for fragment transaction to be completed
+                        requireView().setVisibility(View.INVISIBLE); //Sets current fragment invisible
+                                            }
+                } else {
+                    mAttachedRecipeImage.setVisibility(View.GONE);
+                    mPostRecipeImageViewLayout.setVisibility(View.GONE);
+                    mAttachedRecipeInfo.setVisibility(View.GONE);
+                    mAttachedRecipeTitle.setVisibility(View.GONE);
+                    mPostReview.setChecked(false);
+                }
+            }
+        });
+        mPostReview.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (mPostReview.isChecked()) {
+                    if(mAttachedRecipeReview.getVisibility() != View.VISIBLE){
+                        if(mPostRecipe.isChecked()){
+                            //Makes the star rating visible and stores the value of the given rating
+                            mRecipeRatingText.setVisibility(View.VISIBLE);
+                            mAttachedRecipeReview.setVisibility(View.VISIBLE);
+                            mAttachedRecipeReview.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+                                @Override
+                                public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+                                    //TODO do something with rating if needed
+                                    ratingNum = rating;
+                                }
+                            });
+                        }else{
+                            Log.e(TAG, "No recipe so no review");
+                            mPostReview.setChecked(false);
+                            Toast.makeText(getContext(),"You need to attach a recipe before you can review it.",Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                } else {
+                    mRecipeRatingText.setVisibility(View.GONE);
+                    mAttachedRecipeReview.setVisibility(View.GONE);
+                }
+            }
+        });
+
+    }
+
+    //  Open our image picker.
+    private void imageSelector(){
+        Intent images = new Intent(Intent.ACTION_PICK);
+        images.setType("image/*"); // Only open the 'image' file picker. Don't include videos, audio etc...
+        startActivityForResult(images, IMAGE_REQUEST_CODE);
+        //mPostPic.setChecked(false);// Start the image picker and expect a result once an image is selected.
+    }
+
+    /**
+     *  Adding recipe info if attached to post
+     * @param map
+     * @param extras
+     * @param ref
+     */
+    @Override
+    protected void addRecipeInfo(HashMap map, HashMap extras, CollectionReference ref){
+        if (mPostRecipe.isChecked()) {
+            map.put("recipeID", recipeID);
+            map.put("recipeImageURL", attachedRecipeURL);
+            map.put("recipeTitle", mAttachedRecipeTitle.getText());
+            map.put("recipeDescription", mAttachedRecipeInfo.getText());
+        }
+        extras.putAll(map);
+        if (mPostReview.isChecked() && mPostRecipe.isChecked()) {
+            map.put("overallRating", mAttachedRecipeReview.getRating());
+            extras.put("overallRating", mAttachedRecipeReview.getRating());
+//            reviewAttached(map, extras, ref);
+        }else{
+            savePost(map, extras, ref, null);
+        }
     }
 
     @Override
@@ -172,14 +344,13 @@ public class MessengerFeedFragment extends FeedFragment {
 
         // Set out the layout of this horizontal view
         LinearLayoutManager rManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, true);
-        rManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(rManager);
         //recyclerView.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels));
         // Array to score downloaded data
         data = new ArrayList<>();
         final RecyclerView.Adapter rAdapter = new MessengerFeedRecyclerAdapter(MessengerFeedFragment.this, data, mUser, view);
         recyclerView.setAdapter(rAdapter);
-        query = mColRef.whereArrayContains("users", mUser.getUID()).orderBy("lastPost", Query.Direction.DESCENDING).limit(5);
+        query = mRef.orderBy("timestamp", Query.Direction.DESCENDING).limit(5);
         // Ensure query exists and builds view with query
         if (query != null) {
             Log.e(TAG, "User is searching the following query: " + query.toString());
@@ -193,125 +364,74 @@ public class MessengerFeedFragment extends FeedFragment {
                         ArrayList<HashMap> posts = new ArrayList<>();
                         for (DocumentSnapshot document : task.getResult()) {
                             Log.e("FEED", "I have found a doc");
-                            //posts.addAll((ArrayList)document.get("recent"));
-                            String first = (String) document.get("space1");
-                            String second = (String) document.get("space2");
-                            String third = (String) document.get("space3");
-                            if (document.get("map" + first) != null) {
-                                posts.add((HashMap) document.get("map" + first));
-                            }
-                            if (document.get("map" + second) != null) {
-                                posts.add((HashMap) document.get("map" + second));
-                            }
-                            if (document.get("map" + third) != null) {
-                                posts.add((HashMap) document.get("map" + third));
-                            }
-                        }
-                        // Bubble sort items
-                        HashMap<String, Object> temporary;
-                        for (int i = 0; i < (posts.size() - 1); i++) {
-                            for (int j = 0; j < (posts.size() - i - 1); j++) {
+                            posts.add((HashMap) document.getData());
 
-                                if (((Timestamp) posts.get(j).get("timestamp")).toDate().before(((Timestamp) posts.get(j + 1).get("timestamp")).toDate())) {
-
-                                    temporary = posts.get(j);
-                                    posts.set(j, posts.get(j + 1));
-                                    posts.set(j + 1, temporary);
-
+                            for (int i = 0; i < posts.size(); i++) {
+                                data.add(new MessengerFeedRecyclerAdapter.FeedPostPreviewData(
+                                        posts.get(i)));
+                            }
+                            rAdapter.notifyDataSetChanged();
+                            if (task.getResult().size() != 0) {
+                                lastVisible = task.getResult().getDocuments().get(task.getResult().size() - 1);
+                            } else {
+                                isLastItemReached = true;
+                            }
+                            // Track users location to check if new data download is required
+                            RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+                                @Override
+                                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                                    super.onScrollStateChanged(recyclerView, newState);
+                                    if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                                        isScrolling = true;
+                                    }
                                 }
-                            }
-                        }
-                        for (int i = 0; i < posts.size(); i++) {
-                            data.add(new MessengerFeedRecyclerAdapter.FeedPostPreviewData(
-                                    posts.get(i)));
-                        }
-                        rAdapter.notifyDataSetChanged();
-                        if (task.getResult().size() != 0) {
-                            lastVisible = task.getResult().getDocuments().get(task.getResult().size() - 1);
-                        } else {
-                            isLastItemReached = true;
-                        }
-                        // Track users location to check if new data download is required
-                        RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
-                            @Override
-                            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                                super.onScrollStateChanged(recyclerView, newState);
-                                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
-                                    isScrolling = true;
-                                }
-                            }
 
-                            // If scrolled to end then download new data and check if we are out of data
-                            @Override
-                            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                                super.onScrolled(recyclerView, dx, dy);
+                                // If scrolled to end then download new data and check if we are out of data
+                                @Override
+                                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                                    super.onScrolled(recyclerView, dx, dy);
 
-                                LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
-                                int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
-                                int visibleItemCount = linearLayoutManager.getChildCount();
-                                int totalItemCount = linearLayoutManager.getItemCount();
+                                    LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
+                                    int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+                                    int visibleItemCount = linearLayoutManager.getChildCount();
+                                    int totalItemCount = linearLayoutManager.getItemCount();
 
-                                if (isScrolling && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReached) {
-                                    isScrolling = false;
-                                    Query nextQuery = query.startAfter(lastVisible);
-                                    nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<QuerySnapshot> t) {
-                                            if (t.isSuccessful()) {
-                                                ArrayList<HashMap> postsNext = new ArrayList<>();
-                                                for (DocumentSnapshot d : t.getResult()) {
-                                                    Log.e("FEED", "I have found a doc");
-                                                    String first = (String) d.get("space1");
-                                                    String second = (String) d.get("space2");
-                                                    String third = (String) d.get("space3");
-                                                    if (d.get("map" + first) != null) {
-                                                        postsNext.add((HashMap) d.get("map" + first));
-                                                    }
-                                                    if (d.get("map" + second) != null) {
-                                                        postsNext.add((HashMap) d.get("map" + second));
-                                                    }
-                                                    if (d.get("map" + third) != null) {
-                                                        postsNext.add((HashMap) d.get("map" + third));
-                                                    }
-                                                }
-                                                // Bubble sort items
-                                                HashMap<String, Object> temporary;
-                                                for (int i = 0; i < (postsNext.size() - 1); i++) {
-                                                    for (int j = 0; j < (postsNext.size() - i - 1); j++) {
+                                    if (isScrolling && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReached) {
+                                        isScrolling = false;
+                                        Query nextQuery = query.startAfter(lastVisible);
+                                        nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> t) {
+                                                if (t.isSuccessful()) {
+                                                    ArrayList<HashMap> postsNext = new ArrayList<>();
+                                                    for (DocumentSnapshot d : t.getResult()) {
+                                                        Log.e("FEED", "I have found a doc");
+                                                        postsNext.add((HashMap) d.getData());
 
-                                                        if (((Timestamp) postsNext.get(j).get("timestamp")).toDate().before(((Timestamp) posts.get(j + 1).get("timestamp")).toDate())) {
+                                                        for (int i = 0; i < postsNext.size(); i++) {
+                                                            data.add(new MessengerFeedRecyclerAdapter.FeedPostPreviewData(
+                                                                    postsNext.get(i)));
+                                                        }
+                                                        if (isLastItemReached) {
+                                                            // Add end here
+                                                        }
+                                                        rAdapter.notifyDataSetChanged();
+                                                        if (t.getResult().size() != 0) {
+                                                            lastVisible = t.getResult().getDocuments().get(t.getResult().size() - 1);
+                                                        }
 
-                                                            temporary = postsNext.get(j);
-                                                            postsNext.set(j, postsNext.get(j + 1));
-                                                            postsNext.set(j + 1, temporary);
-
+                                                        if (t.getResult().size() < 5) {
+                                                            isLastItemReached = true;
                                                         }
                                                     }
                                                 }
-                                                //posts.addAll(postsNext);
-
-                                                for (int i = 0; i < postsNext.size(); i++) {
-                                                    data.add(new MessengerFeedRecyclerAdapter.FeedPostPreviewData(
-                                                            postsNext.get(i)));
-                                                }
-                                                if (isLastItemReached) {
-                                                    // Add end here
-                                                }
-                                                rAdapter.notifyDataSetChanged();
-                                                if (t.getResult().size() != 0) {
-                                                    lastVisible = t.getResult().getDocuments().get(t.getResult().size() - 1);
-                                                }
-
-                                                if (t.getResult().size() < 5) {
-                                                    isLastItemReached = true;
-                                                }
                                             }
-                                        }
-                                    });
+                                        });
+                                    }
                                 }
-                            }
-                        };
-                        recyclerView.addOnScrollListener(onScrollListener);
+                            };
+                            recyclerView.addOnScrollListener(onScrollListener);
+                        }
                     }
                 }
             });
@@ -331,7 +451,8 @@ public class MessengerFeedFragment extends FeedFragment {
                                                                   newRatings.put("post", docID);
                                                                   mDatabase.collection("reviews").document(mUser.getUID() + "-" + recipeID).set(newRatings);
                                                               }
-                                                              updateFollowers(map);
+                                                              postComplete();
+//                                                              updateFollowers(map);
                                                           }
                                                       }
                                                   }
@@ -343,7 +464,8 @@ public class MessengerFeedFragment extends FeedFragment {
                 newRatings.put("post", newPostID);
                 mDatabase.collection("reviews").document(mUser.getUID() + "-" + recipeID).set(newRatings);
             }
-            updateFollowers(map);
+            postComplete();
+//            updateFollowers(map);
         }
     }
 
@@ -352,7 +474,7 @@ public class MessengerFeedFragment extends FeedFragment {
      * Reset the screen once a new post has been completed
      */
     protected void postComplete() {
-        mDatabase.collection("users").document(mUser.getUID()).update("posts", FieldValue.increment(1), "livePosts", FieldValue.increment(1)).addOnCompleteListener(new OnCompleteListener<Void>() {
+        mDatabase.collection("users").document(mUser.getUID()).collection("messages").document(mRecipient.getUID()).update("posts", FieldValue.increment(1), "livePosts", FieldValue.increment(1)).addOnCompleteListener(new OnCompleteListener<Void>() {
                                                                                                                                                                         @Override
                                                                                                                                                                         public void onComplete(@NonNull Task<Void> task) {
                                                                                                                                                                             mUser.setPosts(mUser.getPosts() + 1);
