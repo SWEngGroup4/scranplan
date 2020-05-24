@@ -169,8 +169,10 @@ public class MessengerFeedFragment extends FeedFragment {
      */
     protected void addPosts(View view) {
         final RecyclerView recyclerView = view.findViewById(R.id.postsList);
+
         // Set out the layout of this horizontal view
-        RecyclerView.LayoutManager rManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+        LinearLayoutManager rManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, true);
+        rManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(rManager);
         //recyclerView.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels));
         // Array to score downloaded data
