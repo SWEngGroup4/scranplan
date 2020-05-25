@@ -355,7 +355,9 @@ public class MessengerFeedFragment extends FeedFragment {
         data = new ArrayList<>();
         final RecyclerView.Adapter rAdapter = new MessengerFeedRecyclerAdapter(MessengerFeedFragment.this, data, mUser, view);
         recyclerView.setAdapter(rAdapter);
-        query = mRef.orderBy("timestamp", Query.Direction.DESCENDING).limit(5);
+        int numberOfMessages = 5;
+        query = mRef.orderBy("timestamp", Query.Direction.DESCENDING).limit(numberOfMessages);
+        final boolean[] initalData = {true};
         // Ensure query exists and builds view with query
         if (query != null) {
             Log.e(TAG, "User is searching the following query: " + query.toString());
@@ -375,16 +377,25 @@ public class MessengerFeedFragment extends FeedFragment {
                         Log.e("FEED", "I have found a doc");
                         posts.add((HashMap) document.getData());
                     }
-                    for (int i = 0; i < posts.size(); i++) {
-                        data.add(new MessengerFeedRecyclerAdapter.FeedPostPreviewData(
-                                posts.get(i)));
+                    if(!initalData[0]){
+                        data.add(0, new MessengerFeedRecyclerAdapter.FeedPostPreviewData(
+                                posts.get(0)));
                     }
+                    if(initalData[0]) {
+                        for (int i = 0; i < posts.size(); i++) {
+                            data.add(new MessengerFeedRecyclerAdapter.FeedPostPreviewData(
+                                    posts.get(i)));
+                        }
+                        initalData[0] = false;
+                        if (queryDocumentSnapshots.size() != 0) {
+                            lastVisible = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
+                        } else {
+                            isLastItemReached = true;
+                        }
+                    }
+
                     rAdapter.notifyDataSetChanged();
-                    if (queryDocumentSnapshots.size() != 0) {
-                        lastVisible = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
-                    } else {
-                        isLastItemReached = true;
-                    }
+
                     // Track users location to check if new data download is required
                     RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
                         @Override
