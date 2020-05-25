@@ -88,6 +88,14 @@ public class recipeReviewRecyclerAdapter extends RecyclerView.Adapter <recipeRev
                     if (task.isSuccessful()) {
 
                         holder.author.setText((String) task.getResult().get("displayName"));
+                        holder.authorPicURL = (String)task.getResult().get("imageURL");
+                        if(task.getResult().get("imageURL") != null){
+                            Glide.with(holder.authorPic.getContext())
+                                    .load(task.getResult().get("imageURL"))
+                                    .apply(RequestOptions.circleCropTransform())
+                                    .into(holder.authorPic);
+                            holder.authorPic.setVisibility(View.VISIBLE);
+                        }
 
                     }
                 }
@@ -203,6 +211,8 @@ public class recipeReviewRecyclerAdapter extends RecyclerView.Adapter <recipeRev
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
+        public String authorPicURL;
+        private ImageView authorPic;
         private CardView cardView;
         private TextView postBody;
         private TextView timeStamp;
@@ -218,6 +228,7 @@ public class recipeReviewRecyclerAdapter extends RecyclerView.Adapter <recipeRev
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
+            authorPic = itemView.findViewById(R.id.postAuthorPic);
             postBody = itemView.findViewById(R.id.postBody);
             author = itemView.findViewById(R.id.postAuthor);
             timeStamp = itemView.findViewById(R.id.postTimeStamp);

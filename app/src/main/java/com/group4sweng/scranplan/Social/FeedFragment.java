@@ -1009,10 +1009,14 @@ public class FeedFragment extends Fragment {
                         HashMap<String, Object> reportsMap = new HashMap<>();
                         reportsMap.put("postID", document.get("postID").toString());
                         reportsMap.put("usersID", document.get("author").toString());
+                        reportsMap.put("issue","Reporting Content");
 
                         //creating a dialog box on screen so that the user can report an issue
-                        reportContent = new ContentReporting(getActivity(), reportsMap);
+                        String firebaseLocation = "reporting";
+                        reportContent = new ContentReporting(getActivity(), reportsMap, firebaseLocation);
                         reportContent.startReportingDialog();
+                        reportContent.title.setText("Report Content");
+                        reportContent.message.setText("What is the issue you would like to report?");
 
                         break;
                     case R.id.deleteComment:

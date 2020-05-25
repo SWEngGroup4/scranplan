@@ -3,14 +3,18 @@ package com.group4sweng.scranplan.Administration;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.R;
+
 import java.util.HashMap;
 
 
@@ -19,21 +23,29 @@ public class ContentReporting {
     Activity activity;
     private HashMap<String, Object> document;
     private FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
+    private String location;
 
-    public ContentReporting(Activity thisActivity, HashMap<String, Object> map){
+    private EditText editText;
+    public TextView title;
+    public TextView message;
+
+    public ContentReporting(Activity thisActivity, HashMap<String, Object> map, String location){
         activity = thisActivity;
         this.document = map;
+        this.location = location;
     }
 
     public void startReportingDialog(){
         AlertDialog.Builder report = new AlertDialog.Builder(activity);
+        LayoutInflater inflater = activity.getLayoutInflater();
+        View view = inflater.inflate(R.layout.content_reporting, null);
 
-        //Alert dialog box appears on screen and allows the user to type in their issue
-        final EditText edittext = new EditText(activity);
-        report.setMessage("What is the issue you would like to report?");
-        report.setTitle("Report Content");
+        editText = view.findViewById(R.id.editText);
+        title = view.findViewById(R.id.reporting_title);
+        message = view.findViewById(R.id.reporting_message);
 
-        report.setView(edittext); //users can type in their issue
+        report.setView(view);
+        report.setCancelable(false);
 
         //Create the submit button
         report.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
@@ -58,13 +70,13 @@ public class ContentReporting {
         theButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String usersContentReport = edittext.getText().toString(); // gets issue as string to be passed into map
+                String usersContentReport = editText.getText().toString(); // gets issue as string to be passed into map
 
                 if(usersContentReport.length() > 3){
                     document.put("report", usersContentReport);
 
                     //takes the map and puts it onto the firebase
-                    CollectionReference reportRef = mDatabase.collection("reporting");
+                    CollectionReference reportRef = mDatabase.collection(location);
                     DocumentReference documentReference = reportRef.document();
                     documentReference.set(document);
 

@@ -11,6 +11,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -18,10 +19,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,11 +43,14 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.Administration.ContentReporting;
+import com.group4sweng.scranplan.Administration.SuggestionBox;
 import com.group4sweng.scranplan.Helper.ImageHelpers;
 import com.group4sweng.scranplan.Helper.RecipeHelpers;
 import com.group4sweng.scranplan.MealPlanner.Ingredients.Ingredient;
 import com.group4sweng.scranplan.Presentation.Presentation;
 import com.group4sweng.scranplan.R;
+import com.group4sweng.scranplan.Social.FeedFragment;
 import com.group4sweng.scranplan.UserInfo.FilterType;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
@@ -70,6 +76,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
     private CheckBox mKudos;
     private RatingBar mStars;
     protected TextView mServing;
+    protected ImageButton mRecipeMenu;
 
     //Variables to hold the data being passed through into the fragment
     protected String recipeID;
@@ -108,6 +115,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
     protected ImageButton mChangePortions;
     //protected TextView mServing;
     protected String starRating;
+    protected String firebaseLocation;
 
     protected FirebaseFirestore mDatabase;
     protected CollectionReference mDataRef;
@@ -181,6 +189,8 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         mReheatInformationButton = layout.findViewById(R.id.reheatInfoButton);
         mFavourite = layout.findViewById(R.id.addFavorite);
         mFavourite.setChecked(isFavourite);
+
+        mRecipeMenu = layout.findViewById(R.id.menu_button);
 
         mKudos = layout.findViewById(R.id.addKudos);
 
@@ -325,6 +335,18 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
 
                 openDialog();
 
+            }
+        });
+
+        mRecipeMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                HashMap<String, Object> map = new HashMap<>();
+
+                map.put("author", chefName);
+                map.put("postID", recipeID);
+
+                menuSelected(map,mRecipeMenu);
             }
         });
     }
@@ -655,6 +677,76 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         mStars.setStepSize(0.1F);
         starRating = newRating;
 
+    }
+
+    /**
+     * This method checks what recipe is selected and opens up a menu to either open up another
+     * users profile and report the recipe. User cannot delete their own recipe as they belong to Scran Plan. See T&C's
+     * @param document
+     * @param menu
+     */
+    public void menuSelected(HashMap document, View menu){
+        //Creating the instance of PopupMenu
+        PopupMenu popup = new PopupMenu(getActivity(), menu);
+        //Inflating the Popup using xml file
+        popup.getMenuInflater().inflate(R.menu.menu_comment, popup.getMenu());
+
+        //HashMap with relevant information to be sent for reporting
+        HashMap<String, Object> reportsMap = new HashMap<>();
+        reportsMap.put("recipeID", document.get("postID").toString());
+        reportsMap.put("chefID", document.get("author").toString());
+
+        if(document.get("author").toString().equals(mUser.getUID())){
+            popup.getMenu().getItem(0).setVisible(false);
+            popup.getMenu().getItem(1).setVisible(false);
+            popup.getMenu().getItem(2).setVisible(true);
+            popup.getMenu().getItem(2).setTitle("Request recipe deletion");
+        }else{
+            popup.getMenu().getItem(0).setVisible(true);
+            popup.getMenu().getItem(0).setTitle("View chef profile");
+            popup.getMenu().getItem(1).setVisible(true);
+            popup.getMenu().getItem(1).setTitle("Report recipe");
+            popup.getMenu().getItem(2).setVisible(false);
+        }
+
+        //registering popup with OnMenuItemClickListener
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            public boolean onMenuItemClick(
+                    MenuItem item) {
+                // Give each item functionality
+                switch (item.getItemId()) {
+                    case R.id.viewCommentProfile:
+                        //TODO add functionality to open users profile in new fragment
+                        break;
+                    case R.id.reportComment:
+
+                        //creating a dialog box on screen so that the user can report an issue
+                        reportsMap.put("issue","Recipe Reporting");
+                        firebaseLocation = "reporting";
+                        ContentReporting reportContent = new ContentReporting(getActivity(), reportsMap, firebaseLocation);
+                        reportContent.startReportingDialog();
+                        reportContent.title.setText("Report Content");
+                        reportContent.message.setText("What is the issue you would like to report?");
+
+                        break;
+                    case R.id.deleteComment:
+
+                        //creating a dialog box on screen so that the user can report an issue
+                        reportsMap.put("issue","Recipe Deletion");
+                        firebaseLocation = "recipeDeletionRequest";
+                        ContentReporting recipeDelete = new ContentReporting(getActivity(), reportsMap, firebaseLocation);
+                        recipeDelete.startReportingDialog();
+                        recipeDelete.title.setText("Recipe Deletion Request");
+                        recipeDelete.message.setText("Why would you like to delete your recipe?");
+
+                        break;
+
+                }
+                return true;
+            }
+        });
+
+        popup.show();//showing popup menu
     }
 
 

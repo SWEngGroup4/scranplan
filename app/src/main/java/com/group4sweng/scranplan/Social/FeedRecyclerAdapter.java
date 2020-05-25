@@ -430,7 +430,13 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
                             if (task.getResult().exists()) {
 
                                 DocumentSnapshot document = task.getResult();
-                                mFeedFragment.recipeSelected(document);
+
+                                if(mFeedFragment != null){
+                                    mFeedFragment.recipeSelected(document);
+                                }else{
+                                    mProfilePosts.recipeSelected(document);
+                                }
+
 
                                 loadingDialog.dismissDialog();
 
