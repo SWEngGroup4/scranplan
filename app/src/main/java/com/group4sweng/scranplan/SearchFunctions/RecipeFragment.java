@@ -212,7 +212,6 @@ public class RecipeFragment extends Fragment {
                                         document,
                                         document.getId(),
                                         document.get("Name").toString(),
-                                        Float.valueOf(document.get("score").toString()),
                                         document.get("imageURL").toString(),
                                         (HashMap) document.getData().get("rating")
                                 ));
@@ -254,7 +253,6 @@ public class RecipeFragment extends Fragment {
                                                                 d,
                                                                 d.getId(),
                                                                 d.get("Name").toString(),
-                                                                Float.valueOf(d.get("score").toString()),
                                                                 d.get("imageURL").toString(),
                                                                 (HashMap) d.getData().get("rating")
                                                         ));
@@ -317,7 +315,6 @@ public class RecipeFragment extends Fragment {
                                         document,
                                         document.getId(),
                                         document.get("Name").toString(),
-                                        Float.valueOf(document.get("score").toString()),
                                         document.get("imageURL").toString(),
                                         (HashMap) document.getData().get("rating")
                                 ));
@@ -359,7 +356,6 @@ public class RecipeFragment extends Fragment {
                                                                 d,
                                                                 d.getId(),
                                                                 d.get("Name").toString(),
-                                                                Float.valueOf(d.get("score").toString()),
                                                                 d.get("imageURL").toString(),
                                                                 (HashMap) d.getData().get("rating")
                                                         ));
@@ -423,7 +419,6 @@ public class RecipeFragment extends Fragment {
                                         document,
                                         document.getId(),
                                         document.get("Name").toString(),
-                                        Float.valueOf(document.get("score").toString()),
                                         document.get("imageURL").toString(),
                                         (HashMap) document.getData().get("rating")
                                 ));
@@ -465,7 +460,6 @@ public class RecipeFragment extends Fragment {
                                                                 d,
                                                                 d.getId(),
                                                                 d.get("Name").toString(),
-                                                                Float.valueOf(d.get("score").toString()),
                                                                 d.get("imageURL").toString(),
                                                                 (HashMap) d.getData().get("rating")
                                                         ));
@@ -528,7 +522,6 @@ public class RecipeFragment extends Fragment {
                                         document,
                                         document.getId(),
                                         document.get("Name").toString(),
-                                        Float.valueOf(document.get("score").toString()),
                                         document.get("imageURL").toString(),
                                         (HashMap) document.getData().get("rating")
                                 ));
@@ -570,7 +563,6 @@ public class RecipeFragment extends Fragment {
                                                                 d,
                                                                 d.getId(),
                                                                 d.get("Name").toString(),
-                                                                Float.valueOf(d.get("score").toString()),
                                                                 d.get("imageURL").toString(),
                                                                 (HashMap) d.getData().get("rating")
                                                         ));

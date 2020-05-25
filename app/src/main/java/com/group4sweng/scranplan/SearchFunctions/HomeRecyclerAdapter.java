@@ -46,14 +46,13 @@ public class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapte
         private DocumentSnapshot document;
         private String ratingResults;
 
-        public HomeRecipePreviewData(DocumentSnapshot doc, String recipeID, String title, Float rating, String imageURL, HashMap<String, Double> ratingResults) {
+        public HomeRecipePreviewData(DocumentSnapshot doc, String recipeID, String title, String imageURL, HashMap<String, Double> ratingResults) {
             this.document = doc;
             this.recipeID = recipeID;
             this.title = title;
             this.imageURL = imageURL;
             this.ratingResults = ratingResults.get("overallRating").toString();
             this.rating = Float.parseFloat(this.ratingResults);
-            //this.rating = rating;
         }
     }
 
