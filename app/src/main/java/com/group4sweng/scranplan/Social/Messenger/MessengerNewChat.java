@@ -110,19 +110,29 @@ public class MessengerNewChat extends MessengerMenu {
                         posts.add((HashMap) document.getData());
                     }
                     if (!initalData[0]) {
-                        data.add(0, new MessageMenuRecyclerAdapter.MessengerFeedPreviewData(
-                                posts.get(0)));
+                        if(posts.get(0).containsKey("author")){
+                            if(!posts.get(0).get("author").equals(mUser.getUID())){
+                                data.add(0, new MessageMenuRecyclerAdapter.MessengerFeedPreviewData(
+                                        posts.get(0)));
+                            }
+                        }
+
                     }
                     if (initalData[0]) {
-                        for (int i = 1; i < posts.size(); i++) {
-                            data.add(new MessageMenuRecyclerAdapter.MessengerFeedPreviewData(
-                                    posts.get(i)));
+                        for (int i = 0; i < posts.size(); i++) {
+                            if(posts.get(i).containsKey("author")){
+                                if(!posts.get(i).get("author").equals(mUser.getUID())){
+                                    data.add(new MessageMenuRecyclerAdapter.MessengerFeedPreviewData(
+                                            posts.get(i)));
+                                }
+                            }
                         }
                         initalData[0] = false;
                         if (queryDocumentSnapshots.size() != 0) {
                             lastVisible = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
                         } else {
                             isLastItemReached = true;
+                            data.add(new MessageMenuRecyclerAdapter.MessengerFeedPreviewData(null));
                         }
                     }
 

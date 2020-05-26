@@ -60,10 +60,14 @@ public class MessageMenuRecyclerAdapter extends RecyclerView.Adapter<MessageMenu
 
         public MessengerFeedPreviewData(HashMap<String, Object> doc) {
             this.document = doc;
-            if(doc.containsKey("UID")){
-            this.authorUID = document.get("UID").toString();}
-            if(doc.containsKey("author")){
-                this.authorUID = document.get("author").toString();
+            if(doc != null) {
+                // Checks for UID either from followers list or messages list
+                if (doc.containsKey("UID")) {
+                    this.authorUID = document.get("UID").toString();
+                }
+                if (doc.containsKey("author")) {
+                    this.authorUID = document.get("author").toString();
+                }
             }
         }
     }
@@ -131,8 +135,7 @@ public class MessageMenuRecyclerAdapter extends RecyclerView.Adapter<MessageMenu
                 }
             });
         } else {
-            Log.e("FdRc", "User UID null");
-            holder.author.setText("");
+            holder.author.setText(R.string.noResultsFound);
         }
 
 
