@@ -243,12 +243,12 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
             public void onClick(View v) {
                 if (presentation != null) {
                     if (mDataset.get(holder.getAdapterPosition()).document != null) {
-                        presentation.commentSelected(mDataset.get(holder.getAdapterPosition()).document, holder.cardView, currentSlide);
+                        presentation.commentSelected(mDataset.get(holder.getAdapterPosition()).document, holder.menu, currentSlide);
                         Log.e("COMMENT RECYCLER", "Add send to profile on click");
                     }
                 }else if(postPage != null){
                     if(mDataset.get(holder.getAdapterPosition()).document != null){
-                        postPage.commentSelected(mDataset.get(holder.getAdapterPosition()).document, holder.cardView);
+                        postPage.commentSelected(mDataset.get(holder.getAdapterPosition()).document, holder.menu);
                         Log.e("COMMENT RECYCLER", "Add send to profile on click");
                     }
                 }else{
