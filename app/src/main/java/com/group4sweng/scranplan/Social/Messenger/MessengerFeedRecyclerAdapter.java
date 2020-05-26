@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
@@ -22,7 +21,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.Social.FeedFragment;
@@ -36,7 +34,7 @@ import java.util.List;
 import io.sentry.core.Sentry;
 
 /**
- * Class to display the data in the recipe feed
+ * Class to display the data in the messanger feed
  */
 
 public class MessengerFeedRecyclerAdapter extends RecyclerView.Adapter<MessengerFeedRecyclerAdapter.ViewHolder> {
@@ -94,34 +92,38 @@ public class MessengerFeedRecyclerAdapter extends RecyclerView.Adapter<Messenger
         private HashMap<String, Object> document;
 
         public FeedPostPreviewData(HashMap<String, Object> doc) {
-            this.document = doc;
-            this.postID = (String) document.get("docID");
-            Timestamp time = (Timestamp) document.get("timestamp");
-            try{ this.timeStamp = time.toDate().toString();}catch (Exception e){
-                Sentry.captureException(e);
-            }
-            this.isRecipe = (boolean) document.get("isRecipe");
-            this.isPic = (boolean) document.get("isPic");
-            if(document.get("overallRating") != null){
-                this.isReview = (boolean) document.get("isReview");
-            }
-            this.isReview = (boolean) document.get("isReview");
-            this.authorUID = (String) document.get("author");
-            this.body = (String) document.get("body");
-            if(isPic){
-                this.uploadedImageURL = (String) document.get("uploadedImageURL");
-            }
-            if(isRecipe){
-                this.recipeID = (String) document.get("recipeID");
-                this.recipeImageURL = (String) document.get("recipeImageURL");
-                this.recipeTitle = (String) document.get("recipeTitle");
-                this.recipeDescription = (String) document.get("recipeDescription");
-                if(isReview){
-                    double toFloat = (double) document.get("overallRating");
-                    this.review = (float)toFloat;
+            if (doc.get("timestamp") != null) {
+                this.document = doc;
+                this.postID = (String) document.get("docID");
+                Timestamp time = (Timestamp) document.get("timestamp");
+                try {
+                    this.timeStamp = time.toDate().toString();
+                } catch (Exception e) {
+                    Sentry.captureException(e);
                 }
-            }
+                this.isRecipe = (boolean) document.get("isRecipe");
+                this.isPic = (boolean) document.get("isPic");
+                if (document.get("overallRating") != null) {
+                    this.isReview = (boolean) document.get("isReview");
+                }
+                this.isReview = (boolean) document.get("isReview");
+                this.authorUID = (String) document.get("author");
+                this.body = (String) document.get("body");
+                if (isPic) {
+                    this.uploadedImageURL = (String) document.get("uploadedImageURL");
+                }
+                if (isRecipe) {
+                    this.recipeID = (String) document.get("recipeID");
+                    this.recipeImageURL = (String) document.get("recipeImageURL");
+                    this.recipeTitle = (String) document.get("recipeTitle");
+                    this.recipeDescription = (String) document.get("recipeDescription");
+                    if (isReview) {
+                        double toFloat = (double) document.get("overallRating");
+                        this.review = (float) toFloat;
+                    }
+                }
 
+            }
         }
     }
 
@@ -158,24 +160,24 @@ public class MessengerFeedRecyclerAdapter extends RecyclerView.Adapter<Messenger
 
         private ViewHolder(View v) {
             super(v);
-            authorPic = v.findViewById(R.id.postAuthorPic);
-            cardView = v.findViewById(R.id.postCardView);
-            author = v.findViewById(R.id.postAuthor);
-            body = v.findViewById(R.id.postBody);
-            uploadedImageView = v.findViewById(R.id.userUploadedImageViewAdapter);
-            recipeImageView = v.findViewById(R.id.postRecipeImageViewAdapter);
-            recipeTitle = v.findViewById(R.id.postRecipeTitleAdapter);
-            recipeDescription = v.findViewById(R.id.postRecipeDescriptionAdapter);
-            timeStamp = v.findViewById(R.id.postTimeStamp);
-            recipeRating = v.findViewById(R.id.recipeRatingFeed);
-            numLikes = v.findViewById(R.id.postNumLike);
-            numComments = v.findViewById(R.id.postNumComments);
-            likedOrNot = v.findViewById(R.id.likeIcon);
-            recipeLayout = v.findViewById(R.id.postRecipeImageViewAdapterLayout);
-            picLayout = v.findViewById(R.id.userUploadedImageViewAdapterLayout);
-            menu = v.findViewById(R.id.postMenu);
+                authorPic = v.findViewById(R.id.postAuthorPic);
+                cardView = v.findViewById(R.id.postCardView);
+                author = v.findViewById(R.id.postAuthor);
+                body = v.findViewById(R.id.postBody);
+                uploadedImageView = v.findViewById(R.id.userUploadedImageViewAdapter);
+                recipeImageView = v.findViewById(R.id.postRecipeImageViewAdapter);
+                recipeTitle = v.findViewById(R.id.postRecipeTitleAdapter);
+                recipeDescription = v.findViewById(R.id.postRecipeDescriptionAdapter);
+                timeStamp = v.findViewById(R.id.postTimeStamp);
+                recipeRating = v.findViewById(R.id.recipeRatingFeed);
+                numLikes = v.findViewById(R.id.postNumLike);
+                numComments = v.findViewById(R.id.postNumComments);
+                likedOrNot = v.findViewById(R.id.likeIcon);
+                recipeLayout = v.findViewById(R.id.postRecipeImageViewAdapterLayout);
+                picLayout = v.findViewById(R.id.userUploadedImageViewAdapterLayout);
+                menu = v.findViewById(R.id.postMenu);
 
-        }
+            }
     }
 
 
@@ -204,6 +206,8 @@ public class MessengerFeedRecyclerAdapter extends RecyclerView.Adapter<Messenger
      */
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
+
+        if(mDataset.get(position).timeStamp != null){
         if (mDataset.get(position).authorUID != null) {
             mDatabase.collection("users").document(mDataset.get(position).authorUID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
@@ -255,73 +259,8 @@ public class MessengerFeedRecyclerAdapter extends RecyclerView.Adapter<Messenger
                 holder.recipeRating.setRating(mDataset.get(position).review);
             }
         }
-        Log.e("FdRc", "searching for post: " + mDataset.get(position).postID);
-        try {
-            mDatabase.collection("posts").document(mDataset.get(position).postID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        //TODO handle the null exeption
-                        try {
-                            holder.numLikes.setText(task.getResult().get("likes").toString());
-                            holder.numComments.setText(task.getResult().get("comments").toString());
-                        } catch (Exception e) {
-                            Sentry.captureException(e);
-                        }
-                    } else {
-                        Log.e("FdRc", "User details retrieval : Unable to retrieve user document in Firestore ");
-                    }
-                }
-            });
-        } catch (Exception e) {
-            Sentry.captureException(e);
-        }
-        mDatabase.collection("likes").document(mDataset.get(position).postID + "-" + user.getUID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    if (task.getResult().exists()) {
-                        holder.likedB4 = true;
-                        holder.likedOrNot.setChecked((boolean) task.getResult().get("liked"));
-                    } else {
-                        holder.likedB4 = false;
-                        holder.likedOrNot.setChecked(false);
-                    }
-                    holder.likedOrNot.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                        @Override
-                        public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                            if (holder.likedOrNot.isChecked()) {
-                                Log.e("FERC", "liked post");
-                                if (holder.likedB4) {
-                                    mDatabase.collection("likes").document(mDataset.get(position).postID + "-" + user.getUID()).update("liked", true);
-                                } else {
-                                    holder.likedB4 = true;
-                                    HashMap<String, Object> likePost = new HashMap<>();
-                                    likePost.put("liked", true);
-                                    likePost.put("user", user.getUID());
-                                    likePost.put("post", mDataset.get(position).postID);
-                                    mDatabase.collection("likes").document(mDataset.get(position).postID + "-" + user.getUID()).set(likePost);
-                                }
-                                mDatabase.collection("posts").document(mDataset.get(position).postID).update("likes", FieldValue.increment(+1));
-                                int newLiked = Integer.parseInt((String) holder.numLikes.getText()) + 1;
-                                String test = String.valueOf(newLiked);
-                                holder.numLikes.setText(test);
 
-                            } else {
-                                Log.e("FERC", "unliked post");
-                                mDatabase.collection("likes").document(mDataset.get(position).postID + "-" + user.getUID()).update("liked", false);
-                                mDatabase.collection("posts").document(mDataset.get(position).postID).update("likes", FieldValue.increment(-1));
-                                int newLiked = Integer.parseInt((String) holder.numLikes.getText()) - 1;
-                                String test = String.valueOf(newLiked);
-                                holder.numLikes.setText(test);
-                            }
-                        }
-                    });
-                } else {
-                    Log.e("FdRc", "User details retrieval : Unable to retrieve user document in Firestore ");
-                }
-            }
-        });
+
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -382,6 +321,7 @@ public class MessengerFeedRecyclerAdapter extends RecyclerView.Adapter<Messenger
 
             }
         });
+    }
     }
 
     // Getting dataset size

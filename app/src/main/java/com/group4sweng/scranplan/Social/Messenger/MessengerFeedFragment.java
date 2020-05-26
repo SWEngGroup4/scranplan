@@ -1,11 +1,14 @@
 package com.group4sweng.scranplan.Social.Messenger;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -29,7 +32,10 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
@@ -44,6 +50,8 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.group4sweng.scranplan.Exceptions.ImageException;
 import com.group4sweng.scranplan.LoadingDialog;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
@@ -56,6 +64,13 @@ import java.util.HashMap;
 import java.util.List;
 
 import io.sentry.core.Sentry;
+
+import static android.app.Activity.RESULT_OK;
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+import static com.group4sweng.scranplan.Helper.ImageHelpers.getExtension;
+import static com.group4sweng.scranplan.Helper.ImageHelpers.getPrintableSupportedFormats;
+import static com.group4sweng.scranplan.Helper.ImageHelpers.getSize;
+import static com.group4sweng.scranplan.Helper.ImageHelpers.isImageFormatSupported;
 
 public class MessengerFeedFragment extends FeedFragment {
 
@@ -110,7 +125,7 @@ public class MessengerFeedFragment extends FeedFragment {
 
     //User information
     private com.group4sweng.scranplan.UserInfo.UserInfoPrivate mUser;
-    private com.group4sweng.scranplan.UserInfo.UserInfoPrivate mRecipient;
+    private String mRecipient;
     private SearchPrefs prefs;
 
     //Menu items
@@ -129,14 +144,17 @@ public class MessengerFeedFragment extends FeedFragment {
     CollectionReference mRecipientRef;
     FirebaseStorage mStorage = FirebaseStorage.getInstance();
     StorageReference mStorageReference = mStorage.getReference();
-    Boolean newPost;
 
 
-    MessengerFeedFragment(UserInfoPrivate userSent, UserInfoPrivate messageRecipient) {
+    MessengerFeedFragment(UserInfoPrivate userSent, String messageRecipient) {
         super(userSent);
         mUser = userSent;
-        mRecipient = userSent;
-//        mRecipient = messageRecipient;
+        if(messageRecipient == null){
+            Sentry.captureException(new NullPointerException("Message Recipent cannot be Null."));
+            mRecipient = userSent.getUID();
+        }else{
+        mRecipient = messageRecipient;
+        }
     }
 
     // Auto-generated onCreate method (everything happens here)
@@ -147,8 +165,8 @@ public class MessengerFeedFragment extends FeedFragment {
         View view = inflater.inflate(R.layout.fragment_messenger_feed, container, false);
         mainView = view;
         loadingDialog = new LoadingDialog(getActivity());
-        mRef = mDatabase.collection("users").document(mUser.getUID()).collection("userInteractions").document(mRecipient.getUID()).collection("messages");
-        mRecipientRef = mDatabase.collection("users").document(mRecipient.getUID()).collection("userInteractions").document(mUser.getUID()).collection("messages");
+        mRef = mDatabase.collection("users").document(mUser.getUID()).collection("userInteractions").document(mRecipient).collection("messages");
+        mRecipientRef = mDatabase.collection("users").document(mRecipient).collection("userInteractions").document(mUser.getUID()).collection("messages");
 
         initPageItems(view);
         initPageListeners();
@@ -225,7 +243,6 @@ public class MessengerFeedFragment extends FeedFragment {
         mPostButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                newPost = true;
                 String body = mPostBodyInput.getText().toString();
                 if (mPostPic.isChecked() || mPostRecipe.isChecked() || !body.equals("")) {
                     loadingDialog.startLoadingDialog();
@@ -378,23 +395,23 @@ public class MessengerFeedFragment extends FeedFragment {
                         Log.e("FEED", "I have found a doc");
                         posts.add((HashMap) document.getData());
                     }
-                    if (!initalData[0] && newPost) {
+                    if (!initalData[0]) {
+                        if(posts.get(0) != null){
                         data.add(0, new MessengerFeedRecyclerAdapter.FeedPostPreviewData(
-                                posts.get(0)));
+                                posts.get(0)));}
                     }
                     if (initalData[0]) {
                         for (int i = 0; i < posts.size(); i++) {
                             data.add(new MessengerFeedRecyclerAdapter.FeedPostPreviewData(
                                     posts.get(i)));
                         }
-                        initalData[0] = false;
                         if (queryDocumentSnapshots.size() != 0) {
                             lastVisible = queryDocumentSnapshots.getDocuments().get(queryDocumentSnapshots.size() - 1);
                         } else {
                             isLastItemReached = true;
                         }
                     }
-
+                    initalData[0] = false;
                     rAdapter.notifyDataSetChanged();
 
                     // Track users location to check if new data download is required
@@ -470,7 +487,7 @@ public class MessengerFeedFragment extends FeedFragment {
 
     private void savePost(HashMap map, HashMap extras, CollectionReference myRef, CollectionReference recipientRef, HashMap<String, Object> newRatings) {
 
-        if (mUser == mRecipient) {
+        if (mUser.getUID().equals(mRecipient)) {
             if (newPostID == null) {
                 myRef.add(extras).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                                                             @Override
@@ -478,7 +495,6 @@ public class MessengerFeedFragment extends FeedFragment {
                                                                 if (task.isSuccessful()) {
                                                                     final String docID = task.getResult().getId();
                                                                     map.put("docID", docID);
-                                                                    newPost = false;
                                                                     postComplete();
                                                                 }
                                                             }
@@ -487,11 +503,10 @@ public class MessengerFeedFragment extends FeedFragment {
             } else {
                 myRef.document(newPostID).set(extras);
                 map.put("docID", newPostID);
-                newPost = false;
                 postComplete();
             }
         }
-        if (mUser != mRecipient) {
+        if (!mUser.getUID().equals(mRecipient)){
             if (newPostID == null) {
                 myRef.add(extras).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                     @Override
@@ -499,7 +514,6 @@ public class MessengerFeedFragment extends FeedFragment {
                         if (task.isSuccessful()) {
                             final String docID = task.getResult().getId();
                             map.put("docID", docID);
-                            newPost = false;
                         }
                     }
                 });
@@ -509,7 +523,6 @@ public class MessengerFeedFragment extends FeedFragment {
                         if (task.isSuccessful()) {
                             final String docID = task.getResult().getId();
                             map.put("docID", docID);
-                            newPost = false;
                         }
                     }
                 });
@@ -518,9 +531,188 @@ public class MessengerFeedFragment extends FeedFragment {
                 myRef.document(newPostID).set(extras);
                 recipientRef.document(newPostID).set(extras);
                 map.put("docID", newPostID);
-                newPost = false;
                 postComplete();
             }
+        }
+    }
+
+    /** Handle our activity result for the image picker.
+     * @param requestCode - Image request code.
+     * @param resultCode - Success/failure code. 0 = success, -1 = failure.
+     * @param data - Our associated image data.
+     */
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //   Check for a valid request code and successful result.
+        if(requestCode == IMAGE_REQUEST_CODE && resultCode==RESULT_OK){
+            if(data!=null && data.getData()!= null){
+                mImageUri = data.getData();
+
+                //  Use Glides image functionality to quickly load a circular, center cropped image.
+                Glide.with(this)
+                        .load(mImageUri)
+                        .apply(RequestOptions.centerCropTransform())
+                        .into(mUploadedImage);
+                mUploadedImage.setVisibility(View.VISIBLE);
+                mUserUploadedImageViewLayout.setVisibility(View.VISIBLE);
+                mPostRecipeImageViewLayout.setVisibility(View.VISIBLE);
+                mPostPic.setChecked(true);
+                if(mPostRecipe.isChecked()){
+                    DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+                    mUploadedImage.setMaxWidth(displayMetrics.widthPixels/2-20);
+                    mAttachedRecipeImage.setMaxWidth(displayMetrics.widthPixels/2-20);
+                }
+            }else{
+                mPostPic.setChecked(false);
+            }
+        }else if(resultCode == Activity.RESULT_OK) {
+            Bundle bundle = data.getExtras();
+
+            //Hides menu options
+            sortButton.setVisible(false);
+
+            //Clears search view
+            searchView.clearFocus();
+            searchView.onActionViewCollapsed();
+            searchView.setVisibility(View.INVISIBLE);
+
+            //Compiles bundle into a hashmap object for serialization
+            final HashMap<String, Object> map = new HashMap<>();
+            if (bundle != null) {
+                for (String key : bundle.keySet()) {
+                    map.put(key, bundle.get(key));
+                }
+
+                //Sets new listener for inserted recipe to open info fragment
+                mAttachedRecipeImage.setOnClickListener(v -> openRecipeInfo(map));
+
+                //Loads recipe image
+                Glide.with(this).
+                        load(bundle.getString("imageURL"))
+                        .apply(RequestOptions.centerCropTransform())
+                        .into(mAttachedRecipeImage);
+                attachedRecipeURL = bundle.getString("imageURL");
+                recipeID = bundle.getString("recipeID");
+                mAttachedRecipeTitle.setText(bundle.getString("recipeTitle"));
+                mAttachedRecipeInfo.setText(bundle.getString("recipeDescription"));
+                mAttachedRecipeTitle.setVisibility(View.VISIBLE);
+                mAttachedRecipeInfo.setVisibility(View.VISIBLE);
+                mAttachedRecipeImage.setVisibility(View.VISIBLE);
+                mPostRecipeImageViewLayout.setVisibility(View.VISIBLE);
+                if(mPostPic.isChecked()){
+                    DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+                    mUploadedImage.setMaxWidth(displayMetrics.widthPixels/2-20);
+                    mAttachedRecipeImage.setMaxWidth(displayMetrics.widthPixels/2-20);
+                }
+
+                //Removes recipe fragment overlay and makes planner fragment visible
+                fragmentTransaction = getParentFragmentManager().beginTransaction();
+                fragmentTransaction.remove(recipeFragment).commitNow();
+                requireView().setVisibility(View.VISIBLE);
+
+            }
+        }else if (requestCode != IMAGE_REQUEST_CODE){
+
+            fragmentTransaction = getParentFragmentManager().beginTransaction();
+            fragmentTransaction.remove(recipeFragment).commitNow();
+            requireView().setVisibility(View.VISIBLE);
+            //Hides menu options
+            sortButton.setVisible(false);
+            //Clears search view
+            searchView.clearFocus();
+            searchView.onActionViewCollapsed();
+            searchView.setVisibility(View.INVISIBLE);
+            // removes check
+            mPostRecipe.setChecked(false);
+        }
+    }
+
+    /** Image checker.
+     *  Used to reduce wait times for the user when uploading on a slow network.
+     *  Also limits the data that has to be stored and queried from Firebase.
+     *  @param uri - The unique uri of the image file location from the users storage.
+     *  @throws ImageException - Throws if the image file is too large or the format isn't a supported image format.
+     */
+    @Override
+    protected void checkImage(Uri uri) throws ImageException {
+
+        //  If the image files size is greater than the max file size in mb converted to bytes throw an exception and return this issue to the user.
+        if(getSize(this.getContext(), uri) > MAX_IMAGE_FILE_SIZE_IN_MB * 1000000){
+            Toast.makeText(this.getContext(), "Image exceeded: " + MAX_IMAGE_FILE_SIZE_IN_MB + "mb limit. Please choose a different file.", Toast.LENGTH_LONG).show();
+            throw new ImageException("Profile image exceeded max file size: " + MAX_IMAGE_FILE_SIZE_IN_MB + "mb");
+        }
+
+        boolean formatIsSupported = isImageFormatSupported(this.getContext(), uri); // Check if the image is of a supported format
+        String extension = getExtension(this.getContext(), uri); // Grab the extension as a string.
+
+        //  If our format isn't supported then throw an exception. Otherwise continue and don't throw an exception indicating a successful image check.
+        if(!formatIsSupported) {
+            Toast.makeText(this.getContext(), "Image extension: '" + getExtension(this.getContext(), uri) +"' is not supported.", Toast.LENGTH_LONG).show();
+
+            new CountDownTimer(3600, 200){ // Display another toast message after the existing one. Long Toast messages last 3500ms, hence 3600 delay.
+                @Override
+                public void onTick(long millisUntilFinished) { /*Do Nothing...*/ }
+                @Override
+                public void onFinish() {
+                    //   Make the user aware of the supported formats they can upload.
+                    Toast.makeText(getApplicationContext(), "Supported formats: " + getPrintableSupportedFormats(), Toast.LENGTH_LONG).show();
+                }
+            }.start();
+
+            throw new ImageException("Image format type: " + extension + " is not supported");
+        }
+    }
+
+    /**
+     * Adding image to post if an image is attached
+     * @param map
+     * @param extras
+     * @param ref
+     */
+    @Override
+    protected void postImageAttached(HashMap map, HashMap extras, CollectionReference ref){
+        try {
+            checkImage(mImageUri);
+            StorageReference mImageStorage = mStorageReference.child("images/posts/" + mUser.getUID() + "/IMAGEID" + (mUser.getPosts()+1));
+            mImageStorage.putFile(mImageUri).addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Failed to upload profile image.", Toast.LENGTH_SHORT).show()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    mImageStorage.getDownloadUrl().addOnSuccessListener(locationUri -> { // Successful upload.
+                        map.put("uploadedImageURL", locationUri.toString());
+                        addRecipeInfo(map, extras, ref);
+                    }).addOnFailureListener(e -> {
+                        throw new RuntimeException("Unable to grab image URL from Firebase for image URL being uploaded currently. This shouldn't happen.");
+                    });
+                }
+            });
+        } catch (ImageException e) {
+            Log.e(TAG, "Failed to upload photo to Firebase");
+            e.printStackTrace();
+            loadingDialog.dismissDialog();
+            return;
+        }
+    }
+
+    /**
+     *  Adding recipe info if attached to post
+     * @param map
+     * @param extras
+     * @param ref
+     */
+    @Override
+    protected void addRecipeInfo(HashMap map, HashMap extras, CollectionReference ref){
+        if (mPostRecipe.isChecked()) {
+            map.put("recipeID", recipeID);
+            map.put("recipeImageURL", attachedRecipeURL);
+            map.put("recipeTitle", mAttachedRecipeTitle.getText());
+            map.put("recipeDescription", mAttachedRecipeInfo.getText());
+        }
+        extras.putAll(map);
+        if (mPostReview.isChecked() && mPostRecipe.isChecked()) {
+            map.put("overallRating", mAttachedRecipeReview.getRating());
+            extras.put("overallRating", mAttachedRecipeReview.getRating());
+        }else{
+            savePost(map, extras, ref, mRecipientRef, null);
         }
     }
 
@@ -534,7 +726,6 @@ public class MessengerFeedFragment extends FeedFragment {
         mPostRecipe.setChecked(false);
         mPostReview.setChecked(false);
         mPostPic.setChecked(false);
-//        addPosts(mainView);
         loadingDialog.dismissDialog();
     }
 }

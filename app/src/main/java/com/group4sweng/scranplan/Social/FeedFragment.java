@@ -879,7 +879,7 @@ public class FeedFragment extends Fragment {
      *  @param uri - The unique uri of the image file location from the users storage.
      *  @throws ImageException - Throws if the image file is too large or the format isn't a supported image format.
      */
-    private void checkImage(Uri uri) throws ImageException {
+    protected void checkImage(Uri uri) throws ImageException {
 
         //  If the image files size is greater than the max file size in mb converted to bytes throw an exception and return this issue to the user.
         if(getSize(this.getContext(), uri) > MAX_IMAGE_FILE_SIZE_IN_MB * 1000000){
@@ -911,7 +911,7 @@ public class FeedFragment extends Fragment {
 
 
     //Opens info dialog for selected recipe
-    private void openRecipeInfo(HashMap<String, Object> map) {
+    protected void openRecipeInfo(HashMap<String, Object> map) {
         map.put("planner", false); //Allows lauching of presentation
         Bundle bundle = new Bundle();
         bundle.putSerializable("hashmap", map);
