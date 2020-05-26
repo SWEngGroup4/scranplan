@@ -412,7 +412,7 @@ public class MessengerFeedFragment extends FeedFragment {
      * @param view
      */
     protected void addPosts(View view) {
-        final RecyclerView recyclerView = view.findViewById(R.id.postsList);
+        final RecyclerView recyclerView = view.findViewById(R.id.messagesList);
 
         // Set out the layout of this horizontal view
         LinearLayoutManager rManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, true);

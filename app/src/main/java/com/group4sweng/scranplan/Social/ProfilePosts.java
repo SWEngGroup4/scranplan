@@ -1,7 +1,6 @@
 package com.group4sweng.scranplan.Social;
 
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -28,6 +27,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.group4sweng.scranplan.LoadingDialog;
 import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.R;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
