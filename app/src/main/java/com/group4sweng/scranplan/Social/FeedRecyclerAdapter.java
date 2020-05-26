@@ -260,8 +260,13 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    holder.numLikes.setText(task.getResult().get("likes").toString());
-                    holder.numComments.setText(task.getResult().get("comments").toString());
+                    if(task.getResult().get("likes") != null){
+                        holder.numLikes.setText(task.getResult().get("likes").toString());
+                        holder.numComments.setText(task.getResult().get("comments").toString());
+                    }else{
+                        holder.cardView.setVisibility(View.GONE);
+                    }
+
                 }else {
                     Log.e("FdRc", "User details retrieval : Unable to retrieve user document in Firestore ");
                 }

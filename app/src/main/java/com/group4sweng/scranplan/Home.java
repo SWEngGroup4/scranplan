@@ -129,8 +129,6 @@ public class Home extends AppCompatActivity {
             mSentryUser.setEmail(mUser.getEmail());
             Sentry.setUser(mSentryUser);
         }
-
-        fragment = new RecipeFragment(mUser);
         /*
         // Setting up the action and tab bars
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -147,7 +145,7 @@ public class Home extends AppCompatActivity {
         mSideMenu.mMenuToolbar = findViewById(R.id.toolbar);
         mSideMenu.mMenuDrawer = findViewById(R.id.drawer_layout);
         mSideMenu.mNavigationView = findViewById(R.id.side_menu);
-        notificationMenuItem = mSideMenu.mNavigationView.findViewById(R.id.nav_notifications);
+        notificationMenuItem = mSideMenu.mNavigationView.getMenu().getItem(1);
         setSupportActionBar(mSideMenu.mMenuToolbar);
         mSideMenu.init(this, this);
 
@@ -156,6 +154,7 @@ public class Home extends AppCompatActivity {
         initPageItems();
         initPageListeners();
         initSearchMenu();
+        checkForNotifications();
     }
 
 
@@ -236,7 +235,10 @@ public class Home extends AppCompatActivity {
                             notifications = Integer.toString(task.getResult().size());
                         }
                         notificationMenuItem.setTitle("Notifications (" + notifications + ")");
+                    }else{
+                        notificationMenuItem.setTitle("Notifications (0)");
                     }
+
                 }
             }
         });
@@ -249,7 +251,7 @@ public class Home extends AppCompatActivity {
         //Defining all relevant members of signin & register page
         tabLayout = findViewById(R.id.tabLayout);
         frameLayout = findViewById(R.id.frameLayout);
-        Fragment fragment = new RecipeFragment(mUser);
+        Fragment fragment = new RecipeFragment();
         fragmentTransaction.replace(R.id.frameLayout, fragment);
         fragmentTransaction.commit ();
         navigationView = (NavigationView) findViewById(R.id.side_menu);
@@ -278,16 +280,6 @@ public class Home extends AppCompatActivity {
                         intentProfile.putExtra("user", mUser);
                         //setResult(RESULT_OK, intentProfile);
                         startActivity(intentProfile);
-                        break;
-                    case R.id.nav_test:
-                        Log.e(TAG,"Clicked public profile!");
-
-                        Intent intentProfileT = new Intent(mContext, PublicProfile.class);
-                        intentProfileT.putExtra("UID", "QF2YfN71I0Uq3GnTcqYZf0d94Ep2");
-
-                        intentProfileT.putExtra("user", mUser);
-                        //setResult(RESULT_OK, intentProfile);
-                        startActivity(intentProfileT);
                         break;
                     case R.id.nav_notifications:
                         Notifications notificationDialogFragment = new Notifications(mUser);
@@ -318,12 +310,13 @@ public class Home extends AppCompatActivity {
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
+                checkForNotifications();
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 Log.d("Test", String.valueOf(fragment));
                 switch (tab.getPosition()) {
                     case 0:
-                        fragment = new RecipeFragment(mUser);
+                        fragment = new RecipeFragment();
                         fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
                         break;
                     case 1:

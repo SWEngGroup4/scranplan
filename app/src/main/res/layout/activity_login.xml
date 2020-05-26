@@ -17,6 +17,36 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <ImageView
+            android:id="@+id/usernameTick"
+            android:layout_width="35sp"
+            android:layout_height="35sp"
+            android:layout_marginTop="10dp"
+            app:layout_constraintStart_toEndOf="@+id/displayNameEditText"
+            app:layout_constraintTop_toBottomOf="@+id/confirmPasswordEditText"
+            app:srcCompat="@drawable/ic_clear_black_24dp"
+            android:visibility="gone"/>
+
+        <ImageView
+            android:id="@+id/passwordTick"
+            android:layout_width="35sp"
+            android:layout_height="35sp"
+            android:layout_marginTop="10dp"
+            app:layout_constraintStart_toEndOf="@+id/passwordEditText"
+            app:layout_constraintTop_toBottomOf="@+id/emailEditText"
+            app:srcCompat="@drawable/ic_clear_black_24dp"
+            android:visibility="gone"/>
+
+        <ImageView
+            android:id="@+id/confirmPasswordTick"
+            android:layout_width="35sp"
+            android:layout_height="35sp"
+            android:layout_marginTop="10dp"
+            app:layout_constraintStart_toEndOf="@+id/confirmPasswordEditText"
+            app:layout_constraintTop_toBottomOf="@+id/passwordEditText"
+            app:srcCompat="@drawable/ic_clear_black_24dp"
+            android:visibility="gone"/>
+
         <Button
             android:id="@+id/registerButton"
             android:layout_width="250sp"
@@ -34,13 +64,13 @@
             android:layout_width="250sp"
             android:layout_height="35sp"
             android:layout_marginTop="10sp"
+            android:background="@drawable/edittext_rounded"
             android:ems="10"
-            android:hint="Enter display name here..."
-            android:paddingHorizontal="10sp"
+            android:hint="Enter username here..."
             android:inputType="textPersonName"
+            android:paddingHorizontal="10sp"
             android:textColor="#000000"
             android:textColorHint="#A0000000"
-            android:background="@drawable/edittext_rounded"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.502"
             app:layout_constraintStart_toStartOf="parent"
@@ -51,13 +81,13 @@
             android:layout_width="250sp"
             android:layout_height="35sp"
             android:layout_marginTop="10sp"
+            android:background="@drawable/edittext_rounded"
             android:ems="10"
             android:hint="Confirm password here..."
-            android:paddingHorizontal="10sp"
             android:inputType="textPassword"
+            android:paddingHorizontal="10sp"
             android:textColor="#000000"
             android:textColorHint="#A0000000"
-            android:background="@drawable/edittext_rounded"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.502"
             app:layout_constraintStart_toStartOf="parent"
@@ -81,13 +111,13 @@
             android:layout_width="250sp"
             android:layout_height="35sp"
             android:layout_marginTop="10sp"
+            android:background="@drawable/edittext_rounded"
             android:ems="10"
             android:hint="Enter email here..."
-            android:paddingHorizontal="10sp"
             android:inputType="textEmailAddress"
+            android:paddingHorizontal="10sp"
             android:textColor="#000000"
             android:textColorHint="#A0000000"
-            android:background="@drawable/edittext_rounded"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/logoImageView" />
@@ -96,14 +126,14 @@
             android:id="@+id/passwordEditText"
             android:layout_width="250sp"
             android:layout_height="35sp"
-            android:paddingHorizontal="10sp"
             android:layout_marginTop="10sp"
+            android:background="@drawable/edittext_rounded"
             android:ems="10"
             android:hint="Enter password here..."
             android:inputType="textPassword"
+            android:paddingHorizontal="10sp"
             android:textColor="#000000"
             android:textColorHint="#A0000000"
-            android:background="@drawable/edittext_rounded"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/emailEditText" />
@@ -145,11 +175,11 @@
             android:background="@color/colorAccent"
             android:text="Back to Registration"
             android:textColor="#FFFFFF"
+            android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/forgottenPasswordText"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent"
-            android:visibility="gone"/>
+            app:layout_constraintStart_toStartOf="parent" />
 
         <Button
             android:id="@+id/backToLoginButton"
@@ -161,11 +191,11 @@
             android:background="@color/colorPrimary"
             android:text="Back to Login"
             android:textColor="#FFFFFF"
+            android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/forgottenPasswordText"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            android:visibility="gone"/>
+            app:layout_constraintStart_toStartOf="parent" />
 
         <ImageView
             android:id="@+id/infoButton"
@@ -173,10 +203,10 @@
             android:layout_height="69sp"
             android:layout_marginEnd="16sp"
             android:layout_marginBottom="16sp"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/quezzies"
-            android:visibility="gone"/>
+            app:srcCompat="@drawable/quezzies" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

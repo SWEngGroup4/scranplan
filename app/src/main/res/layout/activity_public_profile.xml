@@ -426,16 +426,19 @@
                     android:layout_height="40sp">
 
                     <com.google.android.material.tabs.TabItem
+                        android:id="@+id/postsTab"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:icon="@drawable/ic_library_books_black_24dp" />
 
                     <com.google.android.material.tabs.TabItem
+                        android:id="@+id/picsTab"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:icon="@drawable/ic_photo_library_black_24dp" />
 
                     <com.google.android.material.tabs.TabItem
+                        android:id="@+id/recipesTab"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:icon="@drawable/ic_restaurant_menu_black_24dp" />

@@ -3,6 +3,8 @@ package com.group4sweng.scranplan;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -30,6 +32,7 @@ import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static java.util.Objects.requireNonNull;
 
@@ -42,6 +45,7 @@ public class Login extends AppCompatActivity{
 
     // TAG for log info
     final String TAG = "FirebaseTestLogin";
+    private Toast mToast = null;
 
     Context mContext = this;
 
@@ -66,6 +70,11 @@ public class Login extends AppCompatActivity{
     Button mBackToLoginButton;
     Button mRegisterButton;
     ImageView mInfoButton;
+    public final Pattern textPattern = Pattern.compile("^(?=.*[a-z])(?=.*\\d).+$");
+
+    ImageView mCheckPass;
+    ImageView mCheckConfirm;
+    ImageView mCheckUsername;
 
     // Variables to save state of page view
     Boolean mLoginInProgress = false;
@@ -112,6 +121,10 @@ public class Login extends AppCompatActivity{
 
         mInfoButton = (ImageView) findViewById(R.id.infoButton);
 
+        mCheckPass = (ImageView) findViewById(R.id.passwordTick);
+        mCheckConfirm = (ImageView) findViewById(R.id.confirmPasswordTick);
+        mCheckUsername = (ImageView) findViewById(R.id.usernameTick);
+
         //setting all irrelevant parts to begin as invisible
         mEmailEditText.setVisibility(View.GONE);
         mPasswordEditText.setVisibility(View.GONE);
@@ -124,6 +137,131 @@ public class Login extends AppCompatActivity{
      * Giving each actionable item on the XML page function.
      */
     private void initPageListeners(){
+
+
+        mDisplayNameText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if(mRegisterInProgress){
+                    if(!mDisplayNameText.getText().toString().equals("") && mDisplayNameText.getText().toString().matches("^[a-z0-9]+$") && mDisplayNameText.getText().toString().length() <= 20){
+                        mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_autorenew_black_24dp));
+                        mCheckUsername.setVisibility(View.VISIBLE);
+                        if(!mDisplayNameText.getText().toString().equals("")){
+                            database.collection("usernames").document(mDisplayNameText.getText().toString()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if(task.getResult().exists()){
+                                        mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                                        mCheckUsername.setVisibility(View.VISIBLE);
+                                    }else{
+                                        if(!mDisplayNameText.getText().toString().equals("")){
+                                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_check_black_24dp));
+                                            mCheckUsername.setVisibility(View.VISIBLE);
+                                        }else{
+                                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                                            mCheckUsername.setVisibility(View.VISIBLE);
+                                            if (mToast != null) mToast.cancel();
+                                            mToast = Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, maximum 20 characters.",Toast.LENGTH_SHORT);
+                                            mToast.show();
+                                        }
+                                    }
+                                }
+                            });
+                        }else{
+                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                            mCheckUsername.setVisibility(View.VISIBLE);
+                        }
+                    }else{
+                        mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                        mCheckUsername.setVisibility(View.VISIBLE);
+                        if (mToast != null) mToast.cancel();
+                        mToast = Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, maximum 20 characters.",Toast.LENGTH_SHORT);
+                        mToast.show();
+                    }
+                }
+
+            }
+        });
+        mConfirmPasswordEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if(mRegisterInProgress){
+                    if(!mConfirmPasswordEditText.getText().toString().equals("") || mConfirmPasswordEditText.getText().toString().length() == 1){
+                        if(passCheck(mPasswordEditText.getText().toString()) && mConfirmPasswordEditText.getText().toString().equals(mPasswordEditText.getText().toString())){
+                            mCheckConfirm.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_check_black_24dp));
+                            mCheckConfirm.setVisibility(View.VISIBLE);
+                        }else{
+                            mCheckConfirm.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                            mCheckConfirm.setVisibility(View.VISIBLE);
+                        }
+                    }else{
+                        mCheckConfirm.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                        mCheckConfirm.setVisibility(View.VISIBLE);
+                        if (mToast != null) mToast.cancel();
+                        mToast = Toast.makeText(getApplicationContext(),"Passwords must match and be at least 8 letters consisting at least one number and letter.",Toast.LENGTH_SHORT);
+                        mToast.show();
+
+                    }
+
+                }
+
+            }
+        });
+        mPasswordEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if(mRegisterInProgress){
+                    if(!mPasswordEditText.getText().toString().equals("")){
+                        if(passCheck(mPasswordEditText.getText().toString())){
+                            mCheckPass.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_check_black_24dp));
+                            mCheckPass.setVisibility(View.VISIBLE);
+                        }else{
+                            mCheckPass.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                            mCheckPass.setVisibility(View.VISIBLE);
+                        }
+                    }else{
+                        mCheckPass.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                        mCheckPass.setVisibility(View.VISIBLE);
+                        if (mToast != null) mToast.cancel();
+                        mToast = Toast.makeText(getApplicationContext(),"Passwords must be at least 8 letters consisting at least one number and letter.",Toast.LENGTH_SHORT);
+                        mToast.show();
+
+                    }
+
+                }
+
+            }
+        });
 
         /**
          * Setting login button, first click enables login components, second click initiated sign in
@@ -185,11 +323,29 @@ public class Login extends AppCompatActivity{
                     // Check none of fields are just empty strings
                     if(!email.equals("") && !password.equals("") && !displayName.equals("") ){
                         // Check both passwords match before registering new user
-                        if(password.equals(confirmPassword)){
-                            registerUser(email, password, displayName);
+                        if(passCheck(password)){
+                            if(password.equals(confirmPassword)){
+                                if(displayName.matches("^[a-z0-9]+$") && displayName.length() <= 20){
+                                    database.collection("usernames").document(mDisplayNameText.getText().toString()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                            if(task.getResult().exists()){
+                                                Toast.makeText(getApplicationContext(),"Username is not unique.",Toast.LENGTH_SHORT).show();
+                                            }else{
+                                                registerUser(email, password, displayName);
+                                            }
+                                        }
+                                    });
+                                }else{
+                                    Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, maximum 20 characters.",Toast.LENGTH_SHORT).show();
+                                }
+                            }else{
+                                // Display message to user if passwords do not match
+                                Toast.makeText(getApplicationContext(),"Passwords do not match, please try again.",Toast.LENGTH_SHORT).show();
+                            }
                         }else{
                             // Display message to user if passwords do not match
-                            Toast.makeText(getApplicationContext(),"Passwords do not match, please try again.",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(),"Passwords must be at least 8 characters long with at least 1 letter and 1 number, please try again.",Toast.LENGTH_LONG).show();
                         }
                     }else{
                         // Display message to user if passwords do not match
@@ -259,6 +415,9 @@ public class Login extends AppCompatActivity{
                 mPasswordEditText.setVisibility(View.VISIBLE);
                 mConfirmPasswordEditText.setVisibility(View.GONE);
                 mDisplayNameText.setVisibility(View.GONE);
+                mCheckConfirm.setVisibility(View.GONE);
+                mCheckPass.setVisibility(View.GONE);
+                mCheckUsername.setVisibility(View.GONE);
 
 
             }
@@ -303,6 +462,9 @@ public class Login extends AppCompatActivity{
 
                 // if authentication successful
                 if (task.isSuccessful()){
+                    HashMap<String,Object> username = new HashMap<>();
+                    username.put("user", requireNonNull(mAuth.getCurrentUser()).getUid());
+                    database.collection("usernames").document(displayName).set(username);
                     Log.e(TAG, "SignIn : User registered ");
                     // Setting up default user profileView on database with email and display name
                     HashMap<String, Object> map = new HashMap<>();
@@ -331,6 +493,7 @@ public class Login extends AppCompatActivity{
                     map.put("posts", (long) 0);
                     map.put("followers", (long) 0);
                     map.put("following", (long) 0);
+                    map.put("livePosts", (long) 0);
 
                     map.put("privateProfileEnabled", false);
                     privacyPublic.put("display_username", true);
@@ -398,6 +561,13 @@ public class Login extends AppCompatActivity{
                     mPasswordEditText.setVisibility(View.VISIBLE);
                     mConfirmPasswordEditText.setVisibility(View.GONE);
                     mDisplayNameText.setVisibility(View.GONE);
+                    mCheckConfirm.setVisibility(View.GONE);
+                    mCheckPass.setVisibility(View.GONE);
+                    mCheckUsername.setVisibility(View.GONE);
+                    mBackToRegisterButton.setVisibility(View.VISIBLE);
+                    mBackToLoginButton.setVisibility(View.GONE);
+                    mLoginButton.setVisibility(View.VISIBLE);
+                    mRegisterButton.setVisibility(View.GONE);
                     mDisplayNameText.getText().clear();
                     mPasswordEditText.getText().clear();
                     mConfirmPasswordEditText.getText().clear();
@@ -420,6 +590,43 @@ public class Login extends AppCompatActivity{
 
         // Creating new authentication account
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(complete).addOnFailureListener(failure);
+    }
+
+    /**
+     * Check password length and if it has number & letter
+     * @param password
+     * @return
+     */
+    public static boolean passCheck(String password){
+        boolean hasLetter = false;
+        boolean hasDigit = false;
+        if (password.length() >= 8) {
+            for (int i = 0; i < password.length(); i++) {
+                char x = password.charAt(i);
+                if (Character.isLetter(x)) {
+
+                    hasLetter = true;
+                }
+
+                else if (Character.isDigit(x)) {
+
+                    hasDigit = true;
+                }
+
+                // no need to check further, break the loop
+                if(hasLetter && hasDigit){
+                    break;
+                }
+
+            }
+            if (hasLetter && hasDigit) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     /**

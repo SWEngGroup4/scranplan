@@ -141,7 +141,6 @@ public class NotificationRecyclerAdapter extends RecyclerView.Adapter<Notificati
                         if(doc != null){
                             holder.senderName.setVisibility(View.VISIBLE);
                             holder.senderName.setText((String)doc.get("displayName"));
-                            Log.e("HIYA","++++++++++++++++++++++++++++++++" + doc.get("imageURL"));
                             if(doc.get("imageURL") != null){
                                 holder.senderPic.setVisibility(View.VISIBLE);
                                 Glide.with(holder.senderPic.getContext())

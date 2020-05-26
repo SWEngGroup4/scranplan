@@ -160,7 +160,7 @@ public class PlannerFragment extends Fragment {
             currentSelection = imageButton; //Allows tracking of button pressed
 
             //Creates and launches recipe fragment
-            recipeFragment = new RecipeFragment(mUser);
+            recipeFragment = new RecipeFragment();
             recipeFragment.setArguments(bundle);
             recipeFragment.setTargetFragment(PlannerFragment.this, recipeFragmentRequest);
             fragmentTransaction = getParentFragmentManager().beginTransaction();

@@ -454,6 +454,7 @@ public class FeedFragment extends Fragment {
                         HashMap<String, Object> newDoc = new HashMap<>();
                         ArrayList<String> arrayList = new ArrayList<>();
                         arrayList.add(mUser.getUID());
+                        ArrayList<String> second = new ArrayList<>();
                         newDoc.put("mapA", map);
                         newDoc.put("mapB", (HashMap) null);
                         newDoc.put("mapC", (HashMap) null);
@@ -463,6 +464,7 @@ public class FeedFragment extends Fragment {
                         newDoc.put("lastPost", map.get("timestamp"));
                         newDoc.put("author", mUser.getUID());
                         newDoc.put("users", arrayList);
+                        newDoc.put("requested", second);
                         mDatabase.collection("followers").document(mUser.getUID()).set(newDoc).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
@@ -722,7 +724,7 @@ public class FeedFragment extends Fragment {
                         bundle.putBoolean("planner", true); //Condition to let child fragments know access is from planner
 
                         //Creates and launches recipe fragment
-                        recipeFragment = new RecipeFragment(mUser);
+                        recipeFragment = new RecipeFragment();
                         recipeFragment.setArguments(bundle);
                         recipeFragment.setTargetFragment(FeedFragment.this, 1);
                         fragmentTransaction = getParentFragmentManager().beginTransaction();

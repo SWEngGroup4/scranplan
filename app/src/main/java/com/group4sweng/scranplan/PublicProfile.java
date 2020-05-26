@@ -105,7 +105,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
     //  Whether we should retrieve different information for the user. E.g. username, about me etc...
     private boolean retrieveAboutMe = false, retrieveUsername = false,
-            retrieveImages = false, retrieveRecipes = false, retrieveFilters = false;
+            retrieveImages = false, retrieveRecipes = false, retrieveFilters = false, retrievePosts = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,17 +151,16 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
             loadLocalProfile();
             loadFirebase(FirebaseLoadType.PARTIAL);
             searchers = mUserProfile.getUID();
+            fragment = new ProfilePosts(searchers);
+            fragmentTransaction.replace(R.id.profileFrameLayout, fragment);
+            fragmentTransaction.commit();
         } else if(UID != null){ // If not instead search for the profile via the associated UID and reference Firebase.
             Log.i(TAG, "Loading data from Firebase");
-            checkFollowed();
-            loadFirebase(FirebaseLoadType.FULL);
             searchers = UID;
+            checkFollowed();
         } else {
             Log.e(TAG, "Unable to retrieve extra UID intent string. Cannot initialize profile.");
         }
-        fragment = new ProfilePosts(searchers);
-        fragmentTransaction.replace(R.id.profileFrameLayout, fragment);
-        fragmentTransaction.commit();
         initPageListeners();
 
     }
@@ -223,7 +222,9 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                 mFollowButton.setVisibility(View.VISIBLE);
                 mRequestedButton.setVisibility(View.GONE);
                 mDatabase.collection("followers").document(UID).update("requested", FieldValue.arrayRemove(mUserProfile.getUID()));
-                mDatabase.collection("users").document(UID).collection("notifications").whereEqualTo("ifRequested", true).whereEqualTo("senderID", mUserProfile.getUID()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                mDatabase.collection("users").document(UID).collection("notifications")
+                        .whereEqualTo("ifRequested", true).whereEqualTo("senderID", mUserProfile.getUID())
+                        .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         for(DocumentSnapshot document : task.getResult()) {
@@ -301,6 +302,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
             retrieveRecipes = (boolean) privacy.get("display_recipes");
             retrieveImages = (boolean) privacy.get("display_profile_image");
             retrieveFilters = (boolean) privacy.get("display_filters");
+            retrievePosts = (boolean) privacy.get("display_feed");
         }
     }
 
@@ -325,8 +327,8 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                         .into(mProfileImage); }
         }
 
-        if(retrieveUsername){ mUsername.setText((String) profile.get("displayName")); }
-
+//        if(retrieveUsername){ mUsername.setText((String) profile.get("displayName")); }
+        mUsername.setText((String) profile.get("displayName"));
 
 
 
@@ -376,14 +378,17 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                                 mFollowedButton.setVisibility(View.VISIBLE);
                                 followed = true;
                             }else{
-                                ArrayList requested = (ArrayList) document.get("requested");
-                                if(requested.contains(mUserProfile.getUID())){
-                                    mFollowButton.setVisibility(View.GONE);
-                                    mRequestedButton.setVisibility(View.VISIBLE);
+                                if(document.get("requested") != null){
+                                    ArrayList requested = (ArrayList) document.get("requested");
+                                    if(requested.contains(mUserProfile.getUID())){
+                                        mFollowButton.setVisibility(View.GONE);
+                                        mRequestedButton.setVisibility(View.VISIBLE);
+                                    }
                                 }
                             }
                         }
                     }
+                    loadFirebase(FirebaseLoadType.FULL);
                 }
             });
         }
@@ -410,12 +415,21 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                 if(document.exists()){ // Check a document exists.
                     if(fltFinal == FirebaseLoadType.FULL){
                         Log.i(TAG, "Loading a full user profile!");
-                        @SuppressWarnings("unchecked")
-                        HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacyPublic");
-                        loadInPrivacySettings(privacy); // Load in privacy settings first (always)
+                        privateProfile = (boolean) document.get("privateProfileEnabled");
+                        if(followed || !privateProfile){
+                            @SuppressWarnings("unchecked")
+                            HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacyPrivate");
+                            loadInPrivacySettings(privacy); // Load in privacy settings first (always)
+                            loadPostsAndRecipeList();
+                        }else{
+                            @SuppressWarnings("unchecked")
+                            HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacyPublic");
+                            mStreamTabs.setVisibility(View.GONE);
+                            frameLayout.setVisibility(View.GONE);
+                            loadInPrivacySettings(privacy); // Load in privacy settings first (always)
+                        }
                         loadProfile(document); // Then we load the public users profile.
                     }
-                    privateProfile = (boolean) document.get("privateProfileEnabled");
                     postsFollowersFollowing(document);
                     loadKudosAndRecipes(document);
                     initKudosIconPressListener();
@@ -427,6 +441,28 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                 Log.e(TAG, "Failed to get document for public user profile");
             }
         });
+    }
+
+    /**
+     * Loading recipes and posts lists if privacy setting allow and followed or public user
+     */
+    private void loadPostsAndRecipeList(){
+        if(retrievePosts && retrieveRecipes){
+            fragment = new ProfilePosts(searchers);
+            fragmentTransaction.replace(R.id.profileFrameLayout, fragment);
+            fragmentTransaction.commit();
+        }else if(retrievePosts){
+            fragment = new ProfilePosts(searchers);
+            fragmentTransaction.replace(R.id.profileFrameLayout, fragment);
+            fragmentTransaction.commit();
+            mStreamTabs.removeTab(mStreamTabs.getTabAt(2));
+        }else if(retrieveRecipes){
+            mStreamTabs.removeTab(mStreamTabs.getTabAt(1));
+            mStreamTabs.removeTab(mStreamTabs.getTabAt(0));
+            fragment = new ProfileRecipes(searchers);
+            fragmentTransaction.replace(R.id.profileFrameLayout, fragment);
+            fragmentTransaction.commit();
+        }
     }
 
     /** Method to load in Kudos and Recipe information.
@@ -445,9 +481,11 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
         //  Load in number of recipes.
         String numOfRecipesString = "Recipes: " + ((long) profile.get("numRecipes")); //  Convert 'long' value to something we can use.
-        if(retrieveRecipes){ mNumRecipes.setText(numOfRecipesString);} else {
-            mNumRecipes.setText(""); // Set number of recipes to nothing if hidden.
-        }
+        //Number of recipes seen by all
+        mNumRecipes.setText(numOfRecipesString);
+//        if(retrieveRecipes){ mNumRecipes.setText(numOfRecipesString);} else {
+//            mNumRecipes.setText(""); // Set number of recipes to nothing if hidden.
+//        }
     }
 
     /** Method to load in posts, followers and following.
