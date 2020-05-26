@@ -1,6 +1,5 @@
 package com.group4sweng.scranplan.Social.Messenger;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -8,10 +7,6 @@ import android.widget.AbsListView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,7 +23,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.group4sweng.scranplan.Home;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
@@ -38,10 +32,7 @@ import java.util.List;
 
 import io.sentry.core.Sentry;
 
-/***
- * Class to View active messages between people
- */
-public class MessengerMenu extends AppCompatActivity {
+public class MessengerNewChat extends MessengerMenu {
     final String TAG = "Messenger MENU";
 
 
@@ -56,7 +47,6 @@ public class MessengerMenu extends AppCompatActivity {
 
 
     // Firebase user collection and storage references.
-    CollectionReference mMessages;
     FirebaseStorage mStorage = FirebaseStorage.getInstance();
     StorageReference mStorageReference = mStorage.getReference();
     List<MessageMenuRecyclerAdapter.MessengerFeedPreviewData> data;
@@ -70,25 +60,14 @@ public class MessengerMenu extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         //Grabs serializable UserInfoPrivate data from main activity.
         mUser = (UserInfoPrivate) getIntent().getSerializableExtra("user");
-        mMessages = mDatabase.collection("users").document(mUser.getUID()).collection("userInteractions");
 
         setContentView(R.layout.messenger);
         View view = findViewById(R.id.messageFrameLayout);
-        addChats(view);
-
-        //TODO open search for user to message
         mNewMessage = findViewById(R.id.newMessageButton);
-        mNewMessage.setVisibility(View.VISIBLE);
-        mNewMessage.setOnClickListener((new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.e(TAG, "Messenger NEW CHAT Has been entered");
-                Intent intentMessenger = new Intent(getApplicationContext(), MessengerNewChat.class);
-                intentMessenger.putExtra("user", mUser);
-                startActivity(intentMessenger);
-                mNewMessage.setVisibility(View.GONE);
-            }})
-        );
+        mNewMessage.setVisibility(View.GONE);
+        addUsers(view);
+
+
     }
 
     @Override
@@ -96,9 +75,7 @@ public class MessengerMenu extends AppCompatActivity {
         super.onStart();
     }
 
-
-
-    private void addChats(View view){
+    private void addUsers(View view){
         final RecyclerView recyclerView = view.findViewById(R.id.messagesList);
 
         // Set out the layout of this horizontal view
@@ -107,10 +84,10 @@ public class MessengerMenu extends AppCompatActivity {
         //recyclerView.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels));
         // Array to score downloaded data
         data = new ArrayList<>();
-        final RecyclerView.Adapter rAdapter = new MessageMenuRecyclerAdapter(MessengerMenu.this, data, mUser, view);
+        final RecyclerView.Adapter rAdapter = new MessageMenuRecyclerAdapter(MessengerNewChat.this, data, mUser, view);
         recyclerView.setAdapter(rAdapter);
         long numberOfChats = 5;
-        query = mMessages.orderBy("latestMessage", Query.Direction.DESCENDING).limit(numberOfChats);
+        query = mColFollowers.whereArrayContains("users", mUser.getUID());
         final boolean[] initalData = {true};
         // Ensure query exists and builds view with query
         if (query != null) {
@@ -137,7 +114,7 @@ public class MessengerMenu extends AppCompatActivity {
                                 posts.get(0)));
                     }
                     if (initalData[0]) {
-                        for (int i = 0; i < posts.size(); i++) {
+                        for (int i = 1; i < posts.size(); i++) {
                             data.add(new MessageMenuRecyclerAdapter.MessengerFeedPreviewData(
                                     posts.get(i)));
                         }
@@ -219,24 +196,4 @@ public class MessengerMenu extends AppCompatActivity {
             });
         }
     }
-
-
-    // Opens the chat to the specifed user
-    protected void openChat(String messageRecipient){
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        Fragment fragment = new MessengerFeedFragment(mUser , messageRecipient);
-        fragmentTransaction.replace(R.id.messageFrameLayout, fragment);
-        fragmentTransaction.commit();
-        mNewMessage.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void onBackPressed() {
-        Intent returningIntent = new Intent(MessengerMenu.this, Home.class);
-        returningIntent.putExtra("user", mUser);
-        startActivity(returningIntent);
-        finish();
-    }
-
 }

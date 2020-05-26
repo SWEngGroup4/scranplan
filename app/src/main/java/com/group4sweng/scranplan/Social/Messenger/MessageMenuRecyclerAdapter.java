@@ -60,7 +60,11 @@ public class MessageMenuRecyclerAdapter extends RecyclerView.Adapter<MessageMenu
 
         public MessengerFeedPreviewData(HashMap<String, Object> doc) {
             this.document = doc;
-            this.authorUID = document.get("UID").toString();
+            if(doc.containsKey("UID")){
+            this.authorUID = document.get("UID").toString();}
+            if(doc.containsKey("author")){
+                this.authorUID = document.get("author").toString();
+            }
         }
     }
 
@@ -135,7 +139,10 @@ public class MessageMenuRecyclerAdapter extends RecyclerView.Adapter<MessageMenu
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mMessengerMenu.openChat(mDataset.get(position).document.get("UID").toString());
+                if(mDataset.get(position).document.containsKey("UID")){
+                mMessengerMenu.openChat(mDataset.get(position).document.get("UID").toString());}
+                if(mDataset.get(position).document.containsKey("author")){
+                mMessengerMenu.openChat(mDataset.get(position).document.get("author").toString());}
             }
         });
     }

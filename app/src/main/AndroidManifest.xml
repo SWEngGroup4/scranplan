@@ -48,6 +48,7 @@
         </activity>
         <activity android:name=".SideMenu" />
         <activity android:name=".Social.Messenger.MessengerMenu" />
+        <activity android:name=".Social.Messenger.MessengerNewChat" />
 
         <meta-data
             android:name="io.sentry.debug"

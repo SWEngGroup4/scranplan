@@ -62,6 +62,7 @@ import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.sentry.core.Sentry;
 
@@ -142,6 +143,8 @@ public class MessengerFeedFragment extends FeedFragment {
     // Firebase user collection and storage references.
     CollectionReference mRef;
     CollectionReference mRecipientRef;
+    DocumentReference mUserInteractionRef;
+    DocumentReference mRecipientInteractionRef;
     FirebaseStorage mStorage = FirebaseStorage.getInstance();
     StorageReference mStorageReference = mStorage.getReference();
 
@@ -167,6 +170,10 @@ public class MessengerFeedFragment extends FeedFragment {
         loadingDialog = new LoadingDialog(getActivity());
         mRef = mDatabase.collection("users").document(mUser.getUID()).collection("userInteractions").document(mRecipient).collection("messages");
         mRecipientRef = mDatabase.collection("users").document(mRecipient).collection("userInteractions").document(mUser.getUID()).collection("messages");
+        mUserInteractionRef = mDatabase.collection("users").document(mUser.getUID()).collection("userInteractions").document(mRecipient);
+        mRecipientInteractionRef = mDatabase.collection("users").document(mRecipient).collection("userInteractions").document(mUser.getUID());
+
+        checkCollections(mUserInteractionRef, mRecipientInteractionRef);
 
         initPageItems(view);
         initPageListeners();
@@ -179,6 +186,48 @@ public class MessengerFeedFragment extends FeedFragment {
             Log.e(TAG, "ERROR: Loading messenger - We were unable to find user.");
         }
         return view;
+    }
+
+    private void checkCollections(DocumentReference mUserInteractionRef, DocumentReference mRecipientInteractionRef) {
+        mUserInteractionRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                    } else {
+                        Log.d(TAG, "No such document");
+                        Map<String, Object> uidInfo = new HashMap<>();
+                        uidInfo.put("UID", mRecipient);
+                        mUserInteractionRef.set(uidInfo);
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
+
+        mRecipientInteractionRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                    } else {
+                        Log.d(TAG, "No such document");
+                        Map<String, Object> uidInfo = new HashMap<>();
+                        uidInfo.put("UID", mUser.getUID());
+                        mRecipientInteractionRef.set(uidInfo);
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
+
+
     }
 
     /**
@@ -486,7 +535,8 @@ public class MessengerFeedFragment extends FeedFragment {
     }
 
     private void savePost(HashMap map, HashMap extras, CollectionReference myRef, CollectionReference recipientRef, HashMap<String, Object> newRatings) {
-
+        HashMap<String, Object> latestMessage = new HashMap<>();
+        latestMessage.put("latestMessage",FieldValue.serverTimestamp());
         if (mUser.getUID().equals(mRecipient)) {
             if (newPostID == null) {
                 myRef.add(extras).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
@@ -495,6 +545,7 @@ public class MessengerFeedFragment extends FeedFragment {
                                                                 if (task.isSuccessful()) {
                                                                     final String docID = task.getResult().getId();
                                                                     map.put("docID", docID);
+                                                                    mUserInteractionRef.update(latestMessage);
                                                                     postComplete();
                                                                 }
                                                             }
@@ -503,6 +554,7 @@ public class MessengerFeedFragment extends FeedFragment {
             } else {
                 myRef.document(newPostID).set(extras);
                 map.put("docID", newPostID);
+                mUserInteractionRef.update(latestMessage);
                 postComplete();
             }
         }
@@ -514,6 +566,7 @@ public class MessengerFeedFragment extends FeedFragment {
                         if (task.isSuccessful()) {
                             final String docID = task.getResult().getId();
                             map.put("docID", docID);
+                            mUserInteractionRef.update(latestMessage);
                         }
                     }
                 });
@@ -523,6 +576,8 @@ public class MessengerFeedFragment extends FeedFragment {
                         if (task.isSuccessful()) {
                             final String docID = task.getResult().getId();
                             map.put("docID", docID);
+                            mRecipientInteractionRef.update(latestMessage);
+
                         }
                     }
                 });
@@ -531,6 +586,8 @@ public class MessengerFeedFragment extends FeedFragment {
                 myRef.document(newPostID).set(extras);
                 recipientRef.document(newPostID).set(extras);
                 map.put("docID", newPostID);
+                mUserInteractionRef.update(latestMessage);
+                mRecipientInteractionRef.update(latestMessage);
                 postComplete();
             }
         }
@@ -715,7 +772,6 @@ public class MessengerFeedFragment extends FeedFragment {
             savePost(map, extras, ref, mRecipientRef, null);
         }
     }
-
 
     @Override
     /**
