@@ -16,8 +16,8 @@
     <string name="review">+ Review</string>
     <string name="image">+ Image</string>
     <string name="post">Post</string>
-
+    <string name="feed"> Message Feed</string>
+    <string name="ad_unit_id">ca-app-pub-3940256099942544/2247696110</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="feed"> Message Feed</string>
 </resources>

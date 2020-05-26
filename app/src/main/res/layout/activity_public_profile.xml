@@ -202,17 +202,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:paddingTop="10sp"
-                    android:visibility="gone">
+                    android:paddingTop="10sp">
 
                     <TextView
                         android:id="@+id/profile_about_me"
                         android:layout_width="match_parent"
                         android:layout_height="37dp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="0dp"
+                        android:layout_marginEnd="0dp"
                         android:background="@color/colorPrimaryLight"
-                        android:padding="4sp"
+                        android:padding="6sp"
                         android:text="About Me"
                         android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
@@ -220,12 +219,13 @@
                         android:id="@+id/public_profile_about_me_desc"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="0dp"
+                        android:layout_marginEnd="0dp"
                         android:background="#cecce0"
                         android:padding="5sp"
                         android:text="User has hidden this information..."
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                        android:textSize="16sp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -239,9 +239,9 @@
                         android:id="@+id/profile_settings_allergens"
                         android:layout_width="match_parent"
                         android:layout_height="37sp"
-                        android:layout_marginStart="10dp"
+                        android:layout_marginStart="0dp"
                         android:layout_marginTop="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginEnd="0dp"
                         android:background="@color/colorPrimaryLight"
                         android:padding="5sp"
                         android:text="Dietary Preferences &amp; Allergens"
@@ -251,8 +251,8 @@
                         android:id="@+id/allergyPressInfo"
                         android:layout_width="match_parent"
                         android:layout_height="25sp"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="0dp"
+                        android:layout_marginEnd="0dp"
                         android:background="@color/colorBackgroundPrimary"
                         android:padding="3sp"
                         android:text="(Press on an icon for more info)" />
@@ -262,8 +262,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="55sp"
                         android:layout_alignParentStart="true"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="0dp"
+                        android:layout_marginEnd="0dp"
                         android:background="@color/colorPurpleLight"
                         android:orientation="horizontal">
 

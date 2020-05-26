@@ -83,6 +83,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     ImageView mProfileImage;
     TextView mUsername;
     TextView mAboutMe;
+    TextView mAboutMeDesc;
     TextView mNumRecipes;
     TextView mKudos;
     ImageView mKudosIcon;
@@ -156,7 +157,8 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
     private void initPageItems(){
         mProfileImage = findViewById(R.id.public_profile_image);
-        mAboutMe = findViewById(R.id.public_profile_about_me_desc);
+        mAboutMeDesc = findViewById(R.id.public_profile_about_me_desc);
+        mAboutMe = findViewById(R.id.profile_about_me);
         mNumRecipes = findViewById(R.id.profile_recipes);
         mUsername = findViewById(R.id.profile_username);
         mKudos = findViewById(R.id.profile_kudos);
@@ -169,6 +171,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         mFollowers = findViewById(R.id.followersNum);
         mFollowing = findViewById(R.id.followingNum);
         mFollowButton = findViewById(R.id.followButton);
+
     }
 
     private void initPageListeners(){
@@ -235,10 +238,8 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         if(retrieveAboutMe) { //  If we are allowed to retrieve this data. do so.
             mAboutMe.setText((String) profile.get("about"));
         } else {
-            View profileAboutMeDesc = findViewById(R.id.public_profile_about_me_desc);
-            View profileAboutMe = findViewById(R.id.profile_about_me);
-            profileAboutMe.setVisibility(View.GONE); // Adjust if the view is visible.
-            profileAboutMeDesc.setVisibility(View.GONE);
+            mAboutMe.setVisibility(View.GONE); // Adjust if the view is visible.
+            mAboutMeDesc.setVisibility(View.GONE);
         }
 
         if(retrieveImages) {
@@ -255,11 +256,30 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
         if(retrieveUsername){ mUsername.setText((String) profile.get("displayName")); }
 
+
+
+
         if(retrieveFilters){
             @SuppressWarnings("unchecked")
             HashMap<String, Object> filters = (HashMap<String, Object>) profile.get("preferences");
-            initFiltersIcons(ALLERGENS, filters);
-            initFiltersIcons(DIETARY, filters);
+
+            boolean showFilters = false;
+            //  Checks hashmap to see if any filters are enabled.
+            assert filters != null;
+            for (HashMap.Entry<String, Object> entry : filters.entrySet()) {
+                boolean isEnabled = (boolean) entry.getValue();
+
+                if(isEnabled){
+                    showFilters = true;
+                }
+            }
+
+            if(showFilters){
+                initFiltersIcons(ALLERGENS, filters);
+                initFiltersIcons(DIETARY, filters);
+                LinearLayout dietLayout = findViewById(R.id.dietLayout);
+                dietLayout.setVisibility(View.VISIBLE);
+            }
         } else { // Remove all checkboxes if filters are hidden.
             LinearLayout allergyLayout = findViewById(R.id.allergyLayout);
             View allergyPressInfo = findViewById(R.id.allergyPressInfo);
@@ -291,6 +311,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                 assert document != null;
                 if(document.exists()){ // Check a document exists.
                     if(fltFinal == FirebaseLoadType.FULL){
+                        Log.i(TAG, "Loading a full user profile!");
                         @SuppressWarnings("unchecked")
                         HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacyPublic");
                         loadInPrivacySettings(privacy); // Load in privacy settings first (always)
@@ -345,14 +366,12 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     //  Reduces amount of Firebase Queries overall.
     private void loadLocalProfile() {
         if (retrieveAboutMe) { //  If we are allowed to retrieve this data. do so.
-            mAboutMe.setText(mUserProfile.getAbout());
+            mAboutMeDesc.setText(mUserProfile.getAbout());
         } else {
-            View profileAboutMeDesc = findViewById(R.id.public_profile_about_me_desc);
-            View profileAboutMe = findViewById(R.id.profile_about_me);
-            profileAboutMe.setVisibility(View.GONE);
-            profileAboutMeDesc.setVisibility(View.GONE);
-            LinearLayout aboutLayout = findViewById(R.id.aboutMeLayout);
-            aboutLayout.setVisibility(View.VISIBLE);
+            mAboutMe.setVisibility(View.GONE);
+            mAboutMeDesc.setVisibility(View.GONE);
+            //LinearLayout aboutLayout = findViewById(R.id.aboutMeLayout);
+            //aboutLayout.setVisibility(View.VISIBLE);
         }
 
         if(retrieveUsername){ mUsername.setText(mUserProfile.getDisplayName()); }
@@ -381,10 +400,23 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
             filters.put("vegan", mUserProfile.getPreferences().isVegan());
             filters.put("vegetarian", mUserProfile.getPreferences().isVegetarian());
 
-            initFiltersIcons(ALLERGENS, filters);
-            initFiltersIcons(DIETARY, filters);
-            LinearLayout dietLayout = findViewById(R.id.dietLayout);
-            dietLayout.setVisibility(View.VISIBLE);
+            boolean showFilters = false;
+
+            //  Checks hashmap to see if any filters are enabled.
+            for (HashMap.Entry<String, Object> entry : filters.entrySet()) {
+                boolean isEnabled = (boolean) entry.getValue();
+
+                if(isEnabled){
+                    showFilters = true;
+                }
+            }
+
+            if(showFilters){
+                initFiltersIcons(ALLERGENS, filters);
+                initFiltersIcons(DIETARY, filters);
+                LinearLayout dietLayout = findViewById(R.id.dietLayout);
+                dietLayout.setVisibility(View.VISIBLE);
+            }
 
         } else { // Remove preferences icons if required.
             LinearLayout allergyLayout = findViewById(R.id.allergyLayout);

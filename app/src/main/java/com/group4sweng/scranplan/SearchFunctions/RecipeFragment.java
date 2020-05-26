@@ -21,6 +21,10 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdLoader;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
@@ -67,34 +71,52 @@ public class RecipeFragment extends Fragment {
     final int scrollViewSize = 5;
 
     //Score scroll info
-    List<HomeRecyclerAdapter.HomeRecipePreviewData> dataScore;
+    private List<Object>  dataScore = new ArrayList<>();
     private DocumentSnapshot lastVisibleScore;
     private boolean isScrollingScore = false;
     private boolean isLastItemReachedScore = false;
+    private final RecyclerView.Adapter rAdapterScore = new HomeRecyclerAdapter(RecipeFragment.this, dataScore);
 
 
     //Votes scroll info
-    List<HomeRecyclerAdapter.HomeRecipePreviewData> dataVotes;
+    private List<Object> dataVotes  = new ArrayList<>();;
     private DocumentSnapshot lastVisibleVotes;
     private boolean isScrollingVotes = false;
     private boolean isLastItemReachedVotes = false;
+    private final RecyclerView.Adapter rAdapterVotes = new HomeRecyclerAdapter(RecipeFragment.this, dataVotes);
 
     //Timestamp scroll info
-    List<HomeRecyclerAdapter.HomeRecipePreviewData> dataTime;
+    private List<Object>  dataTime = new ArrayList<>();
     private DocumentSnapshot lastVisibleTime;
     private boolean isScrollingTime = false;
     private boolean isLastItemReachedTime = false;
+    private final RecyclerView.Adapter rAdapterTime = new HomeRecyclerAdapter(RecipeFragment.this, dataTime);
+
 
     //Favourites scroll info
-    List<HomeRecyclerAdapter.HomeRecipePreviewData> dataFave;
+    List<Object> dataFave;
     private DocumentSnapshot lastVisibleFave;
     private boolean isScrollingFave = false;
     private boolean isLastItemReachedFave = false;
 
+    // Adverts
+    // NUMBER OF ADS = number of ads to display at one time
+    private static final int NUMBER_OF_ADS = 1;
+
+    // used to work out where the ads should be placed
+    private static final int SCORE_ADS = 1;
+    private static final int VOTES_ADS = 2;
+    private static final int TIME_ADS = 3;
+    private AdLoader adLoader;
+
+    // List of native ads that have been successfully loaded.
+    private List<UnifiedNativeAd> mNativeAds = new ArrayList<>();
 
     // Database objects for accessing recipes
     private FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
     private CollectionReference mColRef = mDatabase.collection("recipes");
+    public static final int NUMBER_OF_RECIPES = 5;
+
 
     private SearchView searchView;
     private MenuItem sortView;
@@ -185,10 +207,8 @@ public class RecipeFragment extends Fragment {
             RecyclerView.LayoutManager rManagerScore = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
             recyclerViewScore.setLayoutManager(rManagerScore);
             recyclerViewScore.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels / scrollViewSize));
-            // Array to score downloaded data
-            dataScore = new ArrayList<>();
-            final RecyclerView.Adapter rAdapterScore = new HomeRecyclerAdapter(RecipeFragment.this, dataScore);
             recyclerViewScore.setAdapter(rAdapterScore);
+            final int[] scoreAdIndex = {0};
             final Query queryScore = (Query) horizontalScrollQueries.getQueries().get("score");
             // Ensure query exists and builds view with query
             if (queryScore != null) {
@@ -216,6 +236,7 @@ public class RecipeFragment extends Fragment {
                                         (HashMap) document.getData().get("rating")
                                 ));
                             }
+                            if(dataScore != null){ loadNativeAds(scoreAdIndex[0], SCORE_ADS);}
                             rAdapterScore.notifyDataSetChanged();
                             if(task.getResult().size() != 0){
                                 lastVisibleScore = task.getResult().getDocuments().get(task.getResult().size() - 1);
@@ -257,6 +278,10 @@ public class RecipeFragment extends Fragment {
                                                                 (HashMap) d.getData().get("rating")
                                                         ));
                                                     }
+                                                    if(dataScore != null){
+                                                        scoreAdIndex[0] = totalItemCount;
+                                                        loadNativeAds(scoreAdIndex[0],SCORE_ADS);
+                                                    }
                                                     if(isLastItemReachedScore){
                                                         // Add end here
                                                     }
@@ -265,7 +290,7 @@ public class RecipeFragment extends Fragment {
                                                         lastVisibleScore = t.getResult().getDocuments().get(t.getResult().size() - 1);
                                                     }
 
-                                                    if (t.getResult().size() < 5) {
+                                                    if (t.getResult().size() < NUMBER_OF_RECIPES) {
                                                         isLastItemReachedScore = true;
                                                     }
                                                 }
@@ -290,8 +315,7 @@ public class RecipeFragment extends Fragment {
             RecyclerView.LayoutManager rManagerVotes = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
             recyclerViewVotes.setLayoutManager(rManagerVotes);
             recyclerViewVotes.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels / scrollViewSize));
-            dataVotes = new ArrayList<>();
-            final RecyclerView.Adapter rAdapterVotes = new HomeRecyclerAdapter(RecipeFragment.this, dataVotes);
+            final int[] votesAdIndex = {0};
             recyclerViewVotes.setAdapter(rAdapterVotes);
             final Query queryVotes = (Query) horizontalScrollQueries.getQueries().get("votes");
             if (queryVotes != null) {
@@ -319,6 +343,7 @@ public class RecipeFragment extends Fragment {
                                         (HashMap) document.getData().get("rating")
                                 ));
                             }
+                            if(dataVotes != null){ loadNativeAds(votesAdIndex[0], VOTES_ADS);}
                             rAdapterVotes.notifyDataSetChanged();
                             if(task.getResult().size() != 0){
                                 lastVisibleVotes = task.getResult().getDocuments().get(task.getResult().size() - 1);
@@ -338,7 +363,6 @@ public class RecipeFragment extends Fragment {
                                 @Override
                                 public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                                     super.onScrolled(recyclerView, dx, dy);
-
                                     LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
                                     int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
                                     int visibleItemCount = linearLayoutManager.getChildCount();
@@ -360,6 +384,10 @@ public class RecipeFragment extends Fragment {
                                                                 (HashMap) d.getData().get("rating")
                                                         ));
                                                     }
+                                                    if(dataVotes != null){
+                                                        votesAdIndex[0] = totalItemCount;
+                                                        loadNativeAds(votesAdIndex[0],VOTES_ADS);
+                                                    }
                                                     if(isLastItemReachedVotes){
                                                         // Add end here
                                                     }
@@ -368,7 +396,7 @@ public class RecipeFragment extends Fragment {
                                                         lastVisibleVotes = t.getResult().getDocuments().get(t.getResult().size() - 1);
                                                     }
 
-                                                    if (t.getResult().size() < 5) {
+                                                    if (t.getResult().size() < NUMBER_OF_RECIPES) {
                                                         isLastItemReachedVotes = true;
                                                     }
                                                 }
@@ -394,8 +422,7 @@ public class RecipeFragment extends Fragment {
             RecyclerView.LayoutManager rManagerTime = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
             recyclerViewTime.setLayoutManager(rManagerTime);
             recyclerViewTime.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels / scrollViewSize));
-            dataTime = new ArrayList<>();
-            final RecyclerView.Adapter rAdapterTime = new HomeRecyclerAdapter(RecipeFragment.this, dataTime);
+            final int[] timeAdIndex = {0};
             recyclerViewTime.setAdapter(rAdapterTime);
             final Query queryTime = (Query) horizontalScrollQueries.getQueries().get("timestamp");
             if (queryTime != null) {
@@ -423,6 +450,7 @@ public class RecipeFragment extends Fragment {
                                         (HashMap) document.getData().get("rating")
                                 ));
                             }
+                            if(dataTime != null){ loadNativeAds(timeAdIndex[0], TIME_ADS);}
                             rAdapterTime.notifyDataSetChanged();
                             if(task.getResult().size() != 0){
                                 lastVisibleTime = task.getResult().getDocuments().get(task.getResult().size() - 1);
@@ -462,7 +490,10 @@ public class RecipeFragment extends Fragment {
                                                                 d.get("Name").toString(),
                                                                 d.get("imageURL").toString(),
                                                                 (HashMap) d.getData().get("rating")
-                                                        ));
+                                                        ));}
+                                                    if(dataTime != null){
+                                                        timeAdIndex[0] = totalItemCount;
+                                                        loadNativeAds(timeAdIndex[0],TIME_ADS);
                                                     }
                                                     if(isLastItemReachedTime){
                                                         // Add end here
@@ -472,7 +503,7 @@ public class RecipeFragment extends Fragment {
                                                         lastVisibleTime = t.getResult().getDocuments().get(t.getResult().size() - 1);
                                                     }
 
-                                                    if (t.getResult().size() < 5) {
+                                                    if (t.getResult().size() < NUMBER_OF_RECIPES) {
                                                         isLastItemReachedTime = true;
                                                     }
                                                 }
@@ -575,7 +606,7 @@ public class RecipeFragment extends Fragment {
                                                         lastVisibleFave = t.getResult().getDocuments().get(t.getResult().size() - 1);
                                                     }
 
-                                                    if (t.getResult().size() < 5) {
+                                                    if (t.getResult().size() < NUMBER_OF_RECIPES) {
                                                         isLastItemReachedFave = true;
                                                     }
                                                 }
@@ -657,6 +688,99 @@ public class RecipeFragment extends Fragment {
         recipeDialogFragment.setArguments(mBundle);
         recipeDialogFragment.setTargetFragment(this, 1);
         recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");
+    }
+
+    /**
+     * Inset the ad in the recipe list
+     * Un-comment premium/gold member features to enable and
+     * un comment switch case statments to ad adverts there
+     * @param index index where to intially put the advert in (the start of the list usually)
+     * @param adType Location where the ad goes which list it should be placed into.
+     */
+    private void insertAdsInRecipeItems(int index, int adType) {
+        /* TODO implement check for premium membership
+        if(premium member){
+        return;
+        } else {
+         */
+        int offset = 0;
+        if (mNativeAds.size() <= 0 || dataScore.size() <= 0) {
+            return;
+        }
+
+
+        offset = NUMBER_OF_RECIPES/2 + 1;
+
+        switch (adType){
+//            case SCORE_ADS:
+//                if(index + offset < dataScore.size()){
+//                    dataScore.add(index + offset + 1,mNativeAds.get(mNativeAds.size() - 1));
+//                }
+//                break;
+            case VOTES_ADS:
+                if(index + offset < dataVotes.size()){
+                    dataVotes.add(index + offset + 1,mNativeAds.get(mNativeAds.size() - 1));
+                }
+                break;
+            case TIME_ADS:
+                if(index + offset < dataTime.size()){
+                    dataTime.add(index + offset + 1,mNativeAds.get(mNativeAds.size() - 1));
+                }
+                break;
+            default:
+                break;
+        }
+
+        switch (adType) {
+//            case SCORE_ADS:
+//                rAdapterScore.notifyDataSetChanged();
+//                break;
+            case VOTES_ADS:
+                rAdapterVotes.notifyDataSetChanged();
+                break;
+            case TIME_ADS:
+                 rAdapterTime.notifyDataSetChanged();
+             break;
+            default:
+                break;
+        }
+
+
+        /* TODO remove for premium membership
+        }
+         */
+    }
+
+    private void loadNativeAds(int index, int adType) {
+
+        AdLoader.Builder builder = new AdLoader.Builder(this.getContext(), getString(R.string.ad_unit_id));
+        adLoader = builder.forUnifiedNativeAd(
+                new UnifiedNativeAd.OnUnifiedNativeAdLoadedListener() {
+                    @Override
+                    public void onUnifiedNativeAdLoaded(UnifiedNativeAd unifiedNativeAd) {
+                        // A native ad loaded successfully, check if the ad loader has finished loading
+                        // and if so, insert the ads into the list.
+                        mNativeAds.add(unifiedNativeAd);
+                        if (!adLoader.isLoading()) {
+                            insertAdsInRecipeItems(index , adType);
+                        }
+                    }
+                }).withAdListener(
+                new AdListener() {
+                    @Override
+                    public void onAdFailedToLoad(int errorCode) {
+                        // A native ad failed to load, check if the ad loader has finished loading
+                        // and if so, insert the ads into the list.
+                        Log.e("MainActivity", "The previous native ad failed to load. Attempting to"
+                                + " load another.");
+                        if (!adLoader.isLoading()) {
+                            insertAdsInRecipeItems(index, adType);
+                        }
+                    }
+                }).build();
+
+        // Load the Native ads.
+        adLoader.loadAds(new AdRequest.Builder().build(), NUMBER_OF_ADS);
     }
 
     @Override
