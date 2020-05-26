@@ -57,7 +57,7 @@ import static org.hamcrest.Matchers.allOf;
  *  - Usernames also changed in profile settings
  *
  *  -- USER STORY TESTS LINKED WITH ---
- *  C20,A1
+ *  C27
  */
 @RunWith(AndroidJUnit4.class)
 public class SocialProfileTest implements Credentials  {
