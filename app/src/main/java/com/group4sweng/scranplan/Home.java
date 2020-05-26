@@ -224,24 +224,26 @@ public class Home extends AppCompatActivity {
     }
 
     private void checkForNotifications(){
-        database.collection("users").document(mUser.getUID()).collection("notifications").orderBy("timestamp", Query.Direction.DESCENDING).limit(6).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if(task.isSuccessful()){
-                    if(task.getResult() != null){
-                        if((task.getResult().size()) == 6){
-                            notifications = "5+";
+        if(mUser != null){
+            database.collection("users").document(mUser.getUID()).collection("notifications").orderBy("timestamp", Query.Direction.DESCENDING).limit(6).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if(task.isSuccessful()){
+                        if(task.getResult() != null){
+                            if((task.getResult().size()) == 6){
+                                notifications = "5+";
+                            }else{
+                                notifications = Integer.toString(task.getResult().size());
+                            }
+                            notificationMenuItem.setTitle("Notifications (" + notifications + ")");
                         }else{
-                            notifications = Integer.toString(task.getResult().size());
+                            notificationMenuItem.setTitle("Notifications (0)");
                         }
-                        notificationMenuItem.setTitle("Notifications (" + notifications + ")");
-                    }else{
-                        notificationMenuItem.setTitle("Notifications (0)");
-                    }
 
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     /**

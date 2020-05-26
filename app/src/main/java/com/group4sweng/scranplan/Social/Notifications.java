@@ -49,7 +49,7 @@ public class Notifications extends AppCompatDialogFragment {
     List<NotificationRecyclerAdapter.NotificationData> data;
 
 
-    /**  Comment additions **/
+    /**  Notifications additions **/
     private boolean isScrolling = false;
     private boolean isLastItemReached = false;
     private DocumentSnapshot lastVisible;
@@ -96,8 +96,8 @@ public class Notifications extends AppCompatDialogFragment {
 
 
     /**
-     * Function to set up a new recycler view that takes all comments and downloads them from the server
-     * when there is more than 5 comments, the data is downloaded 5 items at a time and loads new comments
+     * Function to set up a new recycler view that takes all notifications and downloads them from the server
+     * when there is more than 15 notifications, the data is downloaded 15 items at a time and loads new comments
      * as the user scrolls down through the comments
      */
     private void addFirestoreComments(){

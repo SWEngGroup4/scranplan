@@ -54,6 +54,17 @@ import static com.group4sweng.scranplan.UserInfo.FilterType.filterType.DIETARY;
  *
  *  Privacy checks are made within 'loadInPrivacySettings' to make sure we adhere to what the user wants to display.
  *  Privacy is always checked first before displaying any content.
+ *
+ *
+ *  Social aspects were later added by LNewman with all social items to enable following and unfollowing
+ *  private users are able to have their following requested.
+ *  User privacy setting are taken into account:
+ *  Public users have a single set of privacy options seen by all.
+ *  Private users can hide select things to people who they have not allowed to follow them,
+ *  having similar options to public users for their followers.
+ *  Private users must hide their posts and recipes to people who do not follow them.
+ *  Three tabs of feeds display in profile, one with all normal posts, one with only picture posts
+ *  and the last with user generated recipes.
  */
 public class PublicProfile extends AppCompatActivity implements FilterType{
 
@@ -175,10 +186,10 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         mUsername = findViewById(R.id.profile_username);
         mKudos = findViewById(R.id.profile_kudos);
         mKudosIcon = findViewById(R.id.profile_kudos_icon);
+
+
         mStreamTabs = findViewById(R.id.profileStreamTabs);
-
         frameLayout = findViewById(R.id.profileFrameLayout);
-
         mPosts = findViewById(R.id.postsNum);
         mFollowers = findViewById(R.id.followersNum);
         mFollowing = findViewById(R.id.followingNum);
@@ -189,7 +200,15 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
     }
 
+    /**
+     * Setting up functionality to the to the follow and unfollow
+     */
     private void initPageListeners(){
+
+        /**
+         * Enabling users to press follow button to either follow public users or request to follow
+         * private users
+         */
         mFollowButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -216,6 +235,10 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
             }
         });
 
+        /**
+         * Notifying a user they are currently requesting to follow a user, users can press this
+         * button to cancel this request
+         */
         mRequestedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -235,6 +258,10 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
             }
         });
 
+        /**
+         * Notifying users that they currently follow a user, users can press this button
+         * to unfollow this user.
+         */
         mFollowedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -256,15 +283,18 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                 Log.d("Test", String.valueOf(fragment));
                 switch (tab.getPosition()) {
                     case 0:
+                        // Opening profile posts tab
                         fragment = new ProfilePosts(searchers);
                         fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
                         break;
                     case 1:
+                        // opening profile photos tab
                         if (fragment.getClass() == RecipeFragment.class) fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         else fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
                         fragment = new ProfilePictures(searchers, mUsername.getText().toString());
                         break;
                     case 2:
+                        // Opening user generated recipes tab
                         fragment = new ProfileRecipes(searchers);
                         fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         break;

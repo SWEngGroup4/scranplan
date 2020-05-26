@@ -37,6 +37,9 @@ import java.util.regex.Pattern;
 import static java.util.Objects.requireNonNull;
 
 /**
+ * Class for the Login activity.
+ * Author(s): LNewman
+ * (c) CoDev 2020
  * Login class
  * Everything necessary for new users to register or existing users to log in before moving into the
  * main section of the application
@@ -70,7 +73,6 @@ public class Login extends AppCompatActivity{
     Button mBackToLoginButton;
     Button mRegisterButton;
     ImageView mInfoButton;
-    public final Pattern textPattern = Pattern.compile("^(?=.*[a-z])(?=.*\\d).+$");
 
     ImageView mCheckPass;
     ImageView mCheckConfirm;
@@ -139,6 +141,11 @@ public class Login extends AppCompatActivity{
     private void initPageListeners(){
 
 
+        /**
+         * setting visual clues and prompts so user can select a username that fits requirements
+         * User is given an X if incorrect and a tick if correct
+         * A loading icon will appear when loading
+         */
         mDisplayNameText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -192,6 +199,13 @@ public class Login extends AppCompatActivity{
 
             }
         });
+
+        /**
+         * setting visual clues and prompts so user can select a password that fits requirements and
+         * matches the other password
+         * User is given an X if incorrect and a tick if correct
+         * A loading icon will appear when loading
+         */
         mConfirmPasswordEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -227,6 +241,12 @@ public class Login extends AppCompatActivity{
 
             }
         });
+
+        /**
+         * setting visual clues and prompts so user can select a password that fits requirements
+         * User is given an X if incorrect and a tick if correct
+         * A loading icon will appear when loading
+         */
         mPasswordEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -245,6 +265,12 @@ public class Login extends AppCompatActivity{
                         if(passCheck(mPasswordEditText.getText().toString())){
                             mCheckPass.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_check_black_24dp));
                             mCheckPass.setVisibility(View.VISIBLE);
+                        }else if (mPasswordEditText.getText().toString().length() <= 3){
+                            mCheckPass.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                            mCheckPass.setVisibility(View.VISIBLE);
+                            if (mToast != null) mToast.cancel();
+                            mToast = Toast.makeText(getApplicationContext(),"Passwords must be at least 8 letters consisting at least one number and letter.",Toast.LENGTH_SHORT);
+                            mToast.show();
                         }else{
                             mCheckPass.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
                             mCheckPass.setVisibility(View.VISIBLE);

@@ -91,6 +91,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         PRIVATE,
         PUBLIC
     }
+    private LoadingDialog loading;
 
     private Toast mToast = null;
 
@@ -187,6 +188,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_settings);
+        loading = new LoadingDialog(this);
 
         initPageItems();
     }
@@ -274,7 +276,14 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
     }
 
+    /**
+     * listeners to tell user password and username follow in line with set rules with toast messaged and visual clues
+     */
     private void initPageListeners(){
+        /**
+         * Username checker enforcing unique user names what only consist of lower case letters and numbers
+         * with a maximum length of 20 characters
+         */
         mUsername.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -387,6 +396,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
      * @param rePassword - Existing password the user must enter to confirm account deletion.
      */
     private void deleteAccount(String rePassword){
+        loading.startLoadingDialog();
         mApp = FirebaseApp.getInstance();
         mAuth = FirebaseAuth.getInstance(mApp);
 
@@ -395,6 +405,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
         if(isTesting){ //  Checks if we are testing so we don't actually delete a users account.
             Log.e(TAG, "Currently in testing phase, haven't deleted Firebase or local profile");
+            loading.dismissDialog();
             return;
         }
 
@@ -419,6 +430,8 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                 /* Delete a reference to the users data in the following order.
                    Users collection stored within Firebase > Local reference to the user 'UserInfoPrivate' > Firebase stored Auth details for the user.
                    Order chosen since collection data is visible in plaintext from the Firebase Panel and therefore should be our priority to remove even if any one of the other operations fail. */
+
+                // Remove all following of user for user
                 mDatabase.collection("followers").whereArrayContains("users", mAuth.getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task2) {
@@ -428,6 +441,9 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                                     if(document.get("author") != null){
                                         mDatabase.collection("users").document((String) document.get("author")).update("followers", FieldValue.increment(-1));
                                     }
+
+
+                                    //Remove all of following for user
                                 mDatabase.collection("followers").document(mAuth.getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<DocumentSnapshot> task1) {
@@ -439,10 +455,15 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                                                     mDatabase.collection("users").document(list.get(i).toString()).update("following", FieldValue.increment(-1));
                                                 }
                                             }
+
+
+
+                                            //Finally delete actual user
                                             mDatabase.collection("users").document(mAuth.getCurrentUser().getUid()).delete().addOnSuccessListener(aVoid1 -> {
                                                 mUserProfile = null;
                                                 mAuth.getCurrentUser().delete().addOnCompleteListener(task -> {
                                                     if (task.isSuccessful()) {
+                                                        loading.dismissDialog();
                                                         Log.d(TAG, "User account deleted.");
 
                                                         //  Verify the account has been deleted.
@@ -451,15 +472,20 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                                                     }
                                                 });
                                             }).addOnFailureListener(e -> {
+                                                loading.dismissDialog();
                                                 Log.e(TAG, "Deleted associated collection 'users'. Couldn't delete all users data. User has been asked for this to be removed manually.");
                                                 Toast.makeText(getApplicationContext(), "Failed to delete all associated user info. Please contact Scranplan with your email address to have your data manually removed.", Toast.LENGTH_LONG).show();
                                             });
 
+
+
+                                            //If user has no following no followers then just delete user
                                         }else{
                                             mDatabase.collection("users").document(mAuth.getCurrentUser().getUid()).delete().addOnSuccessListener(aVoid1 -> {
                                                 mUserProfile = null;
                                                 mAuth.getCurrentUser().delete().addOnCompleteListener(task -> {
                                                     if (task.isSuccessful()) {
+                                                        loading.dismissDialog();
                                                         Log.d(TAG, "User account deleted.");
 
                                                         //  Verify the account has been deleted.
@@ -468,6 +494,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                                                     }
                                                 });
                                             }).addOnFailureListener(e -> {
+                                                loading.dismissDialog();
                                                 Log.e(TAG, "Deleted associated collection 'users'. Couldn't delete all users data. User has been asked for this to be removed manually.");
                                                 Toast.makeText(getApplicationContext(), "Failed to delete all associated user info. Please contact Scranplan with your email address to have your data manually removed.", Toast.LENGTH_LONG).show();
                                             });
@@ -475,7 +502,9 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                                     }
                                 });
                             }
-                        }else{
+
+
+                            // If user has no followers then just delete followers
                             mDatabase.collection("followers").document(mAuth.getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task1) {
@@ -487,10 +516,14 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                                                 mDatabase.collection("users").document(list.get(i).toString()).update("following", FieldValue.increment(-1));
                                             }
                                         }
+
+
+                                        // Both following and followers checked so user is now deleted
                                         mDatabase.collection("users").document(mAuth.getCurrentUser().getUid()).delete().addOnSuccessListener(aVoid1 -> {
                                             mUserProfile = null;
                                             mAuth.getCurrentUser().delete().addOnCompleteListener(task -> {
                                                 if (task.isSuccessful()) {
+                                                    loading.dismissDialog();
                                                     Log.d(TAG, "User account deleted.");
 
                                                     //  Verify the account has been deleted.
@@ -499,15 +532,20 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                                                 }
                                             });
                                         }).addOnFailureListener(e -> {
+                                            loading.dismissDialog();
                                             Log.e(TAG, "Deleted associated collection 'users'. Couldn't delete all users data. User has been asked for this to be removed manually.");
                                             Toast.makeText(getApplicationContext(), "Failed to delete all associated user info. Please contact Scranplan with your email address to have your data manually removed.", Toast.LENGTH_LONG).show();
                                         });
 
+
+
+                                        //User has no following and no followers so just user is deleted
                                     }else{
                                         mDatabase.collection("users").document(mAuth.getCurrentUser().getUid()).delete().addOnSuccessListener(aVoid1 -> {
                                             mUserProfile = null;
                                             mAuth.getCurrentUser().delete().addOnCompleteListener(task -> {
                                                 if (task.isSuccessful()) {
+                                                    loading.dismissDialog();
                                                     Log.d(TAG, "User account deleted.");
 
                                                     //  Verify the account has been deleted.
@@ -516,6 +554,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                                                 }
                                             });
                                         }).addOnFailureListener(e -> {
+                                            loading.dismissDialog();
                                             Log.e(TAG, "Deleted associated collection 'users'. Couldn't delete all users data. User has been asked for this to be removed manually.");
                                             Toast.makeText(getApplicationContext(), "Failed to delete all associated user info. Please contact Scranplan with your email address to have your data manually removed.", Toast.LENGTH_LONG).show();
                                         });
@@ -524,12 +563,18 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                             });
                         }
                     }
+                }).addOnFailureListener(e -> {
+                    loading.dismissDialog();
+                    Log.e(TAG, "Deleted associated collection 'users'. Couldn't delete all users data. User has been asked for this to be removed manually.");
+                    Toast.makeText(getApplicationContext(), "Failed to delete all associated user info. Please contact Scranplan with your email address to have your data manually removed.", Toast.LENGTH_LONG).show();
                 });
             }).addOnFailureListener(e -> {
+                loading.dismissDialog();
                 Log.e(TAG, "Failed to re-authenticate. May have entered the wrong password");
                 Toast.makeText(getApplicationContext(),"Could not delete data. Make sure you are connected to the internet and have inputted a correct previous password.", Toast.LENGTH_LONG).show();
             });
         } else {
+            loading.dismissDialog();
             Log.e(TAG, "Unable to get current user details");
             Toast.makeText(getApplicationContext(), "Unable to get current user details. Make sure you are connected to the internet", Toast.LENGTH_SHORT).show();
         }
