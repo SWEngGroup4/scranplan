@@ -104,7 +104,6 @@ public class MessengerFeedFragment extends FeedFragment {
     RatingBar mAttachedRecipeReview;
 
 
-
     //Fragment handlers
     private FragmentTransaction fragmentTransaction;
     private RecipeFragment recipeFragment;
@@ -121,15 +120,16 @@ public class MessengerFeedFragment extends FeedFragment {
     Query query;
 
 
-
     // Database objects for accessing recipes
     private FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
     private CollectionReference mColRef = mDatabase.collection("followers");
 
     // Firebase user collection and storage references.
     CollectionReference mRef;
+    CollectionReference mRecipientRef;
     FirebaseStorage mStorage = FirebaseStorage.getInstance();
     StorageReference mStorageReference = mStorage.getReference();
+    Boolean newPost;
 
 
     MessengerFeedFragment(UserInfoPrivate userSent, UserInfoPrivate messageRecipient) {
@@ -148,6 +148,7 @@ public class MessengerFeedFragment extends FeedFragment {
         mainView = view;
         loadingDialog = new LoadingDialog(getActivity());
         mRef = mDatabase.collection("users").document(mUser.getUID()).collection("userInteractions").document(mRecipient.getUID()).collection("messages");
+        mRecipientRef = mDatabase.collection("users").document(mRecipient.getUID()).collection("userInteractions").document(mUser.getUID()).collection("messages");
 
         initPageItems(view);
         initPageListeners();
@@ -163,10 +164,10 @@ public class MessengerFeedFragment extends FeedFragment {
     }
 
     /**
-     *  Connecting up elements on the screen to variable names
+     * Connecting up elements on the screen to variable names
      */
     @Override
-    protected void initPageItems(View v){
+    protected void initPageItems(View v) {
         //Defining all relevant members of page
         mPostButton = v.findViewById(R.id.sendPostButton);
         mPostRecipe = (CheckBox) v.findViewById(R.id.recipeIcon);
@@ -176,7 +177,7 @@ public class MessengerFeedFragment extends FeedFragment {
         mUploadedImage = v.findViewById(R.id.userUploadedImageView);
         mAttachedRecipeImage = v.findViewById(R.id.postRecipeImageView);
         mAttachedRecipeTitle = v.findViewById(R.id.postRecipeTitle);
-        mAttachedRecipeInfo =  v.findViewById(R.id.postRecipeDescription);
+        mAttachedRecipeInfo = v.findViewById(R.id.postRecipeDescription);
         mAttachedRecipeReview = v.findViewById(R.id.postRecipeRating);
         mRecipeRatingText = v.findViewById(R.id.recipeRate);
         mUserUploadedImageViewLayout = v.findViewById(R.id.userUploadedImageViewLayout);
@@ -186,7 +187,7 @@ public class MessengerFeedFragment extends FeedFragment {
     }
 
     /**
-     *  Setting up page listeners for when buttons are pressed
+     * Setting up page listeners for when buttons are pressed
      */
     @Override
     protected void initPageListeners() {
@@ -194,13 +195,13 @@ public class MessengerFeedFragment extends FeedFragment {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (mPostPic.isChecked()) {
-                    if(mUploadedImage.getVisibility() != View.VISIBLE){
+                    if (mUploadedImage.getVisibility() != View.VISIBLE) {
                         //  Check if the version of Android is above 'Marshmallow' we check for additional permission.
-                        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             //  Checks if permission has already been granted to read from external storage (our image picker)
-                            if(getContext().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
+                            if (getContext().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
                                 //   Ask for permission.
-                                String [] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
+                                String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
                                 requestPermissions(permissions, PERMISSION_CODE);
                                 mPostPic.setChecked(false);
                                 imageSelector();
@@ -224,8 +225,9 @@ public class MessengerFeedFragment extends FeedFragment {
         mPostButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                newPost = true;
                 String body = mPostBodyInput.getText().toString();
-                if(mPostPic.isChecked() || mPostRecipe.isChecked() || !body.equals("")){
+                if (mPostPic.isChecked() || mPostRecipe.isChecked() || !body.equals("")) {
                     loadingDialog.startLoadingDialog();
                     //TODO set these variables from the addition of these items
                     Log.e(TAG, "Added new post ");
@@ -240,13 +242,13 @@ public class MessengerFeedFragment extends FeedFragment {
                     map.put("isPic", mPostPic.isChecked());
                     map.put("isRecipe", mPostRecipe.isChecked());
                     map.put("isReview", mPostReview.isChecked());
-                    if(mPostPic.isChecked()){
+                    if (mPostPic.isChecked()) {
                         postImageAttached(map, extras, mRef);
-                    }else {
-                        addRecipeInfo(map, extras, mRef);
+                    } else {
+                        addRecipeInfo(map, extras, mRef, mRecipientRef);
                     }
-                }else{
-                    Toast.makeText(getContext(),"You need to either write a post, attach a picture or attach a recipe before you can submit new post.",Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getContext(), "You need to either write a post, attach a picture or attach a recipe before you can submit new post.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -254,7 +256,7 @@ public class MessengerFeedFragment extends FeedFragment {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (mPostRecipe.isChecked()) {
-                    if(mAttachedRecipeImage.getVisibility() != View.VISIBLE){
+                    if (mAttachedRecipeImage.getVisibility() != View.VISIBLE) {
                         Bundle bundle = new Bundle();
                         bundle.putBoolean("planner", true); //Condition to let child fragments know access is from planner
 
@@ -266,7 +268,7 @@ public class MessengerFeedFragment extends FeedFragment {
                         fragmentTransaction.add(R.id.frameLayout, recipeFragment); //Overlays fragment on existing one
                         fragmentTransaction.commitNow(); //Waits for fragment transaction to be completed
                         requireView().setVisibility(View.INVISIBLE); //Sets current fragment invisible
-                                            }
+                    }
                 } else {
                     mAttachedRecipeImage.setVisibility(View.GONE);
                     mPostRecipeImageViewLayout.setVisibility(View.GONE);
@@ -280,8 +282,8 @@ public class MessengerFeedFragment extends FeedFragment {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (mPostReview.isChecked()) {
-                    if(mAttachedRecipeReview.getVisibility() != View.VISIBLE){
-                        if(mPostRecipe.isChecked()){
+                    if (mAttachedRecipeReview.getVisibility() != View.VISIBLE) {
+                        if (mPostRecipe.isChecked()) {
                             //Makes the star rating visible and stores the value of the given rating
                             mRecipeRatingText.setVisibility(View.VISIBLE);
                             mAttachedRecipeReview.setVisibility(View.VISIBLE);
@@ -292,10 +294,10 @@ public class MessengerFeedFragment extends FeedFragment {
                                     ratingNum = rating;
                                 }
                             });
-                        }else{
+                        } else {
                             Log.e(TAG, "No recipe so no review");
                             mPostReview.setChecked(false);
-                            Toast.makeText(getContext(),"You need to attach a recipe before you can review it.",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "You need to attach a recipe before you can review it.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 } else {
@@ -308,7 +310,7 @@ public class MessengerFeedFragment extends FeedFragment {
     }
 
     //  Open our image picker.
-    private void imageSelector(){
+    private void imageSelector() {
         Intent images = new Intent(Intent.ACTION_PICK);
         images.setType("image/*"); // Only open the 'image' file picker. Don't include videos, audio etc...
         startActivityForResult(images, IMAGE_REQUEST_CODE);
@@ -316,13 +318,13 @@ public class MessengerFeedFragment extends FeedFragment {
     }
 
     /**
-     *  Adding recipe info if attached to post
+     * Adding recipe info if attached to post
+     *
      * @param map
      * @param extras
      * @param ref
      */
-    @Override
-    protected void addRecipeInfo(HashMap map, HashMap extras, CollectionReference ref){
+    protected void addRecipeInfo(HashMap map, HashMap extras, CollectionReference ref, CollectionReference recipientRef) {
         if (mPostRecipe.isChecked()) {
             map.put("recipeID", recipeID);
             map.put("recipeImageURL", attachedRecipeURL);
@@ -333,9 +335,8 @@ public class MessengerFeedFragment extends FeedFragment {
         if (mPostReview.isChecked() && mPostRecipe.isChecked()) {
             map.put("overallRating", mAttachedRecipeReview.getRating());
             extras.put("overallRating", mAttachedRecipeReview.getRating());
-//            reviewAttached(map, extras, ref);
-        }else{
-            savePost(map, extras, ref, null);
+        } else {
+            savePost(map, extras, ref, recipientRef, null);
         }
     }
 
@@ -365,23 +366,23 @@ public class MessengerFeedFragment extends FeedFragment {
             query.addSnapshotListener(new EventListener<QuerySnapshot>() {
                 @Override
                 public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                    if(e!= null){
-                        Log.w(TAG, "listen Failed",e);
+                    if (e != null) {
+                        Log.w(TAG, "listen Failed", e);
                         Sentry.captureException(e);
                         return;
                     }
-                    Log.e("FEED", "UID = " + mUser.getUID());
-                    Log.e("FEED", "task success");
+                    Log.e("Messanger", "UID = " + mUser.getUID());
+                    Log.e("Messanger", "task success");
                     ArrayList<HashMap> posts = new ArrayList<>();
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         Log.e("FEED", "I have found a doc");
                         posts.add((HashMap) document.getData());
                     }
-                    if(!initalData[0]){
+                    if (!initalData[0] && newPost) {
                         data.add(0, new MessengerFeedRecyclerAdapter.FeedPostPreviewData(
                                 posts.get(0)));
                     }
-                    if(initalData[0]) {
+                    if (initalData[0]) {
                         for (int i = 0; i < posts.size(); i++) {
                             data.add(new MessengerFeedRecyclerAdapter.FeedPostPreviewData(
                                     posts.get(i)));
@@ -467,54 +468,73 @@ public class MessengerFeedFragment extends FeedFragment {
         }
     }
 
-    @Override
-    protected void savePost(HashMap map, HashMap extras, CollectionReference ref, HashMap<String, Object> newRatings) {
-        if (newPostID == null) {
-            ref.add(extras).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-                                                      @Override
-                                                      public void onComplete(@NonNull Task<DocumentReference> task) {
-                                                          if (task.isSuccessful()) {
-                                                              final String docID = task.getResult().getId();
-                                                              map.put("docID", docID);
-//                                                              if (mPostReview.isChecked() && mPostRecipe.isChecked()) {
-//                                                                  newRatings.put("post", docID);
-//                                                                  mDatabase.collection("reviews").document(mUser.getUID() + "-" + recipeID).set(newRatings);
-//                                                              }
-                                                              postComplete();
-//                                                              updateFollowers(map);
-                                                          }
-                                                      }
-                                                  }
-            );
-        } else {
-            ref.document(newPostID).set(extras);
-            map.put("docID", newPostID);
-//            if (mPostReview.isChecked() && mPostRecipe.isChecked()) {
-//                newRatings.put("post", newPostID);
-//                mDatabase.collection("reviews").document(mUser.getUID() + "-" + recipeID).set(newRatings);
-//            }
-            postComplete();
-//            updateFollowers(map);
+    private void savePost(HashMap map, HashMap extras, CollectionReference myRef, CollectionReference recipientRef, HashMap<String, Object> newRatings) {
+
+        if (mUser == mRecipient) {
+            if (newPostID == null) {
+                myRef.add(extras).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<DocumentReference> task) {
+                                                                if (task.isSuccessful()) {
+                                                                    final String docID = task.getResult().getId();
+                                                                    map.put("docID", docID);
+                                                                    newPost = false;
+                                                                    postComplete();
+                                                                }
+                                                            }
+                                                        }
+                );
+            } else {
+                myRef.document(newPostID).set(extras);
+                map.put("docID", newPostID);
+                newPost = false;
+                postComplete();
+            }
+        }
+        if (mUser != mRecipient) {
+            if (newPostID == null) {
+                myRef.add(extras).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentReference> task) {
+                        if (task.isSuccessful()) {
+                            final String docID = task.getResult().getId();
+                            map.put("docID", docID);
+                            newPost = false;
+                        }
+                    }
+                });
+                recipientRef.add(extras).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentReference> task) {
+                        if (task.isSuccessful()) {
+                            final String docID = task.getResult().getId();
+                            map.put("docID", docID);
+                            newPost = false;
+                        }
+                    }
+                });
+                postComplete();
+            } else {
+                myRef.document(newPostID).set(extras);
+                recipientRef.document(newPostID).set(extras);
+                map.put("docID", newPostID);
+                newPost = false;
+                postComplete();
+            }
         }
     }
+
 
     @Override
     /**
      * Reset the screen once a new post has been completed
      */
     protected void postComplete() {
-        mDatabase.collection("users").document(mUser.getUID()).collection("messages").document(mRecipient.getUID()).update("posts", FieldValue.increment(1), "livePosts", FieldValue.increment(1)).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                                                                                                        @Override
-                                                                                                                                                                        public void onComplete(@NonNull Task<Void> task) {
-                                                                                                                                                                            mUser.setPosts(mUser.getPosts() + 1);
-                                                                                                                                                                            mPostBodyInput.getText().clear();
-                                                                                                                                                                            mPostRecipe.setChecked(false);
-                                                                                                                                                                            mPostReview.setChecked(false);
-                                                                                                                                                                            mPostPic.setChecked(false);
-                                                                                                                                                                            addPosts(mainView);
-                                                                                                                                                                            loadingDialog.dismissDialog();
-                                                                                                                                                                        }
-                                                                                                                                                                    }
-        );
+        mPostBodyInput.getText().clear();
+        mPostRecipe.setChecked(false);
+        mPostReview.setChecked(false);
+        mPostPic.setChecked(false);
+//        addPosts(mainView);
+        loadingDialog.dismissDialog();
     }
 }
