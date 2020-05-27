@@ -39,7 +39,9 @@ import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class for the home page fragment containing horizontal meals to scroll though.
@@ -116,7 +118,7 @@ public class RecipeFragment extends Fragment {
     private SearchPrefs prefs;
 
     private Bundle mBundle;
-    private Boolean planner;
+    private Boolean planner = false;
 
     // Auto-generated super method
     @Override
@@ -225,8 +227,8 @@ public class RecipeFragment extends Fragment {
                                         document,
                                         document.getId(),
                                         document.get("Name").toString(),
-                                        Float.valueOf(document.get("score").toString()),
-                                        document.get("imageURL").toString()
+                                        document.get("imageURL").toString(),
+                                        (HashMap) document.getData().get("rating")
                                 ));
                             }
                             if(dataScore != null){ loadNativeAds(scoreAdIndex[0], SCORE_ADS);}
@@ -267,8 +269,8 @@ public class RecipeFragment extends Fragment {
                                                                 d,
                                                                 d.getId(),
                                                                 d.get("Name").toString(),
-                                                                Float.valueOf(d.get("score").toString()),
-                                                                d.get("imageURL").toString()
+                                                                d.get("imageURL").toString(),
+                                                                (HashMap) d.getData().get("rating")
                                                         ));
                                                     }
                                                     if(dataScore != null){
@@ -332,8 +334,8 @@ public class RecipeFragment extends Fragment {
                                         document,
                                         document.getId(),
                                         document.get("Name").toString(),
-                                        Float.valueOf(document.get("score").toString()),
-                                        document.get("imageURL").toString()
+                                        document.get("imageURL").toString(),
+                                        (HashMap) document.getData().get("rating")
                                 ));
                             }
                             if(dataVotes != null){ loadNativeAds(votesAdIndex[0], VOTES_ADS);}
@@ -373,8 +375,8 @@ public class RecipeFragment extends Fragment {
                                                                 d,
                                                                 d.getId(),
                                                                 d.get("Name").toString(),
-                                                                Float.valueOf(d.get("score").toString()),
-                                                                d.get("imageURL").toString()
+                                                                d.get("imageURL").toString(),
+                                                                (HashMap) d.getData().get("rating")
                                                         ));
                                                     }
                                                     if(dataVotes != null){
@@ -439,8 +441,8 @@ public class RecipeFragment extends Fragment {
                                         document,
                                         document.getId(),
                                         document.get("Name").toString(),
-                                        Float.valueOf(document.get("score").toString()),
-                                        document.get("imageURL").toString()
+                                        document.get("imageURL").toString(),
+                                        (HashMap) document.getData().get("rating")
                                 ));
                             }
                             if(dataTime != null){ loadNativeAds(timeAdIndex[0], TIME_ADS);}
@@ -481,8 +483,8 @@ public class RecipeFragment extends Fragment {
                                                                 d,
                                                                 d.getId(),
                                                                 d.get("Name").toString(),
-                                                                Float.valueOf(d.get("score").toString()),
-                                                                d.get("imageURL").toString()
+                                                                d.get("imageURL").toString(),
+                                                                (HashMap) d.getData().get("rating")
                                                         ));}
                                                     if(dataTime != null){
                                                         timeAdIndex[0] = totalItemCount;
@@ -546,8 +548,8 @@ public class RecipeFragment extends Fragment {
                                         document,
                                         document.getId(),
                                         document.get("Name").toString(),
-                                        Float.valueOf(document.get("score").toString()),
-                                        document.get("imageURL").toString()
+                                        document.get("imageURL").toString(),
+                                        (HashMap) document.getData().get("rating")
                                 ));
                             }
                             rAdapterFave.notifyDataSetChanged();
@@ -587,8 +589,8 @@ public class RecipeFragment extends Fragment {
                                                                 d,
                                                                 d.getId(),
                                                                 d.get("Name").toString(),
-                                                                Float.valueOf(d.get("score").toString()),
-                                                                d.get("imageURL").toString()
+                                                                d.get("imageURL").toString(),
+                                                                (HashMap) d.getData().get("rating")
                                                         ));
                                                     }
                                                     if(isLastItemReachedFave){
@@ -630,16 +632,32 @@ public class RecipeFragment extends Fragment {
      */
     public void recipeSelected(DocumentSnapshot document) {
 
+        //Takes ingredient and recipe rating array from snap shot and reformats before being passed through to fragment
+        ArrayList<String> ingredientArray = new ArrayList<>();
+
+        Map<String, Map<String, Object>> ingredients = (Map) document.getData().get("Ingredients");
+        Iterator hmIterator = ingredients.entrySet().iterator();
+
+        HashMap<String, Double> ratingResults = (HashMap) document.getData().get("rating");
+
+        while (hmIterator.hasNext()) {
+            Map.Entry mapElement = (Map.Entry) hmIterator.next();
+            String string = mapElement.getKey().toString() + ": " + mapElement.getValue().toString();
+            ingredientArray.add(string);
+        }
         //Takes ingredient HashMap from the snapshot.
         HashMap<String, String> ingredientHashMap = (HashMap<String, String>) document.getData().get("Ingredients");
+
+
 
         //Creating a bundle so all data needed from firestore query snapshot can be passed through into fragment class
         mBundle = new Bundle();
         mBundle.putSerializable("ingredientHashMap", ingredientHashMap);
+        mBundle.putStringArrayList("ingredientList", ingredientArray);
+        mBundle.putSerializable("ratingMap", ratingResults);
         mBundle.putString("recipeID", document.getId());
         mBundle.putString("xmlURL", document.get("xml_url").toString());
         mBundle.putString("recipeTitle", document.get("Name").toString());
-        mBundle.putString("rating", document.get("score").toString());
         mBundle.putString("imageURL", document.get("imageURL").toString());
         mBundle.putString("recipeDescription", document.get("Description").toString());
         mBundle.putString("chefName", document.get("Chef").toString());
@@ -658,8 +676,8 @@ public class RecipeFragment extends Fragment {
         mBundle.putBoolean("vegan", document.getBoolean("vegan"));
         mBundle.putBoolean("vegetarian", document.getBoolean("vegetarian"));
 
-        ArrayList faves = (ArrayList) document.get("favourite");
-        mBundle.putBoolean("isFav", faves.contains(user.getUID().hashCode()));
+        ArrayList<Integer> faves = (ArrayList) document.get("favourite");
+        mBundle.putBoolean("isFav", faves.contains(user.getUID()));
 
         RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
         recipeDialogFragment.setArguments(mBundle);

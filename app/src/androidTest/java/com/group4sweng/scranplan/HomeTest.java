@@ -161,9 +161,6 @@ public class HomeTest implements Credentials {
         // Open up filter menu
         onView(withId(R.id.menuSortButton)).perform(click());
 
-        //  Change every switch and Checkboxes value.
-        onView(withId(R.id.chefCheckBox))
-                .perform(click());
 
         // Change tab
         onView(withText("Diet")).perform(click());
@@ -182,7 +179,7 @@ public class HomeTest implements Credentials {
                 .perform(click());
 
         // Change tab
-        onView(withText("Sort")).perform(click());
+        onView(withText("SORT")).perform(click());
 
         onView(withId(R.id.voteCheckBox))
                 .perform(click());
@@ -195,7 +192,7 @@ public class HomeTest implements Credentials {
 
         //  Store all initial filters in a HashMap.
         assertNotEquals(initialSettings.get("pescatarian"),  mActivityTestRule.getActivity().mPescatarianBox.isChecked());
-        assertNotEquals(initialSettings.get("vegetarian"),  mActivityTestRule.getActivity().mVegetarianBox.isChecked());
+        assertEquals(initialSettings.get("vegetarian"),  mActivityTestRule.getActivity().mVegetarianBox.isChecked());
         assertEquals(initialSettings.get("vegan"),  mActivityTestRule.getActivity().mVeganBox.isChecked());
 
         assertNotEquals(initialSettings.get("eggs"),  mActivityTestRule.getActivity().mEggsBox.isChecked());
@@ -209,9 +206,9 @@ public class HomeTest implements Credentials {
         assertNotEquals(initialSettings.get("vote"),  mActivityTestRule.getActivity().mVoteBox.isChecked());
         assertEquals(initialSettings.get("time"),  mActivityTestRule.getActivity().mTimeBox.isChecked());
 
-        assertNotEquals(initialSettings.get("ingred"),  mActivityTestRule.getActivity().mIngredientsBox.isChecked());
+        assertEquals(initialSettings.get("ingred"),  mActivityTestRule.getActivity().mIngredientsBox.isChecked());
         assertEquals(initialSettings.get("name"),  mActivityTestRule.getActivity().mNameBox.isChecked());
-        assertNotEquals(initialSettings.get("chef"),  mActivityTestRule.getActivity().mChefBox.isChecked());
+        assertEquals(initialSettings.get("chef"),  mActivityTestRule.getActivity().mChefBox.isChecked());
 
     }
 

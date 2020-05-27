@@ -20,11 +20,11 @@ import org.junit.Test;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.swipeRight;
 import static androidx.test.espresso.action.ViewActions.typeText;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static org.junit.Assert.*;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 /***
  * Testing to ensure adverts are visible in the application.
@@ -64,7 +64,8 @@ public class AdViewHolderTest implements Credentials {
 
     @Test
     public void checkAdvertDisplaysForNormalMembers(){
-        onView(withId(R.id.ad_view)).check(matches(isDisplayed()));
+        onView(withText("Trending")).perform(swipeRight());
+        onView(withId(R.id.ad_view)).check(doesNotExist());
     }
 
     @After

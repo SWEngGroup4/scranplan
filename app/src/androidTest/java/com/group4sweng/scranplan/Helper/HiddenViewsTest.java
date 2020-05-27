@@ -13,7 +13,6 @@ import com.group4sweng.scranplan.R;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -73,9 +72,6 @@ public class HiddenViewsTest implements Credentials {
         Thread.sleep(THREAD_SLEEP_TIME/4);
     }
 
-    @Test
-    public void testGoesToView() {
-    }
 
     @After
     public void tearDown() throws Exception {

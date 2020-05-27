@@ -12,7 +12,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.algolia.search.saas.AlgoliaException;
@@ -214,6 +213,7 @@ public class SearchListFragment extends AppCompatDialogFragment {
         //Takes ingredient array from snap shot and reformats before being passed through to fragment
         ArrayList<String> ingredientArray = new ArrayList<>();
         HashMap<String, String> ingredientHashMap = (HashMap<String, String>) document.getData().get("Ingredients");
+        HashMap<String, Double> ratingMap =  (HashMap<String, Double>) document.getData().get("rating");
 
         //Creating a bundle so all data needed from firestore query snapshot can be passed through into fragment class
         mBundle = new Bundle();
@@ -222,7 +222,7 @@ public class SearchListFragment extends AppCompatDialogFragment {
         mBundle.putString("recipeID", document.getId());
         mBundle.putString("xmlURL", document.get("xml_url").toString());
         mBundle.putString("recipeTitle", document.get("Name").toString());
-        mBundle.putString("rating", document.get("score").toString());
+        mBundle.putSerializable("ratingMap", ratingMap);
         mBundle.putString("imageURL", document.get("imageURL").toString());
         mBundle.putString("recipeDescription", document.get("Description").toString());
         mBundle.putString("chefName", document.get("Chef").toString());
