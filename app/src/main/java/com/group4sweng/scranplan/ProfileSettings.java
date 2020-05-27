@@ -1152,7 +1152,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                 mDatabase.collection("usernames").document(usernameInput).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.getResult().exists()){
+                        if(task.getResult().exists() && !mUserProfile.getDisplayName().equals(usernameInput)){
                             Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, maximum 20 characters.",Toast.LENGTH_SHORT).show();
                         }else{
                             if(!mUserProfile.getDisplayName().equals(usernameInput)){
