@@ -1,7 +1,9 @@
 package com.group4sweng.scranplan;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -9,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.common.collect.ObjectArrays;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -20,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -30,6 +34,9 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
 
     //User information
     private com.group4sweng.scranplan.UserInfo.UserInfoPrivate mUser;
+
+    private FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
+    private CollectionReference mColRef = mDatabase.collection("shoppingLists");
 
     private List<HashMap<String, Object>> ShoppingList = new ArrayList<>();
     RecyclerViewAdaptor adapter;
@@ -115,12 +122,12 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
         msaveButton.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View view) {
-
                 newList3.clear();
-                        for (String ingredient : newList2 ){
-                            //add all current ingredients into a new list
-                            newList3.add(ingredient);
-                        }
+                for (String ingredient : newList2 ){
+                    //add all current ingredients into a new list
+                    newList3.add(ingredient);
+                }
+                uploadList(newList3);
             }
         });
 
@@ -132,15 +139,26 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
                 if (newList3 != null ){
                     //new intent into a new page that displays the most recent list
                     Intent saveListIntent = new Intent(ShoppingList.this, savedList.class);
-                    saveListIntent.putStringArrayListExtra("newList3", newList3);
                     saveListIntent.putExtra("user", mUser);
-                    startActivity(saveListIntent);
+                    startActivityForResult(saveListIntent, 1);
                 }
             }
         });
-        }
-
-
     }
+
+    private void uploadList(ArrayList<String> shoppingList) {
+        Map<String, Object> shoppingMap = new HashMap<>();
+        shoppingMap.put("shoppingList", shoppingList);
+        mColRef.document(mUser.getUID()).set(shoppingMap).addOnSuccessListener(aVoid -> Log.d("Test", "Uploaded"));
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        newList3 = data.getStringArrayListExtra("shoppingList");
+        uploadList(newList3);
+    }
+
+}
 
 

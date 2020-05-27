@@ -258,7 +258,7 @@ public class PlannerFragment extends Fragment {
             }
             //Removes recipe fragment overlay and makes planner fragment visible
             fragmentTransaction = getParentFragmentManager().beginTransaction();
-            fragmentTransaction.remove(recipeFragment).commitNow();
+            fragmentTransaction.remove  (recipeFragment).commitNow();
             requireView().setVisibility(View.VISIBLE);
         }
     }
