@@ -265,7 +265,7 @@ public class Login extends AppCompatActivity{
                         if(passCheck(mPasswordEditText.getText().toString())){
                             mCheckPass.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_check_black_24dp));
                             mCheckPass.setVisibility(View.VISIBLE);
-                        }else if (mPasswordEditText.getText().toString().length() <= 3){
+                        }else if (mPasswordEditText.getText().toString().length() == 1){
                             mCheckPass.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
                             mCheckPass.setVisibility(View.VISIBLE);
                             if (mToast != null) mToast.cancel();

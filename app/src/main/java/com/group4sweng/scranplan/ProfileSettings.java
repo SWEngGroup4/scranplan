@@ -309,8 +309,12 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                     if(task.getResult().exists()){
-                                        mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
-                                        mCheckUsername.setVisibility(View.VISIBLE);
+                                        if(task.getResult().get("user").equals(mUserProfile.getUID())){
+                                            mCheckUsername.setVisibility(View.GONE);
+                                        }else{
+                                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                                            mCheckUsername.setVisibility(View.VISIBLE);
+                                        }
                                     }else{
                                         if(!mDisplay_username.getText().toString().equals("")){
                                             mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_check_black_24dp));
