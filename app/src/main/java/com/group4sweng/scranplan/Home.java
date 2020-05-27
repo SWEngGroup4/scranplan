@@ -1,9 +1,7 @@
 
 package com.group4sweng.scranplan;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Notification;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -36,22 +34,17 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.group4sweng.scranplan.Administration.SuggestionBox;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
+import com.group4sweng.scranplan.Administration.SuggestionBox;
 import com.group4sweng.scranplan.MealPlanner.PlannerFragment;
+import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
 import com.group4sweng.scranplan.Social.FeedFragment;
-import com.group4sweng.scranplan.Social.NotificationRecyclerAdapter;
 import com.group4sweng.scranplan.Social.Notifications;
-import com.group4sweng.scranplan.Social.PostPage;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import io.sentry.core.Sentry;
 import io.sentry.core.protocol.User;
@@ -256,7 +249,7 @@ public class Home extends AppCompatActivity {
         //Defining all relevant members of signin & register page
         tabLayout = findViewById(R.id.tabLayout);
         frameLayout = findViewById(R.id.frameLayout);
-        Fragment fragment = new RecipeFragment();
+        fragment = new RecipeFragment();
         fragmentTransaction.replace(R.id.frameLayout, fragment);
         fragmentTransaction.commit ();
         navigationView = (NavigationView) findViewById(R.id.side_menu);

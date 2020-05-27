@@ -51,6 +51,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.group4sweng.scranplan.Administration.LoadingDialog;
 import com.group4sweng.scranplan.Exceptions.InvalidUserException;
 import com.group4sweng.scranplan.Exceptions.ProfileImageException;
 import com.group4sweng.scranplan.Helper.HiddenViews;
