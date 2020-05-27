@@ -91,7 +91,7 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
                     assert updateIngredientList != null;
                     ArrayList<String> ingredientArray = RecipeHelpers.convertToIngredientListFormat(updateIngredientList);
                     for (String ingredient : ingredientArray) {
-                        //add each individual ingredent in each recipe
+                        //add each individual ingredient in each recipe
                         ingredientList.add(ingredient);
                     }
 
@@ -129,6 +129,7 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
                     //add all current ingredients into a new list
                     savedList.add(ingredient);
                 }
+                //uploaded to the firebase once it has been saved
                 uploadList(savedList);
             }
         });
@@ -149,6 +150,7 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
     }
 
     private void uploadList(ArrayList<String> shoppingList) {
+        //uploads the eddited shopping list to the firebase
         Map<String, Object> shoppingMap = new HashMap<>();
         shoppingMap.put("shoppingList", shoppingList);
         mColRef.document(mUser.getUID()).set(shoppingMap).addOnSuccessListener(aVoid -> Log.d("Test", "Uploaded"));

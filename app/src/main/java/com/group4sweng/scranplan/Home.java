@@ -244,15 +244,7 @@ public class Home extends AppCompatActivity {
                         //setResult(RESULT_OK, intentProfile);
                         startActivity(intentProfile);
                         break;
-                    case R.id.nav_shoppingList:
-                        Log.e(TAG,"Clicked Shopping List!");
 
-                        Intent intentShoppingList = new Intent(mContext, ShoppingList.class);
-
-                        intentShoppingList.putExtra("user", mUser);
-                        //setResult(RESULT_OK, intentProfile);
-                        startActivity(intentShoppingList);
-                        break;
                     case R.id.nav_editProfile:
                         Intent intentSettings = new Intent(mContext, ProfileSettings.class);
                         intentSettings.putExtra("user", mUser);

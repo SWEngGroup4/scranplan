@@ -4,6 +4,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.SearchView;
 
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.matcher.ViewMatchers;
@@ -43,6 +44,9 @@ public class ShoppingListTest implements Credentials {
 
     private String TAG = "ShoppingListTest";
 
+    String TEST_EMAIL = "rea524@york.ac.uk";
+    String TEST_PASSWORD = "Hamish100";
+
     private static final int THREAD_SLEEP_TIME = 4000;
 
     //Logging in with test account
@@ -63,25 +67,39 @@ public class ShoppingListTest implements Credentials {
 
     //Checks correct elements appear when add button is pressed
     @Test
-    public void searchAndAddToPlanner() throws InterruptedException {
-
-        Log.d(TAG, "Testing searching");
+    public void checkButtons() throws InterruptedException {
 
         Log.d(TAG, "Testing searching");
 
         onView(withText("Meal Planner")).perform(click());
-        onView(withId(0)).perform(click());
-        onView(withId(R.id.menuSearch)).perform(click());
-        onView(isAssignableFrom(SearchView.class))
-                .perform(typeSearchViewText("bacon"))
-                .perform(pressKey(KeyEvent.KEYCODE_ENTER));
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        onView(withText("Bacon Sandwich")).perform(click());
-        onView(withText("Add")).perform(click());
+        onView(withId(R.id.shoppingListButton)).perform(click());
+        onView(withId(R.id.SavedList)).perform(click());
+        onView(withId(R.id.ViewSavedList)).perform(click());
+    }
+
+    @Test
+    public void addToShoppingList() throws InterruptedException {
+
+        onView(withText("Meal Planner")).perform(click());
+        Thread.sleep(THREAD_SLEEP_TIME/4);
+
+        onView(withId(0)).perform(click());
+        Thread.sleep(THREAD_SLEEP_TIME/4);
+
+        onView(withId(R.id.ReturnButton)).perform(click());
+        Thread.sleep(THREAD_SLEEP_TIME/4);
+
+        onView(withId(R.id.shoppingListButton)).perform(click());
+        onView(withId(0)).perform(click());
+
 
     }
+
+
+
 
     @After
     public void tearDown() { Log.d(TAG, "Tests complete"); }

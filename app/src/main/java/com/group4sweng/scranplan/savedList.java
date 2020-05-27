@@ -47,9 +47,13 @@ public class savedList extends AppCompatActivity implements RecyclerViewAdaptor.
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        //set page to the saved shopping list xml
         setContentView(R.layout.activity_savedshoppinglist);
 
+        //grab user details
         mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) getIntent().getSerializableExtra("user");
+
+        //get intent of ingredient list
         Intent i = getIntent();
         Log.d("Test", mUser.getUID());
         //gets the current list and displays it
@@ -57,6 +61,7 @@ public class savedList extends AppCompatActivity implements RecyclerViewAdaptor.
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
+                    //gets the shopping list from firebase
                     DocumentSnapshot documentSnapshot = task.getResult();
                     if (documentSnapshot.exists()) {
                         viewList = (List<String>) documentSnapshot.getData().get("shoppingList");
@@ -66,6 +71,7 @@ public class savedList extends AppCompatActivity implements RecyclerViewAdaptor.
                         adapter.setClickListener(savedList.this::onItemClick);
                         recyclerViewsaved.setAdapter(adapter);
                     } else {
+                        //if document doesn't exist then a message is displayed to the user.
                         Log.d("Test", "Doc does not exist");
 
                         Context context = getApplicationContext();
@@ -91,7 +97,7 @@ public class savedList extends AppCompatActivity implements RecyclerViewAdaptor.
 
     @Override
     public void onItemClick(View view, int position) {
-
+    //ability to remove items from the list
         if (viewList != null) {
             viewList.remove(position);
         }
