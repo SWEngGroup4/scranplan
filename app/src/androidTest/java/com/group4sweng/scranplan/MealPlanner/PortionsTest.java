@@ -125,7 +125,7 @@ public class PortionsTest implements Credentials {
         onView(withText("10")) // Change portions to serves = 10.
                 .perform(click());
 
-        onView(withText("CHANGE PORTIONS"))
+        onView(withId(R.id.changePortions))
                 .perform(click());
 
         //  New expected serving portion conversion amounts after conversion.
