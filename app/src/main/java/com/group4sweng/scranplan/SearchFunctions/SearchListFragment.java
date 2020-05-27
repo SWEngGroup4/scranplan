@@ -11,7 +11,7 @@ import android.widget.AbsListView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.algolia.search.saas.AlgoliaException;
@@ -31,17 +31,23 @@ import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
+ * Building search list infinite scroll fragment.
+ * Author(s): LNewman, NBillis
+ * (c) CoDev 2020
+ *
+ *
  *  This class takes a Firestore query and returns a fragment consisting of an infinite list,
  *  that goes of for as long as there is data delivered to the user in blocks of 5 items.
  *  Each item will be presented as just an image, title and description, users can click these images
  *  to get further information about a recipe
  */
 public class SearchListFragment extends AppCompatDialogFragment {
+
+    int numberOfColumns = 2;
 
     final String TAG = "SearchScreen";
     private static final String ALGOLIA_APP_ID = "WK13YORECK";
@@ -63,6 +69,9 @@ public class SearchListFragment extends AppCompatDialogFragment {
     List<String> objectID;
     String searchIndex;
     String searchBy;
+    private Bundle mBundle;
+    private Boolean planner = false;
+
 
     /**
      * On the create of this view, the alert dialogue is build over the current page within the application
@@ -86,7 +95,7 @@ public class SearchListFragment extends AppCompatDialogFragment {
         // Creating a list of the data and building all variables to add to recycler view
         final RecyclerView recyclerView = view.findViewById(R.id.recipeList);
         recyclerView.setHasFixedSize(true);
-        RecyclerView.LayoutManager rManager = new LinearLayoutManager(getContext());
+        RecyclerView.LayoutManager rManager = new GridLayoutManager(getContext(), numberOfColumns);
         recyclerView.setLayoutManager(rManager);
         final RecyclerView.Adapter rAdapter = new SearchRecyclerAdapter(SearchListFragment.this, data);
         recyclerView.setAdapter(rAdapter);
@@ -203,45 +212,39 @@ public class SearchListFragment extends AppCompatDialogFragment {
 
         //Takes ingredient array from snap shot and reformats before being passed through to fragment
         ArrayList<String> ingredientArray = new ArrayList<>();
-
-        Map<String, Map<String, Object>> test = (Map) document.getData().get("Ingredients");
-        Iterator hmIterator = test.entrySet().iterator();
-
-        while (hmIterator.hasNext()) {
-            Map.Entry mapElement = (Map.Entry) hmIterator.next();
-            String string = mapElement.getKey().toString() + ": " + mapElement.getValue().toString();
-            ingredientArray.add(string);
-        }
+        HashMap<String, String> ingredientHashMap = (HashMap<String, String>) document.getData().get("Ingredients");
+        HashMap<String, Double> ratingMap =  (HashMap<String, Double>) document.getData().get("rating");
 
         //Creating a bundle so all data needed from firestore query snapshot can be passed through into fragment class
-        Bundle bundle = new Bundle();
-        bundle.putStringArrayList("ingredientList", ingredientArray);
-        bundle.putString("recipeID", document.getId());
-        bundle.putString("xmlURL", document.get("xml_url").toString());
-        bundle.putString("recipeTitle", document.get("Name").toString());
-        bundle.putString("rating", document.get("score").toString());
-        bundle.putString("imageURL", document.get("imageURL").toString());
-        bundle.putString("recipeDescription", document.get("Description").toString());
-        bundle.putString("chefName", document.get("Chef").toString());
-        bundle.putSerializable("user", user);
+        mBundle = new Bundle();
+        mBundle.putSerializable("ingredientHashMap", ingredientHashMap);
+        mBundle.putStringArrayList("ingredientList", ingredientArray);
+        mBundle.putString("recipeID", document.getId());
+        mBundle.putString("xmlURL", document.get("xml_url").toString());
+        mBundle.putString("recipeTitle", document.get("Name").toString());
+        mBundle.putSerializable("ratingMap", ratingMap);
+        mBundle.putString("imageURL", document.get("imageURL").toString());
+        mBundle.putString("recipeDescription", document.get("Description").toString());
+        mBundle.putString("chefName", document.get("Chef").toString());
+        mBundle.putBoolean("planner", planner);
+        mBundle.putBoolean("canFreeze", document.getBoolean("freezer"));
+        mBundle.putString("peopleServes", document.get("serves").toString());
+        mBundle.putString("fridgeDays", document.get("fridge").toString());
+        mBundle.putString("reheat", document.get("reheat").toString());
+        mBundle.putBoolean("noEggs", document.getBoolean("noEggs"));
+        mBundle.putBoolean("noMilk", document.getBoolean("noMilk"));
+        mBundle.putBoolean("noNuts", document.getBoolean("noNuts"));
+        mBundle.putBoolean("noShellfish", document.getBoolean("noShellfish"));
+        mBundle.putBoolean("noSoy", document.getBoolean("noSoy"));
+        mBundle.putBoolean("noWheat", document.getBoolean("noWheat"));
+        mBundle.putBoolean("pescatarian", document.getBoolean("pescatarian"));
+        mBundle.putBoolean("vegan", document.getBoolean("vegan"));
+        mBundle.putBoolean("vegetarian", document.getBoolean("vegetarian"));
 
         ArrayList faves = (ArrayList) document.get("favourite");
-        bundle.putBoolean("isFav", faves.contains(user.getUID()));
-        bundle.putString("fridgeDays", document.get("fridge").toString());
-        bundle.putString("peopleServes", document.get("serves").toString());
-        bundle.putString("reheat", document.get("reheat").toString());
-        bundle.putBoolean("canFreeze", document.getBoolean("freezer"));
-        bundle.putBoolean("noEggs", document.getBoolean("noEggs"));
-        bundle.putBoolean("noMilk", document.getBoolean("noMilk"));
-        bundle.putBoolean("noNuts", document.getBoolean("noNuts"));
-        bundle.putBoolean("noShellfish", document.getBoolean("noShellfish"));
-        bundle.putBoolean("noSoy", document.getBoolean("noSoy"));
-        bundle.putBoolean("noWheat", document.getBoolean("noWheat"));
-        bundle.putBoolean("pescatarian", document.getBoolean("pescatarian"));
-        bundle.putBoolean("vegan", document.getBoolean("vegan"));
-        bundle.putBoolean("vegetarian", document.getBoolean("vegetarian"));
+        mBundle.putBoolean("isFav", faves.contains(user.getUID().hashCode()));
 
-        openRecipeInfo(bundle);
+        openRecipeInfo(mBundle);
     }
 
     protected void openRecipeInfo(Bundle bundle) {

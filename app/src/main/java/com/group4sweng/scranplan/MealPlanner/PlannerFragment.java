@@ -25,10 +25,13 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.Home;
 import com.group4sweng.scranplan.InitialUserCustomisation;
 import com.group4sweng.scranplan.R;
-import com.group4sweng.scranplan.RecipeFragment;
+import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
+
 import com.group4sweng.scranplan.ShoppingList;
+
+import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -65,6 +68,9 @@ public class PlannerFragment extends Fragment {
     private Integer recipeFragmentRequest = 1;
 
 
+    public PlannerFragment(UserInfoPrivate userSent){mUser = userSent;}
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,7 +85,6 @@ public class PlannerFragment extends Fragment {
 
 
         //Grabs user and user's meal planner
-        mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
         if (mUser != null) plannerList = mUser.getMealPlanner();
             View mShoppingList = view.findViewById(R.id.shoppingListButton);
 
@@ -166,14 +171,15 @@ public class PlannerFragment extends Fragment {
 
     //Opens list fragment on searching
     private void openRecipeDialog(SearchQuery query) {
-        //Creates and launches fragment with required query
+        // Creates and launches fragment with required query
         PlannerListFragment plannerListFragment = new PlannerListFragment(mUser);
         plannerListFragment.setValue(query.getQuery());
+        plannerListFragment.setIndex(query.getIndex());
         plannerListFragment.setTargetFragment(this, 1);
         plannerListFragment.show(getParentFragmentManager(), "search");
     }
 
-    //Sets default paramters for buttons
+    // Sets default parameters for buttons
     private void defaultButton(final ImageButton imageButton) {
         imageButton.setImageResource(R.drawable.add); //Default image
         imageButton.setOnClickListener(v -> {
@@ -239,10 +245,9 @@ public class PlannerFragment extends Fragment {
                         map.put(key, bundle.get(key));
                     }
 
-
                     //  Adds the ingredient Hash Map
-                    HashMap<String, String> ingredientHashMap = (HashMap<String, String>) bundle.getSerializable("ingredientHashMap");
-                    map.put("ingredientHashMap", ingredientHashMap);
+                    HashMap<String, String> ingredientHashMap = (HashMap<String, String>) data.getSerializableExtra("ingredientHashMap");
+                    if(ingredientHashMap != null){ map.put("ingredientHashMap", ingredientHashMap); }
 
                     //Sets new listener for inserted recipe to open info fragment
                     currentSelection.setOnClickListener(v -> openRecipeInfo(map));
@@ -265,9 +270,11 @@ public class PlannerFragment extends Fragment {
 
     //Quick function to reset search menu functionality
     private void setSearch() {
+        Home home = (Home) getActivity();
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
+                prefs = home.getSearchPrefs();
                 SearchQuery query = new SearchQuery( s, prefs);
                 openRecipeDialog(query);
                 return false;
@@ -288,7 +295,3 @@ public class PlannerFragment extends Fragment {
     }
 
     }
-
-
-
-

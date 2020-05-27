@@ -14,6 +14,9 @@ import static org.junit.Assert.assertNull;
  * Portions JUnit tests.
  * Author: JButler
  * (c) CoDev 2020
+ *
+ * -- USER STORY TESTS LINKED WITH ---
+ *  C34 , A14
  */
 public class PortionsTest {
     private HashMap<String, String> ingredients = new HashMap<>();
@@ -102,7 +105,7 @@ public class PortionsTest {
         assertEquals(600.0f, Portions.retrieveQuantity(scaledIngredients.get("Chopped Tomatoes")), 0.0f);
         assertEquals(6.0f, Portions.retrieveQuantity(scaledIngredients.get("cod fillets")), 0.0f);
         assertEquals(-1.0f, Portions.retrieveQuantity(scaledIngredients.get("thyme")), 0.0f);
-        assertEquals(3.125f, Portions.retrieveQuantity(scaledIngredients.get("pale ale")), 0.0f);
+        assertEquals(3.12f, Portions.retrieveQuantity(scaledIngredients.get("pale ale")), 0.0f);
 
         scaledIngredients = Portions.convertPortions(ingredients, 6, 4);
         assertEquals(267.0f, Portions.retrieveQuantity(scaledIngredients.get("Chopped Tomatoes")), 1.0f);

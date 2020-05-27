@@ -1,6 +1,7 @@
 
 package com.group4sweng.scranplan;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -32,10 +33,13 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.Administration.SuggestionBox;
+import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.MealPlanner.PlannerFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
+import com.group4sweng.scranplan.Social.FeedFragment;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import io.sentry.core.Sentry;
@@ -48,6 +52,7 @@ public class Home extends AppCompatActivity {
     Context mContext = this;
     final static String TAG = "ScranPlanHome";
     final static int PROFILE_SETTINGS_REQUEST_CODE = 1;
+    private SuggestionBox suggestionBox;
 
     // User variable for all preferences saved to device
     private UserInfoPrivate mUser;
@@ -220,7 +225,7 @@ public class Home extends AppCompatActivity {
         navigationView = (NavigationView) findViewById(R.id.side_menu);
         tabLayout.addTab(tabLayout.newTab().setText("Recipes"));
         tabLayout.addTab(tabLayout.newTab().setText("Meal Planner"));
-        tabLayout.addTab(tabLayout.newTab().setText("Timeline"));
+        tabLayout.addTab(tabLayout.newTab().setText("Feed"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
     }
 
@@ -260,6 +265,11 @@ public class Home extends AppCompatActivity {
                         setResult(RESULT_OK, intentSettings);
                         startActivityForResult(intentSettings, PROFILE_SETTINGS_REQUEST_CODE);
                         break;
+                    case R.id.nav_suggestionBox:
+
+                        onSuggestionBoxClick();
+
+                        break;
                     case R.id.nav_logout:
                         Log.e(TAG, "Logout button has been pressed and user has been logged out.");
                         mUser = null;
@@ -289,10 +299,10 @@ public class Home extends AppCompatActivity {
                     case 1:
                         if (fragment.getClass() == RecipeFragment.class) fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         else fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
-                        fragment = new PlannerFragment();
+                        fragment = new PlannerFragment(mUser);
                         break;
                     case 2:
-                        fragment = new TimelinePlanner();
+                        fragment = new FeedFragment(mUser);
                         fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         break;
                 }
@@ -352,7 +362,7 @@ public class Home extends AppCompatActivity {
     /**
      *  Initialise all check boxes to user preferences and ensure that queries are only query that is allowed
      */
-    public void initMenuCheckBoxes(){
+    public void initMenuCheckBoxes(TabHost tabs){
         // Ensure that only the correct boxes are ticked at any one time
         mPescatarianBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
@@ -431,8 +441,14 @@ public class Home extends AppCompatActivity {
                 if (mChefBox.isChecked()) {
                     mIngredientsBox.setChecked(false);
                     mNameBox.setChecked(false);
+                    tabs.setCurrentTab(2);
+                    tabs.getCurrentTabView().setVisibility(View.GONE);
+                    tabs.setCurrentTab(0);
                 }else if(!mNameBox.isChecked() && !mIngredientsBox.isChecked()){
                     mChefBox.setChecked(true);
+                    tabs.setCurrentTab(2);
+                    tabs.getCurrentTabView().setVisibility(View.GONE);
+                    tabs.setCurrentTab(0);
                 }
             }
         });
@@ -444,8 +460,14 @@ public class Home extends AppCompatActivity {
                 if (mIngredientsBox.isChecked()) {
                     mChefBox.setChecked(false);
                     mNameBox.setChecked(false);
+                    tabs.setCurrentTab(2);
+                    tabs.getCurrentTabView().setVisibility(View.VISIBLE);
+                    tabs.setCurrentTab(0);
                 }else if(!mNameBox.isChecked() && !mChefBox.isChecked()){
                     mIngredientsBox.setChecked(true);
+                    tabs.setCurrentTab(2);
+                    tabs.getCurrentTabView().setVisibility(View.VISIBLE);
+                    tabs.setCurrentTab(0);
                 }
             }
         });
@@ -457,8 +479,14 @@ public class Home extends AppCompatActivity {
                 if (mNameBox.isChecked()) {
                     mChefBox.setChecked(false);
                     mIngredientsBox.setChecked(false);
+                    tabs.setCurrentTab(2);
+                    tabs.getCurrentTabView().setVisibility(View.GONE);
+                    tabs.setCurrentTab(0);
                 }else if(!mChefBox.isChecked() && !mIngredientsBox.isChecked()){
                     mNameBox.setChecked(true);
+                    tabs.setCurrentTab(2);
+                    tabs.getCurrentTabView().setVisibility(View.GONE);
+                    tabs.setCurrentTab(0);
                 }
             }
         });
@@ -504,6 +532,7 @@ public class Home extends AppCompatActivity {
         tabpage3.setContent(R.id.ScrollView03);
         tabpage3.setIndicator("Sort");
 
+
         // Adding the XML for each tab
         tabs.addTab(tabpage1);
         tabs.addTab(tabpage2);
@@ -526,7 +555,7 @@ public class Home extends AppCompatActivity {
         mNameBox = layout.findViewById(R.id.nameCheckBox);
         mChefBox = layout.findViewById(R.id.chefCheckBox);
         // Initialise the check boxes by filling them with users current preferences
-        initMenuCheckBoxes();
+        initMenuCheckBoxes(tabs);
 
         // add the alert dialogue to the current context
         builder = new AlertDialog.Builder(Home.this);
@@ -590,6 +619,7 @@ public class Home extends AppCompatActivity {
 
     }
 
+
     public void onShoppingListClick() {
 
         Intent intentShoppingList = new Intent(this, ShoppingList.class);
@@ -597,6 +627,11 @@ public class Home extends AppCompatActivity {
 
         setResult(RESULT_OK, intentShoppingList);
         startActivity(intentShoppingList);
+
+    public void onSuggestionBoxClick(){
+
+        suggestionBox = new SuggestionBox(Home.this, mUser.getUID());
+        suggestionBox.startSuggestionDialog();
 
     }
 
@@ -616,5 +651,3 @@ public class Home extends AppCompatActivity {
 
 
 }
-
-

@@ -970,6 +970,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             Preferences preferences = mUserProfile.getPreferences();
 
             map.put("firstMealPlannerLaunch", mTempUserProfile.getFirstMealPlannerLaunch());
+            map.put("posts", mTempUserProfile.getPosts());
 
 
 

@@ -3,10 +3,11 @@ package com.group4sweng.scranplan.MealPlanner;
 import android.util.Log;
 
 import com.group4sweng.scranplan.Exceptions.PortionConvertException;
+import com.group4sweng.scranplan.MealPlanner.Ingredients.Warning;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,7 +16,7 @@ import java.util.regex.Pattern;
  *    Author(s): JButler
  *    (c) CoDev 2020
  **/
-class Portions {
+class Portions implements Warning {
     private final static String TAG = "portions";
     private final static int[] servesAmounts = {1,2,4,6,10,20}; // All possible variants of 'serves' amounts for a Recipe.
     private final static float MAX_SERVINGS_MULTIPLIER = 4f; // Limit to how much we can scale a recipes portions before it is considered in-accurate.
@@ -25,11 +26,13 @@ class Portions {
     "riesling", "cabernet sauvignon", "pinot noir", "syrah", "zinfandel", "pilsener", "witbier", "pale ale", "bitter ale", "brown ale", "cask ale",
     "mild ale", "old ale", "stock ale", "fruit beer", "scotch ale", "cider", "mead", "red wine", "white wine", "rose wine", "vodka", "whiskey", "white rum", "dark rum",
     "spiced rum", };
+
     //  Common Spice text matchers.
     private final static String[] commonSpices  = {"allspice", "anise", "cardamom", "cayenne", "five spice", "coriander", "cumin", "curry powder", "fennel", "garam masala",
             "nutmeg", "paprika", "turmeric", "black pepper",  "caraway", "cinnamon", "jalapeno", "mustard seeds", "nutmeg", "saffron", "vanilla essence", "wasabi"};
+
     //  Common Spice text matchers. Ingredient matching must be exact. IE "Ginger Beer" will not work. "Ginger" will.
-    private final static String[] commonSpicesExact = {"ginger", "salt", "cinnamon", "vanilla", "mace"};
+    private final static String[] commonSpicesExact = {"ginger", "salt", "cinnamon", "vanilla", "mace", "thyme"};
 
 
     /** Find the quantity of an ingredient from a string descriptor
@@ -38,7 +41,7 @@ class Portions {
      * @return - Numerical value of portion. Returns -1 if a value cannot be found or the
      *      String input is invalid.
      */
-    static float retrieveQuantity(String portionDisplayed){
+    public static float retrieveQuantity(String portionDisplayed){
         boolean quantityFound = false; // Has a numerical value been found.
         boolean decimalFound = false; // Has a decimal been found.
         float quantity; // final quantity.
@@ -111,10 +114,10 @@ class Portions {
         float overallMultiplier = newServes/prevServes; // Scalar multiplier for scaling recipe portions.
         boolean increasePortions; // Should the serving amount (portions) increase or decrease.
 
-        if(overallMultiplier > 1 && overallMultiplier < MAX_SERVINGS_MULTIPLIER){ // Check if increasing proportions. Must be within limits of max servings amount multiplier.
-            overallMultiplier = overallMultiplier - 1; // Remove 1.
+        if(overallMultiplier > 1 && overallMultiplier <= MAX_SERVINGS_MULTIPLIER){ // Check if increasing proportions. Must be within limits of max servings amount multiplier.
             increasePortions = true;
-        } else if (overallMultiplier < 1 && overallMultiplier > 1/MAX_SERVINGS_MULTIPLIER) { // Check if decreasing proportions.
+        } else if (overallMultiplier < 1 && overallMultiplier >= 1/MAX_SERVINGS_MULTIPLIER) { // Check if decreasing proportions.
+            overallMultiplier = 1/overallMultiplier; // Invert multiplier. Used so calculations can be done with an additional scalar multiplier quantity.
             increasePortions = false;
         } else if (overallMultiplier == 1) { // prev serving amount = new serving amount. Throw Exception.
             throw new PortionConvertException("Unable to convert portions of food. New and previous serve amounts cannot be the same");
@@ -122,44 +125,49 @@ class Portions {
             throw new PortionConvertException("Unable to convert portions of food from " + prevServes + " to " + newServes + ". Amount is outside the range in which an acceptable estimate can be calculated.");
         }
         HashMap<String, String> scaledIngredients = new HashMap<>();
-            Iterator portionsIterator = ingredients.entrySet().iterator();
 
-            // Cycle through the HashMap.
-            while (portionsIterator.hasNext()) {
-                Map.Entry ingredient = (Map.Entry) portionsIterator.next(); // Increment value.
+        // Cycle through the HashMap.
+        for (Map.Entry<String, String> entry : ingredients.entrySet()) {
 
-                String value = (String) ingredient.getKey();
-                String portion = (String) ingredient.getValue();
+            String value = (String) ((Map.Entry) entry).getKey();
+            String portion = (String) ((Map.Entry) entry).getValue();
 
-                // Check from alcohol + spice list the multiplier doesn't need to be modified.
-                currentMultiplierScalar = checkMultiplier(value);
+            //  Check from alcohol + spice list the multiplier doesn't need to be modified.
+            currentMultiplierScalar = checkMultiplier(value);
 
-                //  Grab quantity amounts in terms of an Integer and Float
-                String quantityFloat = Float.toString(retrieveQuantity(portion));
-                String quantityInt = Integer.toString((int) retrieveQuantity(portion));
+            //  Grab quantity amounts in terms of an Integer and Float
+            String quantityFloat = Float.toString(retrieveQuantity(portion));
+            String quantityInt = Integer.toString((int) retrieveQuantity(portion));
 
-                float newQuantity;
-
-                if(increasePortions){
-                    //  New quantiy = current quantity + (current quantity * multiplier scalar * overall scalar)
-                    newQuantity = retrieveQuantity(portion) + (retrieveQuantity(portion) * currentMultiplierScalar * overallMultiplier);
-                } else {
-                    //  New quantiy = current quantity - (current quantity * multiplier scalar * (1- overall scalar)
-                    newQuantity = retrieveQuantity(portion) - (retrieveQuantity(portion) * (currentMultiplierScalar * (1-overallMultiplier)));
-                }
-
-                String newQuantityString = Float.toString(newQuantity);
-                String scaledPortion;
-
-                if(Math.ceil(newQuantity) == newQuantity && !portion.contains(".")) { // Check if the new calculated quantity is an integer. If so ignore decimal value.
-                    scaledPortion = portion.replaceAll(quantityInt, newQuantityString);
-                } else if (!portion.contains(".")){ // Check if previous quantity was an integer but the new quantity is a decimal.
-                    scaledPortion = portion.replaceAll(quantityInt, newQuantityString);
-                } else { // Prev quantity was a decimal, new quantity is decimal.
-                    scaledPortion = portion.replaceAll(quantityFloat, newQuantityString);
-                }
-                scaledIngredients.put(value, scaledPortion); // Generate final ingredients HashMap List.
+            //  Calculate the new portions quantity amount.
+            float newQuantity;
+            if (increasePortions) { // Increase the amount in portions.
+                newQuantity = retrieveQuantity(portion) * (1 + ((overallMultiplier - 1) * currentMultiplierScalar));
+            } else {
+                newQuantity = retrieveQuantity(portion) / (1 + ((overallMultiplier - 1) * currentMultiplierScalar));
             }
+
+            //  Create decimal format options for integers and float values. Makes it so ingredient portions are displayed better.
+            DecimalFormat dfInteger = new DecimalFormat();   DecimalFormat dfFloat = new DecimalFormat();
+            dfInteger.setMaximumFractionDigits(0);           dfFloat.setMaximumFractionDigits(2);
+
+            String scaledPortion;
+            String newQuantityString; // Check if the new quantity can be considered an integer value.
+            if(newQuantity == (int) newQuantity){
+                newQuantityString = dfInteger.format(newQuantity);
+            } else { // New quantity is a decimal value.
+                newQuantityString = dfFloat.format(newQuantity);
+            }
+
+            if (Math.ceil(newQuantity) == newQuantity && !portion.contains(".")) { // Check if the new calculated quantity is an integer. If so ignore decimal value.
+                scaledPortion = portion.replaceAll(quantityInt, newQuantityString);
+            } else if (!portion.contains(".")) { // Check if previous quantity was an integer but the new quantity is a decimal.
+                scaledPortion = portion.replaceAll(quantityInt, newQuantityString);
+            } else { // Prev quantity was a decimal, new quantity is decimal.
+                scaledPortion = portion.replaceAll(quantityFloat, newQuantityString);
+            }
+            scaledIngredients.put(value, scaledPortion); // Generate final ingredients HashMap List.
+        }
 
             return scaledIngredients;
     }
@@ -182,8 +190,10 @@ class Portions {
             }
         }
 
+        //  All exact spice matching is a singular word. Remove all spaces just incase.
         String ingredientSpacesRemoved = ingredient.replaceAll(" ", "");
         for(String spice : commonSpicesExact){
+            //  Check the ingredient is exactly equal to spice name, not just if it contains the name.
             if (ingredientSpacesRemoved.toLowerCase().equals(spice) ){
                 return 0.5f;
             }
@@ -193,15 +203,17 @@ class Portions {
 
     /** Check for all valid serving amounts that can be used for existing serving amount.
      * @param currentServes - Current serving amount.
+     * @param originalServes - Original serving amount.
      * @return - A list of all possible servings amounts within an acceptable range when scaling proportions.
      */
-    static ArrayList<Integer> getValidServesAmounts(float currentServes){
+    static ArrayList<Integer> getValidServesAmounts(float currentServes, float originalServes){
         // Max and minimum serving values that can be used.
-        float maxValue = currentServes * MAX_SERVINGS_MULTIPLIER;
-        float minValue = currentServes * 1/MAX_SERVINGS_MULTIPLIER;
+        int maxValue = (int) Math.floor(currentServes * MAX_SERVINGS_MULTIPLIER);
+        int minValue = (int) Math.floor(currentServes * 1/MAX_SERVINGS_MULTIPLIER);
 
-        int maxValueInt = (int) Math.floor(maxValue);
-        int minValueInt = (int) Math.floor(minValue);
+        //  Max and min serving values for the original recipe.
+        float maxValueOriginal = (int) Math.floor(originalServes * MAX_SERVINGS_MULTIPLIER);
+        float minValueOriginal = (int) Math.floor(originalServes * 1/MAX_SERVINGS_MULTIPLIER);
 
         ArrayList<Integer> amounts = new ArrayList<>();
         //int[] amounts = new int[servesAmounts.length];
@@ -210,9 +222,12 @@ class Portions {
         for (int servesAmount : servesAmounts) {
             System.out.println("Serves amounts: " + servesAmount);
             //  Check if new serving amount is within max/min values and isn't equal to previous serving amount.
-            if (servesAmount <= maxValueInt && servesAmount >= minValueInt && servesAmount != currentServes) {
-                amounts.add(servesAmount);
-                amountsCounter++;
+            if (servesAmount <= maxValue && servesAmount >= minValue && servesAmount != currentServes) {
+                //  Also check against the original recipe value for servings.
+                if(servesAmount <= maxValueOriginal && servesAmount >= minValueOriginal){
+                    amounts.add(servesAmount);
+                    amountsCounter++;
+                }
             }
         }
 
@@ -222,6 +237,16 @@ class Portions {
     // TODO - Use to convert measurements. Could use this later maybe.
     static String convertPortions(String measurementType, float value){
         return null;
+    }
+
+    static String generateWarning(String ingredient, String portion) {
+        if (retrieveQuantity(portion) == -1f) {
+            return Warning.FAILED;
+        } else if (checkMultiplier(ingredient) == 0.5) {
+            return Warning.ESTIMATE;
+        } else {
+            return Warning.NONE;
+        }
     }
 }
 

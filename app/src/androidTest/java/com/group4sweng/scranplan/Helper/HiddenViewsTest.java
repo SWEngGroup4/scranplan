@@ -11,8 +11,8 @@ import com.group4sweng.scranplan.EspressoHelper;
 import com.group4sweng.scranplan.Login;
 import com.group4sweng.scranplan.R;
 
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -22,6 +22,12 @@ import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
+
+/** Test Hidden Views.
+ *
+ *  -- USER STORY TESTS LINKED WITH ---
+ *  C35
+ */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class HiddenViewsTest implements Credentials {
@@ -66,8 +72,9 @@ public class HiddenViewsTest implements Credentials {
         Thread.sleep(THREAD_SLEEP_TIME/4);
     }
 
-    @Test
-    public void testGoesToView() {
-    }
 
+    @After
+    public void tearDown() throws Exception {
+        EspressoHelper.shouldSkip = false;
+    }
 }

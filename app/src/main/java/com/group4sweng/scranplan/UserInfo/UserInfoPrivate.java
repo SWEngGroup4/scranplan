@@ -27,7 +27,8 @@ import java.util.List;
 public class UserInfoPrivate implements Serializable, Cloneable{
 
     //  Unique Log TAG ID.
-    private final static String TAG = "UserInfo";
+    final static String TAG = "UserInfo";
+    final static int INITIAL_KUDOS = 0;
 
     //  User information
     private String UID;
@@ -35,6 +36,7 @@ public class UserInfoPrivate implements Serializable, Cloneable{
     private String imageURL;
     private String about;
     private String email;
+    private long posts;
     private List<HashMap<String, Object>> mealPlanner;
 
     private List<HashMap<String, Object>> ingredientList;
@@ -64,7 +66,8 @@ public class UserInfoPrivate implements Serializable, Cloneable{
      * @param privacyPublic - A HashMap of the users public privacy settings. (HashMap, Boolean) pair.
      * @param privacyPrivate - A HashMap of the users privacy settings determining what is viewable by followers.
      */
-    public UserInfoPrivate(HashMap<String, Object> map, HashMap<String, Object> prefs, HashMap<String, Object> privacyPrivate, HashMap<String, Object> privacyPublic) {
+    public UserInfoPrivate(HashMap<String, Object> map, HashMap<String, Object> prefs, HashMap<String, Object> privacyFriends, HashMap<String, Object> privacyPublic) {
+        this.posts = (long) map.get("posts");
         this.email = (String) map.get("email");
         this.UID = (String) map.get("UID");
         this.displayName = (String) map.get("displayName");
@@ -164,6 +167,14 @@ public class UserInfoPrivate implements Serializable, Cloneable{
         editor.apply();
     }
     */
+
+    public long getPosts() {
+        return posts;
+    }
+
+    public void setPosts(long posts) {
+        this.posts = posts;
+    }
 
     public String getEmail() {
         return email;
@@ -269,7 +280,3 @@ public class UserInfoPrivate implements Serializable, Cloneable{
     public boolean getFirstMealPlannerLaunch() {
         return firstMealPlannerLaunch;
     }
-
-
-
-}

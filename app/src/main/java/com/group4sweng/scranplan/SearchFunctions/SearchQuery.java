@@ -5,6 +5,10 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
+ * Building search query class.
+ * Author(s): LNewman, NBillis
+ * (c) CoDev 2020
+ *
  * Builds up a search query from the preferences selected by the user.
  */
 public class SearchQuery {
@@ -109,7 +113,18 @@ public class SearchQuery {
             index = "recipe_votes";
         }else if(mTimeBox){
             index = "recipe_time";
+        }else{
+            // create a default case
+            index = "SCRANPLAN_RECIPES";
         }
+
+
+
+
+
+
+
+
     }
 }
 
