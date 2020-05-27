@@ -17,6 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.group4sweng.scranplan.LoadingDialog;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
@@ -72,6 +73,10 @@ public class RecipeCreation extends AppCompatActivity {
                 break;
 
             case RECIPE_STEPS_FLAG:
+                setContentView(R.layout.activity_create_recipe);
+                LoadingDialog loadingDialog = new LoadingDialog(this);
+                loadingDialog.startLoadingDialog();
+
                 if (bundle != null)
                     for (String key : bundle.keySet())
                         mRecipeMap.put(key, bundle.get(key));
@@ -82,7 +87,7 @@ public class RecipeCreation extends AppCompatActivity {
                             mRecipeMap.put("imageURL", uri.toString());
                             HashMap<String, Object> ratingMap = new HashMap<>();
                             ratingMap.put("overallRating", 0f);
-                            ratingMap.put("totalRates", 0);
+                            ratingMap.put("totalRates", 0f);
                             mRecipeMap.put("rating", ratingMap);
                             mRecipeMap.put("score", 5);
                             mRecipeMap.put("votes", 5);
@@ -90,6 +95,7 @@ public class RecipeCreation extends AppCompatActivity {
                             mColRef.document(mUser.getUID() + "_" +
                                     mUser.getRecipes()).set(mRecipeMap).addOnSuccessListener(aVoid -> finish());
                 }));
+                loadingDialog.dismissDialog();
                 break;
         }
     }

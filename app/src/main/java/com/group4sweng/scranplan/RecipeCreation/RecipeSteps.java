@@ -27,6 +27,7 @@ import com.google.firebase.storage.UploadTask;
 import com.group4sweng.scranplan.Drawing.LayoutCreator;
 import com.group4sweng.scranplan.Drawing.Rectangle;
 import com.group4sweng.scranplan.Drawing.Triangle;
+import com.group4sweng.scranplan.LoadingDialog;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeCreation.RecipeStepsRecycler.StepData;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
@@ -59,6 +60,8 @@ public class RecipeSteps extends Fragment {
     private ArrayList<StorageReference> mAudioRefs;
 
     private ArrayList<XmlParser.Slide> slides;
+
+    LoadingDialog mLoadingDialog;
 
     private ArrayList<Uri> mMediaUris;
     private ArrayList<Uri> mAudioUris;
@@ -118,6 +121,8 @@ public class RecipeSteps extends Fragment {
 
         slides = new ArrayList<>();
 
+        mLoadingDialog = new LoadingDialog(getActivity());
+
         mStepList = new ArrayList<>();
         mManager = new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false);
         mStep.setLayoutManager(mManager);
@@ -152,7 +157,10 @@ public class RecipeSteps extends Fragment {
 
         mButtonAdd.setOnClickListener(v -> addSlide());
 
-        mButtonSubmit.setOnClickListener(v -> new CreateSlide().execute());
+        mButtonSubmit.setOnClickListener(v -> {
+            mLoadingDialog.startLoadingDialog();
+            new CreateSlide().execute();
+        });
     }
 
     private void addSlide() {
@@ -366,7 +374,7 @@ public class RecipeSteps extends Fragment {
                         ArrayList<XmlParser.Shape> shapes = mStepList.get(pos).getShapes();
                         ArrayList<XmlParser.Triangle> triangles = mStepList.get(pos).getTriangles();
 
-                        slides.add(new XmlParser.Slide("Step " + pos + 1, -1, text, lines, shapes, triangles, audios.get(pos),
+                        slides.add(new XmlParser.Slide("Step " + (pos + 1), -1, text, lines, shapes, triangles, audios.get(pos),
                                 null, images.get(pos), videos.get(pos), mStepList.get(pos).getimer()));
                         if (slides.size() == mAdapter.getItemCount())
                             createXML();
@@ -395,6 +403,7 @@ public class RecipeSteps extends Fragment {
                     Bundle bundle = new Bundle();
                     bundle.putString("xml_url", uri.toString());
 
+                    mLoadingDialog.dismissDialog();
                     ((RecipeCreation) requireActivity()).stepComplete(2, bundle);
                 }));
             } catch (IOException e) {

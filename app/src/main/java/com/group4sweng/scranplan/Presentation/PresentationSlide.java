@@ -145,10 +145,8 @@ public class PresentationSlide extends RelativeLayout {
         imageView.setPos(image.xStart, image.yStart);
         imageView.setDims(image.width, image.height);
 
-        if (image.startTime > 0)
-            imageView.setStartTime(image.startTime);
-        if (image.endTime > 0)
-            imageView.setEndTime(image.endTime);
+        imageView.setStartTime(image.startTime);
+        imageView.setEndTime(image.endTime);
 
         imageViews.add(imageView);
         this.addView(imageView);

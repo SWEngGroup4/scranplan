@@ -173,7 +173,7 @@ public class BasicInfo extends Fragment {
                 for (IngredientData ingredientData : mIngredientList) {
                     mIngredientMap.put(ingredientData.ingredient, ingredientData.measurement);
                 }
-                bundle.putSerializable("Ingredients-", mIngredientMap);
+                bundle.putSerializable("Ingredients", mIngredientMap);
                 bundle.putBoolean("noEggs", !mEggs.isChecked());
                 bundle.putBoolean("noMilk", !mLactose.isChecked());
                 bundle.putBoolean("noNuts", !mNuts.isChecked());
