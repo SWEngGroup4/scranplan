@@ -63,7 +63,7 @@ public class UserInfoPrivate implements Serializable, Cloneable{
      * @param privacyPublic - A HashMap of the users public privacy settings. (HashMap, Boolean) pair.
      * @param privacyPrivate - A HashMap of the users privacy settings determining what is viewable by followers.
      */
-    public UserInfoPrivate(HashMap<String, Object> map, HashMap<String, Object> prefs, HashMap<String, Object> privacyFriends, HashMap<String, Object> privacyPublic) {
+    public UserInfoPrivate(HashMap<String, Object> map, HashMap<String, Object> prefs, HashMap<String, Object> privacyPrivate, HashMap<String, Object> privacyPublic) {
         this.posts = (long) map.get("posts");
         this.followers = (long) map.get("followers");
         this.following = (long) map.get("following");
