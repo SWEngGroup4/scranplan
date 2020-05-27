@@ -49,7 +49,8 @@ public class EspressoHelper {
         PROFILE,
         EDIT_PROFILE,
         NOTIFICATION,
-        LOGOUT;
+        LOGOUT,
+        SUGGEST;
     }
 
     //  Matcher view for use from Recorded Espresso Tests.
@@ -85,10 +86,13 @@ public class EspressoHelper {
                 ROW_ID = 3;
                 break;
             case LOGOUT:
-                ROW_ID = 4;
+                ROW_ID = 5;
                 break;
             case NOTIFICATION:
                 ROW_ID = 2;
+                break;
+            case SUGGEST:
+                ROW_ID = 4;
                 break;
         }
 
