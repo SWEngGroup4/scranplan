@@ -6,14 +6,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 
 import androidx.annotation.NonNull;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -23,15 +20,13 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.group4sweng.scranplan.LoadingDialog;
+import com.group4sweng.scranplan.Administration.LoadingDialog;
 import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
-import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchRecyclerAdapter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;

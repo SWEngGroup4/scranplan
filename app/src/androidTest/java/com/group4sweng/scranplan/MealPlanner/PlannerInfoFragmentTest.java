@@ -86,10 +86,6 @@ public class PlannerInfoFragmentTest implements Credentials {
 
         //Click image buttons and icons to test data is displayed from the searching screen
 
-        onView(withId(R.id.reheatInfoButton)).perform(click());
-
-        onView(isRoot()).perform(pressBack());
-
         onView(withId(R.id.recipeInfoEggs)).perform(click());
 
         onView(isRoot()).perform(pressBack());
@@ -105,10 +101,6 @@ public class PlannerInfoFragmentTest implements Credentials {
         //Click image buttons and icons to test data is displayed from the meal planner screen
 
         onView(withId(0)).perform(click());
-
-        onView(withId(R.id.reheatInfoButton)).perform(click());
-
-        onView(isRoot()).perform(pressBack());
 
         onView(withId(R.id.recipeInfoEggs)).perform(click());
 

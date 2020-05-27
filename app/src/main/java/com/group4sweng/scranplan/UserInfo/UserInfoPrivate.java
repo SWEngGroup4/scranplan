@@ -25,7 +25,8 @@ import java.util.List;
 public class UserInfoPrivate implements Serializable, Cloneable{
 
     //  Unique Log TAG ID.
-    private final static String TAG = "UserInfo";
+    final static String TAG = "UserInfo";
+    final static int INITIAL_KUDOS = 0;
 
     //  User information
     private String UID;
@@ -62,7 +63,7 @@ public class UserInfoPrivate implements Serializable, Cloneable{
      * @param privacyPublic - A HashMap of the users public privacy settings. (HashMap, Boolean) pair.
      * @param privacyPrivate - A HashMap of the users privacy settings determining what is viewable by followers.
      */
-    public UserInfoPrivate(HashMap<String, Object> map, HashMap<String, Object> prefs, HashMap<String, Object> privacyPrivate, HashMap<String, Object> privacyPublic) {
+    public UserInfoPrivate(HashMap<String, Object> map, HashMap<String, Object> prefs, HashMap<String, Object> privacyFriends, HashMap<String, Object> privacyPublic) {
         this.posts = (long) map.get("posts");
         this.followers = (long) map.get("followers");
         this.following = (long) map.get("following");

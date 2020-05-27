@@ -32,6 +32,7 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
         View layout = inflater.inflate(R.layout.fragment_recipe_info, null);
         HashMap<String, Object> map = (HashMap<String, Object>) getArguments().getSerializable("hashmap");
 
+
         initPlannerItems(layout, map);
         initPageItems(layout);
         builder.setView(layout);
@@ -60,8 +61,9 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
         this.recipeImage = (String) map.get("imageURL");
         this.recipeDescription = (String) map.get("recipeDescription");
         this.chefName = (String) map.get("chefName");
+        this.ratingMap =  (HashMap<String, Double>) map.get("ratingMap");
         this.ingredientHashMap = (HashMap<String, String>) map.get("ingredientHashMap");
-        this.recipeRating = (String) map.get("rating");
+        //this.recipeRating = (String) map.get("rating");
         this.xmlPresentation = (String) map.get("xmlURL");
         this.planner = (Boolean) map.get("planner");
         this.favouriteRecipe = (ArrayList<String>) map.get("favourite");
@@ -80,6 +82,7 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
         this.mPescatarian = (Boolean) map.get("pescatarian");
         this.mVegan = (Boolean) map.get("vegan");
         this.mVegetarian = (Boolean) map.get("vegetarian");
+
     }
 
     /*
@@ -88,19 +91,27 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
     protected void initPageListeners(View layout) {
         super.initPageListeners(layout);
 
-        mReheatInformationButton.setOnClickListener(view -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-            builder.setMessage(reheat)
-                    .setTitle("Reheating Information")
-                    .setIcon(R.drawable.reheat);
+        mReheatInformationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
-            AlertDialog dialog = builder.create();
-            dialog.show();
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+                builder.setMessage(reheat)
+                        .setTitle("Reheating Information")
+                        .setIcon(R.drawable.reheat);
+
+                AlertDialog dialog = builder.create();
+
+                dialog.show();
+
+            }
         });
 
         initPortionsListeners();
     }
+
 
     /**
      * Method that displays the extra information on the recipe information fragment for the users who have a subscription
@@ -109,6 +120,7 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
     public void displayInfo(View layout) {
         super.displayInfo(layout);
 
+        mLayoutForPlanner.setVisibility(View.VISIBLE);
         //  Sets the 'Change Portions' button to visible.
         mChangePortions.setVisibility(View.VISIBLE);
 
@@ -125,11 +137,12 @@ public class PlannerInfoFragment extends RecipeInfoFragment{
             mFreezer.setText("Cannot be frozen");
         }
 
+
         //Sets reheat text
         mReheatInformation.setText("Reheat Information");
 
         //Sets the reheat information button to visible for the paying user
-        mReheatInformationButton.setVisibility(View.VISIBLE);
+        //mReheatInformationButton.setVisibility(View.VISIBLE);
     }
 
 

@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 import java.util.Random;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -115,7 +116,7 @@ public class SocialTest implements Credentials  {
         navigateToRecipe("Braised peas with bacon, lentils and cod");
         Thread.sleep(THREAD_SLEEP_TIME);
         onView(withText("Add")).perform(click());
-
+        pressBack();
 
         Thread.sleep(THREAD_SLEEP_TIME);
         onView(withId(R.id.reviewIcon))

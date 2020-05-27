@@ -1,6 +1,7 @@
 
 package com.group4sweng.scranplan;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.content.Context;
@@ -35,6 +36,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.Administration.SuggestionBox;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
@@ -61,6 +63,7 @@ public class Home extends AppCompatActivity {
     Context mContext = this;
     final static String TAG = "ScranPlanHome";
     final static int PROFILE_SETTINGS_REQUEST_CODE = 1;
+    private SuggestionBox suggestionBox;
 
     // User variable for all preferences saved to device
     private UserInfoPrivate mUser;
@@ -293,6 +296,11 @@ public class Home extends AppCompatActivity {
 
                         setResult(RESULT_OK, intentSettings);
                         startActivityForResult(intentSettings, PROFILE_SETTINGS_REQUEST_CODE);
+                        break;
+                    case R.id.nav_suggestionBox:
+
+                        onSuggestionBoxClick();
+
                         break;
                     case R.id.nav_logout:
                         Log.e(TAG, "Logout button has been pressed and user has been logged out.");
@@ -643,6 +651,12 @@ public class Home extends AppCompatActivity {
         setResult(RESULT_OK, intentProfile);
         startActivityForResult(intentProfile, PROFILE_SETTINGS_REQUEST_CODE);
 
+    }
+
+    public void onSuggestionBoxClick(){
+
+        suggestionBox = new SuggestionBox(Home.this, mUser.getUID());
+        suggestionBox.startSuggestionDialog();
     }
 
     /**

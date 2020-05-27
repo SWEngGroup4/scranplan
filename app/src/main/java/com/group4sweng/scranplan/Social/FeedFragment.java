@@ -20,11 +20,9 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.RatingBar;
 import android.widget.SearchView;
-import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,13 +49,15 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.group4sweng.scranplan.Administration.ContentReporting;
 import com.group4sweng.scranplan.Exceptions.ImageException;
 import com.group4sweng.scranplan.Home;
-import com.group4sweng.scranplan.LoadingDialog;
+import com.group4sweng.scranplan.Administration.LoadingDialog;
 import com.group4sweng.scranplan.MealPlanner.PlannerInfoFragment;
 import com.group4sweng.scranplan.MealPlanner.PlannerListFragment;
 import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.R;
+import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
@@ -65,6 +65,7 @@ import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -94,24 +95,25 @@ public class FeedFragment extends Fragment {
 
     private static final int MAX_IMAGE_FILE_SIZE_IN_MB = 4; // Max storage image size for the profile picture.
 
-    private Uri mImageUri; // Unique image uri.
+    protected Uri mImageUri; // Unique image uri.
     ImageView mUploadedImage;
 
     float ratingNum;
 
-    LoadingDialog loadingDialog;
+    protected LoadingDialog loadingDialog;
+    protected ContentReporting reportContent;
 
     //Score scroll info
     List<FeedRecyclerAdapter.FeedPostPreviewData> data;
-    private DocumentSnapshot lastVisible;
-    private boolean isScrolling = false;
-    private boolean isLastItemReached = false;
+    protected DocumentSnapshot lastVisible;
+    protected boolean isScrolling = false;
+    protected boolean isLastItemReached = false;
 
     protected Button mPostButton;
     CheckBox mPostRecipe;
     CheckBox mPostReview;
-    CheckBox mPostPic;
-    EditText mPostBodyInput;
+    protected CheckBox mPostPic;
+    protected EditText mPostBodyInput;
 
     ImageView mAttachedRecipeImage;
     TextView mAttachedRecipeTitle;
@@ -135,24 +137,24 @@ public class FeedFragment extends Fragment {
     private RecipeFragment recipeFragment;
 
     //User information
-    private com.group4sweng.scranplan.UserInfo.UserInfoPrivate mUser;
+    protected com.group4sweng.scranplan.UserInfo.UserInfoPrivate mUser;
     private SearchPrefs prefs;
 
     //Menu items
     private SearchView searchView;
     private MenuItem sortButton;
 
-    Query query;
+    protected Query query;
 
 
 
     // Database objects for accessing recipes
-    private FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
+    protected FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
     private CollectionReference mColRef = mDatabase.collection("followers");
     // Firebase user collection and storage references.
     CollectionReference mRef = mDatabase.collection("posts");
     FirebaseStorage mStorage = FirebaseStorage.getInstance();
-    StorageReference mStorageReference = mStorage.getReference();
+    protected StorageReference mStorageReference = mStorage.getReference();
 
 
     public FeedFragment(UserInfoPrivate userSent){mUser = userSent;}
@@ -207,7 +209,7 @@ public class FeedFragment extends Fragment {
      * followers 3 most recent posts
      * @param view
      */
-    void addPosts(View view){
+    protected void addPosts(View view){
         final RecyclerView recyclerView = view.findViewById(R.id.postsList);
         // Set out the layout of this horizontal view
         RecyclerView.LayoutManager rManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
@@ -215,7 +217,7 @@ public class FeedFragment extends Fragment {
         //recyclerView.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels));
         // Array to score downloaded data
         data = new ArrayList<>();
-        final RecyclerView.Adapter rAdapter = new FeedRecyclerAdapter(FeedFragment.this, data, mUser, view);
+        final RecyclerView.Adapter rAdapter = new FeedRecyclerAdapter(FeedFragment.this, data, mUser, view, getActivity());
         recyclerView.setAdapter(rAdapter);
         query = mColRef.whereArrayContains("users", mUser.getUID()).orderBy("lastPost", Query.Direction.DESCENDING).limit(5);
         // Ensure query exists and builds view with query
@@ -884,7 +886,7 @@ public class FeedFragment extends Fragment {
      *  @param uri - The unique uri of the image file location from the users storage.
      *  @throws ImageException - Throws if the image file is too large or the format isn't a supported image format.
      */
-    private void checkImage(Uri uri) throws ImageException {
+    protected void checkImage(Uri uri) throws ImageException {
 
         //  If the image files size is greater than the max file size in mb converted to bytes throw an exception and return this issue to the user.
         if(getSize(this.getContext(), uri) > MAX_IMAGE_FILE_SIZE_IN_MB * 1000000){
@@ -1010,7 +1012,20 @@ public class FeedFragment extends Fragment {
                         break;
                     case R.id.reportComment:
                         Log.e(TAG,"Report comment clicked!");
-                        //TODO add functionality to report this comment
+
+                        //HashMap with relevant information to be sent for reporting
+                        HashMap<String, Object> reportsMap = new HashMap<>();
+                        reportsMap.put("postID", document.get("postID").toString());
+                        reportsMap.put("usersID", document.get("author").toString());
+                        reportsMap.put("issue","Reporting Content");
+
+                        //creating a dialog box on screen so that the user can report an issue
+                        String firebaseLocation = "reporting";
+                        reportContent = new ContentReporting(getActivity(), reportsMap, firebaseLocation);
+                        reportContent.startReportingDialog();
+                        reportContent.title.setText("Report Content");
+                        reportContent.message.setText("What is the issue you would like to report?");
+
                         break;
                     case R.id.deleteComment:
                         Log.e(TAG,"Clicked delete comment!");
@@ -1110,5 +1125,64 @@ public class FeedFragment extends Fragment {
     }
 
 
+    /**
+     * On click of a recipe a new recipe info fragment is opened and the document is sent through
+     * This saves on downloading the data again from the database
+     */
+    public void recipeSelected(DocumentSnapshot document) {
+
+
+        //Takes ingredient and recipe rating array from snap shot and reformats before being passed through to fragment
+        ArrayList<String> ingredientArray = new ArrayList<>();
+
+        Map<String, Map<String, Object>> ingredients = (Map) document.getData().get("Ingredients");
+        Iterator hmIterator = ingredients.entrySet().iterator();
+
+        HashMap<String, Double> ratingResults = (HashMap) document.getData().get("rating");
+
+        while (hmIterator.hasNext()) {
+            Map.Entry mapElement = (Map.Entry) hmIterator.next();
+            String string = mapElement.getKey().toString() + ": " + mapElement.getValue().toString();
+            ingredientArray.add(string);
+        }
+        //Takes ingredient HashMap from the snapshot.
+        HashMap<String, String> ingredientHashMap = (HashMap<String, String>) document.getData().get("Ingredients");
+
+
+        Bundle mBundle;
+        //Creating a bundle so all data needed from firestore query snapshot can be passed through into fragment class
+        mBundle = new Bundle();
+        mBundle.putSerializable("ingredientHashMap", ingredientHashMap);
+        mBundle.putStringArrayList("ingredientList", ingredientArray);
+        mBundle.putSerializable("ratingMap", ratingResults);
+        mBundle.putString("recipeID", document.getId());
+        mBundle.putString("xmlURL", document.get("xml_url").toString());
+        mBundle.putString("recipeTitle", document.get("Name").toString());
+        mBundle.putString("imageURL", document.get("imageURL").toString());
+        mBundle.putString("recipeDescription", document.get("Description").toString());
+        mBundle.putString("chefName", document.get("Chef").toString());
+        mBundle.putBoolean("planner", false);
+        mBundle.putBoolean("canFreeze", document.getBoolean("freezer"));
+        mBundle.putString("peopleServes", document.get("serves").toString());
+        mBundle.putString("fridgeDays", document.get("fridge").toString());
+        mBundle.putString("reheat", document.get("reheat").toString());
+        mBundle.putBoolean("noEggs", document.getBoolean("noEggs"));
+        mBundle.putBoolean("noMilk", document.getBoolean("noMilk"));
+        mBundle.putBoolean("noNuts", document.getBoolean("noNuts"));
+        mBundle.putBoolean("noShellfish", document.getBoolean("noShellfish"));
+        mBundle.putBoolean("noSoy", document.getBoolean("noSoy"));
+        mBundle.putBoolean("noWheat", document.getBoolean("noWheat"));
+        mBundle.putBoolean("pescatarian", document.getBoolean("pescatarian"));
+        mBundle.putBoolean("vegan", document.getBoolean("vegan"));
+        mBundle.putBoolean("vegetarian", document.getBoolean("vegetarian"));
+
+        ArrayList<Integer> faves = (ArrayList) document.get("favourite");
+        mBundle.putBoolean("isFav", faves.contains(mUser.getUID()));
+
+        RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
+        recipeDialogFragment.setArguments(mBundle);
+        recipeDialogFragment.setTargetFragment(this, 1);
+        recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");
+    }
 
 }

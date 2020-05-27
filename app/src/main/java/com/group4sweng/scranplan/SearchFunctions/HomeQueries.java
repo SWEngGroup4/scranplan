@@ -27,6 +27,7 @@ public class HomeQueries {
     }
 
     HashMap queries;
+    public static final int NUMBER_OF_RECIPES = 10;
     final FirebaseFirestore database = FirebaseFirestore.getInstance();
     CollectionReference ref = database.collection("recipes");
 
@@ -37,7 +38,7 @@ public class HomeQueries {
         queries.put("score", buildQuery(user).orderBy("score", Query.Direction.DESCENDING));
         queries.put("votes", buildQuery(user).orderBy("votes", Query.Direction.DESCENDING));
         queries.put("timestamp", buildQuery(user).orderBy("timestamp", Query.Direction.DESCENDING));
-        queries.put("favourite", ref.whereArrayContains("favourite", user.getUID().hashCode()));
+        queries.put("favourite", ref.whereArrayContains("favourite", user.getUID()));
         if(!user.getPreferences().isVegan()){
             queries.put("topVegan", buildQuery(user).whereEqualTo("vegan", true).orderBy("score", Query.Direction.DESCENDING));
             if(!user.getPreferences().isVegetarian()){
@@ -84,6 +85,6 @@ public class HomeQueries {
         if(user.getPreferences().isAllergy_soya()){
             query = query.whereEqualTo("noSoy", true);
         }
-        return query.limit(5);
+        return query.limit(NUMBER_OF_RECIPES);
     }
 }
