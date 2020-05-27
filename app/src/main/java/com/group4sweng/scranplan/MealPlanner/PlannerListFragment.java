@@ -7,8 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.fragment.app.Fragment;
-
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
@@ -54,15 +52,13 @@ public class PlannerListFragment extends SearchListFragment {
     //Runs on completion of info fragment activity
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Launches activity result method on target fragment
+        //Launches activtiy result method on target fragment
         if (resultCode == Activity.RESULT_OK) {
             Intent i = new Intent();
             i.putExtras(mBundle);
-            Fragment fragment = getTargetFragment();
             Objects.requireNonNull(getTargetFragment()).onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, i);
             dismiss();
         }
     }
-
 
 }

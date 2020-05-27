@@ -3,10 +3,6 @@ package com.group4sweng.scranplan.SearchFunctions;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 /**
- * Building search preferences class.
- * Author(s): LNewman
- * (c) CoDev 2020
- *
  * This class holds user search preferences which are saved whenever the user opens the new search
  * options and selects new filters and method of sorting/searching
  * This is initialised to the user preferences with default searching parameters

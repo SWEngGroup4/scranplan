@@ -1,6 +1,8 @@
 package com.group4sweng.scranplan.MealPlanner;
 
 import android.util.Log;
+import android.view.KeyEvent;
+import android.widget.SearchView;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.Espresso;
@@ -9,7 +11,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
 
 import com.group4sweng.scranplan.Credentials;
-import com.group4sweng.scranplan.EspressoHelper;
 import com.group4sweng.scranplan.Home;
 import com.group4sweng.scranplan.Login;
 import com.group4sweng.scranplan.R;
@@ -22,20 +23,15 @@ import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.longClick;
 import static androidx.test.espresso.action.ViewActions.pressBack;
+import static androidx.test.espresso.action.ViewActions.pressKey;
 import static androidx.test.espresso.action.ViewActions.typeText;
+import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static com.group4sweng.scranplan.EspressoHelper.navigateToRecipe;
+import static com.group4sweng.scranplan.HomeTest.typeSearchViewText;
 
-/** Test the Info Planner Fragment.
- * Testing adding to the meal planner
- *
- *  -- USER STORY TESTS LINKED WITH ---
- *  C4 , C14, C22
- */
 @RunWith(AndroidJUnit4.class)
 public class PlannerInfoFragmentTest implements Credentials {
 
@@ -67,7 +63,6 @@ public class PlannerInfoFragmentTest implements Credentials {
      *
      * This branch didn't have the meal planner saving system so meal planner refreshes each time, hence
      * one big test method to test icons.
-     * // TODO failing because planner searching fails
      */
     @Test
     public void searchAndAddToPlanner() throws InterruptedException {
@@ -76,15 +71,27 @@ public class PlannerInfoFragmentTest implements Credentials {
         Thread.sleep(THREAD_SLEEP_TIME);
 
         onView(withText("Meal Planner")).perform(click());
-        onView(withId(0)).perform(longClick());
-        Thread.sleep(THREAD_SLEEP_TIME/4);
         onView(withId(0)).perform(click());
 
-        navigateToRecipe("Bacon sandwich");
+        Thread.sleep(THREAD_SLEEP_TIME);
+
+        onView(withId(R.id.menuSearch)).perform(click());
+
+        onView(isAssignableFrom(SearchView.class))
+                .perform(typeSearchViewText("bacon"))
+                .perform(pressKey(KeyEvent.KEYCODE_ENTER));
+
+        Thread.sleep(THREAD_SLEEP_TIME);
+
+        onView(withText("Bacon Sandwich")).perform(click());
 
         Thread.sleep(THREAD_SLEEP_TIME);
 
         //Click image buttons and icons to test data is displayed from the searching screen
+
+        onView(withId(R.id.reheatInfoButton)).perform(click());
+
+        onView(isRoot()).perform(pressBack());
 
         onView(withId(R.id.recipeInfoEggs)).perform(click());
 
@@ -102,6 +109,10 @@ public class PlannerInfoFragmentTest implements Credentials {
 
         onView(withId(0)).perform(click());
 
+        onView(withId(R.id.reheatInfoButton)).perform(click());
+
+        onView(isRoot()).perform(pressBack());
+
         onView(withId(R.id.recipeInfoEggs)).perform(click());
 
         onView(isRoot()).perform(pressBack());
@@ -113,8 +124,5 @@ public class PlannerInfoFragmentTest implements Credentials {
     }
 
     @After
-    public void tearDown() {
-            EspressoHelper.shouldSkip = false;
-            this.mActivityTestRule.finishActivity();
-        Log.d(TAG, "Tests complete"); }
+    public void tearDown() { Log.d(TAG, "Tests complete"); }
 }

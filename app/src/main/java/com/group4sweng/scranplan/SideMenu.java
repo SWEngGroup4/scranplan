@@ -12,7 +12,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
-import com.group4sweng.scranplan.Administration.SuggestionBox;
 
 public class SideMenu extends Activity implements NavigationView.OnNavigationItemSelectedListener {
     public Toolbar mMenuToolbar;
@@ -21,8 +20,6 @@ public class SideMenu extends Activity implements NavigationView.OnNavigationIte
     public NavigationView mNavigationView;
     private Activity mActivity;
     private Context mContext;
-
-    private com.group4sweng.scranplan.UserInfo.UserInfoPrivate mUser;
 
     public void init(Activity activity, Context context){
         this.mActivity = activity;
@@ -63,11 +60,6 @@ public class SideMenu extends Activity implements NavigationView.OnNavigationIte
             case R.id.nav_editProfile:
                  if (mContext instanceof Home){
                     ((Home)mContext).onProfileEditClick();
-                }
-                break;
-            case R.id.nav_suggestionBox:
-                if(mContext instanceof Home) {
-                    ((Home)mContext).onSuggestionBoxClick();
                 }
                 break;
             case R.id.nav_logout:

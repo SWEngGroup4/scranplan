@@ -15,7 +15,6 @@ import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 
 import com.group4sweng.scranplan.Credentials;
-import com.group4sweng.scranplan.EspressoHelper;
 import com.group4sweng.scranplan.Home;
 import com.group4sweng.scranplan.Login;
 import com.group4sweng.scranplan.R;
@@ -39,23 +38,16 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 
-/**
- * Test the Presentation.
- *
- * Test the Presentation Activity.
+/** Test the Presentation Activity.
  *  Tests are included to make sure information is displayed, user can flick through and see comments,
  *  add comments and delete comments.
- *
- *  -- USER STORY TESTS LINKED WITH ---
- *  B1, B2, B3, B4 , B6
- *
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class PresentationTest implements Credentials {
 
     //  Android Log tag.
-    String TAG = "PresTest";
+    String TAG = "homeTest";
 
     private UserInfoPrivate testUser;
 
@@ -91,7 +83,6 @@ public class PresentationTest implements Credentials {
     }
 
     // Checking all parts of the slide comments
-    // Author: LNewman
     @Test
     public void testBaconComment() throws InterruptedException {
         onView(withId(R.id.menuSearch)).perform(click());
@@ -102,7 +93,7 @@ public class PresentationTest implements Credentials {
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        onView(withText("Braised peas with bacon, lentils and cod"))
+        onView(withText("Bacon Sandwich"))
                 .perform(click());
 
         onView(withText("LETS COOK!"))
@@ -110,7 +101,7 @@ public class PresentationTest implements Credentials {
 
 
 
-        Thread.sleep(THREAD_SLEEP_TIME*2);
+        Thread.sleep(THREAD_SLEEP_TIME/4);
 
         onView(withText("COMMENTS"))
                 .perform(click());
@@ -133,8 +124,7 @@ public class PresentationTest implements Credentials {
         onView(withText("bacon"))
                 .check(matches(isDisplayed()));
 
-
-        onView(withId(R.id.postMenu))
+        onView(withText("bacon"))
                 .perform(click());
 
         onView(withText("Delete"))
@@ -172,8 +162,6 @@ public class PresentationTest implements Credentials {
 
 
     @After
-    public void tearDown() throws Exception {
-        EspressoHelper.shouldSkip = false;
-        this.mActivityTestRule.finishActivity();
+    public void finishOff() {
     }
 }

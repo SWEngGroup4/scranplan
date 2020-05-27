@@ -137,16 +137,18 @@ public class InitialUserCustomisation extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //skip button takes user directly to the main page
-                Log.e(TAG, "Initial user returning to home");
+                Log.e(TAG, "Initial user returning to main activity");
 
-                finishActivity();
+                Intent returningIntent = new Intent();
+                setResult(RESULT_OK, returningIntent);
+
+                finish();
             }
         });
 
         mSubmitButton.setOnClickListener(new View.OnClickListener() {
              public void onClick(View view) {
                  //submit button saves the users preferences before
-                 Log.e(TAG, "Initial user returning to home");
                  savePref();
                  finishActivity();
              }

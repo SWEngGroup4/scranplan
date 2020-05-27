@@ -10,13 +10,11 @@ import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.rule.ActivityTestRule;
 
 import com.group4sweng.scranplan.Credentials;
-import com.group4sweng.scranplan.EspressoHelper;
 import com.group4sweng.scranplan.Login;
 import com.group4sweng.scranplan.ProfileSettings;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,12 +24,6 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
-/** Test Recipe Info Fragment
- *
- *  -- USER STORY TESTS LINKED WITH ---
- *  B1, B2, B3, B4 , B6, C8
- *
- */
 public class RecipeInfoFragmentTest implements Credentials {
 
     //  Android Log tag.
@@ -103,9 +95,15 @@ public class RecipeInfoFragmentTest implements Credentials {
                 perform(click());
     }
 
-    @After
-    public void tearDown() throws Exception {
-        EspressoHelper.shouldSkip = false;
-        this.mActivityTestRule.finishActivity();
+    @Test
+    public void favourite_recipe_can_be_added() throws InterruptedException{
+        Thread.sleep(THREAD_SLEEP_TIME);
+
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+
+            }
+        });
     }
 }

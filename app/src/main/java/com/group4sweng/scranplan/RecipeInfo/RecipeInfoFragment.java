@@ -2,29 +2,17 @@ package com.group4sweng.scranplan.RecipeInfo;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.PopupMenu;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,14 +31,9 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.group4sweng.scranplan.Administration.ContentReporting;
-import com.group4sweng.scranplan.Administration.SuggestionBox;
 import com.group4sweng.scranplan.Helper.ImageHelpers;
-import com.group4sweng.scranplan.Helper.RecipeHelpers;
-import com.group4sweng.scranplan.MealPlanner.Ingredients.Ingredient;
 import com.group4sweng.scranplan.Presentation.Presentation;
 import com.group4sweng.scranplan.R;
-import com.group4sweng.scranplan.Social.FeedFragment;
 import com.group4sweng.scranplan.UserInfo.FilterType;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
@@ -63,7 +46,6 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
 
     // Variables for the xml layout so data from firebase can be properly assigned
     protected ImageButton mReturnButton;
-    protected LinearLayout mLayoutForPlanner;
     private Button mLetsCook;
     private TabLayout mTabLayout2;
     private FrameLayout mRecipeFrameLayout;
@@ -72,11 +54,8 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
     private TextView mDescription;
     private TextView mRating;
     private ImageView mRecipeImage;
-    private CheckBox mFavourite;
-    private CheckBox mKudos;
+    private ImageButton mFavourite;
     private RatingBar mStars;
-    protected TextView mServing;
-    protected ImageButton mRecipeMenu;
 
     //Variables to hold the data being passed through into the fragment
     protected String recipeID;
@@ -87,17 +66,12 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
     protected String recipeRating;
     protected String xmlPresentation;
     protected String reheat;
-    private String docID;
-    protected HashMap<String, String> ingredientHashMap;
     protected ArrayList<String> ingredientArray;
-
     protected HashMap<String, String> ingredientHashMap;
-
     protected Boolean planner;
     protected ArrayList<String> favouriteRecipe;
     protected UserInfoPrivate mUser;
     protected Boolean isFavourite;
-    protected Boolean kudosGiven;
     protected String servingAmount;
     protected String fridgeTime;
     protected Boolean canFreeze;
@@ -114,20 +88,18 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
     protected TextView mFreezer;
     protected TextView mReheatInformation;
     protected ImageButton mReheatInformationButton;
-    protected ImageButton mChangePortions;
-    //protected TextView mServing;
-    protected String starRating;
-    protected String firebaseLocation;
+    protected Button mChangePortions;
+    protected TextView mServing;
 
-    protected FirebaseFirestore mDatabase;
-    protected CollectionReference mDataRef;
-    protected CollectionReference mUserRef;
+    private FirebaseFirestore mDatabase;
+    private CollectionReference mDataRef;
+    private CollectionReference mUserRef;
 
     // Define a String ArrayList for the ingredients
     protected ArrayList<String> ingredientList = new ArrayList<>();
 
     // Define a ListView to display the data
-    protected LinearLayout linearLayoutIngredients;
+    protected LinearLayout listViewIngredients;
 
     // Define an ArrayAdapter for the list
     protected ArrayAdapter<String> arrayAdapter;
@@ -161,9 +133,9 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
         isFavourite = getArguments().getBoolean("isFav");
 
+
         builder.setView(layout);
 
-        //This method holds all the arguments from the bundle
         initBundleItems(layout, getArguments());
 
         initPageItems(layout);
@@ -178,8 +150,6 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
 
         addFavourite(layout);
 
-        addKudos(layout);
-
         return layout;
     }
 
@@ -188,7 +158,6 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
      */
     public void onResume() {
         super.onResume();
-
         ViewGroup.LayoutParams params = getDialog().getWindow().getAttributes();
         params.width = ConstraintLayout.LayoutParams.MATCH_PARENT;
         params.height = ConstraintLayout.LayoutParams.MATCH_PARENT;
@@ -203,12 +172,6 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         mReturnButton = layout.findViewById(R.id.ReturnButton);
         mLetsCook = layout.findViewById(R.id.LetsCook);
         mReheatInformationButton = layout.findViewById(R.id.reheatInfoButton);
-        mFavourite = layout.findViewById(R.id.addFavorite);
-        mFavourite.setChecked(isFavourite);
-
-        mRecipeMenu = layout.findViewById(R.id.menu_button);
-
-        mKudos = layout.findViewById(R.id.addKudos);
 
         //Text Views
         mTitle = layout.findViewById(R.id.Title);
@@ -223,15 +186,12 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         //Tab Layouts
         mTabLayout2 = layout.findViewById(R.id.tabLayout2);
         mRecipeFrameLayout = layout.findViewById(R.id.RecipeFrameLayout);
-        mLayoutForPlanner = layout.findViewById(R.id.mealPlannerLinearLayout);
 
         //For the Ingredient array
-        linearLayoutIngredients = layout.findViewById(R.id.ingredient_list);
+        listViewIngredients = layout.findViewById(R.id.listViewText);
 
         //5 star rating bar
         mStars = layout.findViewById(R.id.ratingBar);
-
-        docID = mUser.getUID() + "-" + recipeID;
     }
 
 
@@ -251,6 +211,8 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         recipeRating = bundle.getString("rating");
         xmlPresentation = bundle.getString("xmlURL");
         planner = bundle.getBoolean("planner");
+        recipeRating = bundle.getString("rating");
+        recipeRating = bundle.getString("rating");
         reheat = bundle.getString("reheat");
         noEggs = bundle.getBoolean("noEggs");
         noMilk = bundle.getBoolean("noMilk");
@@ -262,11 +224,9 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         mVegan = bundle.getBoolean("vegan");
         mVegetarian = bundle.getBoolean("vegetarian");
         servingAmount = bundle.getString("peopleServes");
+
         canFreeze = bundle.getBoolean("canFreeze");
         fridgeTime = bundle.getString("fridgeDays");
-        favouriteRecipe = getArguments().getStringArrayList("favourite");
-        mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
-        isFavourite = getArguments().getBoolean("isFav");
 
     }
 
@@ -328,8 +288,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
                 public void onClick(View v) {
                     // Adds recipe to planner
                     Fragment fragment = getTargetFragment();
-                    Intent i = new Intent();
-                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, i);
+                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, new Intent());
                     dismiss();
                 }
             });
@@ -346,47 +305,6 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
                 }
             });
         }
-
-        mRecipeImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                openDialog();
-
-            }
-        });
-
-        mRecipeMenu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                HashMap<String, Object> map = new HashMap<>();
-
-                map.put("author", chefName);
-                map.put("postID", recipeID);
-
-                menuSelected(map,mRecipeMenu);
-            }
-        });
-    }
-
-    private void openDialog(){
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
-        View subView = inflater.inflate(R.layout.expanded_recipe_image, null);
-        final ImageView subImageView = (ImageView)subView.findViewById(R.id.image);
-        Picasso.get().load(recipeImage).into(subImageView);
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-        builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-            }
-        });
-
-        builder.setView(subView);
-        AlertDialog alertDialog = builder.create();
-
-        builder.show();
     }
 
     /**
@@ -411,15 +329,7 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
                         fragment = new RecipeIngredientFragment();
                         break;
                     case 1:
-                        fragment = new RecipeReviewFragment(mUser);
-                        //creating new bundle to pass through relative information to the review fragment
-                        Bundle reviewBundle = new Bundle();
-                        reviewBundle.putSerializable("ratingMap", ratingMap);
-                        reviewBundle.putString("recipeID", recipeID);
-                        reviewBundle.putString("recipeDescription", recipeDescription);
-                        reviewBundle.putString("recipeTitle",recipeName);
-                        reviewBundle.putString("recipeImageURL",recipeImage);
-                        fragment.setArguments(reviewBundle);
+                        fragment = new RecipeCommentsFragment();
                         break;
 
                 }
@@ -438,29 +348,15 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
 
             }
         });
+
+
     }
-
-    protected void updateIngredientsList(){
-        ArrayList<Ingredient> ingredientList = RecipeHelpers.convertToIngredientFormat(ingredientHashMap);
-
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
-        for(Ingredient ingredient : ingredientList){
-            View ingredientView = inflater.inflate(R.layout.ingredient, linearLayoutIngredients, false);
-
-            TextView name = ingredientView.findViewById(R.id.ingredient_name);
-            name.setText(ingredient.getName());
-
-            TextView portion = ingredientView.findViewById(R.id.ingredient_portion);
-            portion.setText(ingredient.getPortion());
-
-            linearLayoutIngredients.addView(ingredientView);
-        }
-    }
-
 
     protected void displayInfo(View layout) {
 
-        updateIngredientsList();
+        //Getting ingredients array and assigning it to the linear layout view
+        arrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, ingredientList);
+        arrayAdapter.addAll(ingredientArray);
 
         //Assigning data passed through into the various xml views
         mTitle = layout.findViewById(R.id.Title);
@@ -468,14 +364,24 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         mDescription = layout.findViewById(R.id.description);
         mRecipeImage = layout.findViewById(R.id.recipeImage);
         mChangePortions = layout.findViewById(R.id.changePortions);
-        mChangePortions.setVisibility(View.INVISIBLE);
+        mChangePortions.setVisibility(View.GONE);
+
+        final int adapterCount = arrayAdapter.getCount();
+
+        for (int i = 0; i < adapterCount; i++) {
+            View item = arrayAdapter.getView(i, null, null);
+            listViewIngredients.addView(item);
+        }
+
 
         //Sets the serving amount for each recipe
         mServing.setText("Serves: " + servingAmount);
 
         //Setting the recipe star rating
-        starRating = ratingMap.get("overallRating").toString();
-        updateStarRating(starRating);
+        mStars.setRating(Float.parseFloat(recipeRating));
+        mStars.setIsIndicator(true);
+        mStars.setNumStars(5);
+        mStars.setStepSize(0.1F);
 
         //setting the recipe title
         mTitle.setText(recipeName);
@@ -530,91 +436,37 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
      */
     protected void addFavourite(View layout) {
 
-
+        mFavourite = layout.findViewById(R.id.addFavorite);
         mDataRef = mDatabase.collection("recipes");
         final DocumentReference docRef = mDataRef.document(recipeID);
+        final int user = mUser.getUID().hashCode();
 
-        if (isFavourite) {
-            mFavourite.setChecked(true);
-        } else {
-            mFavourite.setChecked(false);
-        }
         /*
          * After each operation, it will show the text "Added to favourites!" or "Removed from favourites!".
          * If the current use ID doesn't exist in the "favourite" array, the ID will be added to it and the
          * text "Added to favourites!" will appear and vise versa.
          * */
-        mFavourite.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        mFavourite.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (mFavourite.isChecked()) {
+            public void onClick(View v) {
+                if (!isFavourite) {
                     isFavourite = true;
-                    docRef.update("favourite", FieldValue.arrayUnion(mUser.getUID())).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    docRef.update("favourite", FieldValue.arrayUnion(user)).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             Toast.makeText(getContext(), "Added to favourites!",
                                     Toast.LENGTH_SHORT).show();
-                            //mFavourite.setChecked(true);
                         }
                     });
                 } else {
                     isFavourite = false;
-                    docRef.update("favourite", FieldValue.arrayRemove(mUser.getUID())).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    docRef.update("favourite", FieldValue.arrayRemove(user)).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             Toast.makeText(getContext(), "Removed from favourites!",
                                     Toast.LENGTH_SHORT).show();
-                            //mFavourite.setChecked(false);
                         }
                     });
-                }
-            }
-        });
-    }
-
-    /*
-     * Method to give kudos to a recipe chef if the user likes the recipe
-     */
-    protected void addKudos(View layout) {
-
-        //Checking firebase first to see if user has already given kudos to the creator of the recipe.
-        mDatabase.collection("kudos").document(docID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    if(task.getResult().exists()){
-                        kudosGiven = true;
-                        mKudos.setChecked((boolean)task.getResult().get("kudosGiven"));
-                        mKudos.setClickable(false);
-                    }else{
-                        kudosGiven = false;
-                        mKudos.setChecked(false);
-                    }
-                    //Once kudos is given, icon changes to signify this aswell as the firebase being updated
-                    mKudos.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                        @Override
-                        public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                            if (mKudos.isChecked()) {
-
-                                mKudos.setClickable(false);
-                                HashMap<String, Object> kudosPost = new HashMap<>();
-                                kudosPost.put("kudosGiven", true);
-                                kudosPost.put("user", mUser.getUID());
-                                kudosPost.put("recipe", recipeID);
-                                mDatabase.collection("kudos").document(docID).set(kudosPost);
-                                mDatabase.collection("users").document(chefName).update("kudos", FieldValue.increment(1));
-
-                                Toast.makeText(getContext(), "Kudos to the Chef!",
-                                        Toast.LENGTH_SHORT).show();
-
-                            }else{
-                                Toast.makeText(getContext(), "Already given Kudos to the Chef!",
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-                }else {
-                    Log.e("FdRc", "User details retrieval : Unable to retrieve user document in Firestore ");
                 }
             }
         });
@@ -687,85 +539,110 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         }
     }
 
-    public void updateStarRating(String newRating){
-
-        mStars.setRating(Float.parseFloat(newRating));
-        mStars.setIsIndicator(true);
-        mStars.setNumStars(5);
-        mStars.setStepSize(0.1F);
-        starRating = newRating;
-
-    }
 
     /**
-     * This method checks what recipe is selected and opens up a menu to either open up another
-     * users profile and report the recipe. User cannot delete their own recipe as they belong to Scran Plan. See T&C's
-     * @param document
-     * @param menu
+     * Method that allows for the creation of the allergies icons and displays them onto the recipe information screen
      */
-    public void menuSelected(HashMap document, View menu){
-        //Creating the instance of PopupMenu
-        PopupMenu popup = new PopupMenu(getActivity(), menu);
-        //Inflating the Popup using xml file
-        popup.getMenuInflater().inflate(R.menu.menu_comment, popup.getMenu());
+    /*
+    private void allergyIconCreation(View layout){
 
-        //HashMap with relevant information to be sent for reporting
-        HashMap<String, Object> reportsMap = new HashMap<>();
-        reportsMap.put("recipeID", document.get("postID").toString());
-        reportsMap.put("chefID", document.get("author").toString());
+    //Arrays that hold the boolean values and imageView id's for the allergy ingredients
+    ArrayList<Boolean> allergyValue = new ArrayList<>();
+        allergyValue.add(noEggs);
+        allergyValue.add(noMilk);
+        allergyValue.add(noNuts);
+        allergyValue.add(noShellfish);
+        allergyValue.add(noSoy);
+        allergyValue.add(noWheat);
 
-        if(document.get("author").toString().equals(mUser.getUID())){
-            popup.getMenu().getItem(0).setVisible(false);
-            popup.getMenu().getItem(1).setVisible(false);
-            popup.getMenu().getItem(2).setVisible(true);
-            popup.getMenu().getItem(2).setTitle("Request recipe deletion");
-        }else{
-            popup.getMenu().getItem(0).setVisible(true);
-            popup.getMenu().getItem(0).setTitle("View chef profile");
-            popup.getMenu().getItem(1).setVisible(true);
-            popup.getMenu().getItem(1).setTitle("Report recipe");
-            popup.getMenu().getItem(2).setVisible(false);
-        }
+        ArrayList<String> allergyMessage = ImageHelpers.getFilterIconsHoverMessage(FilterType.filterType.ALLERGENS);
 
-        //registering popup with OnMenuItemClickListener
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            public boolean onMenuItemClick(
-                    MenuItem item) {
-                // Give each item functionality
-                switch (item.getItemId()) {
-                    case R.id.viewCommentProfile:
-                        //TODO add functionality to open users profile in new fragment
-                        break;
-                    case R.id.reportComment:
+    ArrayList<ImageView> list = new ArrayList<>();
+        list.add(layout.findViewById(R.id.recipeInfoEggs));
+        list.add(layout.findViewById(R.id.recipeInfoMilk));
+        list.add(layout.findViewById(R.id.recipeInfoNuts));
+        list.add(layout.findViewById(R.id.recipeInfoShellfish));
+        list.add(layout.findViewById(R.id.recipeInfoSoy));
+        list.add(layout.findViewById(R.id.recipeInfoWheat));
 
-                        //creating a dialog box on screen so that the user can report an issue
-                        reportsMap.put("issue","Recipe Reporting");
-                        firebaseLocation = "reporting";
-                        ContentReporting reportContent = new ContentReporting(getActivity(), reportsMap, firebaseLocation);
-                        reportContent.startReportingDialog();
-                        reportContent.title.setText("Report Content");
-                        reportContent.message.setText("What is the issue you would like to report?");
+    //Integers that hold the sizes of the two different category array sizes
+    final int arrayCount1 = allergyValue.size();
 
-                        break;
-                    case R.id.deleteComment:
+    //For loop that iterates through both allergy ingredient arrays and if a recipe holds a certain
+    //allergy then that allergy icon is set to visible
+        for(
+    int i = 0;
+    i<arrayCount1;i++)
 
-                        //creating a dialog box on screen so that the user can report an issue
-                        reportsMap.put("issue","Recipe Deletion");
-                        firebaseLocation = "recipeDeletionRequest";
-                        ContentReporting recipeDelete = new ContentReporting(getActivity(), reportsMap, firebaseLocation);
-                        recipeDelete.startReportingDialog();
-                        recipeDelete.title.setText("Recipe Deletion Request");
-                        recipeDelete.message.setText("Why would you like to delete your recipe?");
+    {
+        if (!allergyValue.get(i)) {
+            ImageView createAllergyIcon = list.get(i);
+            String message = allergyMessage.get(i);
+            createAllergyIcon.setVisibility(View.VISIBLE);
+            createAllergyIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-                        break;
+                    AlertDialog dialog = builder.create();
 
+                    dialog.setTitle("Allergy");
+                    dialog.setMessage(message);
+                    dialog.show();
                 }
-                return true;
-            }
-        });
-
-        popup.show();//showing popup menu
+            });
+        }
     }
 
+
+}*/
+
+    /**
+     * Method that allows for the creation of the eating preference icons and displays them onto the recipe information screen
+     */
+    /*
+    private void eatingAdviceIconCreation(View layout) {
+
+        //Arrays that hold the boolean values and ImageView id's for the eating preference
+        ArrayList<Boolean> EatingHabitValue = new ArrayList<>();
+        EatingHabitValue.add(mPescatarian);
+        EatingHabitValue.add(mVegan);
+        EatingHabitValue.add(mVegetarian);
+
+        ArrayList<String> EatingHabitMessage = ImageHelpers.getFilterIconsHoverMessage(FilterType.filterType.DIETARY);
+
+        ArrayList<ImageView> EatingHabit = new ArrayList<>();
+        EatingHabit.add(layout.findViewById(R.id.recipeInfoPesc));
+        EatingHabit.add(layout.findViewById(R.id.recipeInfoVegan));
+        EatingHabit.add(layout.findViewById(R.id.recipeInfoVeggie));
+
+        //Integers that hold the sizes of the two different category array sizes
+        final int arrayCount2 = EatingHabit.size();
+
+
+        //For loop that iterates through the eating preference arrays and if a recipe is either vegan, vegetarian
+        //or pescatarian then the imageView is made visible
+        for (int i = 0; i < arrayCount2; i++) {
+            if (EatingHabitValue.get(i)) {
+                ImageView eatingPreferenceIcon = EatingHabit.get(i);
+                String message = EatingHabitMessage.get(i);
+                eatingPreferenceIcon.setVisibility(View.VISIBLE);
+                eatingPreferenceIcon.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+                        AlertDialog dialog = builder.create();
+
+                        dialog.setTitle("Recipe Advice");
+                        dialog.setMessage(message);
+                        dialog.show();
+                    }
+                });
+            }
+        }
+
+
+    }*/
 
 }
