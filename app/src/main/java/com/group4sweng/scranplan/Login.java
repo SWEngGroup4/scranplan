@@ -160,7 +160,7 @@ public class Login extends AppCompatActivity{
             @Override
             public void afterTextChanged(Editable editable) {
                 if(mRegisterInProgress){
-                    if(!mDisplayNameText.getText().toString().equals("") && mDisplayNameText.getText().toString().matches("^[a-z0-9]+$") && mDisplayNameText.getText().toString().length() <= 20){
+                    if(!mDisplayNameText.getText().toString().equals("") && mDisplayNameText.getText().toString().matches("^[a-z0-9]+$") && mDisplayNameText.getText().toString().length() <= 20 && mDisplayNameText.getText().toString().length() >= 2){
                         mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_autorenew_black_24dp));
                         mCheckUsername.setVisibility(View.VISIBLE);
                         if(!mDisplayNameText.getText().toString().equals("")){
@@ -178,7 +178,7 @@ public class Login extends AppCompatActivity{
                                             mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
                                             mCheckUsername.setVisibility(View.VISIBLE);
                                             if (mToast != null) mToast.cancel();
-                                            mToast = Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, maximum 20 characters.",Toast.LENGTH_SHORT);
+                                            mToast = Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, between 2 and 20 characters.",Toast.LENGTH_SHORT);
                                             mToast.show();
                                         }
                                     }
@@ -192,7 +192,7 @@ public class Login extends AppCompatActivity{
                         mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
                         mCheckUsername.setVisibility(View.VISIBLE);
                         if (mToast != null) mToast.cancel();
-                        mToast = Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, maximum 20 characters.",Toast.LENGTH_SHORT);
+                        mToast = Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, between 2 and 20 characters.",Toast.LENGTH_SHORT);
                         mToast.show();
                     }
                 }
@@ -351,7 +351,7 @@ public class Login extends AppCompatActivity{
                         // Check both passwords match before registering new user
                         if(passCheck(password)){
                             if(password.equals(confirmPassword)){
-                                if(displayName.matches("^[a-z0-9]+$") && displayName.length() <= 20){
+                                if(displayName.matches("^[a-z0-9]+$") && displayName.length() <= 20  && mDisplayNameText.getText().toString().length() >= 2){
                                     database.collection("usernames").document(mDisplayNameText.getText().toString()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                         @Override
                                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -363,7 +363,7 @@ public class Login extends AppCompatActivity{
                                         }
                                     });
                                 }else{
-                                    Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, maximum 20 characters.",Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, between 2 and 20 characters.",Toast.LENGTH_SHORT).show();
                                 }
                             }else{
                                 // Display message to user if passwords do not match

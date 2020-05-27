@@ -301,7 +301,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             public void afterTextChanged(Editable editable) {
 
                 if(!mUsername.getText().toString().equals("")){
-                    if(mUsername.getText().toString().matches("^[a-z0-9]+$") && mUsername.getText().toString().length() <= 20){
+                    if(mUsername.getText().toString().matches("^[a-z0-9]+$") && mUsername.getText().toString().length() <= 20 && mUsername.getText().toString().length() >= 2){
                         mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_autorenew_black_24dp));
                         mCheckUsername.setVisibility(View.VISIBLE);
                         if(!mUsername.getText().toString().equals("")){
@@ -320,17 +320,11 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                                             mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_check_black_24dp));
                                             mCheckUsername.setVisibility(View.VISIBLE);
                                         }else{
-                                            if(!mDisplay_username.getText().toString().equals("")){
-                                                mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_check_black_24dp));
-                                                mCheckUsername.setVisibility(View.VISIBLE);
-                                            }else{
-                                                mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
-                                                mCheckUsername.setVisibility(View.VISIBLE);
-                                                if (mToast != null) mToast.cancel();
-                                                mToast = Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, maximum 20 characters.",Toast.LENGTH_SHORT);
-                                                mToast.show();
-
-                                            }
+                                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                                            mCheckUsername.setVisibility(View.VISIBLE);
+                                            if (mToast != null) mToast.cancel();
+                                            mToast = Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, between 2 and 20 characters.",Toast.LENGTH_SHORT);
+                                            mToast.show();
 
                                         }
                                     }
@@ -338,13 +332,13 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                             });
                         }else{
                             mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
-                            mCheckUsername.setVisibility(View.VISIBLE);
+                            mCheckUsername.setVisibility(View.GONE);
                         }
                     }else{
                         mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
                         mCheckUsername.setVisibility(View.VISIBLE);
                         if (mToast != null) mToast.cancel();
-                        mToast = Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, maximum 20 characters.",Toast.LENGTH_SHORT);
+                        mToast = Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, between 2 and 20 characters.",Toast.LENGTH_SHORT);
                         mToast.show();
                     }
                 }else{
@@ -1171,7 +1165,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         String aboutMeInput = mAboutMe.getText().toString();
 
         if(user != null){ //Checks for a valid user.
-            if(!usernameInput.equals("") && usernameInput.matches("^[a-z0-9]+$") && usernameInput.length() <= 20){
+            if(!usernameInput.equals("") && usernameInput.matches("^[a-z0-9]+$") && usernameInput.length() <= 20 && mUsername.getText().toString().length() >= 2){
                 mDatabase.collection("usernames").document(usernameInput).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -1307,7 +1301,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                     }
                 });
             }else{
-                Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, maximum 20 characters.",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, between 2 & 20 characters.",Toast.LENGTH_SHORT).show();
             }
 
 
