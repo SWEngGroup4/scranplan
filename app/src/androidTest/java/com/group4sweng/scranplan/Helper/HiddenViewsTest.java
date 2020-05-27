@@ -71,7 +71,7 @@ public class HiddenViewsTest implements Credentials {
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
     }
-    
+
 
     @After
     public void tearDown() throws Exception {
