@@ -245,6 +245,7 @@ public class PictureRecyclerAdapter extends RecyclerView.Adapter<PictureRecycler
             public void onClick(View v) {
                 if (mProfilePictures != null){
                     Bundle mBundle = new Bundle();
+                    mBundle.putString("authorID", mDataset.get(position).authorUID);
                     mBundle.putString("postID", mDataset.get(position).postID);
                     mBundle.putString("authorName", authorName);
                     mBundle.putString("authorPicURL", holder.authorPicURL);
@@ -255,8 +256,10 @@ public class PictureRecyclerAdapter extends RecyclerView.Adapter<PictureRecycler
                         mBundle.putString("recipeTitle", mDataset.get(position).recipeTitle);
                         mBundle.putString("recipeDescription", mDataset.get(position).recipeDescription);
                         mBundle.putString("recipeImageURL", mDataset.get(position).recipeImageURL);
+                        mBundle.putBoolean("isReview", mDataset.get(position).isReview);
+                        mBundle.putString("recipeID", mDataset.get(position).recipeID);
                         if(mDataset.get(position).isReview){
-                            mBundle.putFloat("recipeReview", mDataset.get(position).review);
+                            mBundle.putFloat("overallRating", mDataset.get(position).review);
                         }
                     }
                     if(mDataset.get(position).isPic) {

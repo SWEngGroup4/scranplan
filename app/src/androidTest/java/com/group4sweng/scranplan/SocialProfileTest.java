@@ -8,16 +8,15 @@ import androidx.test.espresso.ViewInteraction;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
 
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import java.util.Random;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -31,36 +30,40 @@ import static org.hamcrest.Matchers.allOf;
 
 /**
  *
- * Test the Feed Fragment.
+ * Test the Social Profile.
  * Author(s): LNewman
  * (c) CoDev 2020
  *
- *  Tests are included to make sure user can navigate, view all correct posts, view posts, move
- *  around the profile, having all posts and comments load correctly, in the correct places
- *  and in order. Finally it was checked if a user can post and attach all parts and delete each
- *  part.
+ *  Tests are included to make sure user can navigate successfully around the social profile
  *
  * All other tests are manual tests to check data is properly stored,
  * deleted and retrieved within firebase and that the image picker functions work correctly.
  *
  * Manual Tests include:
- *  - Image picker works as expected with correct accepted formats & filesize only.
- *  - recipes can be added and load in correctly -> also saved correctly
- *  - All posts can be viewed, followers is updated to only show 3 posts
- *  - Three sections of profile show correct posts and all infinite scrolls function
- *  - All parts can be added to posts
- *  - All likes function and save correctly, only one person can like any one post and this like
- *  is saved
- *  - Reviews can be added to posts in the same way they are added to a particular recipe
+ *  - Finding another user and following them
+ *  - Ensuring that private users have their profile properties hidden to other users
+ *  - Ensuring a public user could be instantly followed
+ *  - Ensuring a private users could be requested to followed
+ *  - Ensuring notifications populated correctly
+ *  - Ensuring notifications could be accepted and deleted with the correct outcomes
+ *  - Ensuring that a followed private users could be viewed with the correct privacy
+ *  - Ensuring all navigation to profile is correct
+ *  - Ensure privacy settings alterations for enable changes operate as they should
+ *
+ *  Other tests:
+ *  - upgrade to login screen functional
+ *  - Unique usernames working correctly and populate with visual indications
+ *  - Complex passwords operational with visual indications
+ *  - Usernames also changed in profile settings
  *
  *  -- USER STORY TESTS LINKED WITH ---
- *  C28, C16, C31, C29 & C24
+ *  C27
  */
 @RunWith(AndroidJUnit4.class)
-public class SocialTest implements Credentials  {
+public class SocialProfileTest implements Credentials  {
 
     //  Android Log tag.
-    String TAG = "FeedTest";
+    String TAG = "socialProfileTest";
     String test;
 
 
@@ -78,7 +81,8 @@ public class SocialTest implements Credentials  {
         Random random = new Random();
         test = "test" + random.nextInt();
 
-        ActivityScenario.launch(Login.class); //Launch the login screen
+        ActivityScenario.launch(Login.class);//Launch the login screen
+        Thread.sleep(THREAD_SLEEP_TIME);
 
 
         onView(withId(R.id.loginButton))
@@ -95,95 +99,11 @@ public class SocialTest implements Credentials  {
 
         Thread.sleep(THREAD_SLEEP_TIME);
 
-        onView(withText("FEED"))
-                .perform(click());
-
     }
 
 
 
-    // Test adding a recipe and a rating to a post
-    @Test
-    public void testRecipeAndRating() throws InterruptedException {
-        Log.d(TAG, "Testing navigate to add recipe");
 
-
-        onView(withId(R.id.recipeIcon))
-                .perform(click());
-        Thread.sleep(THREAD_SLEEP_TIME/4);
-        onView(withId(R.id.menuSearch)).check(
-                matches(isDisplayed()));
-        navigateToRecipe("Braised peas with bacon, lentils and cod");
-        Thread.sleep(THREAD_SLEEP_TIME);
-        onView(withText("Add")).perform(click());
-        pressBack();
-
-        Thread.sleep(THREAD_SLEEP_TIME);
-        onView(withId(R.id.reviewIcon))
-                .perform(click());
-
-        onView(withId(R.id.postRecipeRating)).check(matches(isDisplayed()));
-
-    }
-
-//     Posts can be sent from feed
-    @Test
-    public void testPost() throws InterruptedException {
-        Log.d(TAG, "Testing navigate to add recipe");
-
-        onView(withId(R.id.postBodyInput))
-                .perform(typeText(test));
-        Espresso.closeSoftKeyboard();
-
-        Thread.sleep(THREAD_SLEEP_TIME/4);
-
-        onView(withId(R.id.sendPostButton))
-                .perform(click());
-
-        Thread.sleep(THREAD_SLEEP_TIME);
-
-
-        onView(withText(test))
-                .perform(click());
-        Thread.sleep(THREAD_SLEEP_TIME);
-
-        onView(withId(R.id.postMenu))
-                .perform(click());
-
-
-        Thread.sleep(THREAD_SLEEP_TIME);
-
-
-    }
-
-//    Check that posts can be posed and displayed correctly
-    @Test
-    public void checkPosting() throws InterruptedException {
-        Log.d(TAG, "Testing navigate to add recipe");
-
-        onView(withId(R.id.postBodyInput))
-                .perform(typeText(test));
-        Espresso.closeSoftKeyboard();
-
-        Thread.sleep(THREAD_SLEEP_TIME/4);
-
-        onView(withId(R.id.sendPostButton))
-                .perform(click());
-
-        Thread.sleep(THREAD_SLEEP_TIME);
-
-        onView(withText(test))
-                .check(matches(isDisplayed()));
-
-        openSideBar(EspressoHelper.SideBarElement.PROFILE);
-        Thread.sleep(THREAD_SLEEP_TIME);
-
-
-        onView(withText(test))
-                .check(matches(isDisplayed()));
-
-
-    }
 
 
     // Check all fields populate in profile
@@ -218,7 +138,14 @@ public class SocialTest implements Credentials  {
 
 
 
+    // Check all navigation to notifications
+    @Test
+    public void checkNotifications() throws InterruptedException {
+        openSideBar(EspressoHelper.SideBarElement.NOTIFICATION);
+        Thread.sleep(THREAD_SLEEP_TIME);
 
+
+    }
 
 
 

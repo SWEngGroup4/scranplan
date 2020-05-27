@@ -83,7 +83,7 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
         Thread.sleep(THREAD_SLEEP_TIME / 4);
         onView(withId(0)).perform(click());
         navigateToRecipe("Avocado and black bean eggs");
-        onView(withText("Add")).perform(click());
+        onView(withId(R.id.LetsCook)).perform(click());
     }
 
     //Checks meal planner saves for user after re-logging in
@@ -93,7 +93,7 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
 
         onView(withText("Meal Planner")).perform(click());
         onView(withId(0)).perform(click());
-        onView(withText("Lets Cook!"))
+        onView(withId(R.id.LetsCook))
                 .check(matches(isDisplayed()));
     }
 

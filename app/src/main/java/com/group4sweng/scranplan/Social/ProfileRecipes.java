@@ -44,7 +44,7 @@ public class ProfileRecipes extends Fragment {
 
     final String TAG = "Profile Recipes";
     int numberOfColumns = 2;
-    int dataLim = 6;
+    int dataLim = 10;
 
     NestedScrollView profileScrollView;
     PublicProfile profile;

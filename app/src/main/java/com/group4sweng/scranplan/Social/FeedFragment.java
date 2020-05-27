@@ -55,6 +55,7 @@ import com.group4sweng.scranplan.Home;
 import com.group4sweng.scranplan.Administration.LoadingDialog;
 import com.group4sweng.scranplan.MealPlanner.PlannerInfoFragment;
 import com.group4sweng.scranplan.MealPlanner.PlannerListFragment;
+import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
@@ -455,6 +456,7 @@ public class FeedFragment extends Fragment {
                         HashMap<String, Object> newDoc = new HashMap<>();
                         ArrayList<String> arrayList = new ArrayList<>();
                         arrayList.add(mUser.getUID());
+                        ArrayList<String> second = new ArrayList<>();
                         newDoc.put("mapA", map);
                         newDoc.put("mapB", (HashMap) null);
                         newDoc.put("mapC", (HashMap) null);
@@ -464,6 +466,7 @@ public class FeedFragment extends Fragment {
                         newDoc.put("lastPost", map.get("timestamp"));
                         newDoc.put("author", mUser.getUID());
                         newDoc.put("users", arrayList);
+                        newDoc.put("requested", second);
                         mDatabase.collection("followers").document(mUser.getUID()).set(newDoc).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
@@ -723,7 +726,7 @@ public class FeedFragment extends Fragment {
                         bundle.putBoolean("planner", true); //Condition to let child fragments know access is from planner
 
                         //Creates and launches recipe fragment
-                        recipeFragment = new RecipeFragment(mUser);
+                        recipeFragment = new RecipeFragment();
                         recipeFragment.setArguments(bundle);
                         recipeFragment.setTargetFragment(FeedFragment.this, 1);
                         fragmentTransaction = getParentFragmentManager().beginTransaction();
@@ -1000,7 +1003,12 @@ public class FeedFragment extends Fragment {
                 switch (item.getItemId()) {
                     case R.id.viewCommentProfile:
                         Log.e(TAG,"Clicked open profile!");
-                        //TODO add functionality to open users profile in new fragment
+                        Intent intentProfile = new Intent(getContext(), PublicProfile.class);
+
+                        intentProfile.putExtra("UID", (String) document.get("author"));
+                        intentProfile.putExtra("user", mUser);
+                        //setResult(RESULT_OK, intentProfile);
+                        startActivity(intentProfile);
                         break;
                     case R.id.reportComment:
                         Log.e(TAG,"Report comment clicked!");
