@@ -1,10 +1,12 @@
 package com.group4sweng.scranplan;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -65,14 +67,26 @@ public class savedList extends AppCompatActivity implements RecyclerViewAdaptor.
                         recyclerViewsaved.setAdapter(adapter);
                     } else {
                         Log.d("Test", "Doc does not exist");
+
+                        Context context = getApplicationContext();
+                        CharSequence text = "No shopping list is saved yet";
+                        int duration = Toast.LENGTH_SHORT;
+
+                        Toast toast = Toast.makeText(context, text, duration);
+                        toast.show();
                     }
                 } else {
                     Log.d("Test", "Download failed with: " + task.getException());
+
+                    Context context = getApplicationContext();
+                    CharSequence text = "Unable to get saved list";
+                    int duration = Toast.LENGTH_SHORT;
+
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
                 }
             }
         });
-//
-//        System.out.println(viewList);
     }
 
     @Override

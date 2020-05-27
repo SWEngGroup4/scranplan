@@ -1,11 +1,13 @@
 package com.group4sweng.scranplan;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -40,9 +42,9 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
 
     private List<HashMap<String, Object>> ShoppingList = new ArrayList<>();
     RecyclerViewAdaptor adapter;
-    ArrayList<String> newList = new ArrayList<>();
-    ArrayList<String> newList2 = new ArrayList<>();
-    ArrayList<String> newList3 = new ArrayList<>();
+    ArrayList<String> ingredientList = new ArrayList<>();
+    ArrayList<String> duplicatesAddedList = new ArrayList<>();
+    ArrayList<String> savedList = new ArrayList<>();
 
 
     Button msaveButton;
@@ -66,12 +68,12 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
     @Override
     public void onItemClick(View view, int position) {
         //when item is clicked delete the item
-        if (newList2 != null) {
-            newList2.remove(position);
+        if (duplicatesAddedList != null) {
+            duplicatesAddedList.remove(position);
         }
         adapter.notifyItemChanged(position);
         adapter.notifyItemRemoved(position);
-        adapter.notifyItemRangeChanged(position, newList2.size());
+        adapter.notifyItemRangeChanged(position, duplicatesAddedList.size());
 
     }
 
@@ -83,31 +85,31 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
                 if (mUser.getMealPlanner().get(a) != null) {
                     //retrieve users meal plan
                     ShoppingList = mUser.getMealPlanner();
-                    //add ingredients onto a arrat lsit
+                    //add ingredients onto a array list
                     HashMap<String, String> updateIngredientList = new HashMap<>();
                     updateIngredientList = (HashMap<String, String>) ShoppingList.get(a).get("ingredientHashMap");
                     assert updateIngredientList != null;
                     ArrayList<String> ingredientArray = RecipeHelpers.convertToIngredientListFormat(updateIngredientList);
                     for (String ingredient : ingredientArray) {
                         //add each individual ingredent in each recipe
-                        newList.add(ingredient);
+                        ingredientList.add(ingredient);
                     }
 
                 }
             }
         }
-        Set<String> unique = new HashSet<String>(newList);
+        Set<String> unique = new HashSet<String>(ingredientList);
         for (String key : unique) {
 
             //if there are multiple elements of the same ingredients add these together and replace
-            newList2.add(Collections.frequency(newList, key) + " Times : " + key);
-            java.util.Collections.sort(newList2, Collator.getInstance());
+            duplicatesAddedList.add(Collections.frequency(ingredientList, key) + " Times : " + key);
+            java.util.Collections.sort(duplicatesAddedList, Collator.getInstance());
         }
         //add shopping list into the recycler view
             RecyclerView recyclerView = findViewById(R.id.rvShoppingList);
 
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
-            adapter = new RecyclerViewAdaptor(this, newList2);
+            adapter = new RecyclerViewAdaptor(this, duplicatesAddedList);
             adapter.setClickListener(this);
             recyclerView.setAdapter(adapter);
     }
@@ -122,12 +124,12 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
         msaveButton.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View view) {
-                newList3.clear();
-                for (String ingredient : newList2 ){
+                savedList.clear();
+                for (String ingredient : duplicatesAddedList ){
                     //add all current ingredients into a new list
-                    newList3.add(ingredient);
+                    savedList.add(ingredient);
                 }
-                uploadList(newList3);
+                uploadList(savedList);
             }
         });
 
@@ -136,7 +138,7 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
             @Override
             public void onClick(View v) {
 
-                if (newList3 != null ){
+                if (savedList != null ){
                     //new intent into a new page that displays the most recent list
                     Intent saveListIntent = new Intent(ShoppingList.this, savedList.class);
                     saveListIntent.putExtra("user", mUser);
@@ -155,8 +157,8 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        newList3 = data.getStringArrayListExtra("shoppingList");
-        uploadList(newList3);
+        savedList = data.getStringArrayListExtra("shoppingList");
+        uploadList(savedList);
     }
 
 }
