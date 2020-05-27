@@ -87,7 +87,7 @@ public class PortionsTest implements Credentials {
     public void testChangePortionsDisplayed(){
         onView(withId(0)).perform(click());
 
-        onView(withText("CHANGE PORTIONS"))
+        onView(withId(R.id.changePortions))
                 .check(matches(isDisplayed()))
                 .check(matches(isCompletelyDisplayed()))
                 .check(matches(isClickable()));
@@ -98,7 +98,7 @@ public class PortionsTest implements Credentials {
     public void testDialogDisplays() {
         onView(withId(0)).perform(click());
 
-        onView(withText("CHANGE PORTIONS"))
+        onView(withId(R.id.changePortions))
                 .perform(click());
 
         onView(withText("Change Portion Amounts"))
@@ -110,7 +110,7 @@ public class PortionsTest implements Credentials {
     public void testCorrectServings() {
         onView(withId(0)).perform(click());
 
-        onView(withText("CHANGE PORTIONS"))
+        onView(withId(R.id.changePortions))
                 .perform(click());
 
         //  Expected serving portion conversion amounts.
