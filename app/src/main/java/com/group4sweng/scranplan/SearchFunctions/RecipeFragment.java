@@ -35,11 +35,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.group4sweng.scranplan.Home;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
-import com.group4sweng.scranplan.SearchFunctions.HomeQueries;
-import com.group4sweng.scranplan.SearchFunctions.HomeRecyclerAdapter;
-import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
-import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
-import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.ArrayList;
