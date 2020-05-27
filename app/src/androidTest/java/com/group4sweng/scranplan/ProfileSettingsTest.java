@@ -284,8 +284,6 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
         onView(withId(R.id.settings_privacy_profile_image))
                 .perform(scrollTo())
                 .perform(click());
-        onView(withId(R.id.settings_privacy_recipes))
-                .perform(click());
         onView(withId(R.id.settings_privacy_filters))
                 .perform(scrollTo())
                 .perform(click());
@@ -609,7 +607,7 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
         onView(withText("YES"))
                 .perform(click());
 
-        onView(withText("Password must be at least 8 characters and contain at least 1 number and 1 letter"))
+        onView(withText("Password must be greater than 7 characters in length"))
                 .inRoot(withDecorView(not(mActivityTestRule.getActivity().getWindow().getDecorView())))
                 .check(matches(isDisplayed()));
 
