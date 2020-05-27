@@ -54,7 +54,7 @@ import static org.hamcrest.Matchers.allOf;
  *  - Reviews can be added to posts in the same way they are added to a particular recipe
  *
  *  -- USER STORY TESTS LINKED WITH ---
- *  C20,A1
+ *  C27
  */
 @RunWith(AndroidJUnit4.class)
 public class SocialTest implements Credentials  {

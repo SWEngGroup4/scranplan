@@ -22,9 +22,8 @@
                 style="@style/Widget.AppCompat.EditText"
                 android:layout_width="wrap_content"
                 android:layout_height="37dp"
-                android:layout_marginStart="10dp"
                 android:layout_marginTop="8sp"
-                android:layout_marginEnd="16dp"
+                android:layout_marginEnd="50dp"
                 android:background="@drawable/rounded_corners"
                 android:ems="10"
 
@@ -34,8 +33,6 @@
                 android:textColor="#353236"
                 android:textSize="17sp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toEndOf="@+id/public_profile_image"
                 app:layout_constraintTop_toBottomOf="@+id/profile_username"
                 app:layout_constraintWidth_percent="0.35" />
 
@@ -92,17 +89,30 @@
                 android:onClick="changeProfileImage"
                 android:src="@drawable/ic_person_add_black_24dp"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:visibility="gone"/>
+
+
+            <ImageView
+                android:id="@+id/public_profile_image_old"
+                android:layout_width="119dp"
+                android:layout_height="110dp"
+                android:layout_marginStart="5sp"
+                android:layout_marginTop="10dp"
+                android:onClick="changeProfileImage"
+                android:src="@drawable/ic_person_add_black_24dp"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/profile_username"
                 android:layout_width="97sp"
                 android:layout_height="23sp"
-                android:layout_marginStart="10sp"
                 android:layout_marginTop="10dp"
+                android:layout_marginEnd="150dp"
                 android:text="Username:"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                app:layout_constraintStart_toEndOf="@+id/public_profile_image"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
 
@@ -134,11 +144,11 @@
                 android:layout_width="88sp"
                 android:layout_height="21sp"
                 android:layout_marginStart="16sp"
-                android:layout_marginTop="5sp"
+                android:layout_marginTop="50dp"
                 android:text="About Me"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/public_profile_image" />
+                app:layout_constraintTop_toBottomOf="@+id/settings_input_username" />
 
             <Button
                 android:id="@+id/settings_save_settings"

@@ -133,6 +133,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
     //  Basic user settings.
     ImageView mProfileImage;
+    ImageView mProfileImageOld;
     TextView mUsername;
     ImageView mCheckUsername;
     TextView mAboutMe;
@@ -229,10 +230,10 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             if(mUserProfile.getImageURL() == null){
                 throw new NullPointerException("Unable to load Profile image URL. Image URL is null");
             } else if(!mUserProfile.getImageURL().equals("")){
-                Glide.with(mProfileImage.getContext())
+                Glide.with(mProfileImageOld.getContext())
                         .load(mUserProfile.getImageURL())
                         .apply(RequestOptions.circleCropTransform())
-                        .into(mProfileImage);
+                        .into(mProfileImageOld);
             }
 
             initPageListeners();
@@ -299,42 +300,57 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             @Override
             public void afterTextChanged(Editable editable) {
 
-                if(!mUsername.getText().toString().equals("") && mUsername.getText().toString().matches("^[a-z0-9]+$") && mUsername.getText().toString().length() <= 20){
-                    mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_autorenew_black_24dp));
-                    mCheckUsername.setVisibility(View.VISIBLE);
-                    if(!mUsername.getText().toString().equals("")){
-                        mDatabase.collection("usernames").document(mUsername.getText().toString()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if(task.getResult().exists()){
-                                    mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
-                                    mCheckUsername.setVisibility(View.VISIBLE);
-                                }else{
-                                    if(!mDisplay_username.getText().toString().equals("")){
-                                        mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_check_black_24dp));
-                                        mCheckUsername.setVisibility(View.VISIBLE);
-                                    }else{
+                if(!mUsername.getText().toString().equals("")){
+                    if(mUsername.getText().toString().matches("^[a-z0-9]+$") && mUsername.getText().toString().length() <= 20){
+                        mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_autorenew_black_24dp));
+                        mCheckUsername.setVisibility(View.VISIBLE);
+                        if(!mUsername.getText().toString().equals("")){
+                            mDatabase.collection("usernames").document(mUsername.getText().toString()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if(task.getResult().exists()){
                                         mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
                                         mCheckUsername.setVisibility(View.VISIBLE);
-                                        if (mToast != null) mToast.cancel();
-                                        mToast = Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, maximum 20 characters.",Toast.LENGTH_SHORT);
-                                        mToast.show();
+                                    }else{
+                                        if(!mDisplay_username.getText().toString().equals("")){
+                                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_check_black_24dp));
+                                            mCheckUsername.setVisibility(View.VISIBLE);
+                                        }else{
+                                            if(!mDisplay_username.getText().toString().equals("")){
+                                                mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_check_black_24dp));
+                                                mCheckUsername.setVisibility(View.VISIBLE);
+                                            }else{
+                                                mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                                                mCheckUsername.setVisibility(View.VISIBLE);
+                                                if (mToast != null) mToast.cancel();
+                                                mToast = Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, maximum 20 characters.",Toast.LENGTH_SHORT);
+                                                mToast.show();
 
+                                            }
+
+                                        }
                                     }
                                 }
-                            }
-                        });
+                            });
+                        }else{
+                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                            mCheckUsername.setVisibility(View.VISIBLE);
+                        }
                     }else{
                         mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
                         mCheckUsername.setVisibility(View.VISIBLE);
+                        if (mToast != null) mToast.cancel();
+                        mToast = Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, maximum 20 characters.",Toast.LENGTH_SHORT);
+                        mToast.show();
                     }
                 }else{
                     mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
                     mCheckUsername.setVisibility(View.VISIBLE);
                     if (mToast != null) mToast.cancel();
-                    mToast = Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, maximum 20 characters.",Toast.LENGTH_SHORT);
+                    mToast = Toast.makeText(getApplicationContext(),"Username cannot be empty.",Toast.LENGTH_SHORT);
                     mToast.show();
                 }
+
 
 
             }
@@ -918,6 +934,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         mUsername = findViewById(R.id.settings_input_username);
         mAboutMe = findViewById(R.id.settings_input_about_me);
         mProfileImage = findViewById(R.id.public_profile_image);
+        mProfileImageOld = findViewById(R.id.public_profile_image_old);
 
         //  Privacy
         mDisplay_about_me = findViewById(R.id.settings_privacy_about_me);
@@ -1004,6 +1021,8 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                 currentImageURI = mImageUri.toString();
 
                 //  Use Glides image functionality to quickly load a circular, center cropped image.
+                mProfileImage.setVisibility(View.VISIBLE);
+                mProfileImageOld.setVisibility(View.GONE);
                 Glide.with(this)
                         .load(mImageUri)
                         .apply(RequestOptions.circleCropTransform())

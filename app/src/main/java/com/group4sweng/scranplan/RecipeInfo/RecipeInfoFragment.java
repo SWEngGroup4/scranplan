@@ -49,6 +49,7 @@ import com.group4sweng.scranplan.Helper.ImageHelpers;
 import com.group4sweng.scranplan.Helper.RecipeHelpers;
 import com.group4sweng.scranplan.MealPlanner.Ingredients.Ingredient;
 import com.group4sweng.scranplan.Presentation.Presentation;
+import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.Social.FeedFragment;
 import com.group4sweng.scranplan.UserInfo.FilterType;
@@ -716,7 +717,13 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
                 // Give each item functionality
                 switch (item.getItemId()) {
                     case R.id.viewCommentProfile:
-                        //TODO add functionality to open users profile in new fragment
+                        Log.e("RECIPE","Clicked open profile!");
+                        Intent intentProfile = new Intent(getContext(), PublicProfile.class);
+
+                        intentProfile.putExtra("UID", (String) document.get("author"));
+                        intentProfile.putExtra("user", mUser);
+                        //setResult(RESULT_OK, intentProfile);
+                        startActivity(intentProfile);
                         break;
                     case R.id.reportComment:
 
