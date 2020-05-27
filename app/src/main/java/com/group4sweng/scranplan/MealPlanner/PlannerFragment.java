@@ -287,7 +287,6 @@ public class PlannerFragment extends Fragment {
         documentReference.update(updateMap);
     }
 
-
     }
 
 

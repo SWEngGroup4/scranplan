@@ -23,9 +23,6 @@ import java.util.Date;
 public class savedList extends AppCompatActivity implements RecyclerViewAdaptor.ItemClickListener  {
     final String TAG = "SavedShoppingList";
 
-    FirebaseApp mApp;
-    FirebaseAuth mAuth;
-
     //Database references
     private FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
     private CollectionReference mUserRef = mDatabase.collection("users");
@@ -44,15 +41,16 @@ public class savedList extends AppCompatActivity implements RecyclerViewAdaptor.
 
         mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) getIntent().getSerializableExtra("user");
         Intent i = getIntent();
+        //gets the current list and displays it
         viewList = i.getStringArrayListExtra("newList3");
+        System.out.println(viewList);
 
-        if (mUser != null) {
             RecyclerView recyclerViewsaved = findViewById(R.id.ShoppingList);
             recyclerViewsaved.setLayoutManager(new LinearLayoutManager(this));
             adapter = new RecyclerViewAdaptor(this, viewList);
             adapter.setClickListener(this);
             recyclerViewsaved.setAdapter(adapter);
-        }
+
 
     }
 
