@@ -48,9 +48,9 @@ public class HomeQueries {
         queries.put("breakfastTimestamp", buildQuery(user).whereEqualTo("breakfast", true).orderBy("timestamp", Query.Direction.DESCENDING));
         queries.put("lunchTimestamp", buildQuery(user).whereEqualTo("lunch", true).orderBy("timestamp", Query.Direction.DESCENDING));
         queries.put("dinnerTimestamp", buildQuery(user).whereEqualTo("dinner", true).orderBy("timestamp", Query.Direction.DESCENDING));
-        queries.put("breakfastFavourite", ref.whereEqualTo("breakfast", true).whereArrayContains("favourite", user.getUID().hashCode()));
-        queries.put("lunchFavourite", ref.whereEqualTo("lunch", true).whereArrayContains("favourite", user.getUID().hashCode()));
-        queries.put("dinnerFavourite", ref.whereEqualTo("dinner", true).whereArrayContains("favourite", user.getUID().hashCode()));
+        queries.put("breakfastFavourite", ref.whereEqualTo("breakfast", true).whereArrayContains("favourite", user.getUID()));
+        queries.put("lunchFavourite", ref.whereEqualTo("lunch", true).whereArrayContains("favourite", user.getUID()));
+        queries.put("dinnerFavourite", ref.whereEqualTo("dinner", true).whereArrayContains("favourite", user.getUID()));
         if(!user.getPreferences().isVegan()){
             queries.put("topVegan", buildQuery(user).whereEqualTo("vegan", true).orderBy("score", Query.Direction.DESCENDING));
             if(!user.getPreferences().isVegetarian()){

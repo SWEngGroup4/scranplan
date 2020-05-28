@@ -233,7 +233,7 @@ public class PlannerFragment extends Fragment {
     //Handles child fragment exit results
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == recipeFragmentRequest) {
+        //if (requestCode == recipeFragmentRequest) {
             if (resultCode == Activity.RESULT_OK) {
                 Bundle bundle = data.getExtras();
 
@@ -276,7 +276,7 @@ public class PlannerFragment extends Fragment {
             fragmentTransaction = getParentFragmentManager().beginTransaction();
             fragmentTransaction.remove(mealTimescaleFragment).commitNow();
             requireView().setVisibility(View.VISIBLE);
-        }
+        //}
     }
 
     //Quick function to reset search menu functionality
