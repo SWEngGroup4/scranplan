@@ -1058,12 +1058,12 @@ public class FeedFragment extends Fragment {
         if((String)doc.get("author") != null){
             if(doc.get("isReview") != null){
                 if((boolean)doc.get("isReview")){
-                    mDatabase.collection("recipes").document(recipeID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    mDatabase.collection("recipes").document((String)doc.get("recipeID")).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                             if(task.getResult() != null){
                                 HashMap<String, Double> ratingMap = (HashMap) task.getResult().get("rating");
-                                revertRating(ratingMap, recipeID);
+                                revertRating(ratingMap, (String)doc.get("recipeID"));
                             }
                         }
                     });
