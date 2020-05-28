@@ -44,6 +44,8 @@ public class ShoppingListTest implements Credentials {
 
     private String TAG = "ShoppingListTest";
 
+    String TEST_EMAIL = "rea524@york.ac.uk";
+    String TEST_PASSWORD = "Hamish100";
 
     private static final int THREAD_SLEEP_TIME = 4000;
 
@@ -92,8 +94,6 @@ public class ShoppingListTest implements Credentials {
 
         onView(withId(R.id.shoppingListButton)).perform(click());
     }
-
-
 
 
     @After
