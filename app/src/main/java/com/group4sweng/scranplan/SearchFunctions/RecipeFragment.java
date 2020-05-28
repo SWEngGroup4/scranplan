@@ -42,7 +42,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+
+import static com.group4sweng.scranplan.SearchFunctions.QueryRequestCode.QueryRequestCodes;
 
 /**
  * Class for the home page fragment containing horizontal meals to scroll though.
@@ -54,15 +55,22 @@ import java.util.Objects;
  * reads from the Firestore yet still giving the user an infinite and responsive experience with
  * scroll listeners to check where the user is interacting with these scrolls.
  */
-public class RecipeFragment extends Fragment {
+public class RecipeFragment extends Fragment implements QueryRequestCodes {
 
 
 
     final String TAG = "Home horizontal queries";
     // User preferences passed into scroll views via constructor
     UserInfoPrivate user;
+    private int requestCode = 3;
+
     public RecipeFragment(UserInfoPrivate mUser){
         this.user = mUser;
+    }
+
+    public RecipeFragment(UserInfoPrivate mUser, int requestCode){
+        this(mUser);
+        this.requestCode = requestCode;
     }
 
     // Width size of each scroll view, dictating size of images on home screen
@@ -201,6 +209,44 @@ public class RecipeFragment extends Fragment {
 
         // Checks users details have been provided
         if(user != null){
+
+            String mealTimescaleScore = "score";
+            String mealTimescaleName = "Top picks";
+            String mealTimescaleVotes = "votes";
+            String mealTimescaleTimestamp = "timestamp";
+            String mealTimescaleFavourite = "favourite";
+
+            switch (requestCode) {
+                case BREAKFAST:
+                    mealTimescaleScore = "breakfastScore";
+                    mealTimescaleName = "Breakfast";
+                    mealTimescaleVotes = "breakfastVotes";
+                    mealTimescaleTimestamp = "breakfastTimestamp";
+                    mealTimescaleFavourite = "breakfastFavourite";
+                    break;
+                case LUNCH:
+                    mealTimescaleScore = "lunchScore";
+                    mealTimescaleName = "Lunch";
+                    mealTimescaleVotes = "lunchVotes";
+                    mealTimescaleTimestamp = "lunchTimestamp";
+                    mealTimescaleFavourite = "lunchFavourite";
+                    break;
+                case DINNER:
+                    mealTimescaleScore = "dinnerScore";
+                    mealTimescaleName = "Dinner";
+                    mealTimescaleVotes = "dinnerVotes";
+                    mealTimescaleTimestamp = "dinnerTimestamp";
+                    mealTimescaleFavourite = "dinnerFavourite";
+                    break;
+                case NORMAL:
+                    mealTimescaleScore = "score";
+                    mealTimescaleName = "Top picks";
+                    mealTimescaleVotes = "votes";
+                    mealTimescaleTimestamp = "timestamp";
+                    mealTimescaleFavourite = "favourite";
+                    break;
+            }
+
             // Build the first horizontal scroll built around organising the recipes via highest rated
             HomeQueries horizontalScrollQueries = new HomeQueries(user);
             final RecyclerView recyclerViewScore = new RecyclerView(view.getContext());
@@ -210,13 +256,13 @@ public class RecipeFragment extends Fragment {
             recyclerViewScore.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels / scrollViewSize));
             recyclerViewScore.setAdapter(rAdapterScore);
             final int[] scoreAdIndex = {0};
-            final Query queryScore = (Query) horizontalScrollQueries.getQueries().get("score");
+            final Query queryScore = (Query) horizontalScrollQueries.getQueries().get(mealTimescaleScore);
             // Ensure query exists and builds view with query
             if (queryScore != null) {
                 Log.e(TAG, "User is searching the following query: " + queryScore.toString());
                 // Give the view a title
                 TextView textView = new TextView(view.getContext());
-                String testString = "Top picks";
+                String testString = mealTimescaleName;
                 textView.setTextSize(25);
                 textView.setPadding(20, 5, 5, 5);
                 textView.setTextColor(Color.WHITE);
@@ -318,7 +364,7 @@ public class RecipeFragment extends Fragment {
             recyclerViewVotes.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels / scrollViewSize));
             final int[] votesAdIndex = {0};
             recyclerViewVotes.setAdapter(rAdapterVotes);
-            final Query queryVotes = (Query) horizontalScrollQueries.getQueries().get("votes");
+            final Query queryVotes = (Query) horizontalScrollQueries.getQueries().get(mealTimescaleVotes);
             if (queryVotes != null) {
                 Log.e(TAG, "User is searching the following query: " + queryVotes.toString());
 
@@ -425,7 +471,7 @@ public class RecipeFragment extends Fragment {
             recyclerViewTime.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels / scrollViewSize));
             final int[] timeAdIndex = {0};
             recyclerViewTime.setAdapter(rAdapterTime);
-            final Query queryTime = (Query) horizontalScrollQueries.getQueries().get("timestamp");
+            final Query queryTime = (Query) horizontalScrollQueries.getQueries().get(mealTimescaleTimestamp);
             if (queryTime != null) {
                 Log.e(TAG, "User is searching the following query: " + queryTime.toString());
 
@@ -532,7 +578,7 @@ public class RecipeFragment extends Fragment {
             dataFave = new ArrayList<>();
             final RecyclerView.Adapter rAdapterFave = new HomeRecyclerAdapter(RecipeFragment.this, dataFave);
             recyclerViewFave.setAdapter(rAdapterFave);
-            final Query queryFave = (Query) horizontalScrollQueries.getQueries().get("favourite");
+            final Query queryFave = (Query) horizontalScrollQueries.getQueries().get(mealTimescaleFavourite);
             if (queryFave != null) {
                 Log.e(TAG, "User is searching the following query: " + queryFave.toString());
 
