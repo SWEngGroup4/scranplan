@@ -127,6 +127,7 @@ public class MessengerFeedFragment extends FeedFragment {
     //User information
     private com.group4sweng.scranplan.UserInfo.UserInfoPrivate mUser;
     private String mRecipient;
+    private Boolean recipientNotDeleted;
     private SearchPrefs prefs;
 
     //Menu items
@@ -174,6 +175,7 @@ public class MessengerFeedFragment extends FeedFragment {
         mRecipientInteractionRef = mDatabase.collection("users").document(mRecipient).collection("userInteractions").document(mUser.getUID());
 
         checkCollections(mUserInteractionRef, mRecipientInteractionRef);
+        checkRecipient(mRecipient);
 
         initPageItems(view);
         initPageListeners();
@@ -186,6 +188,26 @@ public class MessengerFeedFragment extends FeedFragment {
             Log.e(TAG, "ERROR: Loading messenger - We were unable to find user.");
         }
         return view;
+    }
+
+    private void checkRecipient(String mRecipient) {
+        mDatabase.collection("users").document(mRecipient).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                        recipientNotDeleted = true;
+                    } else {
+                        Log.d(TAG, "No such document");
+                        recipientNotDeleted = false;
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
     }
 
     private void checkCollections(DocumentReference mUserInteractionRef, DocumentReference mRecipientInteractionRef) {
@@ -292,6 +314,7 @@ public class MessengerFeedFragment extends FeedFragment {
         mPostButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(recipientNotDeleted){
                 String body = mPostBodyInput.getText().toString();
                 if (mPostPic.isChecked() || mPostRecipe.isChecked() || !body.equals("")) {
                     loadingDialog.startLoadingDialog();
@@ -316,7 +339,9 @@ public class MessengerFeedFragment extends FeedFragment {
                 } else {
                     Toast.makeText(getContext(), "You need to either write a post, attach a picture or attach a recipe before you can submit new post.", Toast.LENGTH_SHORT).show();
                 }
-            }
+            }else {
+                Toast.makeText(getContext(), "You cannot message deleted members", Toast.LENGTH_SHORT).show();
+            }}
         });
         mPostRecipe.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override

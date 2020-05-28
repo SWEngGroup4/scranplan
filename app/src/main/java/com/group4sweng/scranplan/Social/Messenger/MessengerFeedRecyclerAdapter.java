@@ -223,9 +223,9 @@ public class MessengerFeedRecyclerAdapter extends RecyclerView.Adapter<Messenger
                         holder.authorPicURL = (String) task.getResult().get("imageURL");
 
                         if(task.getResult().get("displayName") != null){
-                            holder.authorName = (String) task.getResult().get("displayName");
+                            holder.author.setText(holder.authorName);
                         }else {
-                            holder.authorName = "deleted_user";
+                            holder.author.setText(R.string.deleted_user);
                         }
                         if (task.getResult().get("imageURL") != null) {
                             Glide.with(holder.authorPic.getContext())
