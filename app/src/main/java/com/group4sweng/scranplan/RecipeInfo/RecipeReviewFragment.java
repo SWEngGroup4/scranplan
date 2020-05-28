@@ -136,7 +136,9 @@ public class RecipeReviewFragment extends FeedFragment {
                             public void onComplete(@NonNull Task<DocumentSnapshot> nextTask) {
 
                                 DocumentSnapshot d = nextTask.getResult();
-                                mPostBodyInput.setText(d.get("body").toString());
+                                if(d.get("body") != null){
+                                    mPostBodyInput.setText(d.get("body").toString());
+                                }
 
                                 if ((Boolean) d.get("isPic")){
                                     mReviewImagelayout.setVisibility(View.VISIBLE);
