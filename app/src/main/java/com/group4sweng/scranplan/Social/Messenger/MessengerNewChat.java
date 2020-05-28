@@ -66,8 +66,6 @@ public class MessengerNewChat extends MessengerMenu {
         mNewMessage = findViewById(R.id.newMessageButton);
         mNewMessage.setVisibility(View.GONE);
         addUsers(view);
-
-
     }
 
     @Override
@@ -205,5 +203,9 @@ public class MessengerNewChat extends MessengerMenu {
                 }
             });
         }
+    }
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 }

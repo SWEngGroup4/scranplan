@@ -1,5 +1,6 @@
 package com.group4sweng.scranplan.Social.Messenger;
 
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,8 +23,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.Administration.LoadingDialog;
 import com.group4sweng.scranplan.R;
-import com.group4sweng.scranplan.Social.FeedFragment;
 import com.group4sweng.scranplan.Social.ProfilePosts;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
@@ -40,7 +41,7 @@ import io.sentry.core.Sentry;
 public class MessengerFeedRecyclerAdapter extends RecyclerView.Adapter<MessengerFeedRecyclerAdapter.ViewHolder> {
 
     // Variables for database and fragment to be displayed in
-    private FeedFragment mFeedFragment;
+    private MessengerFeedFragment mFeedFragment;
     private ProfilePosts mProfilePosts;
     private List<MessengerFeedRecyclerAdapter.FeedPostPreviewData> mDataset;
     private UserInfoPrivate user;
@@ -282,65 +283,102 @@ public class MessengerFeedRecyclerAdapter extends RecyclerView.Adapter<Messenger
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                if (mFeedFragment != null || mProfilePosts != null){
-//                    Bundle mBundle = new Bundle();
-//                    mBundle.putString("authorID", mDataset.get(position).authorUID);
-//                    mBundle.putString("postID", mDataset.get(position).postID);
-//                    mBundle.putString("authorName", holder.authorName);
-//                    mBundle.putString("authorPicURL", holder.authorPicURL);
-//                    mBundle.putBoolean("likedB4", holder.likedB4);
-//                    mBundle.putString("body", mDataset.get(position).body);
-//                    mBundle.putBoolean("isRecipe", mDataset.get(position).isRecipe);
-//                    if(mDataset.get(position).isRecipe){
-//                        mBundle.putString("recipeTitle", mDataset.get(position).recipeTitle);
-//                        mBundle.putString("recipeDescription", mDataset.get(position).recipeDescription);
-//                        mBundle.putString("recipeImageURL", mDataset.get(position).recipeImageURL);
-//                        mBundle.putBoolean("isReview", mDataset.get(position).isReview);
-//                        if(mDataset.get(position).isReview){
-//                            mBundle.putFloat("overallRating", mDataset.get(position).review);
-//                        }
-//                    }
-//                    if(mDataset.get(position).isPic) {
-//                        mBundle.putString("uploadedImageURL", mDataset.get(position).uploadedImageURL);
-//                    }
-//                    mBundle.putString("timestamp", mDataset.get(position).timeStamp);
-//
-//                    if(mFeedFragment != null){
-//                        mFeedFragment.itemSelected(mDataset.get(holder.getAdapterPosition()).document, mBundle, holder.numLikes, holder.likedOrNot, holder.numComments, holder.cardView);
-//                    }else{
-//                        mProfilePosts.itemSelected(mDataset.get(holder.getAdapterPosition()).document, mBundle, holder.numLikes, holder.likedOrNot, holder.numComments, holder.cardView);
-//                    }
-//
-//
-//
-//                    mDatabase.collection("likes").document(mDataset.get(position).postID + "-" + user.getUID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//                        @Override
-//                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                            if (task.isSuccessful()) {
-//                                if(task.getResult().exists()){
-//                                    holder.likedB4 = true;
-//                                    holder.likedOrNot.setChecked((boolean)task.getResult().get("liked"));
-//                                }else{
-//                                    holder.likedB4 = false;
-//                                    holder.likedOrNot.setChecked(false);
-//                                }
-//                            }else {
-//                                Log.e("FdRc", "User details retrieval : Unable to retrieve user document in Firestore ");
-//                            }
-//                        }
-//                    });
-//
-//                }else{
-//                    Log.e("FEED RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
-//                }
-//
-//            }
-//        });
+                // Only open up post page if it's got an image or recipie or review
+                if(mDataset.get(position).isPic ||mDataset.get(position).isRecipe || mDataset.get(position).isReview ){
+                if (mFeedFragment != null || mProfilePosts != null){
+                    Bundle mBundle = new Bundle();
+                    mBundle.putString("authorID", mDataset.get(position).authorUID);
+                    mBundle.putString("postID", mDataset.get(position).postID);
+                    mBundle.putString("authorName", holder.authorName);
+                    mBundle.putString("authorPicURL", holder.authorPicURL);
+                    mBundle.putBoolean("likedB4", holder.likedB4);
+                    mBundle.putString("body", mDataset.get(position).body);
+                    mBundle.putBoolean("isRecipe", mDataset.get(position).isRecipe);
+                    if(mDataset.get(position).isRecipe){
+                        mBundle.putString("recipeTitle", mDataset.get(position).recipeTitle);
+                        mBundle.putString("recipeDescription", mDataset.get(position).recipeDescription);
+                        mBundle.putString("recipeImageURL", mDataset.get(position).recipeImageURL);
+                        mBundle.putBoolean("isReview", mDataset.get(position).isReview);
+                        if(mDataset.get(position).isReview){
+                            mBundle.putFloat("overallRating", mDataset.get(position).review);
+                        }
+                    }
+                    if(mDataset.get(position).isPic) {
+                        mBundle.putString("uploadedImageURL", mDataset.get(position).uploadedImageURL);
+                    }
+                    mBundle.putString("timestamp", mDataset.get(position).timeStamp);
 
-            }
+                    if(mFeedFragment != null){
+                        mFeedFragment.itemSelected(mDataset.get(holder.getAdapterPosition()).document, mBundle, holder.numLikes, holder.likedOrNot, holder.numComments, holder.cardView);
+                    }else{
+                        mProfilePosts.itemSelected(mDataset.get(holder.getAdapterPosition()).document, mBundle, holder.numLikes, holder.likedOrNot, holder.numComments, holder.cardView);
+                    }
+
+                }else{
+                    Log.e("FEED RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
+                }
+
+            }}
         });
+
+            holder.menu.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mFeedFragment != null) {
+                        if (mDataset.get(holder.getAdapterPosition()).document != null) {
+                            mFeedFragment.menuSelected(mDataset.get(holder.getAdapterPosition()).document, holder.menu, position);
+                            Log.e("COMMENT RECYCLER", "Add send to profile on click");
+                        }
+                    }else if(mProfilePosts != null){
+                        if(mDataset.get(holder.getAdapterPosition()).document != null){
+                            mProfilePosts.menuSelected(mDataset.get(holder.getAdapterPosition()).document, holder.menu);
+                            Log.e("COMMENT RECYCLER", "Add send to profile on click");
+                        }
+                    }else{
+                        Log.e("COMMENT RECYCLER", "Issue with no component in onBindViewHolder");
+                    }
+
+                }
+            });
+
+            holder.recipeImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    LoadingDialog loadingDialog = new LoadingDialog(mFeedFragment.getActivity());
+                    loadingDialog.startLoadingDialog();
+
+                    mDatabase.collection("recipes").document(mDataset.get(position).recipeID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                if (task.getResult().exists()) {
+
+                                    DocumentSnapshot document = task.getResult();
+
+                                    if(mFeedFragment != null){
+                                        mFeedFragment.recipeSelected(document);
+                                    }else{
+                                        mProfilePosts.recipeSelected(document);
+                                    }
+
+
+                                    loadingDialog.dismissDialog();
+
+                                }
+                            }
+                        }
+                    });
+
+
+
+                }
+            });
+
     }
     }
+
+
 
     // Getting dataset size
     @Override

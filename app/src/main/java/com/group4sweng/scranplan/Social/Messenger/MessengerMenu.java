@@ -28,7 +28,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.group4sweng.scranplan.Home;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
@@ -76,7 +75,6 @@ public class MessengerMenu extends AppCompatActivity {
         View view = findViewById(R.id.messageFrameLayout);
         addChats(view);
 
-        //TODO open search for user to message
         mNewMessage = findViewById(R.id.newMessageButton);
         mNewMessage.setVisibility(View.VISIBLE);
         mNewMessage.setOnClickListener((new View.OnClickListener() {
@@ -86,7 +84,6 @@ public class MessengerMenu extends AppCompatActivity {
                 Intent intentMessenger = new Intent(getApplicationContext(), MessengerNewChat.class);
                 intentMessenger.putExtra("user", mUser);
                 startActivity(intentMessenger);
-                mNewMessage.setVisibility(View.GONE);
             }})
         );
     }
@@ -229,14 +226,6 @@ public class MessengerMenu extends AppCompatActivity {
         fragmentTransaction.replace(R.id.messageFrameLayout, fragment);
         fragmentTransaction.commit();
         mNewMessage.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void onBackPressed() {
-        Intent returningIntent = new Intent(MessengerMenu.this, Home.class);
-        returningIntent.putExtra("user", mUser);
-        startActivity(returningIntent);
-        finish();
     }
 
 }

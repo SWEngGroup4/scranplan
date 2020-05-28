@@ -14,12 +14,12 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.RatingBar;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -51,8 +51,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.group4sweng.scranplan.Administration.ContentReporting;
 import com.group4sweng.scranplan.Administration.LoadingDialog;
 import com.group4sweng.scranplan.Exceptions.ImageException;
+import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
@@ -94,6 +96,7 @@ public class MessengerFeedFragment extends FeedFragment {
     List<MessengerFeedRecyclerAdapter.FeedPostPreviewData> data;
     private DocumentSnapshot lastVisible;
     private boolean isScrolling = false;
+    private boolean refreshData = true;
     private boolean isLastItemReached = false;
 
     protected Button mPostButton;
@@ -135,6 +138,7 @@ public class MessengerFeedFragment extends FeedFragment {
     private MenuItem sortButton;
 
     Query query;
+    private RecyclerView recyclerView;
 
 
     // Database objects for accessing recipes
@@ -437,7 +441,7 @@ public class MessengerFeedFragment extends FeedFragment {
      * @param view
      */
     protected void addPosts(View view) {
-        final RecyclerView recyclerView = view.findViewById(R.id.messagesList);
+        recyclerView = view.findViewById(R.id.messagesList);
 
         // Set out the layout of this horizontal view
         LinearLayoutManager rManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, true);
@@ -447,7 +451,7 @@ public class MessengerFeedFragment extends FeedFragment {
         data = new ArrayList<>();
         final RecyclerView.Adapter rAdapter = new MessengerFeedRecyclerAdapter(MessengerFeedFragment.this, data, mUser, view);
         recyclerView.setAdapter(rAdapter);
-        int numberOfMessages = 5;
+        int numberOfMessages = 50;
         query = mRef.orderBy("timestamp", Query.Direction.DESCENDING).limit(numberOfMessages);
         final boolean[] initalData = {true};
         // Ensure query exists and builds view with query
@@ -464,17 +468,16 @@ public class MessengerFeedFragment extends FeedFragment {
                     }
                     Log.e("Messanger", "UID = " + mUser.getUID());
                     Log.e("Messanger", "task success");
+                    data.clear();
                     ArrayList<HashMap> posts = new ArrayList<>();
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        if(!document.getMetadata().hasPendingWrites()){
                         Log.e("FEED", "I have found a doc");
-                        posts.add((HashMap) document.getData());
-                    }
-                    if (!initalData[0]) {
-                        if(posts.get(0) != null){
-                        data.add(0, new MessengerFeedRecyclerAdapter.FeedPostPreviewData(
-                                posts.get(0)));}
-                    }
-                    if (initalData[0]) {
+                        HashMap postInfomation;
+                        postInfomation = (HashMap) document.getData();
+                        postInfomation.put("docID", document.getId());
+                        posts.add(postInfomation);
+                    }}
                         for (int i = 0; i < posts.size(); i++) {
                             data.add(new MessengerFeedRecyclerAdapter.FeedPostPreviewData(
                                     posts.get(i)));
@@ -484,67 +487,65 @@ public class MessengerFeedFragment extends FeedFragment {
                         } else {
                             isLastItemReached = true;
                         }
-                    }
-                    initalData[0] = false;
                     rAdapter.notifyDataSetChanged();
 
-                    // Track users location to check if new data download is required
-                    RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
-                        @Override
-                        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                            super.onScrollStateChanged(recyclerView, newState);
-                            if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
-                                isScrolling = true;
-                            }
-                        }
-
-                        // If scrolled to end then download new data and check if we are out of data
-                        @Override
-                        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                            super.onScrolled(recyclerView, dx, dy);
-
-                            LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
-                            int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
-                            int visibleItemCount = linearLayoutManager.getChildCount();
-                            int totalItemCount = linearLayoutManager.getItemCount();
-
-                            if (isScrolling && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReached) {
-                                isScrolling = false;
-                                Query nextQuery = query.startAfter(lastVisible);
-                                nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<QuerySnapshot> t) {
-                                        if (t.isSuccessful()) {
-                                            ArrayList<HashMap> postsNext = new ArrayList<>();
-                                            for (DocumentSnapshot d : t.getResult()) {
-                                                Log.e("FEED", "I have found a doc");
-                                                postsNext.add((HashMap) d.getData());
-                                            }
-
-                                            for (int i = 0; i < postsNext.size(); i++) {
-                                                data.add(new MessengerFeedRecyclerAdapter.FeedPostPreviewData(
-                                                        postsNext.get(i)));
-                                            }
-                                            if (isLastItemReached) {
-                                                // Add end here
-                                            }
-                                            rAdapter.notifyDataSetChanged();
-                                            if (t.getResult().size() != 0) {
-                                                lastVisible = t.getResult().getDocuments().get(t.getResult().size() - 1);
-                                            }
-
-                                            if (t.getResult().size() < 5) {
-                                                isLastItemReached = true;
-                                            }
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                    };
-                    recyclerView.addOnScrollListener(onScrollListener);
-
-
+//                    // Track users location to check if new data download is required
+//                    RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+//                        @Override
+//                        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+//                            super.onScrollStateChanged(recyclerView, newState);
+//                            if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+//                                isScrolling = true;
+//                            }
+//                        }
+//
+//                        // If scrolled to end then download new data and check if we are out of data
+//                        @Override
+//                        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+//                            super.onScrolled(recyclerView, dx, dy);
+//
+//                            LinearLayoutManager linearLayoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
+//                            int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+//                            int visibleItemCount = linearLayoutManager.getChildCount();
+//                            int totalItemCount = linearLayoutManager.getItemCount();
+//
+//                            if (isScrolling && (firstVisibleItemPosition + visibleItemCount == totalItemCount) && !isLastItemReached) {
+//                                isScrolling = false;
+//                                Query nextQuery = query.startAfter(lastVisible);
+//                                nextQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//                                    @Override
+//                                    public void onComplete(@NonNull Task<QuerySnapshot> t) {
+//                                        if (t.isSuccessful()) {
+//                                            ArrayList<HashMap> postsNext = new ArrayList<>();
+//                                            for (DocumentSnapshot d : t.getResult()) {
+//                                                Log.e("FEED", "I have found a doc");
+//                                                HashMap postInfomation;
+//                                                postInfomation = (HashMap) d.getData();
+//                                                postInfomation.put("docID", d.getId());
+//                                                posts.add(postInfomation);                                            }
+//
+//                                            for (int i = 0; i < postsNext.size(); i++) {
+//                                                data.add(new MessengerFeedRecyclerAdapter.FeedPostPreviewData(
+//                                                        postsNext.get(i)));
+//                                            }
+//                                            if (isLastItemReached) {
+//                                                // Add end here
+//                                            }
+//                                            rAdapter.notifyDataSetChanged();
+//                                            if (t.getResult().size() != 0) {
+//                                                lastVisible = t.getResult().getDocuments().get(t.getResult().size() - 1);
+//                                            }
+//
+//                                            if (t.getResult().size() < 5) {
+//                                                isLastItemReached = true;
+//                                            }
+//                                        }
+//                                    }
+//                                });
+//                            }
+//                        }
+//                    };
+//                    recyclerView.addOnScrollListener(onScrollListener);
                 }
             });
 
@@ -773,6 +774,94 @@ public class MessengerFeedFragment extends FeedFragment {
             loadingDialog.dismissDialog();
             return;
         }
+    }
+
+    /**
+     * On click of a recipe a new recipe info fragment is opened and the document is sent through
+     * This saves on downloading the data again from the database
+     */
+    public void itemSelected(Map<String, Object> document, Bundle mBundle,TextView likes, CheckBox likedOrNot, TextView numComments, View view) {
+        MessangerPostPage postDialogFragment = new MessangerPostPage(likes, likedOrNot, numComments, view);
+        postDialogFragment.setArguments(mBundle);
+        postDialogFragment.setTargetFragment(this, 1);
+        postDialogFragment.show(getFragmentManager(), "Show post dialog fragment");
+
+    }
+
+
+    /**
+     * This method checks what comment is selected and opens up a menu to either open up another
+     * users profile or if the comment was made my this user, user can delete the comment.
+     * @param document
+     * @param menu
+     */
+    public void menuSelected(HashMap document, View menu, int position){
+        //Creating the instance of PopupMenu
+        PopupMenu popup = new PopupMenu(getContext(), menu);
+        //Inflating the Popup using xml file
+        popup.getMenuInflater().inflate(R.menu.menu_comment, popup.getMenu());
+        if(document.get("author").toString().equals(mUser.getUID())){
+            popup.getMenu().getItem(0).setVisible(false);
+            popup.getMenu().getItem(1).setVisible(false);
+            popup.getMenu().getItem(2).setVisible(true);
+        }else{
+            popup.getMenu().getItem(0).setVisible(true);
+            popup.getMenu().getItem(1).setVisible(true);
+            popup.getMenu().getItem(2).setVisible(false);
+        }
+
+        //registering popup with OnMenuItemClickListener
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            public boolean onMenuItemClick(
+                    MenuItem item) {
+                // Give each item functionality
+                switch (item.getItemId()) {
+                    case R.id.viewCommentProfile:
+                        Log.e(TAG,"Clicked open profile!");
+                        Intent intentProfile = new Intent(getContext(), PublicProfile.class);
+
+                        intentProfile.putExtra("UID", (String) document.get("author"));
+                        intentProfile.putExtra("user", mUser);
+                        //setResult(RESULT_OK, intentProfile);
+                        startActivity(intentProfile);
+                        break;
+                    case R.id.reportComment:
+                        Log.e(TAG,"Report comment clicked!");
+
+                        //HashMap with relevant information to be sent for reporting
+                        HashMap<String, Object> reportsMap = new HashMap<>();
+                        reportsMap.put("usersID", document.get("author").toString());
+                        reportsMap.put("issue","Reporting Content");
+
+                        //creating a dialog box on screen so that the user can report an issue
+                        String firebaseLocation = "reporting";
+                        reportContent = new ContentReporting(getActivity(), reportsMap, firebaseLocation);
+                        reportContent.startReportingDialog();
+                        reportContent.title.setText("Report Content");
+                        reportContent.message.setText("What is the issue you would like to report?");
+
+                        break;
+                    case R.id.deleteComment:
+                        Log.e(TAG,"Clicked delete comment!");
+                        final String deleteDocID = document.get("docID").toString();
+                        deletePost(deleteDocID,position);
+
+                        break;
+                }
+                return true;
+            }
+        });
+
+        popup.show();//showing popup menu
+    }
+
+    /**
+     * Adding capability to delete post from post page
+     * @param deleteDocID
+     */
+    public void deletePost(String deleteDocID,int position){
+        mRef.document(deleteDocID).delete();
+        mRecipientRef.document(deleteDocID).delete();
     }
 
     /**
