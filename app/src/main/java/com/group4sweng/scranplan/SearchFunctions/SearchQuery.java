@@ -97,15 +97,6 @@ public class SearchQuery {
             query = query.setFilters("noSoy:true");
         }
 
-        // Only allowing the user to search for a single item
-        if(mIngredientsBox){
-            query = query.setRestrictSearchableAttributes("listIngredients");
-        }else if(mNameBox){
-            query = query.setRestrictSearchableAttributes("Name");
-        }else if(mChefBox){
-            query = query.setRestrictSearchableAttributes("Chef");
-        }
-
         // Only enabling a single search order
         if(mScoreBox){
             index = "recipe_score";
@@ -118,13 +109,14 @@ public class SearchQuery {
             index = "SCRANPLAN_RECIPES";
         }
 
-
-
-
-
-
-
-
+        // Only allowing the user to search for a single item
+        if(mIngredientsBox){
+            query = query.setRestrictSearchableAttributes("listIngredients");
+        }else if(mNameBox){
+            query = query.setRestrictSearchableAttributes("Name");
+        }else if(mChefBox){
+            index = "SCRANPLAN_USERS";
+        }
     }
 }
 

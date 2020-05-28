@@ -1,6 +1,7 @@
 package com.group4sweng.scranplan.SearchFunctions;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,6 +24,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchRecyclerAdapter.SearchRecipePreviewData;
@@ -33,6 +35,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Building search list infinite scroll fragment.
@@ -97,7 +100,7 @@ public class SearchListFragment extends AppCompatDialogFragment {
         recyclerView.setHasFixedSize(true);
         RecyclerView.LayoutManager rManager = new GridLayoutManager(getContext(), numberOfColumns);
         recyclerView.setLayoutManager(rManager);
-        final RecyclerView.Adapter rAdapter = new SearchRecyclerAdapter(SearchListFragment.this, data);
+        final RecyclerView.Adapter<SearchRecyclerAdapter.ViewHolder> rAdapter = new SearchRecyclerAdapter(SearchListFragment.this, data);
         recyclerView.setAdapter(rAdapter);
 
         // Completion Handler to parse the JSON incoming file and to display the results
@@ -110,42 +113,98 @@ public class SearchListFragment extends AppCompatDialogFragment {
 
                 if(objectID != null){
                     for (String object: objectID) {
-                        DocumentReference docRef = mDatabase.collection("recipes").document(object);
-                        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                            // Gets the DocumentSnapshot from the document ID
-                            @Override
-                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (!searchIndex.equals("SCRANPLAN_USERS")) {
+                            DocumentReference docRef = mDatabase.collection("recipes").document(object);
+                            docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                // Gets the DocumentSnapshot from the document ID
+                                @Override
+                                public void onSuccess(DocumentSnapshot documentSnapshot) {
                                     DocumentSnapshot document = documentSnapshot;
                                     if (document.exists()) {
                                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                                         documents.add(document);
                                     } else {
-                                        Log.d(TAG, "No such document");}
+                                        Log.d(TAG, "No such document");
+                                    }
 
                                     // For each document a new recipe preview view is generated
                                     if (documents.size() == objectID.size()) {
-                                            for (DocumentSnapshot documentSnap : documents) {
-                                                data.add(new SearchRecipePreviewData(
-                                                        documentSnap,
-                                                        documentSnap.getId(),
-                                                        documentSnap.get("Name").toString(),
-                                                        documentSnap.get("Description").toString(),
-                                                        documentSnap.get("imageURL").toString()
-                                                ));
-                                            }
-                                            isLastItemReached = true;
-
+                                        for (DocumentSnapshot documentSnap : documents) {
                                             data.add(new SearchRecipePreviewData(
-                                                    null,
-                                                    null,
-                                                    "No more results",
-                                                    "We have checked all over and there is nothing more to be found!",
-                                                    null
+                                                    documentSnap,
+                                                    documentSnap.getId(),
+                                                    documentSnap.get("Name").toString(),
+                                                    documentSnap.get("Description").toString(),
+                                                    documentSnap.get("imageURL").toString()
                                             ));
-                                            rAdapter.notifyDataSetChanged();
                                         }
+                                        isLastItemReached = true;
+
+                                        data.add(new SearchRecipePreviewData(
+                                                null,
+                                                null,
+                                                "No more results",
+                                                "We have checked all over and there is nothing more to be found!",
+                                                null
+                                        ));
+                                        rAdapter.notifyDataSetChanged();
+                                    }
                                 }
-                        });
+                            });
+                        }else if(searchIndex.equals("SCRANPLAN_USERS")){
+                            DocumentReference docRef = mDatabase.collection("users").document(object);
+                            docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                // Gets the DocumentSnapshot from the document ID
+                                @Override
+                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                    DocumentSnapshot document = documentSnapshot;
+                                    if (document.exists()) {
+                                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                                        documents.add(document);
+                                    } else {
+                                        Log.d(TAG, "No such document");
+                                    }
+
+                                    // For each document a new recipe preview view is generated
+                                    if (documents.size() == objectID.size()) {
+                                        for (DocumentSnapshot documentSnap : documents) {
+                                            // doesn't display own profile
+                                            if(!Objects.equals(documentSnap.get("UID"), user.getUID())){
+                                            String displayName = null;
+                                            String about = null;
+                                            String imageUrl = null;
+
+                                            if(documentSnap.get("displayName") != null){
+                                                displayName = documentSnap.get("displayName").toString();
+                                            }
+                                            if(documentSnap.get("about") != null){
+                                                about = documentSnap.get("about").toString();
+                                            }
+                                            if(documentSnap.get("imageURL") != null){
+                                               imageUrl = documentSnap.get("imageURL").toString();
+                                            }
+                                            data.add(new SearchRecipePreviewData(
+                                                    documentSnap,
+                                                    documentSnap.getId(),
+                                                    displayName,
+                                                    about,
+                                                    imageUrl
+                                            ));
+                                        }}
+                                        isLastItemReached = true;
+
+                                        data.add(new SearchRecipePreviewData(
+                                                null,
+                                                null,
+                                                "No more results",
+                                                "We have checked all over and there is nothing more to be found!",
+                                                null
+                                        ));
+                                        rAdapter.notifyDataSetChanged();
+                                    }
+                                }
+                            });
+                        }
                     }
                 }
                 // Displays no more results when no recipes are found
@@ -153,7 +212,7 @@ public class SearchListFragment extends AppCompatDialogFragment {
                     data.add(new SearchRecipePreviewData(
                             null,
                             null,
-                            "No more results",
+                            "No results found",
                             "We have checked all over and there is nothing more to be found!",
                             null
                     ));
@@ -203,6 +262,14 @@ public class SearchListFragment extends AppCompatDialogFragment {
         getDialog().getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
     }
 
+
+    public void profileSelected(DocumentSnapshot document){
+        Log.e("RECIPE","Clicked open profile!");
+        Intent intentProfile = new Intent(getContext(), PublicProfile.class);
+        intentProfile.putExtra("UID", (String) document.get("UID"));
+        intentProfile.putExtra("user", this.user);
+        startActivity(intentProfile);
+    }
 
     /**
      * On click of a recipe a new recipe info fragment is opened and the document is sent through

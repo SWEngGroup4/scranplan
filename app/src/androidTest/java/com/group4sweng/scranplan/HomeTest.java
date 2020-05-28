@@ -47,7 +47,6 @@ import static org.junit.Assert.assertNotEquals;
  *  Contains Tests for searching using Algolia, for recipes.
  *  -- USER STORY TESTS LINKED WITH ---
  *  C6, C7, C18, C2, C1, C3
- *  //TODO add search by user tests
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -101,6 +100,34 @@ public class HomeTest implements Credentials {
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
         onView(withText("Braised peas with bacon, lentils and cod"))
+                .check(matches(isDisplayed()));
+
+        Espresso.pressBack();
+
+    }
+
+    // Check search field can be activated and searched in, also testing results.
+    @Test
+    public void testSearchForUser() throws InterruptedException {
+        onView(withId(R.id.menuSearch)).perform(click());
+        onView(withId(R.id.menuSortButton)).perform(click());
+        onView(withId(R.id.chefCheckBox))
+                .perform(click());
+
+        // Close filter box
+        onView(withText("OK")).perform(click());
+
+
+        Thread.sleep(THREAD_SLEEP_TIME/4);
+
+        onView(isAssignableFrom(SearchView.class))
+                .perform(typeSearchViewText("nath"))
+                .perform(pressKey(KeyEvent.KEYCODE_ENTER));
+
+
+        Thread.sleep(THREAD_SLEEP_TIME/4);
+
+        onView(withText("nathan"))
                 .check(matches(isDisplayed()));
 
         Espresso.pressBack();
