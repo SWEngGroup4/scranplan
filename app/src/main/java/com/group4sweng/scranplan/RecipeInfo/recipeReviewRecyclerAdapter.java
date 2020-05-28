@@ -65,6 +65,7 @@ public class recipeReviewRecyclerAdapter extends RecyclerView.Adapter <recipeRev
             this.timeStamp = time.toDate().toString();
             this.postID = document.get("docID").toString();
 
+
         }
 
     }

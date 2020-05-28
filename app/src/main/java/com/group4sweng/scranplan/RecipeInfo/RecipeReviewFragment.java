@@ -1,10 +1,12 @@
 package com.group4sweng.scranplan.RecipeInfo;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -12,6 +14,7 @@ import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,8 +36,10 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.group4sweng.scranplan.Administration.ContentReporting;
 import com.group4sweng.scranplan.Exceptions.ImageException;
 import com.group4sweng.scranplan.Administration.LoadingDialog;
+import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.Social.FeedFragment;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
@@ -656,8 +661,64 @@ public class RecipeReviewFragment extends FeedFragment {
      * @param menu
      */
     public void menuSelected(HashMap document, View menu){
-        super.menuSelected(document, menu);
+        //Creating the instance of PopupMenu
+        PopupMenu popup = new PopupMenu(getContext(), menu);
+        //Inflating the Popup using xml file
+        popup.getMenuInflater().inflate(R.menu.menu_comment, popup.getMenu());
+        if(document.get("author").toString().equals(mUser.getUID())){
+            popup.getMenu().getItem(0).setVisible(false);
+            popup.getMenu().getItem(1).setVisible(false);
+            popup.getMenu().getItem(2).setVisible(true);
+        }else{
+            popup.getMenu().getItem(0).setVisible(true);
+            popup.getMenu().getItem(1).setVisible(true);
+            popup.getMenu().getItem(2).setVisible(false);
+        }
 
+        //registering popup with OnMenuItemClickListener
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            public boolean onMenuItemClick(
+                    MenuItem item) {
+                // Give each item functionality
+                switch (item.getItemId()) {
+                    case R.id.viewCommentProfile:
+                        Log.e(TAG,"Clicked open profile!");
+                        Intent intentProfile = new Intent(getContext(), PublicProfile.class);
+
+                        intentProfile.putExtra("UID", (String) document.get("author"));
+                        intentProfile.putExtra("user", mUser);
+                        //setResult(RESULT_OK, intentProfile);
+                        startActivity(intentProfile);
+                        break;
+                    case R.id.reportComment:
+                        Log.e(TAG,"Report post clicked!");
+
+                        //HashMap with relevant information to be sent for reporting
+                        HashMap<String, Object> reportsMap = new HashMap<>();
+                        reportsMap.put("docID", document.get("docID").toString());
+                        reportsMap.put("usersID", document.get("author").toString());
+                        reportsMap.put("issue","Reporting Content");
+
+                        //creating a dialog box on screen so that the user can report an issue
+                        String firebaseLocation = "reporting";
+                        reportContent = new ContentReporting(getActivity(), reportsMap, firebaseLocation);
+                        reportContent.startReportingDialog();
+                        reportContent.title.setText("Report Content");
+                        reportContent.message.setText("What is the issue you would like to report?");
+
+                        break;
+                    case R.id.deleteComment:
+                        Log.e(TAG,"Clicked delete post!");
+                        final String deleteDocID = (String) document.get("docID");
+                        deletePost(deleteDocID, document, layout);
+
+                        break;
+                }
+                return true;
+            }
+        });
+
+        popup.show();//showing popup menu
     }
 
     /**
