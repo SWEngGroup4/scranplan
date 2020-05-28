@@ -47,7 +47,6 @@ import static org.junit.Assert.assertNotEquals;
  *  Contains Tests for searching using Algolia, for recipes.
  *  -- USER STORY TESTS LINKED WITH ---
  *  C6, C7, C18, C2, C1, C3
- *  //TODO add search by user tests
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
