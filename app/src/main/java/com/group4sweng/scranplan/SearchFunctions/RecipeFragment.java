@@ -60,8 +60,8 @@ public class RecipeFragment extends Fragment {
     final String TAG = "Home horizontal queries";
     // User preferences passed into scroll views via constructor
     UserInfoPrivate user;
-    public RecipeFragment(){
-
+    public RecipeFragment(UserInfoPrivate user){
+        this.user = user;
     }
 
     // Width size of each scroll view, dictating size of images on home screen
