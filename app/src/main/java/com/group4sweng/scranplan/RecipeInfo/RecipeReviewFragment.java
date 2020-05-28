@@ -653,8 +653,8 @@ public class RecipeReviewFragment extends FeedFragment {
      * Adding capability to delete post from post page
      * @param deleteDocID
      */
-    public void deletePost(String deleteDocID){
-        super.deletePost(deleteDocID);
+    public void deletePost(String deleteDocID, HashMap document, View view){
+        super.deletePost(deleteDocID, document, view);
     }
 
     /**
