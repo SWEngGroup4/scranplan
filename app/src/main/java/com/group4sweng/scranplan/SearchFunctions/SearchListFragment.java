@@ -35,6 +35,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Building search list infinite scroll fragment.
@@ -167,7 +168,8 @@ public class SearchListFragment extends AppCompatDialogFragment {
                                     // For each document a new recipe preview view is generated
                                     if (documents.size() == objectID.size()) {
                                         for (DocumentSnapshot documentSnap : documents) {
-                                            // todo check if user can be searched
+                                            // doesn't display own profile
+                                            if(!Objects.equals(documentSnap.get("UID"), user.getUID())){
                                             String displayName = null;
                                             String about = null;
                                             String imageUrl = null;
@@ -188,7 +190,7 @@ public class SearchListFragment extends AppCompatDialogFragment {
                                                     about,
                                                     imageUrl
                                             ));
-                                        }
+                                        }}
                                         isLastItemReached = true;
 
                                         data.add(new SearchRecipePreviewData(
@@ -262,7 +264,6 @@ public class SearchListFragment extends AppCompatDialogFragment {
 
 
     public void profileSelected(DocumentSnapshot document){
-        // todo check with user privicy stuff
         Log.e("RECIPE","Clicked open profile!");
         Intent intentProfile = new Intent(getContext(), PublicProfile.class);
         intentProfile.putExtra("UID", (String) document.get("UID"));
