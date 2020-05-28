@@ -22,6 +22,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.group4sweng.scranplan.Administration.ContentReporting;
 import com.group4sweng.scranplan.Administration.LoadingDialog;
 import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.R;
@@ -241,9 +242,6 @@ public class ProfilePosts extends FeedFragment {
 
 
 
-
-
-
     /**
      * This method checks what comment is selected and opens up a menu to either open up another
      * users profile or if the comment was made my this user, user can delete the comment.
@@ -273,7 +271,21 @@ public class ProfilePosts extends FeedFragment {
                 switch (item.getItemId()) {
                     case R.id.reportComment:
                         Log.e(TAG,"Report comment clicked!");
-                        //TODO add functionality to report this comment
+                        Log.e(TAG,"Report comment clicked!");
+
+                        //HashMap with relevant information to be sent for reporting
+                        HashMap<String, Object> reportsMap = new HashMap<>();
+                        reportsMap.put("postID", document.get("postID").toString());
+                        reportsMap.put("usersID", document.get("author").toString());
+                        reportsMap.put("issue","Reporting Content");
+
+                        //creating a dialog box on screen so that the user can report an issue
+                        String firebaseLocation = "reporting";
+                        reportContent = new ContentReporting(getActivity(), reportsMap, firebaseLocation);
+                        reportContent.startReportingDialog();
+                        reportContent.title.setText("Report Content");
+                        reportContent.message.setText("What is the issue you would like to report?");
+
                         break;
                     case R.id.deleteComment:
                         Log.e(TAG,"Clicked delete comment!");
