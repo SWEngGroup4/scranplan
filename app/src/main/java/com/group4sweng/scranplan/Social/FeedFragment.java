@@ -1017,11 +1017,11 @@ public class FeedFragment extends Fragment {
                         startActivity(intentProfile);
                         break;
                     case R.id.reportComment:
-                        Log.e(TAG,"Report comment clicked!");
+                        Log.e(TAG,"Report post clicked!");
 
                         //HashMap with relevant information to be sent for reporting
                         HashMap<String, Object> reportsMap = new HashMap<>();
-                        reportsMap.put("postID", document.get("postID").toString());
+                        reportsMap.put("docID", document.get("docID").toString());
                         reportsMap.put("usersID", document.get("author").toString());
                         reportsMap.put("issue","Reporting Content");
 
@@ -1034,7 +1034,7 @@ public class FeedFragment extends Fragment {
 
                         break;
                     case R.id.deleteComment:
-                        Log.e(TAG,"Clicked delete comment!");
+                        Log.e(TAG,"Clicked delete post!");
                         final String deleteDocID = (String) document.get("docID");
                         deletePost(deleteDocID, document, mainView);
 
@@ -1063,7 +1063,7 @@ public class FeedFragment extends Fragment {
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                             if(task.getResult() != null){
                                 HashMap<String, Double> ratingMap = (HashMap) task.getResult().get("rating");
-                                revertRating(ratingMap, (String)doc.get("recipeID"));
+                                revertRating(ratingMap, (String)doc.get("recipeID"), (double)doc.get("overallRating"));
                             }
                         }
                     });
@@ -1225,8 +1225,8 @@ public class FeedFragment extends Fragment {
     }
 
 
-    protected void revertRating(HashMap<String,Double> ratingMap, String recipeID){
-        oldUserRating = Double.parseDouble(oldUserStarRating);
+    protected void revertRating(HashMap<String,Double> ratingMap, String recipeID, double oldUserRating){
+        //oldUserRating = Double.parseDouble(ratingMap.get("overallRating"));
         oldTotalRates = ratingMap.get("totalRates")-1;
         oldOverallRating = (((ratingMap.get("overallRating") * ratingMap.get("totalRates")) - oldUserRating)) / oldTotalRates;
         Log.i(TAG, "Values: "+ oldOverallRating);
