@@ -95,7 +95,7 @@ public class MessengerFeedRecyclerAdapter extends RecyclerView.Adapter<Messenger
         public FeedPostPreviewData(HashMap<String, Object> doc) {
             if (doc.get("timestamp") != null) {
                 this.document = doc;
-                this.postID = (String) document.get("docID");
+                this.postID = (String) document.get("docId");
                 Timestamp time = (Timestamp) document.get("timestamp");
                 try {
                     this.timeStamp = time.toDate().toString();
@@ -288,7 +288,7 @@ public class MessengerFeedRecyclerAdapter extends RecyclerView.Adapter<Messenger
                 if (mFeedFragment != null || mProfilePosts != null){
                     Bundle mBundle = new Bundle();
                     mBundle.putString("authorID", mDataset.get(position).authorUID);
-                    mBundle.putString("postID", mDataset.get(position).postID);
+                    mBundle.putString("docId", mDataset.get(position).postID);
                     mBundle.putString("authorName", holder.authorName);
                     mBundle.putString("authorPicURL", holder.authorPicURL);
                     mBundle.putBoolean("likedB4", holder.likedB4);

@@ -38,6 +38,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -327,6 +328,9 @@ public class MessengerFeedFragment extends FeedFragment {
                     // Saving the comment as a new document
                     HashMap<String, Object> map = new HashMap<>();
                     HashMap<String, Object> extras = new HashMap<>();
+                    Timestamp time = Timestamp.now();
+                    long finalTime = time.getSeconds() ;
+                    map.put("docId", mUser.getUID() + finalTime + (time.getNanoseconds() * 10^9));
                     extras.put("comments", 0);
                     extras.put("likes", 0);
                     map.put("author", mUser.getUID());
@@ -475,7 +479,6 @@ public class MessengerFeedFragment extends FeedFragment {
                         Log.e("FEED", "I have found a doc");
                         HashMap postInfomation;
                         postInfomation = (HashMap) document.getData();
-                        postInfomation.put("docID", document.getId());
                         posts.add(postInfomation);
                     }}
                         for (int i = 0; i < posts.size(); i++) {
@@ -521,7 +524,6 @@ public class MessengerFeedFragment extends FeedFragment {
 //                                                Log.e("FEED", "I have found a doc");
 //                                                HashMap postInfomation;
 //                                                postInfomation = (HashMap) d.getData();
-//                                                postInfomation.put("docID", d.getId());
 //                                                posts.add(postInfomation);                                            }
 //
 //                                            for (int i = 0; i < postsNext.size(); i++) {
@@ -601,9 +603,7 @@ public class MessengerFeedFragment extends FeedFragment {
                     public void onComplete(@NonNull Task<DocumentReference> task) {
                         if (task.isSuccessful()) {
                             final String docID = task.getResult().getId();
-                            map.put("docID", docID);
                             mRecipientInteractionRef.update(latestMessage);
-
                         }
                     }
                 });
@@ -613,7 +613,9 @@ public class MessengerFeedFragment extends FeedFragment {
                 recipientRef.document(newPostID).set(extras);
                 map.put("docID", newPostID);
                 mUserInteractionRef.update(latestMessage);
+                mRef.add(map);
                 mRecipientInteractionRef.update(latestMessage);
+                mRecipientRef.add(map);
                 postComplete();
             }
         }
@@ -843,7 +845,7 @@ public class MessengerFeedFragment extends FeedFragment {
                         break;
                     case R.id.deleteComment:
                         Log.e(TAG,"Clicked delete comment!");
-                        final String deleteDocID = document.get("docID").toString();
+                        final String deleteDocID = document.get("docId").toString();
                         deletePost(deleteDocID,position);
 
                         break;
@@ -860,8 +862,24 @@ public class MessengerFeedFragment extends FeedFragment {
      * @param deleteDocID
      */
     public void deletePost(String deleteDocID,int position){
-        mRef.document(deleteDocID).delete();
-        mRecipientRef.document(deleteDocID).delete();
+        mRef.whereEqualTo("docId",deleteDocID).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                for(DocumentSnapshot documentSnapshot : task.getResult()){
+                        mRef.document(documentSnapshot.getId()).delete();
+
+                }
+            }
+        });
+
+        mRecipientRef.whereEqualTo("docId",deleteDocID).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                for(DocumentSnapshot documentSnapshot : task.getResult()){
+                        mRecipientRef.document(documentSnapshot.getId()).delete();
+                }
+            }
+        });
     }
 
     /**
