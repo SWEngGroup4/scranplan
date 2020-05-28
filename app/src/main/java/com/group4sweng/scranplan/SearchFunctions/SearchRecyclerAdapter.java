@@ -112,10 +112,8 @@ public class SearchRecyclerAdapter extends RecyclerView.Adapter<SearchRecyclerAd
      */
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        Picasso.get().load(mDataset.get(position).imageURL).into(holder.imageView);
         String cap = mDataset.get(position).title;
         holder.title.setText(cap.substring(0, 1).toUpperCase() + cap.substring(1));
-        holder.description.setText(mDataset.get(position).description);
         if(mDataset.get(position).imageURL!= null && !mDataset.get(position).imageURL.isEmpty()){
             Picasso.get().load(mDataset.get(position).imageURL).into(holder.imageView);
         } else{

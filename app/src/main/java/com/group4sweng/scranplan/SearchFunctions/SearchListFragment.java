@@ -263,11 +263,10 @@ public class SearchListFragment extends AppCompatDialogFragment {
 
     public void profileSelected(DocumentSnapshot document){
         // todo check with user privicy stuff
-        Log.i("INFO", "Profile Selected");
+        Log.e("RECIPE","Clicked open profile!");
         Intent intentProfile = new Intent(getContext(), PublicProfile.class);
-
-        intentProfile.putExtra("UID", document.get("UID").toString());
-        //setResult(RESULT_OK, intentProfile);
+        intentProfile.putExtra("UID", (String) document.get("UID"));
+        intentProfile.putExtra("user", this.user);
         startActivity(intentProfile);
     }
 
