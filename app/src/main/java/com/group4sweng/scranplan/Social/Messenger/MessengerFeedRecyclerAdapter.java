@@ -140,6 +140,7 @@ public class MessengerFeedRecyclerAdapter extends RecyclerView.Adapter<Messenger
         private TextView timeStamp;
         private ImageView authorPic;
         private ImageView uploadedImageView;
+        private ImageView commentIcon;
 
         private ImageView recipeImageView;
         private TextView recipeTitle;
@@ -176,6 +177,7 @@ public class MessengerFeedRecyclerAdapter extends RecyclerView.Adapter<Messenger
                 recipeLayout = v.findViewById(R.id.postRecipeImageViewAdapterLayout);
                 picLayout = v.findViewById(R.id.userUploadedImageViewAdapterLayout);
                 menu = v.findViewById(R.id.postMenu);
+                commentIcon = v.findViewById(R.id.commentIcon);
 
             }
     }
@@ -206,6 +208,10 @@ public class MessengerFeedRecyclerAdapter extends RecyclerView.Adapter<Messenger
      */
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
+        holder.numLikes.setVisibility(View.GONE);
+        holder.likedOrNot.setVisibility(View.GONE);
+        holder.numComments.setVisibility(View.GONE);
+        holder.commentIcon.setVisibility(View.GONE);
 
         if(mDataset.get(position).timeStamp != null){
         if (mDataset.get(position).authorUID != null) {
