@@ -107,6 +107,34 @@ public class HomeTest implements Credentials {
 
     }
 
+    // Check search field can be activated and searched in, also testing results.
+    @Test
+    public void testSearchForUser() throws InterruptedException {
+        onView(withId(R.id.menuSearch)).perform(click());
+        onView(withId(R.id.menuSortButton)).perform(click());
+        onView(withId(R.id.chefCheckBox))
+                .perform(click());
+
+        // Close filter box
+        onView(withText("OK")).perform(click());
+
+
+        Thread.sleep(THREAD_SLEEP_TIME/4);
+
+        onView(isAssignableFrom(SearchView.class))
+                .perform(typeSearchViewText("qwerty"))
+                .perform(pressKey(KeyEvent.KEYCODE_ENTER));
+
+
+        Thread.sleep(THREAD_SLEEP_TIME/4);
+
+        onView(withText("Qwertyu1"))
+                .check(matches(isDisplayed()));
+
+        Espresso.pressBack();
+
+    }
+
     // Insert text to search bar
     public static ViewAction typeSearchViewText(final String text){
         return new ViewAction(){
