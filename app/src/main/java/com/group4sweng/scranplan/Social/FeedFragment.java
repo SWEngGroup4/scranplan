@@ -1063,7 +1063,11 @@ public class FeedFragment extends Fragment {
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                             if(task.getResult() != null){
                                 HashMap<String, Double> ratingMap = (HashMap) task.getResult().get("rating");
-                                revertRating(ratingMap, (String)doc.get("recipeID"), Double.parseDouble( (String) doc.get("overallRating")));
+                                if(doc.get("overallRating") instanceof Double){
+                                    revertRating(ratingMap, (String)doc.get("recipeID"), (double)doc.get("overallRating"));
+                                }else{
+                                    revertRating(ratingMap, (String)doc.get("recipeID"), Double.parseDouble( (String) doc.get("overallRating")));
+                                }
                             }
                         }
                     });
