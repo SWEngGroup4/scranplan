@@ -26,6 +26,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
@@ -488,6 +489,7 @@ public class Login extends AppCompatActivity{
 
                 // if authentication successful
                 if (task.isSuccessful()){
+                    String UID = requireNonNull(mAuth.getCurrentUser()).getUid();
                     HashMap<String,Object> username = new HashMap<>();
                     username.put("user", requireNonNull(mAuth.getCurrentUser()).getUid());
                     database.collection("usernames").document(displayName).set(username);
@@ -569,6 +571,22 @@ public class Login extends AppCompatActivity{
                     map.put("privacyPublic", privacyPublic);
                     map.put("privacyPrivate", privacyPrivate);
                     // Saving default profile locally to user
+
+                    HashMap<String, Object> newDoc = new HashMap<>();
+                    ArrayList<String> arrayList = new ArrayList<>();
+                    arrayList.add(UID);
+                    ArrayList<String> second = new ArrayList<>();
+                    newDoc.put("mapA", (HashMap) null);
+                    newDoc.put("mapB", (HashMap) null);
+                    newDoc.put("mapC", (HashMap) null);
+                    newDoc.put("space1", "A");
+                    newDoc.put("space2", "B");
+                    newDoc.put("space3", "C");
+                    newDoc.put("lastPost", FieldValue.serverTimestamp());
+                    newDoc.put("author", UID);
+                    newDoc.put("users", arrayList);
+                    newDoc.put("requested", second);
+                    database.collection("followers").document(UID).set(newDoc);
 
                     // Saving default user to Firebase Firestore database
                     DocumentReference usersRef = ref.document(mAuth.getCurrentUser().getUid());
