@@ -10,7 +10,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -31,7 +33,9 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthCredential;
@@ -40,10 +44,14 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.group4sweng.scranplan.Administration.LoadingDialog;
 import com.group4sweng.scranplan.Exceptions.InvalidUserException;
 import com.group4sweng.scranplan.Exceptions.ProfileImageException;
 import com.group4sweng.scranplan.Helper.HiddenViews;
@@ -53,6 +61,7 @@ import com.group4sweng.scranplan.UserInfo.FilterType;
 import com.group4sweng.scranplan.UserInfo.Preferences;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -83,6 +92,9 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         PRIVATE,
         PUBLIC
     }
+    private LoadingDialog loading;
+
+    private Toast mToast = null;
 
     private final static String TAG = "ProfileSettings"; // Tag for 'Log'.
 
@@ -121,7 +133,9 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
     //  Basic user settings.
     ImageView mProfileImage;
+    ImageView mProfileImageOld;
     TextView mUsername;
+    ImageView mCheckUsername;
     TextView mAboutMe;
 
     Switch mDisplay_username;
@@ -176,6 +190,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_settings);
+        loading = new LoadingDialog(this);
 
         initPageItems();
     }
@@ -197,6 +212,31 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             initProfileVisibilityTabListener();
 
             loadProfileData();
+
+            if(mPrivateProfileEnabled.isChecked()) {
+                setPrivacyOptions(mTempUserProfile.getPublicPrivacy());
+                TabLayout.Tab tab = mProfileVisibilityTab.getTabAt(0);
+                assert tab != null;
+                tab.select();
+                mProfileVisibilityTab.setVisibility(View.VISIBLE);
+                mDisplay_feed.setVisibility(View.GONE);
+                mDisplay_recipes.setVisibility(View.GONE);
+            } else {
+                setPrivacyOptions(mTempUserProfile.getPrivacyPrivate());
+                mProfileVisibilityTab.setVisibility(View.GONE);
+            }
+
+            //mProfileImage;
+            if(mUserProfile.getImageURL() == null){
+                throw new NullPointerException("Unable to load Profile image URL. Image URL is null");
+            } else if(!mUserProfile.getImageURL().equals("")){
+                Glide.with(mProfileImageOld.getContext())
+                        .load(mUserProfile.getImageURL())
+                        .apply(RequestOptions.circleCropTransform())
+                        .into(mProfileImageOld);
+            }
+
+            initPageListeners();
         }
     }
 
@@ -238,6 +278,83 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
     }
 
+    /**
+     * listeners to tell user password and username follow in line with set rules with toast messaged and visual clues
+     */
+    private void initPageListeners(){
+        /**
+         * Username checker enforcing unique user names what only consist of lower case letters and numbers
+         * with a maximum length of 20 characters
+         */
+        mUsername.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+                if(!mUsername.getText().toString().equals("")){
+                    if(mUsername.getText().toString().matches("^[a-z0-9]+$") && mUsername.getText().toString().length() <= 20 && mUsername.getText().toString().length() >= 2){
+                        mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_autorenew_black_24dp));
+                        mCheckUsername.setVisibility(View.VISIBLE);
+                        if(!mUsername.getText().toString().equals("")){
+                            mDatabase.collection("usernames").document(mUsername.getText().toString()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if(task.getResult().exists()){
+                                        if(task.getResult().get("user").equals(mUserProfile.getUID())){
+                                            mCheckUsername.setVisibility(View.GONE);
+                                        }else{
+                                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                                            mCheckUsername.setVisibility(View.VISIBLE);
+                                        }
+                                    }else{
+                                        if(!mDisplay_username.getText().toString().equals("")){
+                                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_check_black_24dp));
+                                            mCheckUsername.setVisibility(View.VISIBLE);
+                                        }else{
+                                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                                            mCheckUsername.setVisibility(View.VISIBLE);
+                                            if (mToast != null) mToast.cancel();
+                                            mToast = Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, between 2 and 20 characters.",Toast.LENGTH_SHORT);
+                                            mToast.show();
+
+                                        }
+                                    }
+                                }
+                            });
+                        }else{
+                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                            mCheckUsername.setVisibility(View.GONE);
+                        }
+                    }else{
+                        mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                        mCheckUsername.setVisibility(View.VISIBLE);
+                        if (mToast != null) mToast.cancel();
+                        mToast = Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, between 2 and 20 characters.",Toast.LENGTH_SHORT);
+                        mToast.show();
+                    }
+                }else{
+                    mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                    mCheckUsername.setVisibility(View.VISIBLE);
+                    if (mToast != null) mToast.cancel();
+                    mToast = Toast.makeText(getApplicationContext(),"Username cannot be empty.",Toast.LENGTH_SHORT);
+                    mToast.show();
+                }
+
+
+
+            }
+        });
+    }
+
     /** Initiated on a 'Delete Profile' button press.
      *  Creates an alert dialog box that checks a users old password through re-authentication
      *  and then deletes a users profile if a valid Firebase and local profile is found.
@@ -273,8 +390,8 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                 Log.e(TAG, "Password cannot be set to an empty field");
                 Toast.makeText(getApplicationContext(), "Cannot enter a blank password. Please try again.", Toast.LENGTH_SHORT).show();
             } else if(passwordString.length() <= 6){
-                Log.e(TAG, "Password must be greater than 6 characters in length");
-                Toast.makeText(getApplicationContext(),"Password must be greater than 6 characters in length", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Password must be greater than 7 characters in length");
+                Toast.makeText(getApplicationContext(),"Password must be greater than 7 characters in length", Toast.LENGTH_SHORT).show();
             } else {
                 deleteAccount(passwordString);  //Delete our account
             }
@@ -294,6 +411,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
      * @param rePassword - Existing password the user must enter to confirm account deletion.
      */
     private void deleteAccount(String rePassword){
+        loading.startLoadingDialog();
         mApp = FirebaseApp.getInstance();
         mAuth = FirebaseAuth.getInstance(mApp);
 
@@ -302,6 +420,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
         if(isTesting){ //  Checks if we are testing so we don't actually delete a users account.
             Log.e(TAG, "Currently in testing phase, haven't deleted Firebase or local profile");
+            loading.dismissDialog();
             return;
         }
 
@@ -326,26 +445,151 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                 /* Delete a reference to the users data in the following order.
                    Users collection stored within Firebase > Local reference to the user 'UserInfoPrivate' > Firebase stored Auth details for the user.
                    Order chosen since collection data is visible in plaintext from the Firebase Panel and therefore should be our priority to remove even if any one of the other operations fail. */
-                mDatabase.collection("users").document(mAuth.getCurrentUser().getUid()).delete().addOnSuccessListener(aVoid1 -> {
-                    mUserProfile = null;
-                    mAuth.getCurrentUser().delete().addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "User account deleted.");
 
-                            //  Verify the account has been deleted.
-                            Toast.makeText(getApplicationContext(), "Account deleted.", Toast.LENGTH_SHORT).show();
-                            finish();
+                // Remove all following of user for user
+                mDatabase.collection("followers").whereArrayContains("users", mAuth.getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task2) {
+                        if(task2.isSuccessful()){
+                            for (DocumentSnapshot document : task2.getResult()) {
+                                    document.getReference().update("users", FieldValue.arrayRemove(mAuth.getCurrentUser().getUid()));
+                                    if(document.get("author") != null){
+                                        mDatabase.collection("users").document((String) document.get("author")).update("followers", FieldValue.increment(-1));
+                                    }
+
+
+                                    //Remove all of following for user
+                                mDatabase.collection("followers").document(mAuth.getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task1) {
+                                        if(task1.getResult().exists()){
+                                            DocumentSnapshot doc = task1.getResult();
+                                            if(doc.get("users") != null){
+                                                ArrayList list = (ArrayList) doc.get("users");
+                                                for(int i = 0; i <list.size(); i++){
+                                                    mDatabase.collection("users").document(list.get(i).toString()).update("following", FieldValue.increment(-1));
+                                                }
+                                            }
+
+
+
+                                            //Finally delete actual user
+                                            mDatabase.collection("users").document(mAuth.getCurrentUser().getUid()).delete().addOnSuccessListener(aVoid1 -> {
+                                                mUserProfile = null;
+                                                mAuth.getCurrentUser().delete().addOnCompleteListener(task -> {
+                                                    if (task.isSuccessful()) {
+                                                        loading.dismissDialog();
+                                                        Log.d(TAG, "User account deleted.");
+
+                                                        //  Verify the account has been deleted.
+                                                        Toast.makeText(getApplicationContext(), "Account deleted.", Toast.LENGTH_SHORT).show();
+                                                        finish();
+                                                    }
+                                                });
+                                            }).addOnFailureListener(e -> {
+                                                loading.dismissDialog();
+                                                Log.e(TAG, "Deleted associated collection 'users'. Couldn't delete all users data. User has been asked for this to be removed manually.");
+                                                Toast.makeText(getApplicationContext(), "Failed to delete all associated user info. Please contact Scranplan with your email address to have your data manually removed.", Toast.LENGTH_LONG).show();
+                                            });
+
+
+
+                                            //If user has no following no followers then just delete user
+                                        }else{
+                                            mDatabase.collection("users").document(mAuth.getCurrentUser().getUid()).delete().addOnSuccessListener(aVoid1 -> {
+                                                mUserProfile = null;
+                                                mAuth.getCurrentUser().delete().addOnCompleteListener(task -> {
+                                                    if (task.isSuccessful()) {
+                                                        loading.dismissDialog();
+                                                        Log.d(TAG, "User account deleted.");
+
+                                                        //  Verify the account has been deleted.
+                                                        Toast.makeText(getApplicationContext(), "Account deleted.", Toast.LENGTH_SHORT).show();
+                                                        finish();
+                                                    }
+                                                });
+                                            }).addOnFailureListener(e -> {
+                                                loading.dismissDialog();
+                                                Log.e(TAG, "Deleted associated collection 'users'. Couldn't delete all users data. User has been asked for this to be removed manually.");
+                                                Toast.makeText(getApplicationContext(), "Failed to delete all associated user info. Please contact Scranplan with your email address to have your data manually removed.", Toast.LENGTH_LONG).show();
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+
+
+                            // If user has no followers then just delete followers
+                            mDatabase.collection("followers").document(mAuth.getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task1) {
+                                    if(task1.getResult().exists()){
+                                        DocumentSnapshot doc = task1.getResult();
+                                        if(doc.get("users") != null){
+                                            ArrayList list = (ArrayList) doc.get("users");
+                                            for(int i = 0; i <list.size(); i++){
+                                                mDatabase.collection("users").document(list.get(i).toString()).update("following", FieldValue.increment(-1));
+                                            }
+                                        }
+
+
+                                        // Both following and followers checked so user is now deleted
+                                        mDatabase.collection("users").document(mAuth.getCurrentUser().getUid()).delete().addOnSuccessListener(aVoid1 -> {
+                                            mUserProfile = null;
+                                            mAuth.getCurrentUser().delete().addOnCompleteListener(task -> {
+                                                if (task.isSuccessful()) {
+                                                    loading.dismissDialog();
+                                                    Log.d(TAG, "User account deleted.");
+
+                                                    //  Verify the account has been deleted.
+                                                    Toast.makeText(getApplicationContext(), "Account deleted.", Toast.LENGTH_SHORT).show();
+                                                    finish();
+                                                }
+                                            });
+                                        }).addOnFailureListener(e -> {
+                                            loading.dismissDialog();
+                                            Log.e(TAG, "Deleted associated collection 'users'. Couldn't delete all users data. User has been asked for this to be removed manually.");
+                                            Toast.makeText(getApplicationContext(), "Failed to delete all associated user info. Please contact Scranplan with your email address to have your data manually removed.", Toast.LENGTH_LONG).show();
+                                        });
+
+
+
+                                        //User has no following and no followers so just user is deleted
+                                    }else{
+                                        mDatabase.collection("users").document(mAuth.getCurrentUser().getUid()).delete().addOnSuccessListener(aVoid1 -> {
+                                            mUserProfile = null;
+                                            mAuth.getCurrentUser().delete().addOnCompleteListener(task -> {
+                                                if (task.isSuccessful()) {
+                                                    loading.dismissDialog();
+                                                    Log.d(TAG, "User account deleted.");
+
+                                                    //  Verify the account has been deleted.
+                                                    Toast.makeText(getApplicationContext(), "Account deleted.", Toast.LENGTH_SHORT).show();
+                                                    finish();
+                                                }
+                                            });
+                                        }).addOnFailureListener(e -> {
+                                            loading.dismissDialog();
+                                            Log.e(TAG, "Deleted associated collection 'users'. Couldn't delete all users data. User has been asked for this to be removed manually.");
+                                            Toast.makeText(getApplicationContext(), "Failed to delete all associated user info. Please contact Scranplan with your email address to have your data manually removed.", Toast.LENGTH_LONG).show();
+                                        });
+                                    }
+                                }
+                            });
                         }
-                    });
+                    }
                 }).addOnFailureListener(e -> {
+                    loading.dismissDialog();
                     Log.e(TAG, "Deleted associated collection 'users'. Couldn't delete all users data. User has been asked for this to be removed manually.");
                     Toast.makeText(getApplicationContext(), "Failed to delete all associated user info. Please contact Scranplan with your email address to have your data manually removed.", Toast.LENGTH_LONG).show();
                 });
             }).addOnFailureListener(e -> {
+                loading.dismissDialog();
                 Log.e(TAG, "Failed to re-authenticate. May have entered the wrong password");
                 Toast.makeText(getApplicationContext(),"Could not delete data. Make sure you are connected to the internet and have inputted a correct previous password.", Toast.LENGTH_LONG).show();
             });
         } else {
+            loading.dismissDialog();
             Log.e(TAG, "Unable to get current user details");
             Toast.makeText(getApplicationContext(), "Unable to get current user details. Make sure you are connected to the internet", Toast.LENGTH_SHORT).show();
         }
@@ -404,9 +648,9 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
                 if(passwordString.equals("") || newPasswordString.equals("") || passwordNew2String.equals("")){
                     Toast.makeText(getApplicationContext(), "Cannot enter a blank password. Please try again.", Toast.LENGTH_SHORT).show();
-                } else if (passwordNew2String.length() <= 6 || newPasswordString.length() <= 6){
-                    Toast.makeText(getApplicationContext(), "Password must be greater than 6 characters in length", Toast.LENGTH_SHORT).show();
-                } else if(newPasswordString.equals(passwordNew2String)){ //Check that both of the new password inputs are equal.
+                } else if (!Login.passCheck(newPasswordString)){
+                    Toast.makeText(getApplicationContext(), "Password must be at least 8 characters and contain at least 1 number and 1 letter", Toast.LENGTH_SHORT).show();
+                } else if(newPasswordString.equals(passwordNew2String) && Login.passCheck(newPasswordString)){ //Check that both of the new password inputs are equal.
                     resetPassword(passwordString, newPasswordString); //Attempt to reset a users password.
                 } else {
                     Toast.makeText(getApplicationContext(),"Passwords do not match. Please try again...",Toast.LENGTH_LONG).show();
@@ -526,14 +770,18 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             //  Otherwise makes sure the profile privacy settings tab bar is shown.
             case R.id.settings_private_toggle:
                 if(switched) {
-                    setPrivacyOptions(mTempUserProfile.getPrivacyPrivate());
-                    mProfileVisibilityTab.setVisibility(View.GONE);
-                } else {
                     setPrivacyOptions(mTempUserProfile.getPublicPrivacy());
                     TabLayout.Tab tab = mProfileVisibilityTab.getTabAt(0);
                     assert tab != null;
                     tab.select();
                     mProfileVisibilityTab.setVisibility(View.VISIBLE);
+                    mDisplay_feed.setVisibility(View.GONE);
+                    mDisplay_recipes.setVisibility(View.GONE);
+                } else {
+                    setPrivacyOptions(mTempUserProfile.getPrivacyPrivate());
+                    mProfileVisibilityTab.setVisibility(View.GONE);
+                    mDisplay_feed.setVisibility(View.VISIBLE);
+                    mDisplay_recipes.setVisibility(View.VISIBLE);
                 }
 
             case R.id.settings_privacy_about_me:
@@ -684,6 +932,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         mUsername = findViewById(R.id.settings_input_username);
         mAboutMe = findViewById(R.id.settings_input_about_me);
         mProfileImage = findViewById(R.id.public_profile_image);
+        mProfileImageOld = findViewById(R.id.public_profile_image_old);
 
         //  Privacy
         mDisplay_about_me = findViewById(R.id.settings_privacy_about_me);
@@ -700,6 +949,8 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
         mProgress = findViewById(R.id.settings_progress);
         mProgressText = findViewById(R.id.settings_progress_text);
+
+        mCheckUsername = findViewById(R.id.username_tick);
     }
 
     /** Method called when we click to change the users profile image.
@@ -768,6 +1019,8 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                 currentImageURI = mImageUri.toString();
 
                 //  Use Glides image functionality to quickly load a circular, center cropped image.
+                mProfileImage.setVisibility(View.VISIBLE);
+                mProfileImageOld.setVisibility(View.GONE);
                 Glide.with(this)
                         .load(mImageUri)
                         .apply(RequestOptions.circleCropTransform())
@@ -889,7 +1142,8 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
      * @param privacy - HashMap of valid privacy options.
      */
     private void setPrivacyOptions(HashMap<String, Object> privacy){
-        mDisplay_username.setChecked( (boolean) privacy.get("display_username"));
+        //mDisplay_username.setChecked( (boolean) privacy.get("display_username"));
+        mDisplay_username.setVisibility(View.GONE);
         mDisplay_about_me.setChecked( (boolean) privacy.get("display_about_me"));
         mDisplay_profile_image.setChecked( (boolean) privacy.get("display_profile_image"));
         mDisplay_recipes.setChecked( (boolean) privacy.get("display_recipes"));
@@ -911,111 +1165,145 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         String aboutMeInput = mAboutMe.getText().toString();
 
         if(user != null){ //Checks for a valid user.
-            String usersEmail = requireNonNull(mAuth.getCurrentUser()).getEmail();
+            if(!usernameInput.equals("") && usernameInput.matches("^[a-z0-9]+$") && usernameInput.length() <= 20 && mUsername.getText().toString().length() >= 2){
+                mDatabase.collection("usernames").document(usernameInput).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.getResult().exists() && !mUserProfile.getDisplayName().equals(usernameInput)){
+                            Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, maximum 20 characters.",Toast.LENGTH_SHORT).show();
+                        }else{
+                            if(!mUserProfile.getDisplayName().equals(usernameInput)){
+                                mDatabase.collection("usernames").document(mUserProfile.getDisplayName()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if(task.getResult().exists()){
+                                            task.getResult().getReference().delete();
+                                        }
+                                    }
+                                });
+                                HashMap<String,Object> username = new HashMap<>();
+                                username.put("user", user.getUid());
+                                mDatabase.collection("usernames").document(usernameInput).set(username);
+                            }
 
-            if(IMAGE_IS_UPLOADING){ //  Prevent saving to firebase if an image is currently uploading.
-                Toast.makeText(this, "We are still uploading your profile image. Try again in a second.", Toast.LENGTH_SHORT).show();
-                return;
-            }
+                            String usersEmail = requireNonNull(mAuth.getCurrentUser()).getEmail();
 
-            //  If the 'saveCountdown' countdown has finished. Restart it.
-            if(saveCountdownFinished){
-                saveCountdown.start();
-                saveCountdownFinished = false;
-            }
+                            if(IMAGE_IS_UPLOADING){ //  Prevent saving to firebase if an image is currently uploading.
+                                Toast.makeText(getApplicationContext(), "We are still uploading your profile image. Try again in a second.", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
 
-            //  Check the users email exists. It should do.
-            if(usersEmail != null){
-                if (usernameInput.contains(usersEmail) || aboutMeInput.contains(usersEmail)){ //Make sure none of the TextView input fields have the users email contained in them.
-                    Log.e(TAG, "Email address found in Username/About me section");
-                    Toast.makeText(getApplicationContext(), "Found your email address in Username/About me section. Unable to save settings.", Toast.LENGTH_LONG).show();
-                    return;
-                }
-            } else {
-                throw new RuntimeException("Unable to find associated email address of the user");
-            }
+                            //  If the 'saveCountdown' countdown has finished. Restart it.
+                            if(saveCountdownFinished){
+                                saveCountdown.start();
+                                saveCountdownFinished = false;
+                            }
 
-            //  Return if image is not of a supported format & of the correct size. Else throw an exception and prevent saving of settings.
-            if(mImageUri != null && !currentImageURI.equals(mUserProfile.getImageURL())){
-                Log.e(TAG, "I am checking and uploading the image image");
-                checkImage(mImageUri); // Check the image URI object for it's file type and file size. Throw an error and exit if an issue is present.
-                try {
-                    uploadImage(mImageUri); // Attempt to upload the image in storage to Firebase.
-                } catch (ProfileImageException e) {
-                    e.printStackTrace();
-                    return;
-                }
-            }
+                            //  Check the users email exists. It should do.
+                            if(usersEmail != null){
+                                if (usernameInput.contains(usersEmail) || aboutMeInput.contains(usersEmail)){ //Make sure none of the TextView input fields have the users email contained in them.
+                                    Log.e(TAG, "Email address found in Username/About me section");
+                                    Toast.makeText(getApplicationContext(), "Found your email address in Username/About me section. Unable to save settings.", Toast.LENGTH_LONG).show();
+                                    return;
+                                }
+                            } else {
+                                throw new RuntimeException("Unable to find associated email address of the user");
+                            }
 
-            //  Create maps to store associated data.
-            HashMap<String, Object> map = new HashMap<>();
-            HashMap<String, Object> prefMap = new HashMap<>();
-            HashMap<String, Object> privacyPublic = new HashMap<>();
-            HashMap<String, Object> privacyPrivate = new HashMap<>();
+                            //  Return if image is not of a supported format & of the correct size. Else throw an exception and prevent saving of settings.
+                            if(mImageUri != null && !currentImageURI.equals(mUserProfile.getImageURL())){
+                                Log.e(TAG, "I am checking and uploading the image image");
+                                try {
+                                    checkImage(mImageUri); // Check the image URI object for it's file type and file size. Throw an error and exit if an issue is present.
+                                } catch (ProfileImageException e) {
+                                    e.printStackTrace();
+                                }
+                                try {
+                                    uploadImage(mImageUri); // Attempt to upload the image in storage to Firebase.
+                                } catch (ProfileImageException e) {
+                                    e.printStackTrace();
+                                    return;
+                                }
+                            }
 
-            map.put("UID", requireNonNull(mAuth.getCurrentUser()).getUid());
-            map.put("email", usersEmail);
-            map.put("displayName", mTempUserProfile.getDisplayName());
-            map.put("imageURL", mTempUserProfile.getImageURL());
-            map.put("about", mTempUserProfile.getAbout());
-            map.put("mealPlan", mTempUserProfile.getMealPlanner());
-            map.put("shortPreferences", mTempUserProfile.getShortPreferences());
-            map.put("firstAppLaunch", mTempUserProfile.getFirstAppLaunch());
-            map.put("firstPresentationLaunch", mTempUserProfile.getFirstPresentationLaunch());
-            map.put("firstMealPlannerLaunch", mTempUserProfile.getFirstMealPlannerLaunch());
-            map.put("posts", mTempUserProfile.getPosts());
+                            //  Create maps to store associated data.
+                            HashMap<String, Object> map = new HashMap<>();
+                            HashMap<String, Object> prefMap = new HashMap<>();
+                            HashMap<String, Object> privacyPublic = new HashMap<>();
+                            HashMap<String, Object> privacyPrivate = new HashMap<>();
 
-            Preferences preferences = mTempUserProfile.getPreferences();
+                            map.put("UID", requireNonNull(mAuth.getCurrentUser()).getUid());
+                            map.put("email", usersEmail);
+                            map.put("displayName", mTempUserProfile.getDisplayName());
+                            map.put("imageURL", mTempUserProfile.getImageURL());
+                            map.put("about", mTempUserProfile.getAbout());
+                            map.put("mealPlan", mTempUserProfile.getMealPlanner());
+                            map.put("shortPreferences", mTempUserProfile.getShortPreferences());
+                            map.put("firstAppLaunch", mTempUserProfile.getFirstAppLaunch());
+                            map.put("firstPresentationLaunch", mTempUserProfile.getFirstPresentationLaunch());
+                            map.put("firstMealPlannerLaunch", mTempUserProfile.getFirstMealPlannerLaunch());
+                            map.put("posts", mTempUserProfile.getPosts());
+                            map.put("followers", mTempUserProfile.getFollowers());
+                            map.put("following", mTempUserProfile.getFollowing());
 
-            prefMap.put("allergy_eggs", preferences.isAllergy_eggs());
-            prefMap.put("allergy_gluten", preferences.isAllergy_gluten());
-            prefMap.put("allergy_milk", preferences.isAllergy_milk());
-            prefMap.put("allergy_nuts", preferences.isAllergy_nuts());
-            prefMap.put("allergy_shellfish", preferences.isAllergy_shellfish());
-            prefMap.put("allergy_soya", preferences.isAllergy_soya());
-            prefMap.put("vegan", preferences.isVegan());
-            prefMap.put("vegetarian", preferences.isVegetarian());
-            prefMap.put("pescatarian", preferences.isPescatarian());
+                            Preferences preferences = mTempUserProfile.getPreferences();
 
-            map.put("preferences", prefMap);
+                            prefMap.put("allergy_eggs", preferences.isAllergy_eggs());
+                            prefMap.put("allergy_gluten", preferences.isAllergy_gluten());
+                            prefMap.put("allergy_milk", preferences.isAllergy_milk());
+                            prefMap.put("allergy_nuts", preferences.isAllergy_nuts());
+                            prefMap.put("allergy_shellfish", preferences.isAllergy_shellfish());
+                            prefMap.put("allergy_soya", preferences.isAllergy_soya());
+                            prefMap.put("vegan", preferences.isVegan());
+                            prefMap.put("vegetarian", preferences.isVegetarian());
+                            prefMap.put("pescatarian", preferences.isPescatarian());
 
-            HashMap<String, Object> privacyPublicMap = mTempUserProfile.getPublicPrivacy();
-            HashMap<String, Object> privacyPrivateMap = mTempUserProfile.getPrivacyPrivate();
+                            map.put("preferences", prefMap);
 
-            privacyPublic.put("display_username", privacyPublicMap.get("display_username"));
-            privacyPublic.put("display_about_me", privacyPublicMap.get("display_about_me"));
-            privacyPublic.put("display_recipes", privacyPublicMap.get("display_recipes"));
-            privacyPublic.put("display_profile_image", privacyPublicMap.get("display_profile_image"));
-            privacyPublic.put("display_filters", privacyPublicMap.get("display_filters"));
-            privacyPublic.put("display_feed", privacyPublicMap.get("display_feed"));
+                            HashMap<String, Object> privacyPublicMap = mTempUserProfile.getPublicPrivacy();
+                            HashMap<String, Object> privacyPrivateMap = mTempUserProfile.getPrivacyPrivate();
 
-            privacyPrivate.put("display_username", privacyPrivateMap.get("display_username"));
-            privacyPrivate.put("display_about_me", privacyPrivateMap.get("display_about_me"));
-            privacyPrivate.put("display_recipes", privacyPrivateMap.get("display_recipes"));
-            privacyPrivate.put("display_profile_image", privacyPrivateMap.get("display_profile_image"));
-            privacyPrivate.put("display_filters", privacyPrivateMap.get("display_filters"));
-            privacyPrivate.put("display_feed", privacyPrivateMap.get("display_feed"));
+                            privacyPublic.put("display_username", privacyPublicMap.get("display_username"));
+                            privacyPublic.put("display_about_me", privacyPublicMap.get("display_about_me"));
+                            privacyPublic.put("display_recipes", privacyPublicMap.get("display_recipes"));
+                            privacyPublic.put("display_profile_image", privacyPublicMap.get("display_profile_image"));
+                            privacyPublic.put("display_filters", privacyPublicMap.get("display_filters"));
+                            privacyPublic.put("display_feed", privacyPublicMap.get("display_feed"));
 
-            map.put("privateProfileEnabled", mTempUserProfile.isPrivateProfileEnabled());
-            map.put("privacyPublic", privacyPublic);
-            map.put("privacyPrivate", privacyPrivate);
+                            privacyPrivate.put("display_username", privacyPrivateMap.get("display_username"));
+                            privacyPrivate.put("display_about_me", privacyPrivateMap.get("display_about_me"));
+                            privacyPrivate.put("display_recipes", privacyPrivateMap.get("display_recipes"));
+                            privacyPrivate.put("display_profile_image", privacyPrivateMap.get("display_profile_image"));
+                            privacyPrivate.put("display_filters", privacyPrivateMap.get("display_filters"));
+                            privacyPrivate.put("display_feed", privacyPrivateMap.get("display_feed"));
 
-            // TODO - Sync public and private privacy.
-            //syncVisibility(privacyPublic);
+                            map.put("privateProfileEnabled", mTempUserProfile.isPrivateProfileEnabled());
+                            map.put("privacyPublic", privacyPublic);
+                            map.put("privacyPrivate", privacyPrivate);
 
-            DocumentReference usersRef = mRef.document(user.getUid());
+                            // TODO - Sync public and private privacy.
+                            //syncVisibility(privacyPublic);
 
-            //  Sync the Firebase info with the client info if successful.
-            usersRef.update(map)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Toast.makeText(getApplicationContext(),"User Preferences Saved",Toast.LENGTH_SHORT).show();
-                            mUserProfile = new UserInfoPrivate(map, prefMap, privacyPrivate, privacyPublic); //Create a new local UserInfoPrivate class based upon our inputs.
-                            Log.e(TAG, "About me is: " + mUserProfile.getAbout());
+                            DocumentReference usersRef = mRef.document(user.getUid());
+
+                            //  Sync the Firebase info with the client info if successful.
+                            usersRef.update(map)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Toast.makeText(getApplicationContext(),"User Preferences Saved",Toast.LENGTH_SHORT).show();
+                                            mUserProfile = new UserInfoPrivate(map, prefMap, privacyPrivate, privacyPublic); //Create a new local UserInfoPrivate class based upon our inputs.
+                                            Log.e(TAG, "About me is: " + mUserProfile.getAbout());
+                                        }
+                                    })
+                                    .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Failed to save user preferences", Toast.LENGTH_SHORT).show());
                         }
-                    })
-                    .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Failed to save user preferences", Toast.LENGTH_SHORT).show());
+                    }
+                });
+            }else{
+                Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, between 2 & 20 characters.",Toast.LENGTH_SHORT).show();
+            }
+
 
         } else {
             Toast.makeText(getApplicationContext(),"Invalid user login credentials. Consider logging out and then back in again.",Toast.LENGTH_LONG).show();
@@ -1120,9 +1408,13 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                 switch (tab.getPosition()) {
                     case 0: // Tab order in index. 0 = leftmost element.
                             setPrivacyOptions(mTempUserProfile.getPublicPrivacy());
+                            mDisplay_feed.setVisibility(View.GONE);
+                            mDisplay_recipes.setVisibility(View.GONE);
                         break;
                     case 1:
                             setPrivacyOptions(mTempUserProfile.getPrivacyPrivate());
+                        mDisplay_feed.setVisibility(View.VISIBLE);
+                        mDisplay_recipes.setVisibility(View.VISIBLE);
                         break;
                 }
             }

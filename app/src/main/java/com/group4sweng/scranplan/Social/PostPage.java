@@ -1,6 +1,7 @@
 package com.group4sweng.scranplan.Social;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -35,13 +36,17 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.group4sweng.scranplan.LoadingDialog;
+import com.group4sweng.scranplan.PublicProfile;
+import com.group4sweng.scranplan.Administration.LoadingDialog;
 import com.group4sweng.scranplan.R;
+import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class for displaying social post with comments.
@@ -85,6 +90,7 @@ public class PostPage extends AppCompatDialogFragment {
     private String postID;
     private String authorPicURL;
     private String authorID;
+    private String recipeID;
 
     private Button sendComment;
     private EditText newComment;
@@ -160,6 +166,7 @@ public class PostPage extends AppCompatDialogFragment {
         postID = bundle.getString("postID");
         authorPicURL = bundle.getString("authorPicURL");
         likedB4 = bundle.getBoolean("likedB4");
+        recipeID = bundle.getString("recipeID");
         likedOrNot.setChecked(lastPageLikedOrNot.isChecked());
 
         Glide.with(getContext())
@@ -289,6 +296,33 @@ public class PostPage extends AppCompatDialogFragment {
                 Toast.makeText(getContext(),"You need to write a comment first!",Toast.LENGTH_SHORT).show();
             }
 
+        });
+
+        recipeImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                loadingDialog.startLoadingDialog();
+
+                mDatabase.collection("recipes").document(recipeID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            if (task.getResult().exists()) {
+
+                                DocumentSnapshot document = task.getResult();
+                                recipeSelected(document);
+
+                                loadingDialog.dismissDialog();
+
+                            }
+                        }
+                    }
+                });
+
+
+
+            }
         });
 
     }
@@ -424,7 +458,12 @@ public class PostPage extends AppCompatDialogFragment {
                 switch (item.getItemId()) {
                     case R.id.viewCommentProfile:
                         Log.e(TAG,"Clicked open profile!");
-                        //TODO add functionality to open users profile in new fragment
+                        Intent intentProfile = new Intent(getContext(), PublicProfile.class);
+
+                        intentProfile.putExtra("UID", (String) document.get("author"));
+                        intentProfile.putExtra("user", mUser);
+                        //setResult(RESULT_OK, intentProfile);
+                        startActivity(intentProfile);
                         break;
                     case R.id.reportComment:
                         Log.e(TAG,"Report comment clicked!");
@@ -561,6 +600,66 @@ public class PostPage extends AppCompatDialogFragment {
                 }
             }
         });
+    }
+
+    /**
+     * On click of a recipe a new recipe info fragment is opened and the document is sent through
+     * This saves on downloading the data again from the database
+     */
+    public void recipeSelected(DocumentSnapshot document) {
+
+
+        //Takes ingredient and recipe rating array from snap shot and reformats before being passed through to fragment
+        ArrayList<String> ingredientArray = new ArrayList<>();
+
+        Map<String, Map<String, Object>> ingredients = (Map) document.getData().get("Ingredients");
+        Iterator hmIterator = ingredients.entrySet().iterator();
+
+        HashMap<String, Double> ratingResults = (HashMap) document.getData().get("rating");
+
+        while (hmIterator.hasNext()) {
+            Map.Entry mapElement = (Map.Entry) hmIterator.next();
+            String string = mapElement.getKey().toString() + ": " + mapElement.getValue().toString();
+            ingredientArray.add(string);
+        }
+        //Takes ingredient HashMap from the snapshot.
+        HashMap<String, String> ingredientHashMap = (HashMap<String, String>) document.getData().get("Ingredients");
+
+
+        Bundle mBundle;
+        //Creating a bundle so all data needed from firestore query snapshot can be passed through into fragment class
+        mBundle = new Bundle();
+        mBundle.putSerializable("ingredientHashMap", ingredientHashMap);
+        mBundle.putStringArrayList("ingredientList", ingredientArray);
+        mBundle.putSerializable("ratingMap", ratingResults);
+        mBundle.putString("recipeID", document.getId());
+        mBundle.putString("xmlURL", document.get("xml_url").toString());
+        mBundle.putString("recipeTitle", document.get("Name").toString());
+        mBundle.putString("imageURL", document.get("imageURL").toString());
+        mBundle.putString("recipeDescription", document.get("Description").toString());
+        mBundle.putString("chefName", document.get("Chef").toString());
+        mBundle.putBoolean("planner", false);
+        mBundle.putBoolean("canFreeze", document.getBoolean("freezer"));
+        mBundle.putString("peopleServes", document.get("serves").toString());
+        mBundle.putString("fridgeDays", document.get("fridge").toString());
+        mBundle.putString("reheat", document.get("reheat").toString());
+        mBundle.putBoolean("noEggs", document.getBoolean("noEggs"));
+        mBundle.putBoolean("noMilk", document.getBoolean("noMilk"));
+        mBundle.putBoolean("noNuts", document.getBoolean("noNuts"));
+        mBundle.putBoolean("noShellfish", document.getBoolean("noShellfish"));
+        mBundle.putBoolean("noSoy", document.getBoolean("noSoy"));
+        mBundle.putBoolean("noWheat", document.getBoolean("noWheat"));
+        mBundle.putBoolean("pescatarian", document.getBoolean("pescatarian"));
+        mBundle.putBoolean("vegan", document.getBoolean("vegan"));
+        mBundle.putBoolean("vegetarian", document.getBoolean("vegetarian"));
+
+        ArrayList<Integer> faves = (ArrayList) document.get("favourite");
+        mBundle.putBoolean("isFav", faves.contains(mUser.getUID()));
+
+        RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
+        recipeDialogFragment.setArguments(mBundle);
+        recipeDialogFragment.setTargetFragment(this, 1);
+        recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");
     }
     
 

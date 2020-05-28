@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 import java.util.Random;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -53,7 +54,7 @@ import static org.hamcrest.Matchers.allOf;
  *  - Reviews can be added to posts in the same way they are added to a particular recipe
  *
  *  -- USER STORY TESTS LINKED WITH ---
- *  C20,A1
+ *  C28, C16, C31, C29 & C24
  */
 @RunWith(AndroidJUnit4.class)
 public class SocialTest implements Credentials  {
@@ -115,7 +116,7 @@ public class SocialTest implements Credentials  {
         navigateToRecipe("Braised peas with bacon, lentils and cod");
         Thread.sleep(THREAD_SLEEP_TIME);
         onView(withText("Add")).perform(click());
-
+        pressBack();
 
         Thread.sleep(THREAD_SLEEP_TIME);
         onView(withId(R.id.reviewIcon))

@@ -27,11 +27,16 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.group4sweng.scranplan.Administration.SuggestionBox;
 import com.group4sweng.scranplan.MealPlanner.PlannerFragment;
 import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
@@ -39,6 +44,7 @@ import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
 import com.group4sweng.scranplan.Social.FeedFragment;
 import com.group4sweng.scranplan.Social.Messenger.MessengerMenu;
+import com.group4sweng.scranplan.Social.Notifications;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import io.sentry.core.Sentry;
@@ -51,6 +57,7 @@ public class Home extends AppCompatActivity {
     Context mContext = this;
     final static String TAG = "ScranPlanHome";
     final static int PROFILE_SETTINGS_REQUEST_CODE = 1;
+    private SuggestionBox suggestionBox;
 
     // User variable for all preferences saved to device
     private UserInfoPrivate mUser;
@@ -95,6 +102,9 @@ public class Home extends AppCompatActivity {
     CheckBox mChefBox;
     SideMenu mSideMenu;
 
+    String notifications;
+    MenuItem notificationMenuItem;
+
     // Side menu variable
     NavigationView navigationView;
 
@@ -116,8 +126,6 @@ public class Home extends AppCompatActivity {
             mSentryUser.setEmail(mUser.getEmail());
             Sentry.setUser(mSentryUser);
         }
-
-        fragment = new RecipeFragment(mUser);
         /*
         // Setting up the action and tab bars
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -134,6 +142,7 @@ public class Home extends AppCompatActivity {
         mSideMenu.mMenuToolbar = findViewById(R.id.toolbar);
         mSideMenu.mMenuDrawer = findViewById(R.id.drawer_layout);
         mSideMenu.mNavigationView = findViewById(R.id.side_menu);
+        notificationMenuItem = mSideMenu.mNavigationView.getMenu().getItem(1);
         setSupportActionBar(mSideMenu.mMenuToolbar);
         mSideMenu.init(this, this);
 
@@ -142,6 +151,7 @@ public class Home extends AppCompatActivity {
         initPageItems();
         initPageListeners();
         initSearchMenu();
+        checkForNotifications();
     }
 
 
@@ -210,6 +220,29 @@ public class Home extends AppCompatActivity {
 
     }
 
+    private void checkForNotifications(){
+        if(mUser != null){
+            database.collection("users").document(mUser.getUID()).collection("notifications").orderBy("timestamp", Query.Direction.DESCENDING).limit(6).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if(task.isSuccessful()){
+                        if(task.getResult() != null){
+                            if((task.getResult().size()) == 6){
+                                notifications = "5+";
+                            }else{
+                                notifications = Integer.toString(task.getResult().size());
+                            }
+                            notificationMenuItem.setTitle("Notifications (" + notifications + ")");
+                        }else{
+                            notificationMenuItem.setTitle("Notifications (0)");
+                        }
+
+                    }
+                }
+            });
+        }
+    }
+
     /**
      *  Connecting up elements on the screen to variable names
      */
@@ -217,7 +250,7 @@ public class Home extends AppCompatActivity {
         //Defining all relevant members of signin & register page
         tabLayout = findViewById(R.id.tabLayout);
         frameLayout = findViewById(R.id.frameLayout);
-        Fragment fragment = new RecipeFragment(mUser);
+        fragment = new RecipeFragment();
         fragmentTransaction.replace(R.id.frameLayout, fragment);
         fragmentTransaction.commit ();
         navigationView = (NavigationView) findViewById(R.id.side_menu);
@@ -247,12 +280,21 @@ public class Home extends AppCompatActivity {
                         //setResult(RESULT_OK, intentProfile);
                         startActivity(intentProfile);
                         break;
+                    case R.id.nav_notifications:
+                        Notifications notificationDialogFragment = new Notifications(mUser);
+                        notificationDialogFragment.show(fragmentManager, "Show notification dialog fragment");
+                        break;
                     case R.id.nav_editProfile:
                         Intent intentSettings = new Intent(mContext, ProfileSettings.class);
                         intentSettings.putExtra("user", mUser);
 
                         setResult(RESULT_OK, intentSettings);
                         startActivityForResult(intentSettings, PROFILE_SETTINGS_REQUEST_CODE);
+                        break;
+                    case R.id.nav_suggestionBox:
+
+                        onSuggestionBoxClick();
+
                         break;
                     case R.id.nav_logout:
                         Log.e(TAG, "Logout button has been pressed and user has been logged out.");
@@ -281,12 +323,13 @@ public class Home extends AppCompatActivity {
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
+                checkForNotifications();
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 Log.d("Test", String.valueOf(fragment));
                 switch (tab.getPosition()) {
                     case 0:
-                        fragment = new RecipeFragment(mUser);
+                        fragment = new RecipeFragment();
                         fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
                         break;
                     case 1:
@@ -611,6 +654,12 @@ public class Home extends AppCompatActivity {
         setResult(RESULT_OK, intentProfile);
         startActivityForResult(intentProfile, PROFILE_SETTINGS_REQUEST_CODE);
 
+    }
+
+    public void onSuggestionBoxClick(){
+
+        suggestionBox = new SuggestionBox(Home.this, mUser.getUID());
+        suggestionBox.startSuggestionDialog();
     }
 
     /**
