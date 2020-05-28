@@ -753,7 +753,7 @@ public class RecipeFragment extends Fragment {
 
     private void loadNativeAds(int index, int adType) {
 
-        AdLoader.Builder builder = new AdLoader.Builder(requireContext(), getString(R.string.ad_unit_id));
+        AdLoader.Builder builder = new AdLoader.Builder(getContext(), getString(R.string.ad_unit_id));
         adLoader = builder.forUnifiedNativeAd(
                 new UnifiedNativeAd.OnUnifiedNativeAdLoadedListener() {
                     @Override
