@@ -251,20 +251,22 @@ public class RecipeReviewFragment extends FeedFragment {
         if(reviewMade){
 
             oldUserRating = Double.parseDouble(oldUserStarRating);
-            oldTotalRates = ratingMap.get("totalRates")-1;
-            oldOverallRating = (((ratingMap.get("overallRating") * ratingMap.get("totalRates")) - oldUserRating)) / oldTotalRates;
-            Log.i(TAG, "Values: "+ oldOverallRating);
+//            oldTotalRates = ratingMap.get("totalRates")-1;
+//            oldOverallRating = (((ratingMap.get("overallRating") * ratingMap.get("totalRates")) - oldUserRating)) / oldTotalRates;
+//            Log.i(TAG, "Values: "+ oldOverallRating);
+//
+//            ratingMap.put("overallRating", oldOverallRating);
+//            ratingMap.put("totalRates", oldTotalRates);
+//
+//            HashMap<String, Object> updateMap = new HashMap<>();
+//            CollectionReference ref = mDatabase.collection("recipes");
+//            DocumentReference documentReference = ref.document(mRecipeID);
+//            updateMap.put("rating", ratingMap);
+//            documentReference.update(updateMap);
+//
+//            Log.i(TAG, "Values: "+ ratingMap);
 
-            ratingMap.put("overallRating", oldOverallRating);
-            ratingMap.put("totalRates", oldTotalRates);
-
-            HashMap<String, Object> updateMap = new HashMap<>();
-            CollectionReference ref = mDatabase.collection("recipes");
-            DocumentReference documentReference = ref.document(mRecipeID);
-            updateMap.put("rating", ratingMap);
-            documentReference.update(updateMap);
-
-            Log.i(TAG, "Values: "+ ratingMap);
+            revertRating(ratingMap, mRecipeID, oldUserRating);
 
         }
 
@@ -282,7 +284,10 @@ public class RecipeReviewFragment extends FeedFragment {
 
         Log.i(TAG, "Values: "+ ratingMap);
 
+    }
 
+    protected void revertRating(HashMap<String,Double> ratingMap, String recipeID, double oldUserRating){
+        super.revertRating(ratingMap, recipeID, oldUserRating);
     }
 
     private void addingReviewFirestore(View layout) {
@@ -342,7 +347,7 @@ public class RecipeReviewFragment extends FeedFragment {
 
                                         reviewMap.put("user", mUser.getUID());
                                         reviewMap.put("overallRating", getNewRating);
-                                        reviewMap.put("post", postRef.getId());
+                                        reviewMap.put("docID", postRef.getId());
                                         reviewMap.put("timestamp", FieldValue.serverTimestamp());
 
                                         //Saving review map to the firestore with custom document ID
@@ -386,7 +391,7 @@ public class RecipeReviewFragment extends FeedFragment {
 
                         reviewMap.put("user", mUser.getUID());
                         reviewMap.put("overallRating", getNewRating);
-                        reviewMap.put("post", postRef.getId());
+                        reviewMap.put("docID", postRef.getId());
                         reviewMap.put("timestamp", FieldValue.serverTimestamp());
 
                         //Saving review map to the firestore with custom document ID
@@ -443,7 +448,7 @@ public class RecipeReviewFragment extends FeedFragment {
 
                                         reviewMap.put("mUser", mUser.getUID());
                                         reviewMap.put("overallRating", getNewRating);
-                                        reviewMap.put("post", postRef.getId());
+                                        reviewMap.put("docID", postRef.getId());
                                         reviewMap.put("timestamp", FieldValue.serverTimestamp());
 
                                         //Saving review map to the firestore with custom document ID
@@ -487,7 +492,7 @@ public class RecipeReviewFragment extends FeedFragment {
 
                         reviewMap.put("mUser", mUser.getUID());
                         reviewMap.put("overallRating", getNewRating);
-                        reviewMap.put("post", postRef.getId());
+                        reviewMap.put("docID", postRef.getId());
                         reviewMap.put("timestamp", FieldValue.serverTimestamp());
 
                         //Saving review map to the firestore with custom document ID
@@ -546,12 +551,14 @@ public class RecipeReviewFragment extends FeedFragment {
                                 userImage = document.get("uploadedImageURL").toString();
                             }
                             HashMap<String, Object> doc = new HashMap<>();
+                            doc.put("isReview", document.get("isReview"));
+                            doc.put("recipeID", document.get("recipeID"));
                             doc.put("body", document.get("body").toString());
                             doc.put("author", document.get("author").toString());
                             doc.put("overallRating", document.get("overallRating").toString());
                             doc.put("timeStamp", (Timestamp) document.get("timestamp"));
                             doc.put("userImage", userImage);
-                            doc.put("postID", document.getId());
+                            doc.put("docID", document.getId());
                             data.add(new recipeReviewRecyclerAdapter.reviewData(doc));
                         }
                         rAdapter.notifyDataSetChanged();
@@ -596,12 +603,14 @@ public class RecipeReviewFragment extends FeedFragment {
                                                         userImage = d.get("uploadedImageURL").toString();
                                                     }
                                                     HashMap<String, Object> doc = new HashMap<>();
+                                                    doc.put("isReview", d.get("isReview"));
+                                                    doc.put("recipeID", d.get("recipeID"));
                                                     doc.put("body", d.get("body").toString());
                                                     doc.put("author", d.get("author").toString());
                                                     doc.put("overallRating", d.get("overallRating").toString());
                                                     doc.put("timeStamp", (Timestamp) d.get("timestamp"));
                                                     doc.put("userImage", userImage);
-                                                    doc.put("postID", d.getId());
+                                                    doc.put("docID", d.getId());
                                                     data.add(new recipeReviewRecyclerAdapter.reviewData(doc));
                                                 }
                                                 if(isLastItemReached){
