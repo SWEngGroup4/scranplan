@@ -23,6 +23,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -400,23 +401,42 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                     if(task.isSuccessful()){
-                        DocumentSnapshot document = task.getResult();
-                        if(document != null){
-                            ArrayList followers = (ArrayList) document.get("users");
-                            if(followers.contains(mUserProfile.getUID())){
-                                mFollowButton.setVisibility(View.GONE);
-                                mFollowedButton.setVisibility(View.VISIBLE);
-                                followed = true;
-                            }else{
-                                if(document.get("requested") != null){
-                                    ArrayList requested = (ArrayList) document.get("requested");
-                                    if(requested.contains(mUserProfile.getUID())){
-                                        mFollowButton.setVisibility(View.GONE);
-                                        mRequestedButton.setVisibility(View.VISIBLE);
+                        if(task.getResult().exists()){
+                            DocumentSnapshot document = task.getResult();
+                            if(document != null){
+                                ArrayList followers = (ArrayList) document.get("users");
+                                if(followers.contains(mUserProfile.getUID())){
+                                    mFollowButton.setVisibility(View.GONE);
+                                    mFollowedButton.setVisibility(View.VISIBLE);
+                                    followed = true;
+                                }else{
+                                    if(document.get("requested") != null){
+                                        ArrayList requested = (ArrayList) document.get("requested");
+                                        if(requested.contains(mUserProfile.getUID())){
+                                            mFollowButton.setVisibility(View.GONE);
+                                            mRequestedButton.setVisibility(View.VISIBLE);
+                                        }
                                     }
                                 }
                             }
+                        }else{
+                            HashMap<String, Object> newDoc = new HashMap<>();
+                            ArrayList<String> arrayList = new ArrayList<>();
+                            arrayList.add(UID);
+                            ArrayList<String> second = new ArrayList<>();
+                            newDoc.put("mapA", (HashMap) null);
+                            newDoc.put("mapB", (HashMap) null);
+                            newDoc.put("mapC", (HashMap) null);
+                            newDoc.put("space1", "A");
+                            newDoc.put("space2", "B");
+                            newDoc.put("space3", "C");
+                            newDoc.put("lastPost", FieldValue.serverTimestamp());
+                            newDoc.put("author", UID);
+                            newDoc.put("users", arrayList);
+                            newDoc.put("requested", second);
+                            mDatabase.collection("followers").document(UID).set(newDoc);
                         }
+
                     }
                     loadFirebase(FirebaseLoadType.FULL);
                 }
