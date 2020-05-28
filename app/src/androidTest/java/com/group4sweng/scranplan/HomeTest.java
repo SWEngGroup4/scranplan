@@ -121,13 +121,13 @@ public class HomeTest implements Credentials {
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
         onView(isAssignableFrom(SearchView.class))
-                .perform(typeSearchViewText("qwerty"))
+                .perform(typeSearchViewText("nath"))
                 .perform(pressKey(KeyEvent.KEYCODE_ENTER));
 
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        onView(withText("Qwertyu1"))
+        onView(withText("nathan"))
                 .check(matches(isDisplayed()));
 
         Espresso.pressBack();
