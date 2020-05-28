@@ -117,12 +117,24 @@ public class MessageMenuRecyclerAdapter extends RecyclerView.Adapter<MessageMenu
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                     if (task.isSuccessful()) {
-                        holder.authorName = (String) task.getResult().get("displayName");
+                        if(task.getResult().get("displayName") != null){
+                            holder.authorName = (String) task.getResult().get("displayName");
+                        }else {
+                            holder.authorName = "deleted_user";
+                        }
+
                         holder.authorPicURL = (String) task.getResult().get("imageURL");
-                        holder.author.setText((String) task.getResult().get("displayName"));
-                        if (task.getResult().get("imageURL") != null) {
+                        holder.author.setText(holder.authorName);
+                        if (task.getResult().get("imageURL") != null || task.getResult().get("imageURL")  != "") {
                             Glide.with(holder.authorPic.getContext())
                                     .load(task.getResult().get("imageURL"))
+                                    .apply(RequestOptions.circleCropTransform())
+                                    .into(holder.authorPic);
+                            holder.authorPic.setVisibility(View.VISIBLE);
+                        }
+                        if (task.getResult().get("imageURL") == null || task.getResult().get("imageURL") == "") {
+                            Glide.with(holder.authorPic.getContext())
+                                    .load(R.drawable.temp_settings_profile_image)
                                     .apply(RequestOptions.circleCropTransform())
                                     .into(holder.authorPic);
                             holder.authorPic.setVisibility(View.VISIBLE);
