@@ -277,6 +277,12 @@ public class MessengerFeedFragment extends FeedFragment {
         mUserUploadedImageViewLayout = v.findViewById(R.id.userUploadedImageViewLayout);
         mPostRecipeImageViewLayout = v.findViewById(R.id.postRecipeImageViewLayout);
 
+        mRecipeRatingText.setVisibility(View.GONE);
+        mPostReview.setVisibility(View.GONE);
+        mAttachedRecipeReview.setVisibility(View.GONE);
+
+        //TODO Add back
+        mPostRecipe.setVisibility(View.GONE);
 
     }
 
