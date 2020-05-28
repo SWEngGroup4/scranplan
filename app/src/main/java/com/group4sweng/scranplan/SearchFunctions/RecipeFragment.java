@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Class for the home page fragment containing horizontal meals to scroll though.
@@ -753,7 +754,7 @@ public class RecipeFragment extends Fragment {
 
     private void loadNativeAds(int index, int adType) {
 
-        AdLoader.Builder builder = new AdLoader.Builder(this.getContext(), getString(R.string.ad_unit_id));
+        AdLoader.Builder builder = new AdLoader.Builder(requireContext(), getString(R.string.ad_unit_id));
         adLoader = builder.forUnifiedNativeAd(
                 new UnifiedNativeAd.OnUnifiedNativeAdLoadedListener() {
                     @Override
