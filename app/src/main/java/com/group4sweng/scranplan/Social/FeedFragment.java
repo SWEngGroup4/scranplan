@@ -131,6 +131,10 @@ public class FeedFragment extends Fragment {
     RatingBar mAttachedRecipeReview;
 
 
+    protected String oldUserStarRating;
+    protected double oldOverallRating;
+    protected double oldUserRating;
+    protected double oldTotalRates;
 
     //Fragment handlers
     private FragmentTransaction fragmentTransaction;
@@ -1054,6 +1058,15 @@ public class FeedFragment extends Fragment {
         if((String)doc.get("author") != null){
             if(doc.get("isReview") != null){
                 if((boolean)doc.get("isReview")){
+                    mDatabase.collection("recipes").document(recipeID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if(task.getResult() != null){
+                                HashMap<String, Double> ratingMap = (HashMap) task.getResult().get("rating");
+                                revertRating(ratingMap, recipeID);
+                            }
+                        }
+                    });
                     // UserID-RecipeID
                     mDatabase.collection("reviews").document((String)doc.get("author") + "-" + (String)doc.get("recipeID")).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
@@ -1209,6 +1222,21 @@ public class FeedFragment extends Fragment {
         recipeDialogFragment.setArguments(mBundle);
         recipeDialogFragment.setTargetFragment(this, 1);
         recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");
+    }
+
+
+    protected void revertRating(HashMap<String,Double> ratingMap, String recipeID){
+        oldUserRating = Double.parseDouble(oldUserStarRating);
+        oldTotalRates = ratingMap.get("totalRates")-1;
+        oldOverallRating = (((ratingMap.get("overallRating") * ratingMap.get("totalRates")) - oldUserRating)) / oldTotalRates;
+        Log.i(TAG, "Values: "+ oldOverallRating);
+        ratingMap.put("overallRating", oldOverallRating);
+        ratingMap.put("totalRates", oldTotalRates);
+        HashMap<String, Object> updateMap = new HashMap<>();
+        CollectionReference ref = mDatabase.collection("recipes");
+        DocumentReference documentReference = ref.document(recipeID);
+        updateMap.put("rating", ratingMap);
+        documentReference.update(updateMap);
     }
 
 }
