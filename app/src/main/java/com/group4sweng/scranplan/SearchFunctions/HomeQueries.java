@@ -8,7 +8,11 @@ import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import java.util.HashMap;
 
 /**
- * This builds up the queries, taken from user preferences and feeds them into the infinate
+ * Class for the home page horizontal scroll queries.
+ * Author(s): LNewman
+ * (c) CoDev 2020
+ *
+ * This builds up the queries, taken from user preferences and feeds them into the infinite
  * horizontal scroll views on the home page
  */
 public class HomeQueries {
@@ -23,6 +27,7 @@ public class HomeQueries {
     }
 
     HashMap queries;
+    public static final int NUMBER_OF_RECIPES = 10;
     final FirebaseFirestore database = FirebaseFirestore.getInstance();
     CollectionReference ref = database.collection("recipes");
 
@@ -33,7 +38,7 @@ public class HomeQueries {
         queries.put("score", buildQuery(user).orderBy("rating.overallRating", Query.Direction.DESCENDING));
         queries.put("votes", buildQuery(user).orderBy("rating.totalRates", Query.Direction.DESCENDING));
         queries.put("timestamp", buildQuery(user).orderBy("timestamp", Query.Direction.DESCENDING));
-        queries.put("favourite", ref.whereArrayContains("favourite", user.getUID().hashCode()));
+        queries.put("favourite", ref.whereArrayContains("favourite", user.getUID()));
         if(!user.getPreferences().isVegan()){
             queries.put("topVegan", buildQuery(user).whereEqualTo("vegan", true).orderBy("score", Query.Direction.DESCENDING));
             if(!user.getPreferences().isVegetarian()){
@@ -80,6 +85,6 @@ public class HomeQueries {
         if(user.getPreferences().isAllergy_soya()){
             query = query.whereEqualTo("noSoy", true);
         }
-        return query.limit(5);
+        return query.limit(NUMBER_OF_RECIPES);
     }
 }

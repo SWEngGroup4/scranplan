@@ -2,8 +2,6 @@ package com.group4sweng.scranplan.UserInfo;
 
 import android.util.Log;
 
-
-
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayInputStream;
@@ -27,7 +25,8 @@ import java.util.List;
 public class UserInfoPrivate implements Serializable, Cloneable{
 
     //  Unique Log TAG ID.
-    private final static String TAG = "UserInfo";
+    final static String TAG = "UserInfo";
+    final static int INITIAL_KUDOS = 0;
 
     //  User information
     private String UID;
@@ -35,13 +34,11 @@ public class UserInfoPrivate implements Serializable, Cloneable{
     private String imageURL;
     private String about;
     private String email;
+    private long posts;
     private List<HashMap<String, Object>> mealPlanner;
-
-    private List<HashMap<String, Object>> ingredientList;
-    private boolean shortPreferences = true;
-    private boolean firstAppLaunch = true;
-    private boolean firstPresentationLaunch = true;
-
+    private boolean shortPreferences;
+    private boolean firstAppLaunch;
+    private boolean firstPresentationLaunch;
     private boolean firstMealPlannerLaunch;
     private long followers;
     private long following;
@@ -76,8 +73,7 @@ public class UserInfoPrivate implements Serializable, Cloneable{
         this.imageURL = (String) map.get("imageURL");
         this.about = (String) map.get("about");
         this.mealPlanner = (List<HashMap<String, Object>>) map.get("mealPlan");
-        this.ingredientList = (List<HashMap<String, Object>>) map.get("ingredientList");
-                this.shortPreferences = (boolean) map.get("shortPreferences");
+        this.shortPreferences = (boolean) map.get("shortPreferences");
         this.firstAppLaunch = (boolean) map.get("firstAppLaunch");
         this.firstPresentationLaunch = (boolean) map.get("firstPresentationLaunch");
         this.firstMealPlannerLaunch = (boolean) map.get("firstMealPlannerLaunch");
@@ -170,6 +166,14 @@ public class UserInfoPrivate implements Serializable, Cloneable{
     }
     */
 
+    public long getPosts() {
+        return posts;
+    }
+
+    public void setPosts(long posts) {
+        this.posts = posts;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -184,13 +188,6 @@ public class UserInfoPrivate implements Serializable, Cloneable{
 
     public void setMealPlanner(List<HashMap<String, Object>> mealPlanner) {
         this.mealPlanner = mealPlanner;
-    }
-    public  List<HashMap<String, Object>>  getIngredientList(){
-        return ingredientList;
-    }
-
-    public void setIngredients(List<HashMap<String, Object>> ingredientList) {
-        this.ingredientList = ingredientList;
     }
 
     public String getUID() {
@@ -239,7 +236,14 @@ public class UserInfoPrivate implements Serializable, Cloneable{
 
     public void setIsPrivateProfileEnabled(boolean isPrivateProfileEnabled ){ this.isPrivateProfileEnabled = isPrivateProfileEnabled; }
 
-
+    public void setPrivacyPublic(HashMap<String, Object> privacy) {
+        //  Check the HashMap has been properly initialized with all valid privacy parameters., otherwise return a runtime exception.
+        if (privacy.containsKey("display_username") && privacy.containsKey("display_profile_image") && privacy.containsKey("display_about_me") && privacy.containsKey("display_recipes") && privacy.containsKey("display_filters") && privacy.containsKey("display_feed")) {
+            this.privacyPublic = privacy;
+        } else {
+            throw new RuntimeException("Tried to set privacy settings for public profile with invalid or incomplete inputs");
+        }
+    }
 
     public void setPrivatePrivacy(HashMap<String, Object> privacy) {
         //  Check the HashMap has been properly initialized with all valid privacy parameters., otherwise return a runtime exception.
@@ -267,7 +271,6 @@ public class UserInfoPrivate implements Serializable, Cloneable{
     public boolean getFirstPresentationLaunch() {
         return firstPresentationLaunch;
     }
-
 
     public void setFirstMealPlannerLaunch(boolean firstLaunch) {firstMealPlannerLaunch = firstLaunch; }
 

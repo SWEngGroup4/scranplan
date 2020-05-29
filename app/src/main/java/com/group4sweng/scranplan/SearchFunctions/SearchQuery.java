@@ -3,6 +3,10 @@ package com.group4sweng.scranplan.SearchFunctions;
 import com.algolia.search.saas.Query;
 
 /**
+ * Building search query class.
+ * Author(s): LNewman, NBillis
+ * (c) CoDev 2020
+ *
  * Builds up a search query from the preferences selected by the user.
  */
 public class SearchQuery {

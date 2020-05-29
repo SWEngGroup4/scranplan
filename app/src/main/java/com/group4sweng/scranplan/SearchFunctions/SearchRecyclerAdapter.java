@@ -12,10 +12,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.group4sweng.scranplan.R;
+import com.group4sweng.scranplan.Social.ProfileRecipes;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 /**
+ * Class for the search recycler adapter.
+ * Author(s): LNewman
+ * (c) CoDev 2020
+ *
  *  Class holding the recycler adapter for the search functionality, each card will represent the view
  *  of one recipe. All recipe info is stored in this card.
  *  Creating a card view that hold the picture and the document which, the picture will be displayed
@@ -25,6 +30,7 @@ public class SearchRecyclerAdapter extends RecyclerView.Adapter<SearchRecyclerAd
 
     // Variables for database and fragment to be displayed in
     private SearchListFragment mSearchListFragment;
+    private ProfileRecipes mProfileRecipes;
     private List<SearchRecipePreviewData> mDataset;
 
     public static class SearchRecipePreviewData {
@@ -78,6 +84,16 @@ public class SearchRecyclerAdapter extends RecyclerView.Adapter<SearchRecyclerAd
     }
 
     /**
+     * Constructor to add all variables
+     * @param profileRecipes
+     * @param dataset
+     */
+    public SearchRecyclerAdapter (ProfileRecipes profileRecipes, List<SearchRecipePreviewData> dataset) {
+        mProfileRecipes = profileRecipes;
+        mDataset = dataset;
+    }
+
+    /**
      * Building and inflating the view within its parent
      * @param parent
      * @param viewType
@@ -120,6 +136,7 @@ public class SearchRecyclerAdapter extends RecyclerView.Adapter<SearchRecyclerAd
 
             }
         });
+
     }
 
     // Getting dataset size

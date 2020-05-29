@@ -5,17 +5,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -84,12 +79,6 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     private boolean followed = false;
     private boolean privateProfile;
 
-    Fragment fragment;
-    FrameLayout frameLayout;
-    FragmentManager fragmentManager = getSupportFragmentManager();
-    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-    private String searchers;
-
     //  Default filter type enumeration. Types shown in 'FilterType' interface.
     FilterType.filterType currentFilterType = ALLERGENS;
 
@@ -102,7 +91,6 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     ImageView mProfileImage;
     TextView mUsername;
     TextView mAboutMe;
-    TextView mAboutMeDesc;
     TextView mNumRecipes;
     TextView mKudos;
     ImageView mKudosIcon;
@@ -125,6 +113,12 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         setContentView(R.layout.activity_public_profile);
 
         initPageItems();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
         //  Gets extra string UID attached when an intent is sent.
         UID = getIntent().getStringExtra("UID");
 
@@ -140,14 +134,6 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
             Log.e(TAG, "Unable to retrieve extra UID intent string. Cannot initialize profile.");
         }
     }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-
-    }
-
 
     /** Update the public profile based on what has been passed via the Intent.
      * @param flt - Firebase Load Type. Either PARTIAL or FULL. FULL = all data from firebase from a UID string.
@@ -177,12 +163,9 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
     }
 
-
-
     private void initPageItems(){
         mProfileImage = findViewById(R.id.public_profile_image);
-        mAboutMeDesc = findViewById(R.id.public_profile_about_me_desc);
-        mAboutMe = findViewById(R.id.profile_about_me);
+        mAboutMe = findViewById(R.id.public_profile_about_me_desc);
         mNumRecipes = findViewById(R.id.profile_recipes);
         mUsername = findViewById(R.id.profile_username);
         mKudos = findViewById(R.id.profile_kudos);
@@ -342,8 +325,10 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         if(retrieveAboutMe) { //  If we are allowed to retrieve this data. do so.
             mAboutMeDesc.setText((String) profile.get("about"));
         } else {
-            mAboutMe.setVisibility(View.GONE); // Adjust if the view is visible.
-            mAboutMeDesc.setVisibility(View.GONE);
+            View profileAboutMeDesc = findViewById(R.id.public_profile_about_me_desc);
+            View profileAboutMe = findViewById(R.id.profile_about_me);
+            profileAboutMe.setVisibility(View.GONE); // Adjust if the view is visible.
+            profileAboutMeDesc.setVisibility(View.GONE);
         }
 
         if(retrieveImages) {
@@ -356,7 +341,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                         .load(profile.get("imageURL"))
                         .apply(RequestOptions.circleCropTransform())
                         .into(mProfileImage); }
-        }
+            }
 
 //        if(retrieveUsername){ mUsername.setText((String) profile.get("displayName")); }
         mUsername.setText((String) profile.get("displayName"));
@@ -366,24 +351,8 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         if(retrieveFilters){
             @SuppressWarnings("unchecked")
             HashMap<String, Object> filters = (HashMap<String, Object>) profile.get("preferences");
-
-            boolean showFilters = false;
-            //  Checks hashmap to see if any filters are enabled.
-            assert filters != null;
-            for (HashMap.Entry<String, Object> entry : filters.entrySet()) {
-                boolean isEnabled = (boolean) entry.getValue();
-
-                if(isEnabled){
-                    showFilters = true;
-                }
-            }
-
-            if(showFilters){
-                initFiltersIcons(ALLERGENS, filters);
-                initFiltersIcons(DIETARY, filters);
-                LinearLayout dietLayout = findViewById(R.id.dietLayout);
-                dietLayout.setVisibility(View.VISIBLE);
-            }
+            initFiltersIcons(ALLERGENS, filters);
+            initFiltersIcons(DIETARY, filters);
         } else { // Remove all checkboxes if filters are hidden.
             LinearLayout allergyLayout = findViewById(R.id.allergyLayout);
             View allergyPressInfo = findViewById(R.id.allergyPressInfo);
@@ -480,7 +449,6 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                         }
                         loadProfile(document); // Then we load the public users profile.
                     }
-                    postsFollowersFollowing(document);
                     loadKudosAndRecipes(document);
                     initKudosIconPressListener();
                     Log.i(TAG, "Successfully loaded the users profile");
@@ -567,12 +535,12 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     //  Reduces amount of Firebase Queries overall.
     private void loadLocalProfile() {
         if (retrieveAboutMe) { //  If we are allowed to retrieve this data. do so.
-            mAboutMeDesc.setText(mUserProfile.getAbout());
+            mAboutMe.setText(mUserProfile.getAbout());
         } else {
-            mAboutMe.setVisibility(View.GONE);
-            mAboutMeDesc.setVisibility(View.GONE);
-            //LinearLayout aboutLayout = findViewById(R.id.aboutMeLayout);
-            //aboutLayout.setVisibility(View.VISIBLE);
+            View profileAboutMeDesc = findViewById(R.id.public_profile_about_me_desc);
+            View profileAboutMe = findViewById(R.id.profile_about_me);
+            profileAboutMe.setVisibility(View.GONE);
+            profileAboutMeDesc.setVisibility(View.GONE);
         }
 
         if(retrieveUsername){ mUsername.setText(mUserProfile.getDisplayName()); }
@@ -601,23 +569,8 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
             filters.put("vegan", mUserProfile.getPreferences().isVegan());
             filters.put("vegetarian", mUserProfile.getPreferences().isVegetarian());
 
-            boolean showFilters = false;
-
-            //  Checks hashmap to see if any filters are enabled.
-            for (HashMap.Entry<String, Object> entry : filters.entrySet()) {
-                boolean isEnabled = (boolean) entry.getValue();
-
-                if(isEnabled){
-                    showFilters = true;
-                }
-            }
-
-            if(showFilters){
-                initFiltersIcons(ALLERGENS, filters);
-                initFiltersIcons(DIETARY, filters);
-                LinearLayout dietLayout = findViewById(R.id.dietLayout);
-                dietLayout.setVisibility(View.VISIBLE);
-            }
+            initFiltersIcons(ALLERGENS, filters);
+            initFiltersIcons(DIETARY, filters);
 
         } else { // Remove preferences icons if required.
             LinearLayout allergyLayout = findViewById(R.id.allergyLayout);
