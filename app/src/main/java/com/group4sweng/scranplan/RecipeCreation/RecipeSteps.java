@@ -1,7 +1,6 @@
 package com.group4sweng.scranplan.RecipeCreation;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -25,8 +24,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.group4sweng.scranplan.Drawing.LayoutCreator;
-import com.group4sweng.scranplan.Drawing.Rectangle;
-import com.group4sweng.scranplan.Drawing.Triangle;
 import com.group4sweng.scranplan.LoadingDialog;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeCreation.RecipeStepsRecycler.StepData;
@@ -40,6 +37,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class RecipeSteps extends Fragment {
 
@@ -53,6 +51,7 @@ public class RecipeSteps extends Fragment {
     private String mFontSize;
     private Integer mFontSizeInt;
     private Integer mFontColor;
+    private Integer mFontBackground;
 
     private UserInfoPrivate mUser;
     private StorageReference mStorageRef;
@@ -72,8 +71,8 @@ public class RecipeSteps extends Fragment {
     private RecyclerView.SmoothScroller smoothScroller;
     private Integer mAdapterPos;
 
-    private Boolean imagePresent;
-    private Boolean videoPresent;
+    private ArrayList<Boolean> imagePresent;
+    private ArrayList<Boolean> videoPresent;
 
     private Integer mediaRequestCode = 1;
     private Integer audioRequestCode = 2;
@@ -118,6 +117,7 @@ public class RecipeSteps extends Fragment {
         mFontSize = "Medium";
         mFontSizeInt = 18;
         mFontColor = Color.BLACK;
+        mFontBackground = Color.WHITE;
 
         slides = new ArrayList<>();
 
@@ -136,8 +136,8 @@ public class RecipeSteps extends Fragment {
             }
         };
 
-        imagePresent = false;
-        videoPresent = false;
+        imagePresent = new ArrayList<>();
+        videoPresent = new ArrayList<>();
     }
 
     private void initPageListeners(View view) {
@@ -148,6 +148,7 @@ public class RecipeSteps extends Fragment {
             bundle.putString("font", mFont);
             bundle.putString("size", mFontSize);
             bundle.putInt("fontColour", mFontColor);
+            bundle.putInt("fontBackground", mFontBackground);
 
             RecipeDefaultsCreation defaultsCreation = new RecipeDefaultsCreation();
             defaultsCreation.setArguments(bundle);
@@ -172,6 +173,9 @@ public class RecipeSteps extends Fragment {
         mAudioUris.add(null);
         mAudioRefs.add(null);
 
+        imagePresent.add(false);
+        videoPresent.add(false);
+
         smoothScroller.setTargetPosition(mAdapter.getItemCount() - 1);
         mManager.startSmoothScroll(smoothScroller);
     }
@@ -187,8 +191,8 @@ public class RecipeSteps extends Fragment {
         mStepList.get(position).removeMedia();
         mMediaRefs.remove(position);
         mMediaUris.remove(position);
-        imagePresent = false;
-        videoPresent = false;
+        imagePresent.set(position, false);
+        videoPresent.set(position, false);
         mAdapter.notifyDataSetChanged();
     }
 
@@ -233,13 +237,13 @@ public class RecipeSteps extends Fragment {
 
                 if (mMediaUri != null) {
                     if (mMediaUri.toString().contains("image")) {
-                        imagePresent = true;
+                        imagePresent.set(mAdapterPos, true);
                         mMediaRefs.add(mAdapterPos, mStorageRef.child("presentations/images/"
                                 + mUser.getUID() + "_" + mUser.getRecipes() + "_step" + mAdapterPos));
                         mStepList.get(mAdapterPos).setMedia(mMediaUri);
                         mAdapter.notifyDataSetChanged();
                     } else if (mMediaUri.toString().contains("video")) {
-                        videoPresent = true;
+                        imagePresent.set(mAdapterPos, true);
                         mMediaRefs.add(mAdapterPos, mStorageRef.child("presentations/videos/"
                                 + mUser.getUID() + "_" + mUser.getRecipes() + "_step" + mAdapterPos));
                         mStepList.get(mAdapterPos).setMedia(mMediaUri);
@@ -270,6 +274,7 @@ public class RecipeSteps extends Fragment {
                 mFont =  bundle.getString("font");
                 mFontSize = bundle.getString("size");
                 mFontColor = bundle.getInt("fontColour");
+                mFontBackground = bundle.getInt("fontBackground");
 
                 switch (mFontSize) {
                     case "Small":
@@ -294,15 +299,12 @@ public class RecipeSteps extends Fragment {
             return null;
         }
 
-        @Override
-        protected void onPostExecute(Void result) {
-            Log.d("Test", "POST EXECUTE");
-        }
-
         private void buildXML() {
             ArrayList<XmlParser.Audio> audios = new ArrayList<>();
+            Uri audioDownload = null;
             ArrayList<XmlParser.Image> images = new ArrayList<>();
             ArrayList<XmlParser.Video> videos = new ArrayList<>();
+            ArrayList<Uri> mediaDownloads = new ArrayList<>();
 
             List<UploadTask> uploadTasks = new ArrayList<>();
             List<Task<Uri>> downloadTasks = new ArrayList<>();
@@ -313,6 +315,7 @@ public class RecipeSteps extends Fragment {
                 audios.add(null);
                 images.add(null);
                 videos.add(null);
+                mediaDownloads.add(null);
 
                 try {
                     UploadTask audioTask = mAudioRefs.get(pos).putFile(mAudioUris.get(pos));
@@ -336,7 +339,7 @@ public class RecipeSteps extends Fragment {
                 }
 
                 try {
-                    UploadTask mediaTask = mMediaRefs.get(pos).putFile(mMediaUris.get(pos));
+                    UploadTask mediaTask = mMediaRefs.get(i).putFile(mMediaUris.get(pos));
                     uploadTasks.add(mediaTask);
                     Log.d("Test", "Media[" + i + "] upload starting");
 
@@ -348,12 +351,8 @@ public class RecipeSteps extends Fragment {
                                 Task<Uri> downloadTask = mMediaRefs.get(pos).getDownloadUrl();
                                 downloadTasks.add(downloadTask);
                                 downloadTask.addOnSuccessListener(mediaUri -> {
-                                    Log.d("Test", "Media[" + finalI + " task complete");
-                                    if (imagePresent) {
-                                        images.set(pos, new XmlParser.Image(mediaUri.toString(), 30f, 10f, 40f, 40f, 0, 0));
-                                    } else if (videoPresent) {
-                                        videos.set(pos, new XmlParser.Video(mediaUri.toString(), 0, false, 30f, 10f));
-                                    }
+                                    Log.d("Test", "Media[" + finalI + " task complete with uri: " + mediaUri.toString());
+                                    mediaDownloads.set(finalI, mediaUri);;
                                 });
                             });
                 } catch (Exception e) {
@@ -367,15 +366,42 @@ public class RecipeSteps extends Fragment {
                     Tasks.whenAllSuccess(downloadTasks).addOnCompleteListener(dTask -> {
                         Log.d("Test", "All tasks complete for " + finalI1);
 
-                        XmlParser.Text text = new XmlParser.Text(mStepList.get(pos).getDescription(), mFont, mFontSizeInt, "#" + Integer.toHexString(mFontColor), 800,
-                                30f, 50f, 30f, 40f, 0, 0, "", "");
+                        XmlParser.Text text = null;
+                        if (!mStepList.get(pos).getDescription().equals("")) {
+                            if (imagePresent.get(pos) || videoPresent.get(pos)) {
+                                if (imagePresent.get(pos)) {
+                                    images.set(pos, new XmlParser.Image(mediaDownloads.get(pos).toString(), 10f, 10f, 80f, 40f, 0, 0));
+                                } else if (videoPresent.get(pos)) {
+                                    videos.set(pos, new XmlParser.Video(mediaDownloads.get(pos).toString(), 0, false, 10f, 30f));
+                                }
+                                text = new XmlParser.Text(mStepList.get(pos).getDescription(), "#" + Integer.toHexString(mFontBackground),
+                                        mFont, mFontSizeInt, "#" + Integer.toHexString(mFontColor), 800,
+                                        10f, 60f, 30f, 80f, 0, 0, "", "");
+                            } else {
+                                text = new XmlParser.Text(mStepList.get(pos).getDescription(), "#" + Integer.toHexString(mFontBackground),
+                                        mFont, mFontSizeInt, "#" + Integer.toHexString(mFontColor), 800,
+                                        10f, 10f, 80f, 80f, 0, 0, "", "");
+                            }
+                        }
+                        else {
+                            if (imagePresent.get(pos)) {
+                                images.set(pos, new XmlParser.Image(mediaDownloads.get(pos).toString(), 10f, 30f, 80f, 80f, 0, 0));
+                            } else if (videoPresent.get(pos)) {
+                                videos.set(pos, new XmlParser.Video(mediaDownloads.get(pos).toString(), 0, false, 30f, 10f));
+                            }
+                        }
 
                         ArrayList<XmlParser.Line> lines = new ArrayList<>();
                         ArrayList<XmlParser.Shape> shapes = mStepList.get(pos).getShapes();
                         ArrayList<XmlParser.Triangle> triangles = mStepList.get(pos).getTriangles();
+                        Float timer = null;
+                        if (mStepList.get(pos).getTimer() != null) {
+                            timer = mStepList.get(pos).getTimer() * 6000f;
+                        }
+
 
                         slides.add(new XmlParser.Slide("Step " + (pos + 1), -1, text, lines, shapes, triangles, audios.get(pos),
-                                null, images.get(pos), videos.get(pos), mStepList.get(pos).getimer()));
+                                null, images.get(pos), videos.get(pos), timer));
                         if (slides.size() == mAdapter.getItemCount())
                             createXML();
                     });
@@ -387,8 +413,8 @@ public class RecipeSteps extends Fragment {
             XmlSerializar xmlSerializar = new XmlSerializar();
             XmlParser.DocumentInfo documentInfo = new XmlParser.DocumentInfo(mUser.getUID(),
                     Calendar.getInstance().getTime().toString(), 1.0f, mAdapter.getItemCount(), "User recipe " + mUser.getRecipes());
-            XmlParser.Defaults defaults = new XmlParser.Defaults("#" + Integer.toHexString(mBackgroundColor), mFont, mFontSizeInt,
-                    "#" + Integer.toHexString(mFontColor), "#000000", "#000000", -1, -1);
+            XmlParser.Defaults defaults = new XmlParser.Defaults("#" + Integer.toHexString(mBackgroundColor), mFont, "#" + Integer.toHexString(mFontBackground),
+                    mFontSizeInt, "#" + Integer.toHexString(mFontColor), "#000000", "#000000", -1, -1);
             Log.d("Test", "Building XML");
             try {
                 File recipeXML = new File(getContext().getFilesDir().getPath() + "recipe.xml");

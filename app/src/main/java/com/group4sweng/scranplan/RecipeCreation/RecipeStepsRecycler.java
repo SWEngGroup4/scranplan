@@ -76,7 +76,7 @@ public class RecipeStepsRecycler extends RecyclerView.Adapter<RecipeStepsRecycle
             this.timer = timer;
         }
 
-        Float getimer() {
+        Float getTimer() {
             return this.timer;
         }
 

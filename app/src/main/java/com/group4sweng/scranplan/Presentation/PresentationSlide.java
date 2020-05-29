@@ -72,16 +72,14 @@ public class PresentationSlide extends RelativeLayout {
     public void addText(XmlParser.Text text) {
         PresentationTextView textView = new PresentationTextView(getContext(), slideHeight, slideWidth);
         textView.setDims(text.width, text.height);
-        textView.setBackgroundColor(getResources().getColor(R.color.colorWindow));
+        textView.setBackgroundColour(text.background);
         textView.setText(text.text);
         textView.setFont(text.font, text.fontWeight);
         textView.setTextSize(text.fontSize);
         textView.setTextColour(text.fontColor);
         textView.setPos(text.xPos, text.yPos);
-
-        if (text.startTime > 0)
-            textView.setStartTime(text.startTime);
-        if (text.endTime > text.startTime)
+        textView.setStartTime(text.startTime);
+        if (text.endTime > 0)
             textView.setEndTime(text.endTime);
 
         textViews.add(textView);
@@ -146,7 +144,8 @@ public class PresentationSlide extends RelativeLayout {
         imageView.setDims(image.width, image.height);
 
         imageView.setStartTime(image.startTime);
-        imageView.setEndTime(image.endTime);
+        if (image.endTime > 0)
+            imageView.setEndTime(image.endTime);
 
         imageViews.add(imageView);
         this.addView(imageView);
@@ -160,17 +159,5 @@ public class PresentationSlide extends RelativeLayout {
         playerView.setPos(video.xStart, video.yStart);
 
         this.addView(playerView);
-    }
-
-    //Add timer to file
-    public void addTimer(Float timer) {
-        TextView timerView = new TextView(getContext());
-        timerView.setText(String.format("Timer: %s", timer));
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_END, RelativeLayout.TRUE);
-        timerView.setLayoutParams(layoutParams);
-
-        this.addView(timerView);
     }
 }

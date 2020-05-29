@@ -107,6 +107,7 @@ public class XmlParser {
 
         String backgroundColor = null;
         String font = null;
+        String fontBackground = null;
         Integer fontSize = null;
         String fontColor = null;
         String lineColor = null;
@@ -125,6 +126,9 @@ public class XmlParser {
                     break;
                 case "font":
                     font = readString(parser);
+                    break;
+                case "fontBackground":
+                    fontBackground = readString(parser);
                     break;
                 case "fontsize":
                     fontSize = readInteger(parser);
@@ -150,7 +154,7 @@ public class XmlParser {
             }
         }
 
-        return new Defaults(backgroundColor, font, fontSize, fontColor, lineColor, fillColor, slideWidth, slideHeight);
+        return new Defaults(backgroundColor, font, fontBackground, fontSize, fontColor, lineColor, fillColor, slideWidth, slideHeight);
     }
 
     private Slide readSlide(XmlPullParser parser) throws  IOException, XmlPullParserException {
@@ -223,6 +227,7 @@ public class XmlParser {
         parser.require(XmlPullParser.START_TAG, null, "text");
 
         String font = defaults.font;
+        String background = defaults.fontBackground;
         Integer fontSize = defaults.fontSize;
         String fontColor = defaults.fontColor;
         Integer fontWeight = 300;
@@ -237,6 +242,9 @@ public class XmlParser {
 
         if (parser.getAttributeValue(null, "font") != null) {
             font = parser.getAttributeValue(null, "font");
+        }
+        if (parser.getAttributeValue(null, "background") != null) {
+            background = parser.getAttributeValue(null, "background");
         }
         if (parser.getAttributeValue(null, "fontsize") != null) {
             fontSize = Integer.valueOf(parser.getAttributeValue(null, "fontsize"));
@@ -275,7 +283,7 @@ public class XmlParser {
         String text = readString(parser);
         parser.require(XmlPullParser.END_TAG, null, "text");
 
-        return new Text(text, font, fontSize, fontColor, fontWeight, xPos, yPos, height, width,startTime, endTime, b, i);
+        return new Text(text, font, background, fontSize, fontColor, fontWeight, xPos, yPos, height, width,startTime, endTime, b, i);
     }
 
     private Line readLine(XmlPullParser parser) throws IOException, XmlPullParserException {
@@ -476,6 +484,7 @@ public class XmlParser {
     public static class Defaults {
         public final String backgroundColor;
         public final String font;
+        public final String fontBackground;
         public final Integer fontSize;
         public final String fontColor;
         public final String lineColor;
@@ -483,11 +492,11 @@ public class XmlParser {
         public final Integer slideWidth;
         public final Integer slideHeight;
 
-        public Defaults(String backgroundColor, String font, Integer fontSize,
-                        String fontColor, String lineColor, String fillColor,
-                        Integer slideWidth, Integer slideHeight) {
+        public Defaults(String backgroundColor, String font, String fontBackground, Integer fontSize,
+                        String fontColor, String lineColor, String fillColor, Integer slideWidth, Integer slideHeight) {
             this.backgroundColor = backgroundColor;
             this.font = font;
+            this.fontBackground = fontBackground;
             this.fontSize = fontSize;
             this.fontColor = fontColor;
             this.lineColor = lineColor;
@@ -530,6 +539,7 @@ public class XmlParser {
 
     public static class Text {
         public String text;
+        public final String background;
         public final String font;
         public final Integer fontSize;
         public final String fontColor;
@@ -545,6 +555,7 @@ public class XmlParser {
 
         public Text(String text, Defaults defaults) {
             this.text = text;
+            this.background = defaults.fontBackground;
             this.font = defaults.font;
             this.fontSize = defaults.fontSize;
             this.fontColor = defaults.fontColor;
@@ -559,9 +570,10 @@ public class XmlParser {
             this.i = "";
         }
 
-        public Text(String text, String font, Integer fontSize, String fontColor, Integer fontWeight, Float xPos,
+        public Text(String text, String background, String font, Integer fontSize, String fontColor, Integer fontWeight, Float xPos,
                      Float yPos, Float height, Float width, Integer startTime, Integer endTime, String b, String i) {
             this.text = text;
+            this.background = background;
             this.font = font;
             this.fontSize = fontSize;
             this.fontColor = fontColor;

@@ -77,6 +77,10 @@ public class XmlSerializar {
             xmlSerializer.text(defaults.font);
             xmlSerializer.endTag("", "font");
 
+            xmlSerializer.startTag("", "fontBackground");
+            xmlSerializer.text(defaults.fontBackground);
+            xmlSerializer.endTag("", "fontBackground");
+
             xmlSerializer.startTag("", "fontsize");
             xmlSerializer.text(defaults.fontSize.toString());
             xmlSerializer.endTag("", "fontsize");
@@ -117,6 +121,7 @@ public class XmlSerializar {
             if (slide.text != null) {
                 xmlSerializer.startTag("", "text");
                 xmlSerializer.attribute("", "font", slide.text.font);
+                xmlSerializer.attribute("", "fontBackground", slide.text.background);
                 xmlSerializer.attribute("", "fontsize",
                         slide.text.fontSize.toString());
                 xmlSerializer.attribute("", "fontcolor", slide.text.fontColor);
@@ -234,7 +239,7 @@ public class XmlSerializar {
 
             if (slide.timer != null) {
                 xmlSerializer.startTag("", "timer");
-                xmlSerializer.text(slide.timer.toString());
+                xmlSerializer.text(String.valueOf(Math.round(slide.timer)));
                 xmlSerializer.endTag("", "timer");
             }
 

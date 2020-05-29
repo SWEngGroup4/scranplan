@@ -24,15 +24,16 @@ public class PresentationImageView extends AppCompatImageView {
 
         this.slideHeight = slideHeight;
         this.slideWidth = slideWidth;
+        setLayoutParams(layoutParams);
     }
 
     public void setDims(Float width, Float height) {
-        layoutParams.width = Math.round(slideWidth * (width / 100));
-        layoutParams.height = Math.round(slideHeight * (height / 100));
+        layoutParams.width = Math.round(slideWidth * (80f / 100));
+        layoutParams.height = Math.round(slideHeight * (40f / 100));
     }
 
     public void setImage(String url) {
-        Picasso.get().load(url).into(this);
+        Picasso.get().load(url).fit().centerCrop().into(this);
     }
 
     public void setPos(Float xPos, Float yPos) {
@@ -66,8 +67,10 @@ public class PresentationImageView extends AppCompatImageView {
     }
 
     public void startTimers() {
-        startTimer.start();
-        endTimer.start();
+        if (startTimer != null)
+            startTimer.start();
+        if (endTimer != null)
+            endTimer.start();
     }
 
     // Stops timers running in case of slide change/transition

@@ -233,7 +233,6 @@ public class Presentation extends AppCompatActivity {
                     pSlide.addVideo(slide.video);
                 if (slide.timer != null) {
                     slideTimers.add(slideCount, slide.timer);
-                    pSlide.addTimer(slide.timer);
                 } else
                     slideTimers.add(slideCount, -1f);
 
@@ -374,7 +373,6 @@ public class Presentation extends AppCompatActivity {
 
             // Start timer listener that checks for a play/pause button press
             playPause.setOnClickListener(v -> {
-
                 //  Reference the current slides corresponding timer float values and audio objects.
                 AudioURL audio = slideAudio.get(currentSlide[0]);
                 AudioURL audioLooping = slideAudioLooping.get(currentSlide[0]);

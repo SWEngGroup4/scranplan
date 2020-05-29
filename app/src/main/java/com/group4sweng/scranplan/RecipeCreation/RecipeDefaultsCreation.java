@@ -27,12 +27,14 @@ public class RecipeDefaultsCreation extends AppCompatDialogFragment {
     private Spinner mSlideFont;
     private Spinner mFontSize;
     private Button mFontColourButton;
+    private Button mFontBackgroundButton;
     private Button mSubmit;
 
     private Integer mBackgroundColour;
     private String mFont;
     private String mSize;
     private Integer mFontColour;
+    private Integer mFontBackground;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,6 +61,7 @@ public class RecipeDefaultsCreation extends AppCompatDialogFragment {
         mFont = bundle.getString("font");
         mSize = bundle.getString("size");
         mFontColour = bundle.getInt("fontColour");
+        mFontBackground = bundle.getInt("fontBackground");
     }
 
     private void initPageItems(View v) {
@@ -78,6 +81,9 @@ public class RecipeDefaultsCreation extends AppCompatDialogFragment {
 
         mFontColourButton = v.findViewById(R.id.fontColourPicker);
         mFontColourButton.setBackgroundColor(mFontColour);
+
+        mFontBackgroundButton = v.findViewById(R.id.fontBackgroundPicker);
+        mFontBackgroundButton.setBackgroundColor(mFontBackground);
 
         mSubmit = v.findViewById(R.id.slideDefaultsSubmit);
     }
@@ -141,12 +147,30 @@ public class RecipeDefaultsCreation extends AppCompatDialogFragment {
             .show()
         );
 
+        mFontBackgroundButton.setOnClickListener(view -> ColorPickerDialogBuilder
+            .with(v.getContext())
+            .setTitle("Choose color")
+            .initialColor(Color.WHITE)
+            .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
+            .density(12)
+            .setOnColorSelectedListener(selectedColor -> Toast.makeText(getContext(),
+                    "onColorSelected: 0x" + Integer.toHexString(selectedColor),
+                    Toast.LENGTH_SHORT).show())
+            .setPositiveButton("ok", (dialog, selectedColor, allColors) -> {
+                mFontBackgroundButton.setBackgroundColor(selectedColor);
+                mFontBackground = selectedColor; })
+            .setNegativeButton("cancel", (dialog, which) -> {})
+            .build()
+            .show()
+        );
+
         mSubmit.setOnClickListener(view -> {
             Intent intent = new Intent();
             intent.putExtra("backColour", mBackgroundColour);
             intent.putExtra("font", mFont);
             intent.putExtra("size", mSize);
             intent.putExtra("fontColour", mFontColour);
+            intent.putExtra("fontBackground", mFontBackground);
 
             Objects.requireNonNull(getTargetFragment()).onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
             dismiss();

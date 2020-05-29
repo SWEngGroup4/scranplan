@@ -74,7 +74,7 @@ public class PresentationTextView extends ScrollView {
 
     // Sets background colour of text box
     public void setBackgroundColour(String colour) {
-        this.setBackgroundColor(Color.parseColor(colour));
+        textView.setBackgroundColor(Color.parseColor(colour));
     }
 
     // Sets text in text box (Handles <b> and <i> tags within string)
