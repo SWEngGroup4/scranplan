@@ -726,7 +726,7 @@ public class FeedFragment extends Fragment {
                         bundle.putBoolean("planner", true); //Condition to let child fragments know access is from planner
 
                         //Creates and launches recipe fragment
-                        recipeFragment = new RecipeFragment();
+                        recipeFragment = new RecipeFragment(mUser);
                         recipeFragment.setArguments(bundle);
                         recipeFragment.setTargetFragment(FeedFragment.this, 1);
                         fragmentTransaction = getParentFragmentManager().beginTransaction();
