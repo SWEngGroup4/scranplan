@@ -38,6 +38,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 /** Test the Home Activity.
+ * Author(s): LNewman, NBillis
+ * (c) CoDev 2020
+ *
  *  Tests are included to make sure information is displayed, user can successfully after search
  *  parameters and search for the meals they want.
  *
@@ -47,7 +50,7 @@ import static org.junit.Assert.assertNotEquals;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class HomeTest implements Credentials{
+public class HomeTest implements Credentials {
 
     //  Android Log tag.
     String TAG = "homeTest";
@@ -96,7 +99,7 @@ public class HomeTest implements Credentials{
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        onView(withText("Bacon Sandwich"))
+        onView(withText("Braised peas with bacon, lentils and cod"))
                 .check(matches(isDisplayed()));
 
         Espresso.pressBack();
@@ -185,9 +188,6 @@ public class HomeTest implements Credentials{
         // Open up filter menu
         onView(withId(R.id.menuSortButton)).perform(click());
 
-        //  Change every switch and Checkboxes value.
-        onView(withId(R.id.chefCheckBox))
-                .perform(click());
 
         // Change tab
         onView(withText("Diet")).perform(click());
@@ -206,7 +206,7 @@ public class HomeTest implements Credentials{
                 .perform(click());
 
         // Change tab
-        onView(withText("Sort")).perform(click());
+        onView(withText("SORT")).perform(click());
 
         onView(withId(R.id.voteCheckBox))
                 .perform(click());
@@ -233,9 +233,9 @@ public class HomeTest implements Credentials{
         assertNotEquals(initialSettings.get("vote"),  mActivityTestRule.getActivity().mVoteBox.isChecked());
         assertEquals(initialSettings.get("time"),  mActivityTestRule.getActivity().mTimeBox.isChecked());
 
-        assertNotEquals(initialSettings.get("ingred"),  mActivityTestRule.getActivity().mIngredientsBox.isChecked());
+        assertEquals(initialSettings.get("ingred"),  mActivityTestRule.getActivity().mIngredientsBox.isChecked());
         assertEquals(initialSettings.get("name"),  mActivityTestRule.getActivity().mNameBox.isChecked());
-        assertNotEquals(initialSettings.get("chef"),  mActivityTestRule.getActivity().mChefBox.isChecked());
+        assertEquals(initialSettings.get("chef"),  mActivityTestRule.getActivity().mChefBox.isChecked());
 
     }
 
@@ -325,6 +325,8 @@ public class HomeTest implements Credentials{
 
 
     @After
-    public void finishOff() {
+    public void tearDown() {
+        EspressoHelper.shouldSkip = false;
+        this.mActivityTestRule.finishActivity();
     }
 }

@@ -6,10 +6,12 @@ import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
+import com.group4sweng.scranplan.Credentials;
 import com.group4sweng.scranplan.EspressoHelper;
 import com.group4sweng.scranplan.Login;
 import com.group4sweng.scranplan.R;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,14 +32,14 @@ import static org.hamcrest.CoreMatchers.not;
  * (c) CoDev 2020
  *
  * IMPORTANT: The following may not work if profile filters are included that exclude the recipe search criteria for the chosen test recipe.
+ *
+ *  -- USER STORY TESTS LINKED WITH ---
+ *  C21, Audio/timer
  **/
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class TimerTest extends EspressoHelper {
+public class TimerTest extends EspressoHelper implements Credentials {
 
-    //  Default test values.
-    private static final String TEST_EMAIL = "jb2200@york.ac.uk";
-    private static final String TEST_PASSWORD = "password";
 
     //  Test recipe to search for and compare our results to.
     private static final String TEST_RECIPE = "Ultimate spaghetti carbonara recipe";
@@ -46,7 +48,6 @@ public class TimerTest extends EspressoHelper {
     //  -1 means no timer is present.
     private static final int[] TEST_RECIPE_TIMER_VALUES = {-1, -1, -1, 600000, -1, -1, 300000, -1, -1, -1, -1, -1};
 
-    private static final int THREAD_SLEEP_TIME = 3000;
 
     //  Login, search for the appropriate recipe and open the presentation.
     @Before
@@ -188,5 +189,9 @@ public class TimerTest extends EspressoHelper {
         onView(withId(R.id.final_duration_text))
                 .check(matches(isDisplayed()))
                 .check(matches(withText(PresentationTimer.printOutputTime(TEST_RECIPE_TIMER_VALUES[6]))));
+    }
+    @After
+    public void tearDown() throws Exception {
+        EspressoHelper.shouldSkip = false;
     }
 }

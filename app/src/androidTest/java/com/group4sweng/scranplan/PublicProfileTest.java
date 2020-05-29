@@ -8,6 +8,7 @@ import com.group4sweng.scranplan.UserInfo.Kudos;
 import com.group4sweng.scranplan.UserInfo.Preferences;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,7 +29,11 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
  *
  *  =====MANUAL TESTS=====
  *  Tests for if data is able to be properly retrieved for multiple users. Also included tests that an appropriate image is displayed
- *  when the user updates this in there profile settings.*/
+ *  when the user updates this in there profile settings.
+ *
+ *  -- USER STORY TESTS LINKED WITH ---
+ * A4, A11
+ */
 public class PublicProfileTest extends EspressoHelper implements Credentials{
 
     //  Default test values.
@@ -81,9 +86,11 @@ public class PublicProfileTest extends EspressoHelper implements Credentials{
     //  Check the number of recipes & Kudos are visible.
     @Test
     public void testNumberOfRecipesAndKudosAreVisible(){
-        onView(withId(R.id.profile_recipes))
-                .check(matches(isDisplayed()));
 
+        if((boolean) testUser.getPublicPrivacy().get("display_recipes")) {
+            onView(withId(R.id.profile_recipes))
+                .check(matches(isDisplayed()));
+    }
         onView(withId(R.id.profile_kudos))
                 .check(matches(isDisplayed()));
     }
@@ -217,5 +224,11 @@ public class PublicProfileTest extends EspressoHelper implements Credentials{
 
         onView(withText(Kudos.chefLevel))
                 .check(matches(isDisplayed()));
+    }
+
+    @After
+    public void tearDown() {
+        EspressoHelper.shouldSkip = false;
+        this.mActivityTestRule.finishActivity();
     }
 }
