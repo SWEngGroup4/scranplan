@@ -476,7 +476,7 @@ public class MessengerFeedFragment extends FeedFragment {
         //recyclerView.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels));
         // Array to score downloaded data
         data = new ArrayList<>();
-        final RecyclerView.Adapter rAdapter = new MessengerFeedRecyclerAdapter(MessengerFeedFragment.this, data, mUser, view);
+        final MessengerFeedRecyclerAdapter rAdapter = new MessengerFeedRecyclerAdapter(MessengerFeedFragment.this, data, mUser, view);
         recyclerView.setAdapter(rAdapter);
         int numberOfMessages = 50;
         query = mRef.orderBy("timestamp", Query.Direction.DESCENDING).limit(numberOfMessages);

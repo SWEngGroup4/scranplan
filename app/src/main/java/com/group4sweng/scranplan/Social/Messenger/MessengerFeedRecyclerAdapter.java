@@ -52,19 +52,8 @@ public class MessengerFeedRecyclerAdapter extends RecyclerView.Adapter<Messenger
     /**  Firebase **/
     FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
 
-    /**
-     * Constructor to add all variables
-     * @param profilePosts
-     * @param dataset
-     */
-    public MessengerFeedRecyclerAdapter(ProfilePosts profilePosts, List<FeedPostPreviewData> dataset , UserInfoPrivate user, View mView) {
-        mProfilePosts = profilePosts;
-        mDataset = dataset;
-        this.user = user;
-        view = mView;
-    }
 
-    public MessengerFeedRecyclerAdapter(MessengerFeedFragment messengerFeedFragment, List<FeedPostPreviewData> dataset, UserInfoPrivate mUser, View view) {
+    MessengerFeedRecyclerAdapter(MessengerFeedFragment messengerFeedFragment, List<FeedPostPreviewData> dataset, UserInfoPrivate mUser, View view) {
             mFeedFragment = messengerFeedFragment;
             mDataset = dataset;
             this.user = mUser;
@@ -261,6 +250,10 @@ public class MessengerFeedRecyclerAdapter extends RecyclerView.Adapter<Messenger
             holder.uploadedImageView.setVisibility(View.VISIBLE);
             Picasso.get().load(mDataset.get(position).uploadedImageURL).into(holder.uploadedImageView);
         }
+        if (mDataset.get(position).uploadedImageURL == null) {
+                holder.picLayout.setVisibility(View.GONE);
+                holder.uploadedImageView.setVisibility(View.GONE);
+            }
         if (mDataset.get(position).isRecipe) {
             holder.recipeLayout.setVisibility(View.VISIBLE);
             holder.recipeTitle.setVisibility(View.VISIBLE);
@@ -278,6 +271,15 @@ public class MessengerFeedRecyclerAdapter extends RecyclerView.Adapter<Messenger
                 holder.recipeRating.setRating(mDataset.get(position).review);
             }
         }
+            if (!mDataset.get(position).isRecipe) {
+                holder.recipeLayout.setVisibility(View.GONE);
+                holder.recipeTitle.setVisibility(View.GONE);
+                holder.recipeDescription.setVisibility(View.GONE);
+                holder.recipeImageView.setVisibility(View.GONE);
+                if (!mDataset.get(position).isReview) {
+                    holder.recipeRating.setVisibility(View.GONE);
+                }
+            }
 
 
         holder.cardView.setOnClickListener(new View.OnClickListener() {
@@ -348,33 +350,27 @@ public class MessengerFeedRecyclerAdapter extends RecyclerView.Adapter<Messenger
                     LoadingDialog loadingDialog = new LoadingDialog(mFeedFragment.getActivity());
                     loadingDialog.startLoadingDialog();
 
-                    mDatabase.collection("recipes").document(mDataset.get(position).recipeID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if (task.isSuccessful()) {
-                                if (task.getResult().exists()) {
+                    if(mDataset.get(position).recipeID != null) {
+                        mDatabase.collection("recipes").document(mDataset.get(position).recipeID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    if (task.getResult().exists()) {
+                                        DocumentSnapshot document = task.getResult();
+                                        if (mFeedFragment != null) {
+                                            mFeedFragment.recipeSelected(document);
+                                        } else {
+                                            mProfilePosts.recipeSelected(document);
+                                        }
 
-                                    DocumentSnapshot document = task.getResult();
-
-                                    if(mFeedFragment != null){
-                                        mFeedFragment.recipeSelected(document);
-                                    }else{
-                                        mProfilePosts.recipeSelected(document);
+                                        loadingDialog.dismissDialog();
                                     }
-
-
-                                    loadingDialog.dismissDialog();
-
                                 }
                             }
-                        }
-                    });
-
-
-
+                        });
+                    }
                 }
             });
-
     }
     }
 
