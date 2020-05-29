@@ -45,6 +45,7 @@ import com.group4sweng.scranplan.Social.FeedFragment;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -133,8 +134,8 @@ public class RecipeReviewFragment extends FeedFragment {
 
                         DocumentSnapshot document = task.getResult();
                         mStars.setRating(Float.parseFloat(document.get("overallRating").toString()));
-                        postID = document.get("post").toString();
-                        oldUserStarRating = document.get("overallRating").toString();
+                        postID = document.get("docID").toString();
+                        oldUserRating = (double) document.get("overallRating");
 
                         mDatabase.collection("posts").document(postID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
@@ -216,9 +217,9 @@ public class RecipeReviewFragment extends FeedFragment {
                 RecipeInfoFragment repInfo = (RecipeInfoFragment) getParentFragment();
                 repInfo.updateStarRating(ratingMap.get("overallRating").toString());
 
-//                mPostBodyInput.getText().clear();
-
                 addingReviewFirestore(layout);
+
+                checkReview();
 
             }
         });
@@ -255,7 +256,7 @@ public class RecipeReviewFragment extends FeedFragment {
 
         if(reviewMade){
 
-            oldUserRating = Double.parseDouble(oldUserStarRating);
+//            oldUserRating = Double.parseDouble(oldUserStarRating);
 //            oldTotalRates = ratingMap.get("totalRates")-1;
 //            oldOverallRating = (((ratingMap.get("overallRating") * ratingMap.get("totalRates")) - oldUserRating)) / oldTotalRates;
 //            Log.i(TAG, "Values: "+ oldOverallRating);
@@ -416,6 +417,8 @@ public class RecipeReviewFragment extends FeedFragment {
                         // Update the UserInfoPrivate class with this new image URL.
                         POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
                         loadingDialog.dismissDialog();
+                        reviewMade = true;
+                        postID = postRef.getId();
                     }
                 });
 
@@ -517,6 +520,9 @@ public class RecipeReviewFragment extends FeedFragment {
                         // Update the mUserInfoPrivate class with this new image URL.
                         POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
                         loadingDialog.dismissDialog();
+                        reviewMade = true;
+                        postID = postRef.getId();
+
                     }
                 });
 
@@ -565,6 +571,7 @@ public class RecipeReviewFragment extends FeedFragment {
                             doc.put("userImage", userImage);
                             doc.put("docID", document.getId());
                             data.add(new recipeReviewRecyclerAdapter.reviewData(doc));
+
                         }
                         rAdapter.notifyDataSetChanged();
                         // Set the last document as last mUser can see
