@@ -175,6 +175,7 @@ public class RecipeFragment extends Fragment {
                     @Override
                     public boolean onQueryTextSubmit(String s) {
                         // Search function
+                        prefs = home.getSearchPrefs();
                         SearchQuery query = new SearchQuery(s, prefs);
                         SearchListFragment searchListFragment = new SearchListFragment(user);
                         searchListFragment.setValue(query.getQuery());

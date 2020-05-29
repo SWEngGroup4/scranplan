@@ -103,7 +103,6 @@ public class SearchQuery {
             index = "SCRANPLAN_USERS";
         }else{
             // create a default case
-            index = "SCRANPLAN_RECIPES";
         }
 
         // Only allowing the user to search for a single item
@@ -112,8 +111,8 @@ public class SearchQuery {
         }else if(mNameBox){
             query = query.setRestrictSearchableAttributes("Name");
         }else if(mChefBox){
-            index = "SCRANPLAN_USERS";
             query = new Query(mSearch);
+            index = "SCRANPLAN_USERS";
         }
     }
 }
