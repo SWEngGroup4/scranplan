@@ -166,6 +166,8 @@ public class MessangerPostPage extends PostPage {
         sendComment.setVisibility(View.GONE);
         newComment.setVisibility(View.GONE);
         commentList.setVisibility(View.GONE);
+        //TODO add menu back
+        menu.setVisibility(View.GONE);
     }
 
 
