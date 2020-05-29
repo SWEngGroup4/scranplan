@@ -83,7 +83,12 @@ import static java.util.Objects.requireNonNull;
  *  - Profile Image
  *  - About Me Info
  *  - Filters
- *  - Privacy options.
+ *  - Privacy options
+ *  - User Feed
+ *
+ *  A deep clone is created of the UserInfoPrivate class. Any changes made within this activity update this temporary class (mTempUserProfile)
+ *  If an image is saved wait for this image to upload and then save to firebase, otherwise just save immediately to firebase.
+ *
  */
 public class ProfileSettings extends AppCompatActivity implements FilterType, SupportedFormats {
 
@@ -93,14 +98,12 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         PUBLIC
     }
     private LoadingDialog loading;
-
     private Toast mToast = null;
 
     private final static String TAG = "ProfileSettings"; // Tag for 'Log'.
 
     // Unique codes for image & permission request activity callbacks.
     private static final int IMAGE_REQUEST_CODE = 2;
-    private static final int PROFILE_SETTINGS_REQUEST_CODE = 1;
     private static final int PERMISSION_CODE = 1001;
 
     private static final int MAX_IMAGE_FILE_SIZE_IN_MB = 4; // Max storage image size for the profile picture.
@@ -124,10 +127,9 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
     private Uri mImageUri; // Unique image uri.
 
     UserInfoPrivate mUserProfile; // Local user info data. Not edited directly, assigned on return from 'mTempUserProfile' if settings have been saved.
-    UserInfoPrivate mTempUserProfile; // Local User info. Accessible only within this Activity
+    UserInfoPrivate mTempUserProfile; // Local User info. Accessible only within this Activity.
 
-    //  TODO - Add valid network connection checks.
-
+    //  Progress bar.
     ProgressBar mProgress;
     TextView mProgressText;
 
@@ -213,6 +215,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
             loadProfileData();
 
+            //
             if(mPrivateProfileEnabled.isChecked()) {
                 setPrivacyOptions(mTempUserProfile.getPublicPrivacy());
                 TabLayout.Tab tab = mProfileVisibilityTab.getTabAt(0);
@@ -471,13 +474,15 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                                                 }
                                             }
 
-
-
                                             //Finally delete actual user
                                             mDatabase.collection("users").document(mAuth.getCurrentUser().getUid()).delete().addOnSuccessListener(aVoid1 -> {
-                                                mUserProfile = null;
+                                                //  Delete reference to the users username. Makes it un-searchable.
+                                                mDatabase.collection("usernames").document(mUserProfile.getDisplayName()).delete();
+
+                                                mUserProfile = null; // Clear user profile collection.
                                                 mAuth.getCurrentUser().delete().addOnCompleteListener(task -> {
                                                     if (task.isSuccessful()) {
+
                                                         loading.dismissDialog();
                                                         Log.d(TAG, "User account deleted.");
 
@@ -493,11 +498,13 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                                             });
 
 
-
                                             //If user has no following no followers then just delete user
                                         }else{
                                             mDatabase.collection("users").document(mAuth.getCurrentUser().getUid()).delete().addOnSuccessListener(aVoid1 -> {
-                                                mUserProfile = null;
+                                                //  Delete reference to the users username. Makes it un-searchable.
+                                                mDatabase.collection("usernames").document(mUserProfile.getDisplayName()).delete();
+
+                                                mUserProfile = null; // Clear user profile collection.
                                                 mAuth.getCurrentUser().delete().addOnCompleteListener(task -> {
                                                     if (task.isSuccessful()) {
                                                         loading.dismissDialog();
@@ -731,12 +738,32 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             mTempUserProfile.setAbout(mAboutMe.getText().toString());
             mTempUserProfile.setDisplayName(mUsername.getText().toString());
 
-            //  Update the server relative to the client or throw an exception if a valid user isn't found.
-            try {
-                updateFirebase();
-            } catch (InvalidUserException | ProfileImageException e) {
-                e.printStackTrace();
+            //  Check if our profile image has changed. In which case upload the image before doing anything else.
+            //  Return if image is not of a supported format & of the correct size. Else throw an exception and prevent saving of settings.
+            if(mImageUri != null && !currentImageURI.equals(mUserProfile.getImageURL())){
+                Log.e(TAG, "I am checking and uploading the image image");
+                try {
+                    checkImage(mImageUri); // Check the image URI object for it's file type and file size. Throw an error and exit if an issue is present.
+                } catch (ProfileImageException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    uploadImage(mImageUri); // Attempt to upload the image in storage to Firebase.
+                } catch (ProfileImageException e) {
+                    e.printStackTrace();
+                    return;
+                }
             }
+
+            if(!IMAGE_IS_UPLOADING){ //  Prevent saving to firebase if an image is currently uploading.
+                //  Update the server relative to the client or throw an exception if a valid user isn't found.
+                try {
+                    updateFirebase();
+                } catch (InvalidUserException | ProfileImageException e) {
+                    e.printStackTrace();
+                }
+            }
+
         } else {
             Toast.makeText(getApplicationContext(), "Please wait " + saveCountdownSecondsLeft + " second(s) before pressing save again", Toast.LENGTH_LONG).show();
         }
@@ -770,6 +797,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             //  Otherwise makes sure the profile privacy settings tab bar is shown.
             case R.id.settings_private_toggle:
                 if(switched) {
+                    mTempUserProfile.setIsPrivateProfileEnabled(true);
                     setPrivacyOptions(mTempUserProfile.getPublicPrivacy());
                     TabLayout.Tab tab = mProfileVisibilityTab.getTabAt(0);
                     assert tab != null;
@@ -778,6 +806,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                     mDisplay_feed.setVisibility(View.GONE);
                     mDisplay_recipes.setVisibility(View.GONE);
                 } else {
+                    mTempUserProfile.setIsPrivateProfileEnabled(false);
                     setPrivacyOptions(mTempUserProfile.getPrivacyPrivate());
                     mProfileVisibilityTab.setVisibility(View.GONE);
                     mDisplay_feed.setVisibility(View.VISIBLE);
@@ -1012,9 +1041,8 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
         //   Check for a valid request code and successful result.
         if(requestCode == IMAGE_REQUEST_CODE && resultCode==RESULT_OK){
+            mProfileImage.setImageResource(R.drawable.temp_settings_profile_image); // Set to a default image if image uploading fails.
             if(data!=null && data.getData()!= null){
-                mProfileImage.setImageResource(R.drawable.temp_settings_profile_image); // Set to a default image if image uploading fails.
-
                 mImageUri = data.getData();
                 currentImageURI = mImageUri.toString();
 
@@ -1106,9 +1134,14 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                     })
                 .addOnSuccessListener(taskSnapshot -> mImageStorage.getDownloadUrl()
                         .addOnSuccessListener(locationUri -> { // Successful upload.
-                            mUserProfile.setImageURL(locationUri.toString()); // Update the UserInfoPrivate class with this new image URL.
+                            mTempUserProfile.setImageURL(locationUri.toString()); // Update the UserInfoPrivate class with this new image URL.
                             IMAGE_IS_UPLOADING = false; // State we have finished uploading (a reference exists).
                             currentImageURI = locationUri.toString();
+                            try {
+                                updateFirebase();
+                            } catch (InvalidUserException | ProfileImageException e) {
+                                e.printStackTrace();
+                            }
                         }).addOnFailureListener(e -> {
                             mProgress.setVisibility(View.GONE);
                             mProgressText.setVisibility(View.GONE);
@@ -1188,11 +1221,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
                             String usersEmail = requireNonNull(mAuth.getCurrentUser()).getEmail();
 
-                            if(IMAGE_IS_UPLOADING){ //  Prevent saving to firebase if an image is currently uploading.
-                                Toast.makeText(getApplicationContext(), "We are still uploading your profile image. Try again in a second.", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-
                             //  If the 'saveCountdown' countdown has finished. Restart it.
                             if(saveCountdownFinished){
                                 saveCountdown.start();
@@ -1208,22 +1236,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                                 }
                             } else {
                                 throw new RuntimeException("Unable to find associated email address of the user");
-                            }
-
-                            //  Return if image is not of a supported format & of the correct size. Else throw an exception and prevent saving of settings.
-                            if(mImageUri != null && !currentImageURI.equals(mUserProfile.getImageURL())){
-                                Log.e(TAG, "I am checking and uploading the image image");
-                                try {
-                                    checkImage(mImageUri); // Check the image URI object for it's file type and file size. Throw an error and exit if an issue is present.
-                                } catch (ProfileImageException e) {
-                                    e.printStackTrace();
-                                }
-                                try {
-                                    uploadImage(mImageUri); // Attempt to upload the image in storage to Firebase.
-                                } catch (ProfileImageException e) {
-                                    e.printStackTrace();
-                                    return;
-                                }
                             }
 
                             //  Create maps to store associated data.
