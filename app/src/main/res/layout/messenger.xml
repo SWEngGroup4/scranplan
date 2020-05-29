@@ -6,7 +6,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.group4sweng.scranplan.Social.Messenger.MessengerMenu"
     android:id="@+id/messageFrameLayout"
-    android:background="#A6AAC9">
+    android:background="@color/homeBackground">
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/messagesList"
         android:layout_width="match_parent"

@@ -1,10 +1,23 @@
 package com.group4sweng.scranplan.Social.Messenger;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.SearchView;
+import android.widget.TabHost;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,6 +42,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.group4sweng.scranplan.R;
+import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
+import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
+import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.ArrayList;
@@ -62,6 +78,37 @@ public class MessengerMenu extends AppCompatActivity {
     Query query;
 
 
+    //Menu items
+    private SearchView searchView;
+    private MenuItem sortView;
+    private SearchQuery searchQuery;
+    SearchPrefs prefs;
+
+    // Filter menu variables
+    AlertDialog.Builder builder;
+    AlertDialog alertDialog;
+
+    //Menu check boxes
+    CheckBox mPescatarianBox;
+    CheckBox mVegetarianBox;
+    CheckBox mVeganBox;
+    CheckBox mNutsBox;
+    CheckBox mMilkBox;
+    CheckBox mEggsBox;
+    CheckBox mWheatBox;
+    CheckBox mShellfishBox;
+    CheckBox mSoyBox;
+    CheckBox mScoreBox;
+    CheckBox mVoteBox;
+    CheckBox mTimeBox;
+    CheckBox mIngredientsBox;
+    CheckBox mNameBox;
+    CheckBox mChefBox;
+
+    FragmentManager fragmentManager;
+
+
+
     FloatingActionButton mNewMessage;
 
     @Override
@@ -73,6 +120,8 @@ public class MessengerMenu extends AppCompatActivity {
 
         setContentView(R.layout.messenger);
         View view = findViewById(R.id.messageFrameLayout);
+        fragmentManager = getSupportFragmentManager();
+        initSearchMenu();
         addChats(view);
 
         mNewMessage = findViewById(R.id.newMessageButton);
@@ -93,7 +142,318 @@ public class MessengerMenu extends AppCompatActivity {
         super.onStart();
     }
 
+    /**
+     *  Setting up the search menu within the action bar
+     * @param menu
+     * @return
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        // Building the search bar within the action button
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_search, menu);
+        MenuItem item = menu.findItem(R.id.menuSearch);
+        searchView = (SearchView)item.getActionView();
+        sortView = menu.findItem(R.id.menuSortButton);
 
+        // Adding the listener to search for string provided by user
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                // Search function
+                searchQuery = new SearchQuery( s, prefs);
+                SearchListFragment searchListFragment = new SearchListFragment(mUser);
+                searchListFragment.setValue(searchQuery.getQuery());
+                searchListFragment.setIndex(searchQuery.getIndex());
+                Log.e(TAG, "User opening search");
+                searchListFragment.show(fragmentManager, "search");
+                return false;
+            }
+
+            // Change in text function currently not used as the recipe fragment is extended to
+            // cover the screen, this minimised firebase reads through any changes.
+            @Override
+            public boolean onQueryTextChange(String s) {
+                return false;
+            }
+        });
+
+        item.setVisible(false);
+        sortView.setVisible(false);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    /**
+     *  Setting open menu button on action bar to open filter menu
+     * @param item
+     * @return
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Opening the filter menu
+        int id = item.getItemId();
+        if (id == R.id.menuSortButton) {
+            alertDialog.show();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     *  Initial set up of the search menu that enables the user to select search filters and
+     *  sorting.
+     */
+    public void initSearchMenu(){
+        // Build the inflater alert dialog
+        LayoutInflater inflater = (LayoutInflater)
+                getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+        // fill the alter dialogue with tabs to enable the user to switch between the filters,
+        // sorting and what to search for
+        View layout = inflater.inflate(R.layout.filter_tab_dialog,
+                (ViewGroup) findViewById(R.id.tabhost));
+        // Setting up the tabs and giving them names
+        TabHost tabs = (TabHost) layout.findViewById(R.id.tabhost);
+        tabs.setup();
+        TabHost.TabSpec tabpage1 = tabs.newTabSpec("type");
+        tabpage1.setContent(R.id.ScrollView01);
+        tabpage1.setIndicator("Type");
+        TabHost.TabSpec tabpage2 = tabs.newTabSpec("type");
+        tabpage2.setContent(R.id.ScrollView02);
+        tabpage2.setIndicator("Diet");
+        TabHost.TabSpec tabpage3 = tabs.newTabSpec("sort");
+        tabpage3.setContent(R.id.ScrollView03);
+        tabpage3.setIndicator("Sort");
+
+
+        // Adding the XML for each tab
+        tabs.addTab(tabpage1);
+        tabs.addTab(tabpage2);
+        tabs.addTab(tabpage3);
+
+        // Connecting variables up to each component within the tabs
+        mPescatarianBox = layout.findViewById(R.id.menuPescatarianCheckBox);
+        mVegetarianBox = layout.findViewById(R.id.menuVegCheckBox);
+        mVeganBox = layout.findViewById(R.id.menuVeganCheckBox);
+        mNutsBox = layout.findViewById(R.id.menuNutCheckBox);
+        mEggsBox = layout.findViewById(R.id.menuEggCheckBox);
+        mMilkBox = layout.findViewById(R.id.menuMilkCheckBox);
+        mWheatBox = layout.findViewById(R.id.menuWheatCheckBox);
+        mShellfishBox = layout.findViewById(R.id.menuShellfishCheckBox);
+        mSoyBox = layout.findViewById(R.id.menuSoyCheckBox);
+        mScoreBox = layout.findViewById(R.id.scoreCheckBox);
+        mVoteBox = layout.findViewById(R.id.voteCheckBox);
+        mTimeBox = layout.findViewById(R.id.timestampCheckBox);
+        mIngredientsBox = layout.findViewById(R.id.ingredientCheckBox);
+        mNameBox = layout.findViewById(R.id.nameCheckBox);
+        mChefBox = layout.findViewById(R.id.chefCheckBox);
+
+        // Initialise the check boxes by filling them with users current preferences
+        initMenuCheckBoxes(tabs);
+
+        // add the alert dialogue to the current context
+        builder = new AlertDialog.Builder(MessengerMenu.this);
+        // Set listeners for the button presses for the dialogue
+        builder
+                .setCancelable(false)
+                // if positive picked then create a new preferences variable to reflect what the user has selected
+                .setPositiveButton("Ok",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                prefs = new SearchPrefs(mPescatarianBox.isChecked(), mVegetarianBox.isChecked(), mVeganBox.isChecked(), mNutsBox.isChecked(),
+                                        mMilkBox.isChecked(), mEggsBox.isChecked(), mWheatBox.isChecked(), mShellfishBox.isChecked(), mSoyBox.isChecked(),
+                                        mScoreBox.isChecked(), mVoteBox.isChecked(), mTimeBox.isChecked(),mIngredientsBox.isChecked(), mNameBox.isChecked(),
+                                        mChefBox.isChecked());
+
+                            }
+                        })
+                .setNegativeButton("Cancel",
+                        // If negative button clicked then cancel the action of changing user prefs
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+        builder.setTitle("Search options");
+        builder.setView(layout);
+        alertDialog = builder.create();
+
+        // Change the colour of the tabs to grey
+        TextView tv;
+        tv = (TextView)tabs.getTabWidget().getChildAt(0).findViewById(android.R.id.title);
+        tv.setTextColor(Color.GRAY);
+        tv = (TextView)tabs.getTabWidget().getChildAt(1).findViewById(android.R.id.title);
+        tv.setTextColor(Color.GRAY);
+        tv = (TextView)tabs.getTabWidget().getChildAt(2).findViewById(android.R.id.title);
+        tv.setTextColor(Color.GRAY);
+
+    }
+
+    /**
+     *  Initialise all check boxes to user preferences and ensure that queries are only query that is allowed
+     */
+    public void initMenuCheckBoxes(TabHost tabs){
+        // Ensure that only the correct boxes are ticked at any one time
+        mPescatarianBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mPescatarianBox.isChecked()) {
+                    mVegetarianBox.setChecked(false);
+                    mVeganBox.setChecked(false);
+                }
+            }
+        });
+        mVeganBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mVeganBox.isChecked()) {
+                    mVegetarianBox.setChecked(false);
+                    mPescatarianBox.setChecked(false);
+                }
+            }
+        });
+        mVegetarianBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mVegetarianBox.isChecked()) {
+                    mVeganBox.setChecked(false);
+                    mPescatarianBox.setChecked(false);
+                }
+            }
+        });
+
+        mScoreBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mScoreBox.isChecked()) {
+                    mVoteBox.setChecked(false);
+                    mTimeBox.setChecked(false);
+                }else if(!mVoteBox.isChecked() && !mTimeBox.isChecked()){
+                    mScoreBox.setChecked(true);
+                }
+            }
+        });
+
+        mVoteBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mVoteBox.isChecked()) {
+                    mScoreBox.setChecked(false);
+                    mTimeBox.setChecked(false);
+                }else if(!mScoreBox.isChecked() && !mTimeBox.isChecked()){
+                    mVoteBox.setChecked(true);
+                }
+            }
+        });
+
+        mTimeBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mTimeBox.isChecked()) {
+                    mVoteBox.setChecked(false);
+                    mScoreBox.setChecked(false);
+                }else if(!mVoteBox.isChecked() && !mScoreBox.isChecked()){
+                    mTimeBox.setChecked(true);
+                }
+            }
+        });
+
+        mChefBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mChefBox.isChecked()) {
+                    mIngredientsBox.setChecked(false);
+                    mNameBox.setChecked(false);
+                    tabs.setCurrentTab(2);
+                    tabs.getCurrentTabView().setVisibility(View.GONE);
+                    tabs.setCurrentTab(1);
+                    tabs.getCurrentTabView().setVisibility(View.GONE);
+                    tabs.setCurrentTab(0);
+                }else if(!mNameBox.isChecked() && !mIngredientsBox.isChecked()){
+                    mChefBox.setChecked(true);
+                    tabs.setCurrentTab(2);
+                    tabs.getCurrentTabView().setVisibility(View.GONE);
+                    tabs.setCurrentTab(0);
+                }
+            }
+        });
+
+        mIngredientsBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mIngredientsBox.isChecked()) {
+                    mChefBox.setChecked(false);
+                    mNameBox.setChecked(false);
+                    tabs.setCurrentTab(2);
+                    tabs.getCurrentTabView().setVisibility(View.VISIBLE);
+                    tabs.setCurrentTab(1);
+                    tabs.getCurrentTabView().setVisibility(View.VISIBLE);
+                    tabs.setCurrentTab(0);
+                }else if(!mNameBox.isChecked() && !mChefBox.isChecked()){
+                    mIngredientsBox.setChecked(true);
+                    tabs.setCurrentTab(2);
+                    tabs.getCurrentTabView().setVisibility(View.VISIBLE);
+                    tabs.setCurrentTab(0);
+                }
+            }
+        });
+
+        mNameBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mNameBox.isChecked()) {
+                    mChefBox.setChecked(false);
+                    mIngredientsBox.setChecked(false);
+                    tabs.setCurrentTab(2);
+                    tabs.getCurrentTabView().setVisibility(View.VISIBLE);
+                    tabs.setCurrentTab(1);
+                    tabs.getCurrentTabView().setVisibility(View.VISIBLE);
+                    tabs.setCurrentTab(0);
+                }else if(!mChefBox.isChecked() && !mIngredientsBox.isChecked()){
+                    mNameBox.setChecked(true);
+                    tabs.setCurrentTab(2);
+                    tabs.getCurrentTabView().setVisibility(View.GONE);
+                    tabs.setCurrentTab(0);
+                }
+            }
+        });
+        if(mUser != null){
+            mPescatarianBox.setChecked(mUser.getPreferences().isPescatarian());
+            mVegetarianBox.setChecked(mUser.getPreferences().isVegetarian());
+            mVeganBox.setChecked(mUser.getPreferences().isVegan());
+            mNutsBox.setChecked(mUser.getPreferences().isAllergy_nuts());
+            mEggsBox.setChecked(mUser.getPreferences().isAllergy_eggs());
+            mMilkBox.setChecked(mUser.getPreferences().isAllergy_milk());
+            mWheatBox.setChecked(mUser.getPreferences().isAllergy_gluten());
+            mShellfishBox.setChecked(mUser.getPreferences().isAllergy_shellfish());
+            mSoyBox.setChecked(mUser.getPreferences().isAllergy_soya());
+        }
+        // Set up user preferences
+        mScoreBox.setChecked(true);
+        mIngredientsBox.setChecked(true);
+
+    }
+
+    // Quick function for getting the search menu in other fragments
+    public SearchView getSearchView() {
+        return searchView;
+    }
+
+    public MenuItem getSortView() {
+        return sortView;
+    }
+
+    // Quick function for getting the search prefs in other fragments
+    public SearchPrefs getSearchPrefs() {
+        return prefs;
+    }
 
     private void addChats(View view){
         final RecyclerView recyclerView = view.findViewById(R.id.messagesList);
@@ -220,12 +580,11 @@ public class MessengerMenu extends AppCompatActivity {
 
     // Opens the chat to the specifed user
     protected void openChat(String messageRecipient){
-        FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         Fragment fragment = new MessengerFeedFragment(mUser , messageRecipient);
-        fragmentTransaction.replace(R.id.messageFrameLayout, fragment);
-        fragmentTransaction.commit();
-        mNewMessage.setVisibility(View.GONE);
+        fragmentTransaction.add(R.id.messageFrameLayout, fragment); //Overlays fragment on existing one
+        fragmentTransaction.commitNow(); //Waits for fragment transaction to be completed
+        mNewMessage.setVisibility(View.INVISIBLE);
     }
 
 }

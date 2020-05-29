@@ -55,10 +55,12 @@ import com.google.firebase.storage.UploadTask;
 import com.group4sweng.scranplan.Administration.ContentReporting;
 import com.group4sweng.scranplan.Administration.LoadingDialog;
 import com.group4sweng.scranplan.Exceptions.ImageException;
+import com.group4sweng.scranplan.MealPlanner.PlannerListFragment;
 import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
+import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
 import com.group4sweng.scranplan.Social.FeedFragment;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
@@ -78,7 +80,7 @@ import static com.group4sweng.scranplan.Helper.ImageHelpers.isImageFormatSupport
 
 public class MessengerFeedFragment extends FeedFragment {
 
-    final String TAG = "Messenger Feed Fragment";
+    private final String TAG = "Messenger Feed Fragment";
 
     // Unique codes for image & permission request activity callbacks.
     private static final int IMAGE_REQUEST_CODE = 2;
@@ -87,41 +89,41 @@ public class MessengerFeedFragment extends FeedFragment {
     private static final int MAX_IMAGE_FILE_SIZE_IN_MB = 4; // Max storage image size for the profile picture.
 
     private Uri mImageUri; // Unique image uri.
-    ImageView mUploadedImage;
+    private ImageView mUploadedImage;
 
-    float ratingNum;
+    private float ratingNum;
 
-    LoadingDialog loadingDialog;
+    private LoadingDialog loadingDialog;
 
     //Score scroll info
-    List<MessengerFeedRecyclerAdapter.FeedPostPreviewData> data;
+    private List<MessengerFeedRecyclerAdapter.FeedPostPreviewData> data;
     private DocumentSnapshot lastVisible;
     private boolean isScrolling = false;
     private boolean refreshData = true;
     private boolean isLastItemReached = false;
 
-    protected Button mPostButton;
-    CheckBox mPostRecipe;
-    CheckBox mPostReview;
-    CheckBox mPostPic;
-    EditText mPostBodyInput;
+    private Button mPostButton;
+    private CheckBox mPostRecipe;
+    private CheckBox mPostReview;
+    private CheckBox mPostPic;
+    private EditText mPostBodyInput;
 
-    ImageView mAttachedRecipeImage;
-    TextView mAttachedRecipeTitle;
-    TextView mAttachedRecipeInfo;
-    String attachedRecipeURL;
-    String recipeID;
-    String newPostID;
+    private ImageView mAttachedRecipeImage;
+    private TextView mAttachedRecipeTitle;
+    private TextView mAttachedRecipeInfo;
+    private String attachedRecipeURL;
+    private String recipeID;
+    private String newPostID;
 
-    ConstraintLayout mUserUploadedImageViewLayout;
-    ConstraintLayout mPostRecipeImageViewLayout;
+    private ConstraintLayout mUserUploadedImageViewLayout;
+    private ConstraintLayout mPostRecipeImageViewLayout;
 
-    View mainView;
+    private View mainView;
     FloatingActionButton mNewMessage;
 
 
-    TextView mRecipeRatingText;
-    RatingBar mAttachedRecipeReview;
+    private TextView mRecipeRatingText;
+    private RatingBar mAttachedRecipeReview;
 
 
     //Fragment handlers
@@ -138,7 +140,7 @@ public class MessengerFeedFragment extends FeedFragment {
     private SearchView searchView;
     private MenuItem sortButton;
 
-    Query query;
+    private Query query;
     private RecyclerView recyclerView;
 
 
@@ -147,12 +149,12 @@ public class MessengerFeedFragment extends FeedFragment {
     private CollectionReference mColRef = mDatabase.collection("followers");
 
     // Firebase user collection and storage references.
-    CollectionReference mRef;
-    CollectionReference mRecipientRef;
-    DocumentReference mUserInteractionRef;
-    DocumentReference mRecipientInteractionRef;
-    FirebaseStorage mStorage = FirebaseStorage.getInstance();
-    StorageReference mStorageReference = mStorage.getReference();
+    private CollectionReference mRef;
+    private CollectionReference mRecipientRef;
+    private DocumentReference mUserInteractionRef;
+    private DocumentReference mRecipientInteractionRef;
+    private FirebaseStorage mStorage = FirebaseStorage.getInstance();
+    private StorageReference mStorageReference = mStorage.getReference();
 
 
     MessengerFeedFragment(UserInfoPrivate userSent, String messageRecipient) {
@@ -184,6 +186,21 @@ public class MessengerFeedFragment extends FeedFragment {
 
         initPageItems(view);
         initPageListeners();
+
+        MessengerMenu messengerMenu = (MessengerMenu) getActivity();
+
+        if (messengerMenu != null) {
+            // Gets search activity from home class and make it invisible
+            searchView = messengerMenu.getSearchView();
+            sortButton = messengerMenu.getSortView();
+
+            sortButton.setVisible(false);
+            searchView.setVisibility(View.INVISIBLE);
+            //setSearch();
+
+            //Gets search preferences from home class
+            prefs = messengerMenu.getSearchPrefs();
+        }
 
         addPosts(view);
 
@@ -277,13 +294,8 @@ public class MessengerFeedFragment extends FeedFragment {
         mUserUploadedImageViewLayout = v.findViewById(R.id.userUploadedImageViewLayout);
         mPostRecipeImageViewLayout = v.findViewById(R.id.postRecipeImageViewLayout);
 
-        mRecipeRatingText.setVisibility(View.GONE);
-        mPostReview.setVisibility(View.GONE);
-        mAttachedRecipeReview.setVisibility(View.GONE);
-
         //TODO Add back
-        mPostRecipe.setVisibility(View.GONE);
-
+        mPostReview.setVisibility(View.INVISIBLE);
     }
 
     /**
@@ -370,9 +382,14 @@ public class MessengerFeedFragment extends FeedFragment {
                         recipeFragment.setArguments(bundle);
                         recipeFragment.setTargetFragment(MessengerFeedFragment.this, 1);
                         fragmentTransaction = getParentFragmentManager().beginTransaction();
-                        fragmentTransaction.add(R.id.frameLayout, recipeFragment); //Overlays fragment on existing one
+                        fragmentTransaction.add(R.id.messageFrameLayout, recipeFragment); //Overlays fragment on existing one
                         fragmentTransaction.commitNow(); //Waits for fragment transaction to be completed
                         requireView().setVisibility(View.INVISIBLE); //Sets current fragment invisible
+
+                        //Makes search bar icon visible
+                        searchView.setQuery("", false);
+                        searchView.setVisibility(View.GONE);
+                        setSearch();
                     }
                 } else {
                     mAttachedRecipeImage.setVisibility(View.GONE);
@@ -425,11 +442,11 @@ public class MessengerFeedFragment extends FeedFragment {
     /**
      * Adding recipe info if attached to post
      *
-     * @param map
-     * @param extras
-     * @param ref
+     * @param map post info
+     * @param extras post info
+     * @param ref where to post
      */
-    protected void addRecipeInfo(HashMap map, HashMap extras, CollectionReference ref, CollectionReference recipientRef) {
+    private void addRecipeInfo(HashMap map, HashMap extras, CollectionReference ref, CollectionReference recipientRef) {
         if (mPostRecipe.isChecked()) {
             map.put("recipeID", recipeID);
             map.put("recipeImageURL", attachedRecipeURL);
@@ -445,11 +462,11 @@ public class MessengerFeedFragment extends FeedFragment {
         }
     }
 
-    @Override
     /**
      * Adding all posts for current user to the feed
-     * @param view
+     * @param view view to add the posts
      */
+    @Override
     protected void addPosts(View view) {
         recyclerView = view.findViewById(R.id.messagesList);
 
@@ -754,11 +771,40 @@ public class MessengerFeedFragment extends FeedFragment {
         }
     }
 
+    //Quick function to reset search menu functionality
+    private void setSearch() {
+        MessengerMenu messengerMenu = (MessengerMenu) getActivity();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                prefs = messengerMenu.getSearchPrefs();
+                SearchQuery query = new SearchQuery( s, prefs);
+                openRecipeDialog(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+    }
+
+    //Opens list fragment on searching
+    private void openRecipeDialog(SearchQuery query) {
+        //Creates and launches fragment with required query
+        PlannerListFragment plannerListFragment = new PlannerListFragment(mUser);
+        plannerListFragment.setValue(query.getQuery());
+        plannerListFragment.setIndex(query.getIndex());
+        plannerListFragment.setTargetFragment(this, 1);
+        plannerListFragment.show(getParentFragmentManager(), "search");
+    }
+
     /**
      * Adding image to post if an image is attached
-     * @param map
-     * @param extras
-     * @param ref
+     * @param map post info
+     * @param extras post info
+     * @param ref where to post
      */
     @Override
     protected void postImageAttached(HashMap map, HashMap extras, CollectionReference ref){
@@ -793,17 +839,16 @@ public class MessengerFeedFragment extends FeedFragment {
         postDialogFragment.setArguments(mBundle);
         postDialogFragment.setTargetFragment(this, 1);
         postDialogFragment.show(getFragmentManager(), "Show post dialog fragment");
-
     }
 
 
     /**
      * This method checks what comment is selected and opens up a menu to either open up another
      * users profile or if the comment was made my this user, user can delete the comment.
-     * @param document
-     * @param menu
+     * @param document item selected
+     * @param menu menu selected
      */
-    public void menuSelected(HashMap document, View menu, int position){
+    void menuSelected(HashMap document, View menu, int position){
         //Creating the instance of PopupMenu
         PopupMenu popup = new PopupMenu(getContext(), menu);
         //Inflating the Popup using xml file
@@ -865,9 +910,9 @@ public class MessengerFeedFragment extends FeedFragment {
 
     /**
      * Adding capability to delete post from post page
-     * @param deleteDocID
+     * @param deleteDocID docId of the document to delete
      */
-    public void deletePost(String deleteDocID,int position){
+    private void deletePost(String deleteDocID, int position){
         mRef.whereEqualTo("docId",deleteDocID).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -890,9 +935,9 @@ public class MessengerFeedFragment extends FeedFragment {
 
     /**
      *  Adding recipe info if attached to post
-     * @param map
-     * @param extras
-     * @param ref
+     * @param map post info
+     * @param extras post info
+     * @param ref where to post
      */
     @Override
     protected void addRecipeInfo(HashMap map, HashMap extras, CollectionReference ref){
@@ -912,9 +957,7 @@ public class MessengerFeedFragment extends FeedFragment {
     }
 
     @Override
-    /**
-     * Reset the screen once a new post has been completed
-     */
+    // Reset the screen once a new post has been completed
     protected void postComplete() {
         mPostBodyInput.getText().clear();
         mPostRecipe.setChecked(false);
