@@ -131,7 +131,7 @@ public class RecipeReviewFragment extends FeedFragment {
                 if (task.isSuccessful()) {
                     if (task.getResult().exists()) {
                         Log.e(TAG, "exists ");
-
+//                        loadingDialog.startLoadingDialog();
                         DocumentSnapshot document = task.getResult();
                         mStars.setRating(Float.parseFloat(document.get("overallRating").toString()));
                         postID = document.get("docID").toString();
@@ -140,9 +140,10 @@ public class RecipeReviewFragment extends FeedFragment {
                         mDatabase.collection("posts").document(postID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> nextTask) {
-
+                                Log.d(TAG, "Post data: " + nextTask.getResult());
                                 DocumentSnapshot d = nextTask.getResult();
                                 if(d.get("body") != null){
+                                    Log.d(TAG, "Adding to body: " + d.get("body").toString());
                                     mPostBodyInput.setText(d.get("body").toString());
                                 }
 
@@ -221,7 +222,7 @@ public class RecipeReviewFragment extends FeedFragment {
 
                 addingReviewFirestore(layout);
 
-                checkReview();
+//                checkReview();
 
             }
         });
@@ -762,7 +763,6 @@ public class RecipeReviewFragment extends FeedFragment {
                                                                                                                                                                         @Override
                                                                                                                                                                         public void onComplete(@NonNull Task<Void> task) {
                                                                                                                                                                             mUser.setPosts(mUser.getPosts()+1);
-                                                                                                                                                                            mPostBodyInput.getText().clear();
                                                                                                                                                                             addPosts(layout);
                                                                                                                                                                         }
                                                                                                                                                                     }
