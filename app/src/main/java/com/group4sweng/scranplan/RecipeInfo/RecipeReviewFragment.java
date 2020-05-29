@@ -445,65 +445,41 @@ public class RecipeReviewFragment extends FeedFragment {
             //On complete listener makes sure post has been saved on firestore before getting document ID and saving
             //in reviews collection
             if (mPostPic.isChecked()) {
-                try {
-                    if (!urlPic)
-                        checkImage(mImageUri); // Check the image doesn't throw any exceptions
+                postsMap.put("uploadedImageURL", mImageUri.toString());
 
-                    // State that the image is still uploading and therefore we shouldn't save a reference on firebase to it yet.
-
-                        /*  Create a unique reference of the format. 'image/profile/[UNIQUE UID]/profile_image.[EXTENSION].
-                            Whereby [UNIQUE UID] = the Unique id of the user, [EXTENSION] = file image extension. E.g. .jpg,.png. */
-                    StorageReference mImageStorage = mStorageReference.child("images/posts/" + mUser.getUID() + "/IMAGEID" + (mUser.getPosts() + 1)); //todo input image id
-
-                    //  Check if the upload fails
-                    mImageStorage.putFile(mImageUri).addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Failed to upload profile image.", Toast.LENGTH_SHORT).show()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            mImageStorage.getDownloadUrl().addOnSuccessListener(locationUri -> { // Successful upload.
-                                postsMap.put("uploadedImageURL", locationUri.toString());
-
-                                postRef.set(postsMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        //Document ID for review post
-                                        docID = mUser.getUID() + "-" + mRecipeID;
+                postRef.set(postsMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        //Document ID for review post
+                        docID = mUser.getUID() + "-" + mRecipeID;
 
 
-                                        reviewMap.put("mUser", mUser.getUID());
-                                        reviewMap.put("overallRating", getNewRating);
-                                        reviewMap.put("docID", postRef.getId());
-                                        reviewMap.put("timestamp", FieldValue.serverTimestamp());
+                        reviewMap.put("mUser", mUser.getUID());
+                        reviewMap.put("overallRating", get  NewRating);
+                        reviewMap.put("docID", postRef.getId());
+                        reviewMap.put("timestamp", FieldValue.serverTimestamp());
 
-                                        //Saving review map to the firestore with custom document ID
+                        //Saving review map to the firestore with custom document ID
 
-                                        Log.e(TAG, "Added new post ");
-                                        reviewDocRef.set(reviewMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
+                        Log.e(TAG, "Added new post ");
+                        reviewDocRef.set(reviewMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
 //                                                mDatabase.collection("users").document(mUser.getUID()).update("posts", FieldValue.increment(1));
 //                                                mUser.setPosts(mUser.getPosts()+1);
 //                                                addPosts(layout);
-                                                postsMap.put("docID", postRef.getId());
-                                                updateFollowers(postsMap);
-                                            }
-                                        });
+                                postsMap.put("docID", postRef.getId());
+                                updateFollowers(postsMap);
+                            }
+                        });
 
-                                        // Update the mUserInfoPrivate class with this new image URL.
-                                        POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
-                                        loadingDialog.dismissDialog();
-                                        reviewMade = true;
-                                        postID = postRef.getId();
-                                    }
-                                });
-                            });
-                        }
-                    });
-                } catch (ImageException e) {
-                    Log.e(TAG, "Failed to upload photo to Firebase");
-                    Toast.makeText(getApplicationContext(), "Failed to upload photo to Firebase, please try again.", Toast.LENGTH_SHORT).show();
-                    e.printStackTrace();
-                    return;
-                }
+                        // Update the mUserInfoPrivate class with this new image URL.
+                        POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
+                        loadingDialog.dismissDialog();
+                        reviewMade = true;
+                        postID = postRef.getId();
+                    }
+                });
             }
             else {
                 postRef.set(postsMap).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -547,6 +523,10 @@ public class RecipeReviewFragment extends FeedFragment {
 
 
         }
+    }
+
+    private void imageUploaded(String uploadedImageUrl) {
+
     }
 
     @Override
