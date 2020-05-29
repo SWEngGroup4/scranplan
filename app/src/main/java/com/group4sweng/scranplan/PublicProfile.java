@@ -114,10 +114,6 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     LinearLayout mIsFollowLayout;
     String postsString;
 
-    //  Warning banner (displayed if profile set to 'private' visiblity.
-    TextView mPrivateProfileWarning;
-    ImageView mPrivateProfileWarningIcon;
-
     //  Whether we should retrieve different information for the user. E.g. username, about me etc...
     private boolean retrieveAboutMe = false, retrieveUsername = false,
             retrieveImages = false, retrieveRecipes = false, retrieveFilters = false, retrievePosts = false;
@@ -201,9 +197,6 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         mFollowedButton = findViewById(R.id.followedButton);
         mRequestedButton = findViewById(R.id.requestedButton);
         mIsFollowLayout = findViewById(R.id.isFollowLayout);
-
-        mPrivateProfileWarning = findViewById(R.id.display_type);
-        mPrivateProfileWarningIcon = findViewById(R.id.display_type_icon);
         //mBlankContenttext = findViewById(R.id.blank_content_text);
     }
 
@@ -345,9 +338,6 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
     //  Load all the data grabbed from the Firebase document snapshot.
     private void loadProfile(DocumentSnapshot profile) {
-        //  Remove 'private' profile banner warning.
-        mPrivateProfileWarning.setVisibility(View.GONE);
-        mPrivateProfileWarningIcon.setVisibility(View.GONE);
 
         mUsername.setText((String) profile.get("displayName"));
 
@@ -582,12 +572,6 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     //  Load the information from the local UserInfoPrivate object if the profile corresponds to that of the user using the app/
     //  Reduces amount of Firebase Queries overall.
     private void loadLocalProfile() {
-        //  Check if a private profile is not enabled. In which case remove the top warning banner.
-        if(!mUserProfile.isPrivateProfileEnabled()){
-            //  Remove 'private' profile banner warning.
-            mPrivateProfileWarning.setVisibility(View.GONE);
-            mPrivateProfileWarningIcon.setVisibility(View.GONE);
-        }
 
         mUsername.setText(mUserProfile.getDisplayName());
 
