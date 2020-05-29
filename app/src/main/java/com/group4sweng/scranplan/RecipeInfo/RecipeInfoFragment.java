@@ -33,6 +33,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.Helper.ImageHelpers;
 import com.group4sweng.scranplan.Presentation.Presentation;
+import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.UserInfo.FilterType;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
@@ -91,9 +92,11 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
     protected Button mChangePortions;
     protected TextView mServing;
 
-    private FirebaseFirestore mDatabase;
-    private CollectionReference mDataRef;
-    private CollectionReference mUserRef;
+    private Fragment reviewFragment;
+
+    protected FirebaseFirestore mDatabase;
+    protected CollectionReference mDataRef;
+    protected CollectionReference mUserRef;
 
     // Define a String ArrayList for the ingredients
     protected ArrayList<String> ingredientList = new ArrayList<>();
@@ -189,6 +192,9 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
 
         //For the Ingredient array
         listViewIngredients = layout.findViewById(R.id.listViewText);
+
+        //Review fragment
+        reviewFragment = new RecipeReviewFragment(mUser);
 
         //5 star rating bar
         mStars = layout.findViewById(R.id.ratingBar);
@@ -323,18 +329,23 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         mTabLayout2.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                Fragment fragment = null;
+                FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
                 switch (tab.getPosition()) {
                     case 0:
-                        fragment = new RecipeIngredientFragment();
+                        fragmentTransaction.replace(R.id.RecipeFrameLayout, new RecipeIngredientFragment());
                         break;
                     case 1:
-                        fragment = new RecipeCommentsFragment();
+                        //creating new bundle to pass through relative information to the review fragment
+                        Bundle reviewBundle = new Bundle();
+                        reviewBundle.putSerializable("ratingMap", ratingMap);
+                        reviewBundle.putString("recipeID", recipeID);
+                        reviewBundle.putString("recipeDescription", recipeDescription);
+                        reviewBundle.putString("recipeTitle",recipeName);
+                        reviewBundle.putString("recipeImageURL",recipeImage);
+                        reviewFragment.setArguments(reviewBundle);
+                        fragmentTransaction.replace(R.id.RecipeFrameLayout, reviewFragment);
                         break;
-
                 }
-                FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
-                fragmentTransaction.replace(R.id.RecipeFrameLayout, fragment);
                 fragmentTransaction.commit();
             }
 
@@ -349,6 +360,16 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
             }
         });
 
+    public void refreshReviewFragment() {
+        // Reloads review fragment
+        FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
+        fragmentTransaction.detach(reviewFragment);
+        fragmentTransaction.attach(reviewFragment);
+        fragmentTransaction.commit();
+    }
+
+    protected void updateIngredientsList(){
+        ArrayList<Ingredient> ingredientList = RecipeHelpers.convertToIngredientFormat(ingredientHashMap);
 
     }
 
@@ -611,10 +632,22 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
 
         ArrayList<String> EatingHabitMessage = ImageHelpers.getFilterIconsHoverMessage(FilterType.filterType.DIETARY);
 
-        ArrayList<ImageView> EatingHabit = new ArrayList<>();
-        EatingHabit.add(layout.findViewById(R.id.recipeInfoPesc));
-        EatingHabit.add(layout.findViewById(R.id.recipeInfoVegan));
-        EatingHabit.add(layout.findViewById(R.id.recipeInfoVeggie));
+        //registering popup with OnMenuItemClickListener
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            public boolean onMenuItemClick(
+                    MenuItem item) {
+                // Give each item functionality
+                switch (item.getItemId()) {
+                    case R.id.viewCommentProfile:
+                        Log.e("RECIPE","Clicked open profile!");
+                        Intent intentProfile = new Intent(getContext(), PublicProfile.class);
+
+                        intentProfile.putExtra("UID", (String) document.get("author"));
+                        intentProfile.putExtra("user", mUser);
+                        //setResult(RESULT_OK, intentProfile);
+                        startActivity(intentProfile);
+                        break;
+                    case R.id.reportComment:
 
         //Integers that hold the sizes of the two different category array sizes
         final int arrayCount2 = EatingHabit.size();

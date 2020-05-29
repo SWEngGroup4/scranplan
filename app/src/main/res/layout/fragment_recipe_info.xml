@@ -39,13 +39,47 @@
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="10dp"
+            android:layout_marginTop="20dp"
             android:text="Lets Cook!"
             android:textColor="#FFFFFF"
             android:textSize="13sp"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:background="@color/colorPrimary"
+            android:ems="10"
+            android:gravity="center"
+            android:padding="5sp"
+            android:text="Title"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="#CBFFFFFF"
+            app:layout_constraintBottom_toTopOf="@+id/guideline2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/LetsCook" />
+
+
+        <ImageView
+            android:id="@+id/recipeImage"
+            android:layout_width="150dp"
+            android:layout_height="140dp"
+            android:layout_below="@+id/Title"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="10dp"
+            android:padding="10sp"
+            app:layout_constraintBottom_toTopOf="@+id/guideline5"
+            app:layout_constraintEnd_toStartOf="@+id/guideline12"
+            app:layout_constraintHorizontal_bias="0.217"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/Title"
+            app:layout_constraintVertical_bias="0.0"
+            app:srcCompat="@drawable/scran" />
 
         <TextView
             android:id="@+id/chefName"
@@ -202,7 +236,47 @@
             android:gravity="left"
             android:textSize="18sp"/>
 
+        <CheckBox
+            android:id="@+id/addKudos"
+            android:layout_width="55dp"
+            android:layout_height="43dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="10dp"
+            android:layout_toStartOf="@+id/LetsCook"
+            android:layout_toEndOf="@+id/ReturnButton"
+            android:background="@drawable/click_kudos"
+            android:button="@null"
+            android:checked="false"
+            android:maxWidth="20sp"
+            android:maxHeight="60sp"
+            android:scaleType="fitCenter"
+            android:stateListAnimator="@animator/select"
+            app:layout_constraintEnd_toStartOf="@+id/guideline14"
+            app:layout_constraintHorizontal_bias="0.478"
+            app:layout_constraintStart_toStartOf="@+id/guideline7"
+            app:layout_constraintTop_toTopOf="parent" />
 
+        <CheckBox
+            android:id="@+id/addFavorite"
+            android:layout_width="47dp"
+            android:layout_height="37dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="10dp"
+            android:layout_toStartOf="@+id/LetsCook"
+            android:layout_toEndOf="@+id/ReturnButton"
+            android:background="@drawable/fav_recipe"
+            android:button="@null"
+            android:checked="false"
+            android:maxWidth="20sp"
+            android:maxHeight="60sp"
+            android:scaleType="fitCenter"
+            android:stateListAnimator="@animator/select"
+            app:layout_constraintEnd_toStartOf="@+id/guideline6"
+            app:layout_constraintHorizontal_bias="0.368"
+            app:layout_constraintStart_toStartOf="@+id/guideline10"
+            app:layout_constraintTop_toTopOf="parent" />
 
 
         <TextView

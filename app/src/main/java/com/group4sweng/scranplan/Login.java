@@ -3,6 +3,8 @@ package com.group4sweng.scranplan;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -24,16 +26,21 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static java.util.Objects.requireNonNull;
 
 /**
+ * Class for the Login activity.
+ * Author(s): LNewman
+ * (c) CoDev 2020
  * Login class
  * Everything necessary for new users to register or existing users to log in before moving into the
  * main section of the application
@@ -42,6 +49,7 @@ public class Login extends AppCompatActivity{
 
     // TAG for log info
     final String TAG = "FirebaseTestLogin";
+    private Toast mToast = null;
 
     Context mContext = this;
 
@@ -62,10 +70,14 @@ public class Login extends AppCompatActivity{
     // All button local variables used to give function to XML page
     Button mLoginButton;
     TextView mForgottenPasswordText;
-    Button mFacebookLoginButton;
-    Button mGoogleLoginButton;
+    Button mBackToRegisterButton;
+    Button mBackToLoginButton;
     Button mRegisterButton;
     ImageView mInfoButton;
+
+    ImageView mCheckPass;
+    ImageView mCheckConfirm;
+    ImageView mCheckUsername;
 
     // Variables to save state of page view
     Boolean mLoginInProgress = false;
@@ -105,12 +117,16 @@ public class Login extends AppCompatActivity{
 
         mForgottenPasswordText = (TextView) findViewById(R.id.forgottenPasswordText);
 
-        mFacebookLoginButton = (Button) findViewById(R.id.facebookLoginButton);
-        mGoogleLoginButton = (Button) findViewById(R.id.googleLoginButton);
+        mBackToRegisterButton = (Button) findViewById(R.id.backToRegisterButton);
+        mBackToLoginButton = (Button) findViewById(R.id.backToLoginButton);
 
         mRegisterButton = (Button) findViewById(R.id.registerButton);
 
         mInfoButton = (ImageView) findViewById(R.id.infoButton);
+
+        mCheckPass = (ImageView) findViewById(R.id.passwordTick);
+        mCheckConfirm = (ImageView) findViewById(R.id.confirmPasswordTick);
+        mCheckUsername = (ImageView) findViewById(R.id.usernameTick);
 
         //setting all irrelevant parts to begin as invisible
         mEmailEditText.setVisibility(View.GONE);
@@ -125,6 +141,155 @@ public class Login extends AppCompatActivity{
      */
     private void initPageListeners(){
 
+
+        /**
+         * setting visual clues and prompts so user can select a username that fits requirements
+         * User is given an X if incorrect and a tick if correct
+         * A loading icon will appear when loading
+         */
+        mDisplayNameText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if(mRegisterInProgress){
+                    if(!mDisplayNameText.getText().toString().equals("") && mDisplayNameText.getText().toString().matches("^[a-z0-9]+$") && mDisplayNameText.getText().toString().length() <= 20 && mDisplayNameText.getText().toString().length() >= 2){
+                        mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_autorenew_black_24dp));
+                        mCheckUsername.setVisibility(View.VISIBLE);
+                        if(!mDisplayNameText.getText().toString().equals("")){
+                            database.collection("usernames").document(mDisplayNameText.getText().toString()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if(task.getResult().exists()){
+                                        mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                                        mCheckUsername.setVisibility(View.VISIBLE);
+                                    }else{
+                                        if(!mDisplayNameText.getText().toString().equals("")){
+                                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_check_black_24dp));
+                                            mCheckUsername.setVisibility(View.VISIBLE);
+                                        }else{
+                                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                                            mCheckUsername.setVisibility(View.VISIBLE);
+                                            if (mToast != null) mToast.cancel();
+                                            mToast = Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, between 2 and 20 characters.",Toast.LENGTH_SHORT);
+                                            mToast.show();
+                                        }
+                                    }
+                                }
+                            });
+                        }else{
+                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                            mCheckUsername.setVisibility(View.VISIBLE);
+                        }
+                    }else{
+                        mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                        mCheckUsername.setVisibility(View.VISIBLE);
+                        if (mToast != null) mToast.cancel();
+                        mToast = Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, between 2 and 20 characters.",Toast.LENGTH_SHORT);
+                        mToast.show();
+                    }
+                }
+
+            }
+        });
+
+        /**
+         * setting visual clues and prompts so user can select a password that fits requirements and
+         * matches the other password
+         * User is given an X if incorrect and a tick if correct
+         * A loading icon will appear when loading
+         */
+        mConfirmPasswordEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if(mRegisterInProgress){
+                    if(!mConfirmPasswordEditText.getText().toString().equals("") || mConfirmPasswordEditText.getText().toString().length() == 1){
+                        if(passCheck(mPasswordEditText.getText().toString()) && mConfirmPasswordEditText.getText().toString().equals(mPasswordEditText.getText().toString())){
+                            mCheckConfirm.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_check_black_24dp));
+                            mCheckConfirm.setVisibility(View.VISIBLE);
+                        }else{
+                            mCheckConfirm.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                            mCheckConfirm.setVisibility(View.VISIBLE);
+                        }
+                    }else{
+                        mCheckConfirm.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                        mCheckConfirm.setVisibility(View.VISIBLE);
+                        if (mToast != null) mToast.cancel();
+                        mToast = Toast.makeText(getApplicationContext(),"Passwords must match and be at least 8 letters consisting at least one number and letter.",Toast.LENGTH_SHORT);
+                        mToast.show();
+
+                    }
+
+                }
+
+            }
+        });
+
+        /**
+         * setting visual clues and prompts so user can select a password that fits requirements
+         * User is given an X if incorrect and a tick if correct
+         * A loading icon will appear when loading
+         */
+        mPasswordEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if(mRegisterInProgress){
+                    if(!mPasswordEditText.getText().toString().equals("")){
+                        if(passCheck(mPasswordEditText.getText().toString())){
+                            mCheckPass.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_check_black_24dp));
+                            mCheckPass.setVisibility(View.VISIBLE);
+                        }else if (mPasswordEditText.getText().toString().length() == 1){
+                            mCheckPass.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                            mCheckPass.setVisibility(View.VISIBLE);
+                            if (mToast != null) mToast.cancel();
+                            mToast = Toast.makeText(getApplicationContext(),"Passwords must be at least 8 letters consisting at least one number and letter.",Toast.LENGTH_SHORT);
+                            mToast.show();
+                        }else{
+                            mCheckPass.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                            mCheckPass.setVisibility(View.VISIBLE);
+                        }
+                    }else{
+                        mCheckPass.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                        mCheckPass.setVisibility(View.VISIBLE);
+                        if (mToast != null) mToast.cancel();
+                        mToast = Toast.makeText(getApplicationContext(),"Passwords must be at least 8 letters consisting at least one number and letter.",Toast.LENGTH_SHORT);
+                        mToast.show();
+
+                    }
+
+                }
+
+            }
+        });
+
         /**
          * Setting login button, first click enables login components, second click initiated sign in
          */
@@ -136,6 +301,8 @@ public class Login extends AppCompatActivity{
                 if(!mLoginInProgress){
                     // First button press, set login components to visible
                     mLoginInProgress = true;
+                    mRegisterButton.setVisibility(View.GONE);
+                    mBackToRegisterButton.setVisibility(View.VISIBLE);
                     mEmailEditText.setVisibility(View.VISIBLE);
                     mPasswordEditText.setVisibility(View.VISIBLE);
                     mConfirmPasswordEditText.setVisibility(View.GONE);
@@ -144,7 +311,14 @@ public class Login extends AppCompatActivity{
                     // Second button press, log user in with entered email and password
                     String email = mEmailEditText.getText().toString();
                     String password =mPasswordEditText.getText().toString();
-                    loginUser(email, password);
+
+                    if(!email.equals("") && !password.equals("")){
+                        // Check both passwords match before registering new user
+                        loginUser(email, password);
+                    }else{
+                        // Display message to user if passwords do not match
+                        Toast.makeText(getApplicationContext(),"One or more of the fields are empty, please fill in all sections of the form.",Toast.LENGTH_SHORT).show();
+                    }
                 }
 
             }
@@ -159,6 +333,8 @@ public class Login extends AppCompatActivity{
             public void onClick(View view) {
                 mLoginInProgress = false;
                 if(!mRegisterInProgress){
+                    mLoginButton.setVisibility(View.GONE);
+                    mBackToLoginButton.setVisibility(View.VISIBLE);
                     // First button press - set all components visible
                     mRegisterInProgress = true;
                     mEmailEditText.setVisibility(View.VISIBLE);
@@ -174,11 +350,29 @@ public class Login extends AppCompatActivity{
                     // Check none of fields are just empty strings
                     if(!email.equals("") && !password.equals("") && !displayName.equals("") ){
                         // Check both passwords match before registering new user
-                        if(password.equals(confirmPassword)){
-                            registerUser(email, password, displayName);
+                        if(passCheck(password)){
+                            if(password.equals(confirmPassword)){
+                                if(displayName.matches("^[a-z0-9]+$") && displayName.length() <= 20  && mDisplayNameText.getText().toString().length() >= 2){
+                                    database.collection("usernames").document(mDisplayNameText.getText().toString()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                            if(task.getResult().exists()){
+                                                Toast.makeText(getApplicationContext(),"Username is not unique.",Toast.LENGTH_SHORT).show();
+                                            }else{
+                                                registerUser(email, password, displayName);
+                                            }
+                                        }
+                                    });
+                                }else{
+                                    Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, between 2 and 20 characters.",Toast.LENGTH_SHORT).show();
+                                }
+                            }else{
+                                // Display message to user if passwords do not match
+                                Toast.makeText(getApplicationContext(),"Passwords do not match, please try again.",Toast.LENGTH_SHORT).show();
+                            }
                         }else{
                             // Display message to user if passwords do not match
-                            Toast.makeText(getApplicationContext(),"Passwords do not match, please try again.",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(),"Passwords must be at least 8 characters long with at least 1 letter and 1 number, please try again.",Toast.LENGTH_LONG).show();
                         }
                     }else{
                         // Display message to user if passwords do not match
@@ -214,10 +408,20 @@ public class Login extends AppCompatActivity{
         /**
          * Setting Facebook Login button
          */
-        mFacebookLoginButton.setOnClickListener(new View.OnClickListener() {
+        mBackToRegisterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO implement facebook login
+                mLoginInProgress = false;
+                mLoginButton.setVisibility(View.GONE);
+                mBackToLoginButton.setVisibility(View.VISIBLE);
+                mBackToRegisterButton.setVisibility(View.GONE);
+                mRegisterButton.setVisibility(View.VISIBLE);
+                // First button press - set all components visible
+                mRegisterInProgress = true;
+                mEmailEditText.setVisibility(View.VISIBLE);
+                mPasswordEditText.setVisibility(View.VISIBLE);
+                mConfirmPasswordEditText.setVisibility(View.VISIBLE);
+                mDisplayNameText.setVisibility(View.VISIBLE);
 
             }
         });
@@ -225,10 +429,23 @@ public class Login extends AppCompatActivity{
         /**
          * Setting Google Login button
          */
-        mGoogleLoginButton.setOnClickListener(new View.OnClickListener() {
+        mBackToLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO implement google login
+                mRegisterInProgress = false;
+                mLoginInProgress = true;
+                mRegisterButton.setVisibility(View.GONE);
+                mBackToRegisterButton.setVisibility(View.VISIBLE);
+                mBackToLoginButton.setVisibility(View.GONE);
+                mLoginButton.setVisibility(View.VISIBLE);
+                mEmailEditText.setVisibility(View.VISIBLE);
+                mPasswordEditText.setVisibility(View.VISIBLE);
+                mConfirmPasswordEditText.setVisibility(View.GONE);
+                mDisplayNameText.setVisibility(View.GONE);
+                mCheckConfirm.setVisibility(View.GONE);
+                mCheckPass.setVisibility(View.GONE);
+                mCheckUsername.setVisibility(View.GONE);
+
 
             }
         });
@@ -272,6 +489,10 @@ public class Login extends AppCompatActivity{
 
                 // if authentication successful
                 if (task.isSuccessful()){
+                    String UID = requireNonNull(mAuth.getCurrentUser()).getUid();
+                    HashMap<String,Object> username = new HashMap<>();
+                    username.put("user", requireNonNull(mAuth.getCurrentUser()).getUid());
+                    database.collection("usernames").document(displayName).set(username);
                     Log.e(TAG, "SignIn : User registered ");
                     // Setting up default user profileView on database with email and display name
                     HashMap<String, Object> map = new HashMap<>();
@@ -297,6 +518,10 @@ public class Login extends AppCompatActivity{
                     map.put("firstPresentationLaunch", true);
                     map.put("firstMealPlannerLaunch", true);
                     map.put("kudos", (long) 0);
+                    map.put("posts", (long) 0);
+                    map.put("followers", (long) 0);
+                    map.put("following", (long) 0);
+                    map.put("livePosts", (long) 0);
 
                     map.put("privateProfileEnabled", false);
                     privacyPublic.put("display_username", true);
@@ -347,6 +572,22 @@ public class Login extends AppCompatActivity{
                     map.put("privacyPrivate", privacyPrivate);
                     // Saving default profile locally to user
 
+                    HashMap<String, Object> newDoc = new HashMap<>();
+                    ArrayList<String> arrayList = new ArrayList<>();
+                    arrayList.add(UID);
+                    ArrayList<String> second = new ArrayList<>();
+                    newDoc.put("mapA", (HashMap) null);
+                    newDoc.put("mapB", (HashMap) null);
+                    newDoc.put("mapC", (HashMap) null);
+                    newDoc.put("space1", "A");
+                    newDoc.put("space2", "B");
+                    newDoc.put("space3", "C");
+                    newDoc.put("lastPost", FieldValue.serverTimestamp());
+                    newDoc.put("author", UID);
+                    newDoc.put("users", arrayList);
+                    newDoc.put("requested", second);
+                    database.collection("followers").document(UID).set(newDoc);
+
                     // Saving default user to Firebase Firestore database
                     DocumentReference usersRef = ref.document(mAuth.getCurrentUser().getUid());
                     mAuth.getCurrentUser().sendEmailVerification();
@@ -364,6 +605,13 @@ public class Login extends AppCompatActivity{
                     mPasswordEditText.setVisibility(View.VISIBLE);
                     mConfirmPasswordEditText.setVisibility(View.GONE);
                     mDisplayNameText.setVisibility(View.GONE);
+                    mCheckConfirm.setVisibility(View.GONE);
+                    mCheckPass.setVisibility(View.GONE);
+                    mCheckUsername.setVisibility(View.GONE);
+                    mBackToRegisterButton.setVisibility(View.VISIBLE);
+                    mBackToLoginButton.setVisibility(View.GONE);
+                    mLoginButton.setVisibility(View.VISIBLE);
+                    mRegisterButton.setVisibility(View.GONE);
                     mDisplayNameText.getText().clear();
                     mPasswordEditText.getText().clear();
                     mConfirmPasswordEditText.getText().clear();
@@ -386,6 +634,43 @@ public class Login extends AppCompatActivity{
 
         // Creating new authentication account
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(complete).addOnFailureListener(failure);
+    }
+
+    /**
+     * Check password length and if it has number & letter
+     * @param password
+     * @return
+     */
+    public static boolean passCheck(String password){
+        boolean hasLetter = false;
+        boolean hasDigit = false;
+        if (password.length() >= 8) {
+            for (int i = 0; i < password.length(); i++) {
+                char x = password.charAt(i);
+                if (Character.isLetter(x)) {
+
+                    hasLetter = true;
+                }
+
+                else if (Character.isDigit(x)) {
+
+                    hasDigit = true;
+                }
+
+                // no need to check further, break the loop
+                if(hasLetter && hasDigit){
+                    break;
+                }
+
+            }
+            if (hasLetter && hasDigit) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -428,6 +713,15 @@ public class Login extends AppCompatActivity{
                                             map.put("firstAppLaunch", document.get("firstAppLaunch"));
                                             map.put("firstPresentationLaunch", document.get("firstPresentationLaunch"));
                                             map.put("firstMealPlannerLaunch", document.get("firstMealPlannerLaunch"));
+                                            map.put("posts", document.get("posts"));
+                                            if(document.get("followers") != null){
+                                                map.put("followers", document.get("followers"));
+                                                map.put("following", document.get("following"));
+                                            }else{
+                                                map.put("followers", (long) 0);
+                                                map.put("following", (long) 0);
+                                                document.getReference().update("followers", (long) 0, "following", (long) 0);
+                                            }
 
                                             @SuppressWarnings("unchecked")
                                             HashMap<String, Object> preferences = (HashMap<String, Object>) document.get("preferences");

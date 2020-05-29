@@ -79,15 +79,8 @@ public class PlannerFragmentTest implements Credentials {
 
         onView(withText("Meal Planner")).perform(click());
         onView(withId(0)).perform(click());
-        onView(withId(R.id.menuSearch)).perform(click());
-        onView(isAssignableFrom(SearchView.class))
-                .perform(typeSearchViewText("bacon"))
-                .perform(pressKey(KeyEvent.KEYCODE_ENTER));
-
-        Thread.sleep(THREAD_SLEEP_TIME/4);
-
-        onView(withText("Bacon Sandwich")).perform(click());
-        onView(withText("Add")).perform(click());
+        navigateToRecipe("Avocado and black bean eggs");
+        onView(withId(R.id.LetsCook)).perform(click());
     }
 
     //Checks meal planner saves for user after re-logging in
@@ -97,7 +90,7 @@ public class PlannerFragmentTest implements Credentials {
 
         onView(withText("Meal Planner")).perform(click());
         onView(withId(0)).perform(click());
-        onView(withText("Lets Cook!"))
+        onView(withId(R.id.LetsCook))
                 .check(matches(isDisplayed()));
     }
 

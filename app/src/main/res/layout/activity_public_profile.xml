@@ -121,8 +121,11 @@
 
                 <HorizontalScrollView
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    tools:ignore="UselessParent">
+                    android:layout_height="50sp"
+                    android:background="@color/colorPrimaryLight"
+                    android:orientation="horizontal"
+                    android:layout_gravity="center_vertical"
+                    android:paddingHorizontal="10sp">
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -202,14 +205,61 @@
                             android:src="@drawable/vegan"
                             android:visibility="gone" />
 
-                        <ImageView
-                            android:id="@+id/recipeInfoVeggie"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:adjustViewBounds="true"
-                            android:paddingLeft="4sp"
-                            android:src="@drawable/vegetarian"
-                            android:visibility="gone" />
+                    <LinearLayout
+                        android:id="@+id/isFollowLayout"
+                        android:layout_width="50sp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:paddingRight="10sp"
+                        android:gravity="center">
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:minWidth="20sp"
+                            android:layout_weight="1" >
+                        </Space>
+
+                        <Button
+                            android:id="@+id/followButton"
+                            android:layout_width="100sp"
+                            android:layout_height="40sp"
+                            android:textColor="@color/colorWhiteText"
+                            android:background="@drawable/follow_button"
+                            android:layout_weight="3"
+                            android:padding="5sp"
+                            android:text="Follow" />
+
+                        <Button
+                            android:id="@+id/requestedButton"
+                            android:layout_width="100sp"
+                            android:layout_height="40sp"
+                            android:layout_weight="3"
+                            android:textColor="@color/colorWhiteText"
+                            android:background="@drawable/requested_button"
+                            android:padding="5sp"
+                            android:text="Requested"
+                            android:visibility="gone"/>
+
+                        <Button
+                            android:id="@+id/followedButton"
+                            android:layout_width="100sp"
+                            android:layout_height="40sp"
+                            android:layout_weight="3"
+                            android:textColor="@color/colorWhiteText"
+                            android:background="@drawable/followed_button"
+                            android:padding="5sp"
+                            android:text="Followed"
+                            android:visibility="gone"/>
+
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:minWidth="20sp"
+                            android:layout_weight="1" >
+                        </Space>
+                    </LinearLayout>
+                </LinearLayout>
 
 
                     </LinearLayout>
@@ -217,9 +267,23 @@
 
                 </HorizontalScrollView>
 
+                    <com.google.android.material.tabs.TabItem
+                        android:id="@+id/postsTab"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:icon="@drawable/ic_library_books_black_24dp" />
 
-            </LinearLayout>
+                    <com.google.android.material.tabs.TabItem
+                        android:id="@+id/picsTab"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:icon="@drawable/ic_photo_library_black_24dp" />
 
+                    <com.google.android.material.tabs.TabItem
+                        android:id="@+id/recipesTab"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:icon="@drawable/ic_restaurant_menu_black_24dp" />
 
             <TextView
                 android:id="@+id/public_profile_about_me_desc"

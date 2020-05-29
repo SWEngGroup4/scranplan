@@ -91,11 +91,6 @@ public class PublicProfileTest extends EspressoHelper implements Credentials{
     //  Test the username and about me info matches what is expected from the local UserInfoPrivate object.
     @Test
     public void testUsernameAndAboutMeMatchAndDisplayed(){
-        if((boolean) testUser.getPublicPrivacy().get("display_username")) {
-            onView(withText(testUser.getDisplayName()))
-                    .check(matches(isDisplayed()));
-        }
-
         if((boolean) testUser.getPublicPrivacy().get("display_about_me")){
             onView(withText(testUser.getAbout()))
                     .check(matches(isDisplayed()));

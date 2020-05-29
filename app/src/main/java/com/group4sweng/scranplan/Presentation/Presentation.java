@@ -45,6 +45,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.group4sweng.scranplan.Exceptions.AudioPlaybackException;
+import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.SoundHandler.AudioURL;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
@@ -60,6 +61,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import static androidx.test.InstrumentationRegistry.getContext;
 
 /**
  *  All parts of the presentation, taking the XML document and separating it out into its slide that
@@ -487,7 +490,13 @@ public class Presentation extends AppCompatActivity {
                 switch (item.getItemId()) {
                     case R.id.viewCommentProfile:
                         Log.e(TAG,"Clicked open profile!");
-                        //TODO add functionality to open users profile in new fragment
+                        Intent intentProfile = new Intent(getApplicationContext(), PublicProfile.class);
+
+                        intentProfile.putExtra("UID", (String) document.get("authorID"));
+                        intentProfile.putExtra("user", mUser);
+                        //setResult(RESULT_OK, intentProfile);
+                        startActivity(intentProfile);
+
                         break;
                     case R.id.reportComment:
                         Log.e(TAG,"Report comment clicked!");

@@ -122,6 +122,16 @@ public class MainActivity extends AppCompatActivity {
                                     map.put("firstAppLaunch", document.get("firstAppLaunch"));
                                     map.put("firstPresentationLaunch", document.get("firstPresentationLaunch"));
                                     map.put("firstMealPlannerLaunch", document.get("firstMealPlannerLaunch"));
+                                    map.put("posts", document.get("posts"));
+                                    if(document.get("followers") != null){
+                                        map.put("followers", document.get("followers"));
+                                        map.put("following", document.get("following"));
+                                    }else{
+                                        map.put("followers", (long) 0);
+                                        map.put("following", (long) 0);
+                                        document.getReference().update("followers", (long) 0, "following", (long) 0);
+                                    }
+
 
                                     map.put("privateProfileEnabled", document.get("privateProfileEnabled"));
                                     @SuppressWarnings("unchecked")

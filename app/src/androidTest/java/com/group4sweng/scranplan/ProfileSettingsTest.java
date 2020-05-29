@@ -225,13 +225,13 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
 
         onView(withId(R.id.settings_input_username)) // Input our new username.
                 .perform(clearText())
-                .perform(typeText("uniqueUsernameTest"));
+                .perform(typeText("qwertyu1"));
 
         Espresso.closeSoftKeyboard();
 
         onView(withId(R.id.settings_input_about_me))
                 .perform(clearText())
-                .perform(typeText("uniqueAboutMe"));
+                .perform(typeText("uniqueAboutMe 1"));
 
         Espresso.closeSoftKeyboard();
 
@@ -249,11 +249,11 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
         setUp(); // Restart from scratch, logging in and entering the profile settings view.
 
         onView(withId(R.id.settings_input_username))
-                .check(matches(withText("uniqueUsernameTest")));
+                .check(matches(withText("qwertyu1")));
 
         onView(withId(R.id.settings_input_about_me))
                 .perform(scrollTo())
-                .check(matches(withText("uniqueAboutMe")));
+                .check(matches(withText("uniqueAboutMe 1")));
     }
 
     /** Switches all privacy switches from there previous value to the new value. e.g. either false > true or true > false.
@@ -269,7 +269,6 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
         HashMap<String, Boolean> initialPrivacy = new HashMap<>();
 
         //  Log the results of what the switches used to be into a Hashmap. in order to reference later in testing.
-        initialPrivacy.put("username", activityResult.mDisplay_username.isChecked());
         initialPrivacy.put("about_me", activityResult.mDisplay_about_me.isChecked());
         initialPrivacy.put("recipes", activityResult.mDisplay_recipes.isChecked());
         initialPrivacy.put("profile_image", activityResult.mDisplay_profile_image.isChecked());
@@ -280,12 +279,8 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
         onView(withId(R.id.settings_privacy_about_me))
                 .perform(scrollTo())
                 .perform(click());
-        onView(withId(R.id.settings_privacy_username))
-                .perform(click());
         onView(withId(R.id.settings_privacy_profile_image))
                 .perform(scrollTo())
-                .perform(click());
-        onView(withId(R.id.settings_privacy_recipes))
                 .perform(click());
         onView(withId(R.id.settings_privacy_filters))
                 .perform(scrollTo())
@@ -317,7 +312,6 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
 
         assertNotEquals(initialPrivacy.get("about_me"), activityResult.mDisplay_about_me.isChecked());
         assertNotEquals(initialPrivacy.get("recipes"), activityResult.mDisplay_recipes.isChecked());
-        assertNotEquals(initialPrivacy.get("username"), activityResult.mDisplay_username.isChecked());
         assertNotEquals(initialPrivacy.get("profile_image"), activityResult.mDisplay_profile_image.isChecked());
         assertNotEquals(initialPrivacy.get("filters"), activityResult.mDisplay_filters.isChecked());
         assertNotEquals(initialPrivacy.get("feed"), activityResult.mDisplay_feed.isChecked());
@@ -331,10 +325,8 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
         onView(withText("PRIVATE"))
                 .perform(scrollTo())
                 .perform(click());
-
         assertNotEquals(initialPrivacy.get("about_me"), activityResult.mDisplay_about_me.isChecked());
         assertNotEquals(initialPrivacy.get("recipes"), activityResult.mDisplay_recipes.isChecked());
-        assertNotEquals(initialPrivacy.get("username"), activityResult.mDisplay_username.isChecked());
         assertNotEquals(initialPrivacy.get("profile_image"), activityResult.mDisplay_profile_image.isChecked());
         assertNotEquals(initialPrivacy.get("filters"), activityResult.mDisplay_filters.isChecked());
         assertNotEquals(initialPrivacy.get("feed"), activityResult.mDisplay_feed.isChecked());
@@ -351,7 +343,6 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
             if(!activityResult.mDisplay_profile_image.isChecked()){ onView(withId(R.id.settings_privacy_profile_image)).perform(scrollTo()).perform(click()); }
             if(!activityResult.mDisplay_recipes.isChecked()){ onView(withId(R.id.settings_privacy_recipes)).perform(scrollTo()).perform(click()); }
             if(!activityResult.mDisplay_about_me.isChecked()){ onView(withId(R.id.settings_privacy_about_me)).perform(scrollTo()).perform(click()); }
-            if(!activityResult.mDisplay_username.isChecked()){ onView(withId(R.id.settings_privacy_username)).perform(scrollTo()).perform(click()); }
             if(!activityResult.mDisplay_feed.isChecked()){ onView(withId(R.id.settings_privacy_feed)).perform(scrollTo()).perform(click()); }
         } else {
             //  Checks if the filters turned on and if so switches off.
@@ -359,7 +350,6 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
             if(activityResult.mDisplay_profile_image.isChecked()){ onView(withId(R.id.settings_privacy_profile_image)).perform(scrollTo()).perform(click()); }
             if(activityResult.mDisplay_recipes.isChecked()){ onView(withId(R.id.settings_privacy_recipes)).perform(scrollTo()).perform(click()); }
             if(activityResult.mDisplay_about_me.isChecked()){ onView(withId(R.id.settings_privacy_about_me)).perform(scrollTo()).perform(click()); }
-            if(activityResult.mDisplay_username.isChecked()){ onView(withId(R.id.settings_privacy_username)).perform(scrollTo()).perform(click()); }
             if(activityResult.mDisplay_feed.isChecked()){ onView(withId(R.id.settings_privacy_feed)).perform(scrollTo()).perform(click()); }
         }
 
@@ -370,7 +360,6 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
         onView(withId(R.id.settings_privacy_profile_image)).perform(scrollTo()).perform(click());
         onView(withId(R.id.settings_privacy_recipes)).perform(scrollTo()).perform(click());
         onView(withId(R.id.settings_privacy_about_me)).perform(scrollTo()).perform(click());
-        onView(withId(R.id.settings_privacy_username)).perform(scrollTo()).perform(click());
         onView(withId(R.id.settings_privacy_feed)).perform(scrollTo()).perform(click());
     }
 
@@ -381,17 +370,16 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
     @Test
     public void testPrivacyOptionsSync() throws InterruptedException {
 
-        resetPrivacy(false); // Set all switches off
-        switchAllPrivacySwitches(); // Turn all switches back on so the ProfileSettings class can register these changes.
-
         onView(withText("PRIVATE"))
                 .perform(scrollTo())
                 .perform(click());
 
+        resetPrivacy(false); // Set all switches off
+        switchAllPrivacySwitches(); // Turn all switches back on so the ProfileSettings class can register these changes.
+
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
         assertTrue(activityResult.mDisplay_about_me.isChecked());
-        assertTrue(activityResult.mDisplay_username.isChecked());
         assertTrue(activityResult.mDisplay_recipes.isChecked());
         assertTrue(activityResult.mDisplay_profile_image.isChecked());
         assertTrue(activityResult.mDisplay_filters.isChecked());
@@ -405,7 +393,6 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
                 .perform(click());
 
         assertFalse(activityResult.mDisplay_about_me.isChecked());
-        assertFalse(activityResult.mDisplay_username.isChecked());
         assertFalse(activityResult.mDisplay_recipes.isChecked());
         assertFalse(activityResult.mDisplay_profile_image.isChecked());
         assertFalse(activityResult.mDisplay_filters.isChecked());
@@ -416,15 +403,16 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
     //  Tested using privacy switches since these update before the save button is pressed.
     @Test
     public void testUserInfoPrivateDeepClone() {
+        onView(withText("PRIVATE"))
+                .perform(scrollTo())
+                .perform(click());
         switchAllPrivacySwitches();
 
-        HashMap<String, Object> tempPrivacy = activityResult.mTempUserProfile.getPublicPrivacy();
-        HashMap<String, Object> actualPrivacy = activityResult.mUserProfile.getPublicPrivacy();
+        HashMap<String, Object> tempPrivacy = activityResult.mTempUserProfile.getPrivacyPrivate();
+        HashMap<String, Object> actualPrivacy = activityResult.mUserProfile.getPrivacyPrivate();
 
-        boolean displayUsername = (boolean) tempPrivacy.get("display_username");
         boolean displayFeed = (boolean) tempPrivacy.get("display_feed");
 
-        assertNotEquals(displayUsername, actualPrivacy.get("display_username")); // Check the temporary value is not equal to the previous value.
         assertNotEquals(displayFeed, actualPrivacy.get("display_feed"));
     }
 
@@ -617,7 +605,7 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
         onView(withText("YES"))
                 .perform(click());
 
-        onView(withText("Password must be greater than 6 characters in length"))
+        onView(withText("Password must be greater than 7 characters in length"))
                 .inRoot(withDecorView(not(mActivityTestRule.getActivity().getWindow().getDecorView())))
                 .check(matches(isDisplayed()));
 
@@ -640,7 +628,7 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
         onView(withText("CHANGE PASSWORD"))
                 .perform(click());
 
-        onView(withText("Password must be greater than 6 characters in length"))
+        onView(withText("Password must be at least 8 characters and contain at least 1 number and 1 letter"))
                 .inRoot(withDecorView(not(mActivityTestRule.getActivity().getWindow().getDecorView())))
                 .check(matches(isDisplayed()));
 
@@ -649,6 +637,37 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
     //  Test that the new password input matches the previous one.
     @Test
     public void testNewPasswordsNeedsToMatch() {
+        //  Make sure we don't actually delete the test account if the following fails. Set to testing.
+        mActivityTestRule.getActivity().isTesting = true;
+
+        onView(withId(R.id.settings_reset_password))
+                .perform(scrollTo())
+                .perform(click());
+
+        onView(withHint("Enter new password"))
+                .perform(click())
+                .perform(typeText("oldPassword2"));
+        onView(withHint("Enter old password"))
+                .perform(click())
+                .perform(typeText("newPassword2"));
+        onView(withHint("Re-enter new password"))
+                .perform(click())
+                .perform(typeText("newPassword2"));
+
+        Espresso.closeSoftKeyboard();
+
+        onView(withText("CHANGE PASSWORD"))
+                .perform(click());
+
+        onView(withText("Passwords do not match. Please try again..."))
+                .inRoot(withDecorView(not(mActivityTestRule.getActivity().getWindow().getDecorView())))
+                .check(matches(isDisplayed()));
+    }
+
+
+    //  Test that the new password input matches the previous one.
+    @Test
+    public void testNewPasswordsMatchCriteria() {
         //  Make sure we don't actually delete the test account if the following fails. Set to testing.
         mActivityTestRule.getActivity().isTesting = true;
 
@@ -671,7 +690,7 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
         onView(withText("CHANGE PASSWORD"))
                 .perform(click());
 
-        onView(withText("Passwords do not match. Please try again..."))
+        onView(withText("Password must be at least 8 characters and contain at least 1 number and 1 letter"))
                 .inRoot(withDecorView(not(mActivityTestRule.getActivity().getWindow().getDecorView())))
                 .check(matches(isDisplayed()));
     }
