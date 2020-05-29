@@ -48,7 +48,7 @@ public class PlannerFragment extends Fragment {
 
     //Fragment handlers
     private FragmentTransaction fragmentTransaction;
-    private RecipeFragment recipeFragment;
+    private RecipeFragment mealTimescaleFragment;
 
     //User information
     private UserInfoPrivate mUser;
@@ -58,6 +58,11 @@ public class PlannerFragment extends Fragment {
     private SearchView searchView;
     private MenuItem sortButton;
     Button mShoppingList;
+
+    //Request Code
+    private int breakfastRequestCode = 0;
+    private int lunchRequestCode = 1;
+    private int dinnerRequestCode = 2;
 
     private Integer recipeFragmentRequest = 1;
 
@@ -139,14 +144,15 @@ public class PlannerFragment extends Fragment {
                 imageButton.setBackground(null);
 
                 //Sets listener for long clicks - resetting buttons to their default state
+                int finalJ = j;
                 imageButton.setOnLongClickListener(v -> {
-                    defaultButton(imageButton);
+                    mealTimescaleButton(imageButton, finalJ);
                     return true;
                 });
 
                 //If the planner doesn't have a meal entry for the time period
                 if (plannerList.get(id) == null) {
-                    defaultButton(imageButton); //Default state
+                    mealTimescaleButton(imageButton, j);
                 } else {
                     //Loads image of recipe and sets click action to open the recipe info dialog
                     Picasso.get().load(Objects.requireNonNull(plannerList.get(id).get("imageURL")).toString()).into(imageButton);
@@ -172,8 +178,8 @@ public class PlannerFragment extends Fragment {
         plannerListFragment.show(getParentFragmentManager(), "search");
     }
 
-    // Sets default parameters for buttons
-    private void defaultButton(final ImageButton imageButton) {
+    //Sets meal timescale parameters for buttons
+    private void mealTimescaleButton(final ImageButton imageButton, int i) {
         imageButton.setImageResource(R.drawable.add); //Default image
         imageButton.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
@@ -181,11 +187,22 @@ public class PlannerFragment extends Fragment {
             currentSelection = imageButton; //Allows tracking of button pressed
 
             //Creates and launches recipe fragment
-            recipeFragment = new RecipeFragment(mUser);
-            recipeFragment.setArguments(bundle);
-            recipeFragment.setTargetFragment(PlannerFragment.this, recipeFragmentRequest);
+            if (i == 0) {
+                mealTimescaleFragment = new RecipeFragment(mUser, breakfastRequestCode);
+                mealTimescaleFragment.setArguments(bundle);
+                mealTimescaleFragment.setTargetFragment(PlannerFragment.this, breakfastRequestCode);
+
+            }else if (i == 1){
+                mealTimescaleFragment = new RecipeFragment(mUser, lunchRequestCode);
+                mealTimescaleFragment.setArguments(bundle);
+                mealTimescaleFragment.setTargetFragment(PlannerFragment.this, lunchRequestCode);
+            }else if (i == 2){
+                mealTimescaleFragment = new RecipeFragment(mUser, dinnerRequestCode);
+                mealTimescaleFragment.setArguments(bundle);
+                mealTimescaleFragment.setTargetFragment(PlannerFragment.this, dinnerRequestCode);
+            }
             fragmentTransaction = getParentFragmentManager().beginTransaction();
-            fragmentTransaction.add(R.id.frameLayout, recipeFragment); //Overlays fragment on existing one
+            fragmentTransaction.add(R.id.frameLayout, mealTimescaleFragment); //Overlays fragment on existing one
             fragmentTransaction.commitNow(); //Waits for fragment transaction to be completed
             requireView().setVisibility(View.INVISIBLE); //Sets current fragment invisible
 
@@ -216,7 +233,7 @@ public class PlannerFragment extends Fragment {
     //Handles child fragment exit results
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == recipeFragmentRequest) {
+        //if (requestCode == recipeFragmentRequest) {
             if (resultCode == Activity.RESULT_OK) {
                 Bundle bundle = data.getExtras();
 
@@ -257,9 +274,9 @@ public class PlannerFragment extends Fragment {
             }
             //Removes recipe fragment overlay and makes planner fragment visible
             fragmentTransaction = getParentFragmentManager().beginTransaction();
-            fragmentTransaction.remove(recipeFragment).commitNow();
+            fragmentTransaction.remove(mealTimescaleFragment).commitNow();
             requireView().setVisibility(View.VISIBLE);
-        }
+        //}
     }
 
     //Quick function to reset search menu functionality
