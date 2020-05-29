@@ -209,6 +209,8 @@ public class RecipeReviewFragment extends FeedFragment {
     protected void initPageListeners(View layout) {
         super.initPageListeners();
 
+
+
         mPostButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -237,7 +239,12 @@ public class RecipeReviewFragment extends FeedFragment {
         mStars.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
             public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
-                getNewRating = mStars.getRating();
+                if (mStars.getRating() < 1) {
+                    mStars.setRating(1);
+                    getNewRating = 1;
+                } else {
+                    getNewRating = mStars.getRating();
+                }
             }
         });
 
@@ -419,6 +426,7 @@ public class RecipeReviewFragment extends FeedFragment {
                         loadingDialog.dismissDialog();
                         reviewMade = true;
                         postID = postRef.getId();
+
                     }
                 });
 
@@ -518,11 +526,12 @@ public class RecipeReviewFragment extends FeedFragment {
                         });
 
                         // Update the mUserInfoPrivate class with this new image URL.
-                        POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
+                        POST_IS_UPLOADING = false;// State we have finis    hed uploading (a reference exists).
                         loadingDialog.dismissDialog();
                         reviewMade = true;
                         postID = postRef.getId();
-
+                        RecipeInfoFragment infoFragment = (RecipeInfoFragment) getParentFragment();
+                        infoFragment.refreshReviewFragment();
                     }
                 });
 

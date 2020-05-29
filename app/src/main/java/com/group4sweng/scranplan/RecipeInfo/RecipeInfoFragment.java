@@ -118,6 +118,8 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
     protected String starRating;
     protected String firebaseLocation;
 
+    private Fragment reviewFragment;
+
     protected FirebaseFirestore mDatabase;
     protected CollectionReference mDataRef;
     protected CollectionReference mUserRef;
@@ -212,6 +214,9 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
 
         //For the Ingredient array
         linearLayoutIngredients = layout.findViewById(R.id.ingredient_list);
+
+        //Review fragment
+        reviewFragment = new RecipeReviewFragment(mUser);
 
         //5 star rating bar
         mStars = layout.findViewById(R.id.ratingBar);
@@ -388,13 +393,12 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
         mTabLayout2.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                Fragment fragment = null;
+                FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
                 switch (tab.getPosition()) {
                     case 0:
-                        fragment = new RecipeIngredientFragment();
+                        fragmentTransaction.replace(R.id.RecipeFrameLayout, new RecipeIngredientFragment());
                         break;
                     case 1:
-                        fragment = new RecipeReviewFragment(mUser);
                         //creating new bundle to pass through relative information to the review fragment
                         Bundle reviewBundle = new Bundle();
                         reviewBundle.putSerializable("ratingMap", ratingMap);
@@ -402,12 +406,10 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
                         reviewBundle.putString("recipeDescription", recipeDescription);
                         reviewBundle.putString("recipeTitle",recipeName);
                         reviewBundle.putString("recipeImageURL",recipeImage);
-                        fragment.setArguments(reviewBundle);
+                        reviewFragment.setArguments(reviewBundle);
+                        fragmentTransaction.replace(R.id.RecipeFrameLayout, reviewFragment);
                         break;
-
                 }
-                FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
-                fragmentTransaction.replace(R.id.RecipeFrameLayout, fragment);
                 fragmentTransaction.commit();
             }
 
@@ -421,6 +423,14 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
 
             }
         });
+    }
+
+    public void refreshReviewFragment() {
+        // Reloads review fragment
+        FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
+        fragmentTransaction.detach(reviewFragment);
+        fragmentTransaction.attach(reviewFragment);
+        fragmentTransaction.commit();
     }
 
     protected void updateIngredientsList(){
