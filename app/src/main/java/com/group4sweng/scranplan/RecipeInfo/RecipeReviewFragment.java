@@ -1,5 +1,6 @@
 package com.group4sweng.scranplan.RecipeInfo;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -9,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
@@ -125,14 +127,13 @@ public class RecipeReviewFragment extends FeedFragment {
      * review so they can edit if they wish.
      */
     private void checkReview() {
-
         mDatabase.collection("reviews").document(docID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     if (task.getResult().exists()) {
+                        loadingDialog.startLoadingDialog();
                         Log.e(TAG, "exists ");
-//                        loadingDialog.startLoadingDialog();
                         DocumentSnapshot document = task.getResult();
                         mStars.setRating(Float.parseFloat(document.get("overallRating").toString()));
                         postID = document.get("docID").toString();
@@ -157,7 +158,7 @@ public class RecipeReviewFragment extends FeedFragment {
                                     urlPic = true;
                                 }
 
-
+                                loadingDialog.dismissDialog();
                             }
                         });
 
@@ -226,7 +227,8 @@ public class RecipeReviewFragment extends FeedFragment {
 
                 addingReviewFirestore(layout);
 
-//                checkReview();
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
             }
         });
@@ -341,8 +343,7 @@ public class RecipeReviewFragment extends FeedFragment {
             //in reviews collection
             if (mPostPic.isChecked()) {
                 try {
-                    if (!urlPic)
-                        checkImage(mImageUri); // Check the image doesn't throw any exceptions
+                    checkImage(mImageUri); // Check the image doesn't throw any exceptions
 
                     // State that the image is still uploading and therefore we shouldn't save a reference on firebase to it yet.
 
@@ -455,7 +456,7 @@ public class RecipeReviewFragment extends FeedFragment {
 
 
                         reviewMap.put("mUser", mUser.getUID());
-                        reviewMap.put("overallRating", get  NewRating);
+                        reviewMap.put("overallRating", getNewRating);
                         reviewMap.put("docID", postRef.getId());
                         reviewMap.put("timestamp", FieldValue.serverTimestamp());
 
