@@ -469,6 +469,8 @@ public class Home extends AppCompatActivity {
                     mNameBox.setChecked(false);
                     tabs.setCurrentTab(2);
                     tabs.getCurrentTabView().setVisibility(View.GONE);
+                    tabs.setCurrentTab(1);
+                    tabs.getCurrentTabView().setVisibility(View.GONE);
                     tabs.setCurrentTab(0);
                 }else if(!mNameBox.isChecked() && !mIngredientsBox.isChecked()){
                     mChefBox.setChecked(true);
@@ -488,6 +490,8 @@ public class Home extends AppCompatActivity {
                     mNameBox.setChecked(false);
                     tabs.setCurrentTab(2);
                     tabs.getCurrentTabView().setVisibility(View.VISIBLE);
+                    tabs.setCurrentTab(1);
+                    tabs.getCurrentTabView().setVisibility(View.VISIBLE);
                     tabs.setCurrentTab(0);
                 }else if(!mNameBox.isChecked() && !mChefBox.isChecked()){
                     mIngredientsBox.setChecked(true);
@@ -506,7 +510,9 @@ public class Home extends AppCompatActivity {
                     mChefBox.setChecked(false);
                     mIngredientsBox.setChecked(false);
                     tabs.setCurrentTab(2);
-                    tabs.getCurrentTabView().setVisibility(View.GONE);
+                    tabs.getCurrentTabView().setVisibility(View.VISIBLE);
+                    tabs.setCurrentTab(1);
+                    tabs.getCurrentTabView().setVisibility(View.VISIBLE);
                     tabs.setCurrentTab(0);
                 }else if(!mChefBox.isChecked() && !mIngredientsBox.isChecked()){
                     mNameBox.setChecked(true);
