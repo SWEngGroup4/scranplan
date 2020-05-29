@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
@@ -23,6 +24,7 @@ import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
+import com.group4sweng.scranplan.ShoppingList;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
 
@@ -49,12 +51,13 @@ public class PlannerFragment extends Fragment {
     private RecipeFragment recipeFragment;
 
     //User information
-    private com.group4sweng.scranplan.UserInfo.UserInfoPrivate mUser;
+    private UserInfoPrivate mUser;
     private SearchPrefs prefs;
 
     //Menu items
     private SearchView searchView;
     private MenuItem sortButton;
+    Button mShoppingList;
 
     private Integer recipeFragmentRequest = 1;
 
@@ -71,8 +74,24 @@ public class PlannerFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_planner, container, false);
 
+
+
         //Grabs user and user's meal planner
+        mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
         if (mUser != null) plannerList = mUser.getMealPlanner();
+            View mShoppingList = view.findViewById(R.id.shoppingListButton);
+
+        if (mUser != null) {
+            mShoppingList.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent toShoppingList = new Intent(getActivity(), ShoppingList.class);
+                    toShoppingList.putExtra("user", mUser);
+                    startActivity(toShoppingList);
+                }
+
+            });
+        }
 
         Home home = (Home) getActivity();
         if (home != null) {
@@ -89,6 +108,7 @@ public class PlannerFragment extends Fragment {
             //Gets search preferences from home class
             prefs = home.getSearchPrefs();
         }
+
 
         //Generates rows of meal planners
         LinearLayout topView = view.findViewById(R.id.plannerLinearLayout);
@@ -140,6 +160,7 @@ public class PlannerFragment extends Fragment {
 
         return view;
     }
+
 
     //Opens list fragment on searching
     private void openRecipeDialog(SearchQuery query) {
@@ -199,6 +220,9 @@ public class PlannerFragment extends Fragment {
             if (resultCode == Activity.RESULT_OK) {
                 Bundle bundle = data.getExtras();
 
+
+                HashMap<String, String> testMap = (HashMap<String, String>) bundle.getSerializable("ingredientHashMap");
+
                 //Hides menu options
                 sortButton.setVisible(false);
 
@@ -213,6 +237,7 @@ public class PlannerFragment extends Fragment {
                     for (String key : bundle.keySet()) {
                         map.put(key, bundle.get(key));
                     }
+
 
                     //  Adds the ingredient Hash Map
                     HashMap<String, String> ingredientHashMap = (HashMap<String, String>) data.getSerializableExtra("ingredientHashMap");

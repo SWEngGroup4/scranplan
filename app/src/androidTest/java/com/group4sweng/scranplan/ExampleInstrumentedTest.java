@@ -1,12 +1,10 @@
-package com.group4sweng.scranplan.templates;
+package com.group4sweng.scranplan;
 
 import android.content.Context;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
-
-import com.group4sweng.scranplan.Login;
 
 import org.junit.Rule;
 import org.junit.Test;
