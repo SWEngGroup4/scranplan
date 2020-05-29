@@ -26,10 +26,10 @@
                 android:layout_width="0dp"
                 android:layout_height="125sp"
                 android:layout_marginStart="10dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="5dp"
                 app:layout_constraintEnd_toStartOf="@+id/guideline3"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/display_type"
+                app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/temp_settings_profile_image"
                 tools:srcCompat="@drawable/temp_settings_profile_image" />
 
@@ -38,7 +38,7 @@
                 android:layout_width="258dp"
                 android:layout_height="34dp"
                 android:layout_marginStart="10dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="5dp"
                 android:gravity=""
                 android:singleLine="true"
                 android:text="Anonymous"
@@ -47,7 +47,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toEndOf="@+id/public_profile_image"
-                app:layout_constraintTop_toBottomOf="@+id/display_type" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/profile_recipes"
@@ -454,37 +454,6 @@
                     app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
             </LinearLayout>
-
-            <TextView
-                android:id="@+id/display_type"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:background="@color/colorAccent"
-                android:backgroundTint="#75F44336"
-                android:paddingHorizontal="50sp"
-                android:paddingVertical="5sp"
-                android:paddingStart="60sp"
-                android:paddingEnd="10sp"
-                android:text="Followers may be able to see more depending on your profile settings"
-                android:textSize="14sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <ImageView
-                android:id="@+id/display_type_icon"
-                android:layout_width="33dp"
-                android:layout_height="29dp"
-                android:layout_marginStart="7dp"
-                android:layout_marginTop="7dp"
-                android:layout_marginBottom="11dp"
-                android:backgroundTint="#9E3A3A"
-                android:foregroundTint="#C63333"
-                android:tint="#A11717"
-                app:layout_constraintBottom_toBottomOf="@+id/display_type"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/display_type"
-                app:srcCompat="@android:drawable/stat_sys_warning" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
