@@ -211,7 +211,6 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
         if(user != null){
 
             String mealTimescaleScore = "score";
-            String mealTimescaleName = "Top picks";
             String mealTimescaleVotes = "votes";
             String mealTimescaleTimestamp = "timestamp";
             String mealTimescaleFavourite = "favourite";
@@ -219,28 +218,24 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
             switch (requestCode) {
                 case BREAKFAST:
                     mealTimescaleScore = "breakfastScore";
-                    mealTimescaleName = "Breakfast";
                     mealTimescaleVotes = "breakfastVotes";
                     mealTimescaleTimestamp = "breakfastTimestamp";
                     mealTimescaleFavourite = "breakfastFavourite";
                     break;
                 case LUNCH:
                     mealTimescaleScore = "lunchScore";
-                    mealTimescaleName = "Lunch";
                     mealTimescaleVotes = "lunchVotes";
                     mealTimescaleTimestamp = "lunchTimestamp";
                     mealTimescaleFavourite = "lunchFavourite";
                     break;
                 case DINNER:
                     mealTimescaleScore = "dinnerScore";
-                    mealTimescaleName = "Dinner";
                     mealTimescaleVotes = "dinnerVotes";
                     mealTimescaleTimestamp = "dinnerTimestamp";
                     mealTimescaleFavourite = "dinnerFavourite";
                     break;
                 case NORMAL:
                     mealTimescaleScore = "score";
-                    mealTimescaleName = "Top picks";
                     mealTimescaleVotes = "votes";
                     mealTimescaleTimestamp = "timestamp";
                     mealTimescaleFavourite = "favourite";
@@ -262,7 +257,7 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
                 Log.e(TAG, "User is searching the following query: " + queryScore.toString());
                 // Give the view a title
                 TextView textView = new TextView(view.getContext());
-                String testString = mealTimescaleName;
+                String testString = "Top picks";
                 textView.setTextSize(25);
                 textView.setPadding(20, 5, 5, 5);
                 textView.setTextColor(Color.WHITE);
