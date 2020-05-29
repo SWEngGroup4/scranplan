@@ -249,7 +249,7 @@ public class Home extends AppCompatActivity {
         //Defining all relevant members of signin & register page
         tabLayout = findViewById(R.id.tabLayout);
         frameLayout = findViewById(R.id.frameLayout);
-        fragment = new RecipeFragment();
+        fragment = new RecipeFragment(mUser);
         fragmentTransaction.replace(R.id.frameLayout, fragment);
         fragmentTransaction.commit ();
         navigationView = (NavigationView) findViewById(R.id.side_menu);
@@ -316,10 +316,10 @@ public class Home extends AppCompatActivity {
                 checkForNotifications();
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                Log.d("Test", String.valueOf(fragment));
+                Log.d(TAG, String.valueOf(fragment));
                 switch (tab.getPosition()) {
                     case 0:
-                        fragment = new RecipeFragment();
+                        fragment = new RecipeFragment(mUser);
                         fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
                         break;
                     case 1:
