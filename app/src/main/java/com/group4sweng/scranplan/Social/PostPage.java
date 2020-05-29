@@ -112,6 +112,7 @@ public class PostPage extends AppCompatDialogFragment {
     private boolean likedB4;
 
     private RatingBar recipeRating;
+    private boolean isReview;
 
     private ImageView menu;
 
@@ -188,6 +189,7 @@ public class PostPage extends AppCompatDialogFragment {
             recipeDescription.setText(bundle.getString("recipeDescription"));
             Picasso.get().load(bundle.getString("recipeImageURL")).into(recipeImageView);
             if(bundle.getBoolean("isReview")){
+                isReview = true;
                 recipeRating.setVisibility(View.VISIBLE);
                 recipeRating.setRating(bundle.getFloat("overallRating"));
             }
@@ -332,6 +334,16 @@ public class PostPage extends AppCompatDialogFragment {
      * @param deleteDocID
      */
     public void deletePost(String deleteDocID){
+        if(isReview){
+            mDatabase.collection("reviews").document(authorID + "-" + recipeID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if(task.getResult().exists()){
+                        task.getResult().getReference().delete();
+                    }
+                }
+            });
+        }
         mDatabase.collection("followers").document(mUser.getUID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {

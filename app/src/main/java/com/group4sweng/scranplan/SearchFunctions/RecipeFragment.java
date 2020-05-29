@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import io.sentry.core.Sentry;
 
@@ -62,8 +63,8 @@ public class RecipeFragment extends Fragment {
     final String TAG = "Home horizontal queries";
     // User preferences passed into scroll views via constructor
     UserInfoPrivate user;
-    public RecipeFragment(UserInfoPrivate user){
-        this.user = user;
+    public RecipeFragment(UserInfoPrivate mUser){
+        this.user = mUser;
     }
 
     // Width size of each scroll view, dictating size of images on home screen
@@ -138,7 +139,6 @@ public class RecipeFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_recipe, container, false);
 
-        user = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
 
         if (getArguments() != null) {
             planner = getArguments().getBoolean("planner");
@@ -184,9 +184,11 @@ public class RecipeFragment extends Fragment {
                     @Override
                     public boolean onQueryTextSubmit(String s) {
                         // Search function
+                        prefs = home.getSearchPrefs();
                         SearchQuery query = new SearchQuery(s, prefs);
                         SearchListFragment searchListFragment = new SearchListFragment(user);
                         searchListFragment.setValue(query.getQuery());
+                        searchListFragment.setIndex(query.getIndex());
                         Log.e(TAG, "User opening search");
                         searchListFragment.show(getFragmentManager(), "search");
                         return false;
@@ -760,7 +762,7 @@ public class RecipeFragment extends Fragment {
 
     private void loadNativeAds(int index, int adType) {
 
-        AdLoader.Builder builder = new AdLoader.Builder(this.getContext(), getString(R.string.ad_unit_id));
+        AdLoader.Builder builder = new AdLoader.Builder(getContext(), getString(R.string.ad_unit_id));
         adLoader = builder.forUnifiedNativeAd(
                 new UnifiedNativeAd.OnUnifiedNativeAdLoadedListener() {
                     @Override

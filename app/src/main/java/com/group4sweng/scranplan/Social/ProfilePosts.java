@@ -12,7 +12,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.widget.NestedScrollView;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -20,17 +19,16 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.group4sweng.scranplan.Administration.ContentReporting;
 import com.group4sweng.scranplan.Administration.LoadingDialog;
 import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -43,13 +41,14 @@ import java.util.Map;
  * This class builds the vertical scroll of all selected users posts in an infinite scroll
  * using the FeedRecyclerAdapter to display posts in the same way as they are on the feed.
  */
-public class ProfilePosts extends Fragment {
+public class ProfilePosts extends FeedFragment {
 
     final String TAG = "profile Posts";
 
     PublicProfile profile;
 
     public ProfilePosts(String UID){
+        super();
         searchUID = UID;
     }
     private String searchUID;
@@ -72,7 +71,7 @@ public class ProfilePosts extends Fragment {
 
 
     //User information
-    private com.group4sweng.scranplan.UserInfo.UserInfoPrivate user;
+    private com.group4sweng.scranplan.UserInfo.UserInfoPrivate mUser;
 
 
     Query query;
@@ -104,14 +103,14 @@ public class ProfilePosts extends Fragment {
         View view = inflater.inflate(R.layout.profile_posts, container, false);
         mainView = view;
         loadingDialog = new LoadingDialog(getActivity());
-        user = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
+        mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
 
 
         Log.e(TAG, "IN TO THE FRAGMENT FOR PROFILE POSTS");
         addPosts(view);
 
         // Checks users details have been provided
-        if(user != null){
+        if(mUser != null){
 
 
 
@@ -129,7 +128,7 @@ public class ProfilePosts extends Fragment {
      * postsLoaded posts at a time until end of posts are reached
      * @param view
      */
-    void addPosts(View view){
+    public void addPosts(View view){
         final RecyclerView recyclerView = view.findViewById(R.id.postsList);
         recyclerView.setNestedScrollingEnabled(false);
         // Set out the layout of this horizontal view
@@ -138,7 +137,7 @@ public class ProfilePosts extends Fragment {
         //recyclerView.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels));
         // Array to score downloaded data
         data = new ArrayList<>();
-        final RecyclerView.Adapter rAdapter = new FeedRecyclerAdapter( this, data, user, view, getActivity());
+        final RecyclerView.Adapter rAdapter = new FeedRecyclerAdapter( this, data, mUser, view, getActivity());
         recyclerView.setAdapter(rAdapter);
         Log.e(TAG, "ERROR: Loading social feed - We were unable to find user. ->" + searchUID);
         query = mColRef.whereEqualTo("author", searchUID).orderBy("timestamp", Query.Direction.DESCENDING).limit(postsLoaded);
@@ -243,9 +242,6 @@ public class ProfilePosts extends Fragment {
 
 
 
-
-
-
     /**
      * This method checks what comment is selected and opens up a menu to either open up another
      * users profile or if the comment was made my this user, user can delete the comment.
@@ -257,7 +253,7 @@ public class ProfilePosts extends Fragment {
         PopupMenu popup = new PopupMenu(getContext(), menu);
         //Inflating the Popup using xml file
         popup.getMenuInflater().inflate(R.menu.menu_comment, popup.getMenu());
-        if(document.get("author").toString().equals(user.getUID())){
+        if(document.get("author").toString().equals(mUser.getUID())){
             popup.getMenu().getItem(0).setVisible(false);
             popup.getMenu().getItem(1).setVisible(false);
             popup.getMenu().getItem(2).setVisible(true);
@@ -275,12 +271,26 @@ public class ProfilePosts extends Fragment {
                 switch (item.getItemId()) {
                     case R.id.reportComment:
                         Log.e(TAG,"Report comment clicked!");
-                        //TODO add functionality to report this comment
+                        Log.e(TAG,"Report comment clicked!");
+
+                        //HashMap with relevant information to be sent for reporting
+                        HashMap<String, Object> reportsMap = new HashMap<>();
+                        reportsMap.put("postID", document.get("postID").toString());
+                        reportsMap.put("usersID", document.get("author").toString());
+                        reportsMap.put("issue","Reporting Content");
+
+                        //creating a dialog box on screen so that the user can report an issue
+                        String firebaseLocation = "reporting";
+                        reportContent = new ContentReporting(getActivity(), reportsMap, firebaseLocation);
+                        reportContent.startReportingDialog();
+                        reportContent.title.setText("Report Content");
+                        reportContent.message.setText("What is the issue you would like to report?");
+
                         break;
                     case R.id.deleteComment:
                         Log.e(TAG,"Clicked delete comment!");
                         final String deleteDocID = (String) document.get("docID");
-                        deletePost(deleteDocID);
+                        deletePost(deleteDocID, document, mainView);
                         break;
                 }
                 return true;
@@ -290,89 +300,22 @@ public class ProfilePosts extends Fragment {
         popup.show();//showing popup menu
     }
 
-
     /**
-     * Function to delete post on profile
+     * Adding capability to delete post from post page
      * @param deleteDocID
      */
-    public void deletePost(String deleteDocID){
-        mDatabase.collection("followers").document(user.getUID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.isSuccessful()){
-                    if(task.getResult().exists()){
-                        // Add post to followers map
-                        DocumentSnapshot doc = task.getResult();
-                        if(((HashMap)doc.get("mapA")) != null){
-                            if(((HashMap)doc.get("mapA")).get("docID").equals(deleteDocID)){
-                                String map = "mapA";
-                                mDatabase.collection("followers").document(user.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
-                                                addPosts(mainView);
-                                            }
-                                        });
-                                    }
-                                });
-                            }
-                        }else if(((HashMap)doc.get("mapB")) != null){
-                            if(((HashMap)doc.get("mapB")).get("docID").equals(deleteDocID)){
-                                String map = "mapB";
-                                mDatabase.collection("followers").document(user.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
-                                                addPosts(mainView);
-                                            }
-                                        });
-                                    }
-                                });
-                            }
-                        }else if(((HashMap)doc.get("mapC")) != null){
-                            if(((HashMap)doc.get("mapC")).get("docID").equals(deleteDocID)){
-                                String map = "mapC";
-                                mDatabase.collection("followers").document(user.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
-                                                addPosts(mainView);
-                                            }
-                                        });
-                                    }
-                                });
-                            }
-                        }else{
-                            mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
-                                    addPosts(mainView);
-                                }
-                            });
-                        }
-                    }else{
-                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
-                                addPosts(mainView);
-                            }
-                        });
-                    }
-                }
-            }
-        });
+    public void deletePost(String deleteDocID, HashMap document, View view){
+        super.deletePost(deleteDocID, document, view);
     }
+
+    /**
+     * On click of a recipe a new recipe info fragment is opened and the document is sent through
+     * This saves on downloading the data again from the database
+     */
+    public void recipeSelected(DocumentSnapshot document, String userID){
+        super.recipeSelected(document, userID);
+    }
+
 
 
 
@@ -391,64 +334,5 @@ public class ProfilePosts extends Fragment {
 
     }
 
-    /**
-     * On click of a recipe a new recipe info fragment is opened and the document is sent through
-     * This saves on downloading the data again from the database
-     */
-    public void recipeSelected(DocumentSnapshot document) {
-
-
-        //Takes ingredient and recipe rating array from snap shot and reformats before being passed through to fragment
-        ArrayList<String> ingredientArray = new ArrayList<>();
-
-        Map<String, Map<String, Object>> ingredients = (Map) document.getData().get("Ingredients");
-        Iterator hmIterator = ingredients.entrySet().iterator();
-
-        HashMap<String, Double> ratingResults = (HashMap) document.getData().get("rating");
-
-        while (hmIterator.hasNext()) {
-            Map.Entry mapElement = (Map.Entry) hmIterator.next();
-            String string = mapElement.getKey().toString() + ": " + mapElement.getValue().toString();
-            ingredientArray.add(string);
-        }
-        //Takes ingredient HashMap from the snapshot.
-        HashMap<String, String> ingredientHashMap = (HashMap<String, String>) document.getData().get("Ingredients");
-
-
-        Bundle mBundle;
-        //Creating a bundle so all data needed from firestore query snapshot can be passed through into fragment class
-        mBundle = new Bundle();
-        mBundle.putSerializable("ingredientHashMap", ingredientHashMap);
-        mBundle.putStringArrayList("ingredientList", ingredientArray);
-        mBundle.putSerializable("ratingMap", ratingResults);
-        mBundle.putString("recipeID", document.getId());
-        mBundle.putString("xmlURL", document.get("xml_url").toString());
-        mBundle.putString("recipeTitle", document.get("Name").toString());
-        mBundle.putString("imageURL", document.get("imageURL").toString());
-        mBundle.putString("recipeDescription", document.get("Description").toString());
-        mBundle.putString("chefName", document.get("Chef").toString());
-        mBundle.putBoolean("planner", false);
-        mBundle.putBoolean("canFreeze", document.getBoolean("freezer"));
-        mBundle.putString("peopleServes", document.get("serves").toString());
-        mBundle.putString("fridgeDays", document.get("fridge").toString());
-        mBundle.putString("reheat", document.get("reheat").toString());
-        mBundle.putBoolean("noEggs", document.getBoolean("noEggs"));
-        mBundle.putBoolean("noMilk", document.getBoolean("noMilk"));
-        mBundle.putBoolean("noNuts", document.getBoolean("noNuts"));
-        mBundle.putBoolean("noShellfish", document.getBoolean("noShellfish"));
-        mBundle.putBoolean("noSoy", document.getBoolean("noSoy"));
-        mBundle.putBoolean("noWheat", document.getBoolean("noWheat"));
-        mBundle.putBoolean("pescatarian", document.getBoolean("pescatarian"));
-        mBundle.putBoolean("vegan", document.getBoolean("vegan"));
-        mBundle.putBoolean("vegetarian", document.getBoolean("vegetarian"));
-
-        ArrayList<Integer> faves = (ArrayList) document.get("favourite");
-        mBundle.putBoolean("isFav", faves.contains(user.getUID()));
-
-        RecipeInfoFragment recipeDialogFragment = new RecipeInfoFragment();
-        recipeDialogFragment.setArguments(mBundle);
-        recipeDialogFragment.setTargetFragment(this, 1);
-        recipeDialogFragment.show(getFragmentManager(), "Show recipe dialog fragment");
-    }
 
 }

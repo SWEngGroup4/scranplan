@@ -441,9 +441,9 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
                                 DocumentSnapshot document = task.getResult();
 
                                 if(mFeedFragment != null){
-                                    mFeedFragment.recipeSelected(document);
+                                    mFeedFragment.recipeSelected(document, user.getUID());
                                 }else{
-                                    mProfilePosts.recipeSelected(document);
+                                    mProfilePosts.recipeSelected(document, user.getUID());
                                 }
 
 

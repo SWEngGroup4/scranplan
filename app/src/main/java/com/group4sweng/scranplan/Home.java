@@ -326,7 +326,7 @@ public class Home extends AppCompatActivity {
                 checkForNotifications();
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                Log.d("Test", String.valueOf(fragment));
+                Log.d(TAG, String.valueOf(fragment));
                 switch (tab.getPosition()) {
                     case 0:
                         fragment = new RecipeFragment(mUser);
