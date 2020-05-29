@@ -38,7 +38,7 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
 
     private List<HashMap<String, Object>> ShoppingList = new ArrayList<>();
     RecyclerViewAdaptor adapter;
-    ArrayList<Ingredient> ingredientList = new ArrayList<>();
+    ArrayList<String> ingredientList = new ArrayList<>();
     ArrayList<String> duplicatesAddedList = new ArrayList<>();
     ArrayList<String> savedList = new ArrayList<>();
 
@@ -88,15 +88,15 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
                     ArrayList<Ingredient> ingredientArray = RecipeHelpers.convertToIngredientFormat(updateIngredientList);
                     for (Ingredient ingredient : ingredientArray) {
                         //add each individual ingredient in each recipe
-                        ingredientList.add(ingredient);
+                        String ingredientName = ingredient.getName();
+                        ingredientList.add(ingredientName);
                     }
 
                 }
             }
         }
-        Set<Ingredient> unique = new HashSet<Ingredient>(ingredientList);
-        for (Ingredient key : unique) {
-
+        Set<String> unique = new HashSet<String>(ingredientList);
+        for (String key : unique) {
             //if there are multiple elements of the same ingredients add these together and replace
             duplicatesAddedList.add(Collections.frequency(ingredientList, key) + " Times : " + key);
             java.util.Collections.sort(duplicatesAddedList, Collator.getInstance());
