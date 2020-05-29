@@ -68,6 +68,7 @@ public class RecipeReviewFragment extends FeedFragment {
     private String mRecipeDescription;
     private String docID;
     private Boolean reviewMade;
+    private Boolean urlPic = false;
     private String postID;
     private String oldUserStarRating;
     private ImageButton mReviewMenu;
@@ -151,7 +152,9 @@ public class RecipeReviewFragment extends FeedFragment {
                                     mReviewImagelayout.setVisibility(View.VISIBLE);
                                     mRecipeReviewImage.setVisibility(View.VISIBLE);
                                     Picasso.get().load((String) d.get("uploadedImageURL")).into(mRecipeReviewImage);
+                                    mImageUri = Uri.parse(d.get("uploadedImageURL").toString());
                                     mPostPic.setChecked(true);
+                                    urlPic = true;
                                 }
 
 
@@ -165,6 +168,7 @@ public class RecipeReviewFragment extends FeedFragment {
                         Log.e("FdRc", "Unable to retrieve user document in Firestore ");
                         reviewMade = false;
                         mPostPic.setChecked(false);
+                        urlPic = false;
                     }
                 }
             }
@@ -337,7 +341,8 @@ public class RecipeReviewFragment extends FeedFragment {
             //in reviews collection
             if (mPostPic.isChecked()) {
                 try {
-                    checkImage(mImageUri); // Check the image doesn't throw any exceptions
+                    if (!urlPic)
+                        checkImage(mImageUri); // Check the image doesn't throw any exceptions
 
                     // State that the image is still uploading and therefore we shouldn't save a reference on firebase to it yet.
 
@@ -441,7 +446,8 @@ public class RecipeReviewFragment extends FeedFragment {
             //in reviews collection
             if (mPostPic.isChecked()) {
                 try {
-                    checkImage(mImageUri); // Check the image doesn't throw any exceptions
+                    if (!urlPic)
+                        checkImage(mImageUri); // Check the image doesn't throw any exceptions
 
                     // State that the image is still uploading and therefore we shouldn't save a reference on firebase to it yet.
 
@@ -668,7 +674,6 @@ public class RecipeReviewFragment extends FeedFragment {
      */
     protected void checkImage(Uri uri) throws ImageException {
         super.checkImage(uri);
-
     }
 
     /**
