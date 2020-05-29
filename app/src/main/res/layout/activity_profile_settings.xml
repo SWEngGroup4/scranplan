@@ -260,32 +260,6 @@
 
                 </TableRow>
 
-                <TableRow>
-
-                    <Switch
-                        android:id="@+id/settings_privacy_feed"
-                        android:layout_margin="4sp"
-                        android:layout_weight="1"
-                        android:background="#36675B7A"
-                        android:checked="false"
-                        android:onClick="onSwitchClicked"
-                        android:padding="6sp"
-                        android:text="Posts"
-                        android:textSize="13sp"
-                        tools:checked="true" />
-
-                    <Switch
-                        android:id="@+id/settings_privacy_recipes"
-                        android:layout_margin="4sp"
-                        android:layout_weight="1"
-                        android:background="#36675B7A"
-                        android:checked="false"
-                        android:onClick="onSwitchClicked"
-                        android:padding="6sp"
-                        android:text="Recipes"
-                        android:textSize="13sp"
-                        tools:checked="true" />
-                </TableRow>
 
                 <TableRow></TableRow>
 

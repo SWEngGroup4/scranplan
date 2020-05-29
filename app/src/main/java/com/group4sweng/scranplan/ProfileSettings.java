@@ -140,10 +140,8 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
     Switch mDisplay_username;
     Switch mDisplay_about_me;
-    Switch mDisplay_recipes;
     Switch mDisplay_profile_image;
     Switch mDisplay_filters;
-    Switch mDisplay_feed;
     Switch mPrivateProfileEnabled;
 
     //  Input fields (Delete profile & Change password)
@@ -219,8 +217,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                 assert tab != null;
                 tab.select();
                 mProfileVisibilityTab.setVisibility(View.VISIBLE);
-                mDisplay_feed.setVisibility(View.GONE);
-                mDisplay_recipes.setVisibility(View.GONE);
             } else {
                 setPrivacyOptions(mTempUserProfile.getPrivacyPrivate());
                 mProfileVisibilityTab.setVisibility(View.GONE);
@@ -775,13 +771,9 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                     assert tab != null;
                     tab.select();
                     mProfileVisibilityTab.setVisibility(View.VISIBLE);
-                    mDisplay_feed.setVisibility(View.GONE);
-                    mDisplay_recipes.setVisibility(View.GONE);
                 } else {
                     setPrivacyOptions(mTempUserProfile.getPrivacyPrivate());
                     mProfileVisibilityTab.setVisibility(View.GONE);
-                    mDisplay_feed.setVisibility(View.VISIBLE);
-                    mDisplay_recipes.setVisibility(View.VISIBLE);
                 }
 
             case R.id.settings_privacy_about_me:
@@ -789,12 +781,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                     tempPrivacy.put("display_about_me", true);
                 else
                     tempPrivacy.put("display_about_me", false);
-                break;
-            case R.id.settings_privacy_recipes:
-                if(switched)
-                    tempPrivacy.put("display_recipes", true);
-                else
-                    tempPrivacy.put("display_recipes", false);
                 break;
             case R.id.settings_privacy_username:
                 if(switched)
@@ -813,12 +799,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                     tempPrivacy.put("display_filters", true);
                 else
                     tempPrivacy.put("display_filters", false);
-                break;
-            case R.id.settings_privacy_feed:
-                if(switched)
-                    tempPrivacy.put("display_feed", true);
-                else
-                    tempPrivacy.put("display_feed", false);
                 break;
         }
 
@@ -937,10 +917,8 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         //  Privacy
         mDisplay_about_me = findViewById(R.id.settings_privacy_about_me);
         mDisplay_profile_image = findViewById(R.id.settings_privacy_profile_image);
-        mDisplay_recipes = findViewById(R.id.settings_privacy_recipes);
         mDisplay_username = findViewById(R.id.settings_privacy_username);
         mDisplay_filters = findViewById(R.id.settings_privacy_filters);
-        mDisplay_feed = findViewById(R.id.settings_privacy_feed);
 
         //  Tabbed profile listener (Public/Private)
         mProfileVisibilityTab = findViewById(R.id.profile_visibility_tab_bar);
@@ -1146,9 +1124,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         mDisplay_username.setVisibility(View.GONE);
         mDisplay_about_me.setChecked( (boolean) privacy.get("display_about_me"));
         mDisplay_profile_image.setChecked( (boolean) privacy.get("display_profile_image"));
-        mDisplay_recipes.setChecked( (boolean) privacy.get("display_recipes"));
         mDisplay_filters.setChecked( (boolean) privacy.get("display_filters"));
-        mDisplay_feed.setChecked( (boolean) privacy.get("display_feed"));
     }
 
     /** Update the server relative to the client on a valid 'Save Settings' button press
@@ -1408,13 +1384,9 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                 switch (tab.getPosition()) {
                     case 0: // Tab order in index. 0 = leftmost element.
                             setPrivacyOptions(mTempUserProfile.getPublicPrivacy());
-                            mDisplay_feed.setVisibility(View.GONE);
-                            mDisplay_recipes.setVisibility(View.GONE);
                         break;
                     case 1:
                             setPrivacyOptions(mTempUserProfile.getPrivacyPrivate());
-                        mDisplay_feed.setVisibility(View.VISIBLE);
-                        mDisplay_recipes.setVisibility(View.VISIBLE);
                         break;
                 }
             }

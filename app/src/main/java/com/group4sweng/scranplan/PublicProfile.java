@@ -497,22 +497,9 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
      * Loading recipes and posts lists if privacy setting allow and followed or public user
      */
     private void loadPostsAndRecipeList(){
-        if(retrievePosts && retrieveRecipes){
-            fragment = new ProfilePosts(searchers);
-            fragmentTransaction.replace(R.id.profileFrameLayout, fragment);
-            fragmentTransaction.commit();
-        }else if(retrievePosts){
-            fragment = new ProfilePosts(searchers);
-            fragmentTransaction.replace(R.id.profileFrameLayout, fragment);
-            fragmentTransaction.commit();
-            mStreamTabs.removeTab(mStreamTabs.getTabAt(2));
-        }else if(retrieveRecipes){
-            mStreamTabs.removeTab(mStreamTabs.getTabAt(1));
-            mStreamTabs.removeTab(mStreamTabs.getTabAt(0));
-            fragment = new ProfileRecipes(searchers);
-            fragmentTransaction.replace(R.id.profileFrameLayout, fragment);
-            fragmentTransaction.commit();
-        }
+        fragment = new ProfilePosts(searchers);
+        fragmentTransaction.replace(R.id.profileFrameLayout, fragment);
+        fragmentTransaction.commit();
     }
 
     /** Method to load in Kudos and Recipe information.
