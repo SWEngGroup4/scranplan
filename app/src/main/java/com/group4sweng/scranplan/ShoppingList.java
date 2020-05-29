@@ -1,23 +1,19 @@
 package com.group4sweng.scranplan;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.common.collect.ObjectArrays;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.Helper.RecipeHelpers;
+import com.group4sweng.scranplan.MealPlanner.Ingredients.Ingredient;
 
 import java.text.Collator;
 import java.util.ArrayList;
@@ -42,7 +38,7 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
 
     private List<HashMap<String, Object>> ShoppingList = new ArrayList<>();
     RecyclerViewAdaptor adapter;
-    ArrayList<String> ingredientList = new ArrayList<>();
+    ArrayList<Ingredient> ingredientList = new ArrayList<>();
     ArrayList<String> duplicatesAddedList = new ArrayList<>();
     ArrayList<String> savedList = new ArrayList<>();
 
@@ -89,8 +85,8 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
                     HashMap<String, String> updateIngredientList = new HashMap<>();
                     updateIngredientList = (HashMap<String, String>) ShoppingList.get(a).get("ingredientHashMap");
                     assert updateIngredientList != null;
-                    ArrayList<String> ingredientArray = RecipeHelpers.convertToIngredientListFormat(updateIngredientList);
-                    for (String ingredient : ingredientArray) {
+                    ArrayList<Ingredient> ingredientArray = RecipeHelpers.convertToIngredientFormat(updateIngredientList);
+                    for (Ingredient ingredient : ingredientArray) {
                         //add each individual ingredient in each recipe
                         ingredientList.add(ingredient);
                     }
@@ -98,8 +94,8 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
                 }
             }
         }
-        Set<String> unique = new HashSet<String>(ingredientList);
-        for (String key : unique) {
+        Set<Ingredient> unique = new HashSet<Ingredient>(ingredientList);
+        for (Ingredient key : unique) {
 
             //if there are multiple elements of the same ingredients add these together and replace
             duplicatesAddedList.add(Collections.frequency(ingredientList, key) + " Times : " + key);
