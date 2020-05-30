@@ -36,6 +36,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.group4sweng.scranplan.Administration.ContentReporting;
 import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.Administration.LoadingDialog;
 import com.group4sweng.scranplan.R;
@@ -230,11 +231,28 @@ public class PostPage extends AppCompatDialogFragment {
                         switch (item.getItemId()) {
                             case R.id.viewCommentProfile:
                                 Log.e(TAG,"Clicked open profile!");
-                                //TODO add functionality to open users profile in new fragment
+                                Intent intentProfile = new Intent(getContext(), PublicProfile.class);
+
+                                intentProfile.putExtra("UID", authorID);
+                                intentProfile.putExtra("user", mUser);
+                                //setResult(RESULT_OK, intentProfile);
+                                startActivity(intentProfile);
                                 break;
                             case R.id.reportComment:
-                                Log.e(TAG,"Report comment clicked!");
-                                //TODO add functionality to report this comment
+                                Log.e(TAG,"Report post clicked!");
+
+                                //HashMap with relevant information to be sent for reporting
+                                HashMap<String, Object> reportsMap = new HashMap<>();
+                                reportsMap.put("docID", postID);
+                                reportsMap.put("usersID", authorID);
+                                reportsMap.put("issue","Reporting Content");
+
+                                //creating a dialog box on screen so that the user can report an issue
+                                String firebaseLocation = "reporting";
+                                ContentReporting reportContent = new ContentReporting(getActivity(), reportsMap, firebaseLocation);
+                                reportContent.startReportingDialog();
+                                reportContent.title.setText("Report Content");
+                                reportContent.message.setText("What is the issue you would like to report?");
                                 break;
                             case R.id.deleteComment:
                                 Log.e(TAG,"Clicked delete comment! &&&&&& post ID = " + postID);
