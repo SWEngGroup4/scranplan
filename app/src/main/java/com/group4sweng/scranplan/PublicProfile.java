@@ -23,7 +23,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -51,13 +50,12 @@ import static com.group4sweng.scranplan.UserInfo.FilterType.filterType.DIETARY;
  * (c) CoDev 2020
  *
  *  For firebase pass an extra string via intent with ID = "UID"
- *  For local data pass a UserInfoPrivate object via intent with ID = "user"
+ *  For local data pass a UserInfoPrivate object via intent with ID = "user". Reduces Firebase queries.
  *
  *  Privacy checks are made within 'loadInPrivacySettings' to make sure we adhere to what the user wants to display.
  *  Privacy is always checked first before displaying any content.
  *
- *
- *  Social aspects were later added by LNewman with all social items to enable following and unfollowing
+ *  The user feed was later added by LNewman with all social items to enable following and unfollowing
  *  private users are able to have their following requested.
  *  User privacy setting are taken into account:
  *  Public users have a single set of privacy options seen by all.
@@ -114,6 +112,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     Button mFollowedButton;
     Button mRequestedButton;
     LinearLayout mIsFollowLayout;
+    String postsString;
 
     //  Whether we should retrieve different information for the user. E.g. username, about me etc...
     private boolean retrieveAboutMe = false, retrieveUsername = false,
@@ -131,7 +130,6 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         //  Gets extra UserProfilePrivate object if one is sent.
         mUserProfile = (UserInfoPrivate) getIntent().getSerializableExtra("user");
 
-
         if(UID != null){ // If not instead search for the profile via the associated UID and reference Firebase.
             updatePublicProfile(FirebaseLoadType.FULL);
         } else if(mUserProfile != null){ // Check if local data is available to reference. Don't have to grab from firebase.
@@ -148,6 +146,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
     }
 
+    // TODO - Ability to load some info from UserInfoPrivate collection removed. See if this can be re-added.
 
     /** Update the public profile based on what has been passed via the Intent.
      * @param flt - Firebase Load Type. Either PARTIAL or FULL. FULL = all data from firebase from a UID string.
@@ -157,12 +156,15 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     private void updatePublicProfile(FirebaseLoadType flt){
         if(flt == FirebaseLoadType.PARTIAL){
             Log.i(TAG, "Loading local user data");
-            mIsFollowLayout.setVisibility(View.GONE);
+
+            mIsFollowLayout.setVisibility(View.GONE); //  Hide followers button.
             followed = true;
             loadInPrivacySettings(mUserProfile.getPublicPrivacy());
             loadLocalProfile();
             loadFirebase(FirebaseLoadType.PARTIAL);
             searchers = mUserProfile.getUID();
+
+            loadPostsAndRecipeList();
             fragment = new ProfilePosts(searchers);
             fragmentTransaction.replace(R.id.profileFrameLayout, fragment);
             fragmentTransaction.commit();
@@ -177,8 +179,6 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
     }
 
-
-
     private void initPageItems(){
         mProfileImage = findViewById(R.id.public_profile_image);
         mAboutMeDesc = findViewById(R.id.public_profile_about_me_desc);
@@ -187,7 +187,6 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         mUsername = findViewById(R.id.profile_username);
         mKudos = findViewById(R.id.profile_kudos);
         mKudosIcon = findViewById(R.id.profile_kudos_icon);
-
 
         mStreamTabs = findViewById(R.id.profileStreamTabs);
         frameLayout = findViewById(R.id.profileFrameLayout);
@@ -198,7 +197,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         mFollowedButton = findViewById(R.id.followedButton);
         mRequestedButton = findViewById(R.id.requestedButton);
         mIsFollowLayout = findViewById(R.id.isFollowLayout);
-
+        //mBlankContenttext = findViewById(R.id.blank_content_text);
     }
 
     /**
@@ -339,7 +338,12 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
     //  Load all the data grabbed from the Firebase document snapshot.
     private void loadProfile(DocumentSnapshot profile) {
-        if(retrieveAboutMe) { //  If we are allowed to retrieve this data. do so.
+
+        mUsername.setText((String) profile.get("displayName"));
+
+        //  If we are allowed to retrieve this data. do so.
+        //  If 'about' me section is blank then retrieve nothing.
+        if(retrieveAboutMe && !mUserProfile.getAbout().equals("")) {
             mAboutMeDesc.setText((String) profile.get("about"));
         } else {
             mAboutMe.setVisibility(View.GONE); // Adjust if the view is visible.
@@ -357,11 +361,6 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                         .apply(RequestOptions.circleCropTransform())
                         .into(mProfileImage); }
         }
-
-//        if(retrieveUsername){ mUsername.setText((String) profile.get("displayName")); }
-        mUsername.setText((String) profile.get("displayName"));
-
-
 
         if(retrieveFilters){
             @SuppressWarnings("unchecked")
@@ -497,6 +496,13 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
      * Loading recipes and posts lists if privacy setting allow and followed or public user
      */
     private void loadPostsAndRecipeList(){
+
+        /*int livePosts = Integer.parseInt(postsString);
+        //  If posts exist hide no posts banner.
+        if(livePosts != 0){
+            mBlankContenttext.setVisibility(View.GONE);
+        }*/
+
         if(retrievePosts && retrieveRecipes){
             fragment = new ProfilePosts(searchers);
             fragmentTransaction.replace(R.id.profileFrameLayout, fragment);
@@ -515,7 +521,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         }
     }
 
-    /** Method to load in Kudos and Recipe information.
+    /** Method to load in Kudos and Recipe number information.
      *  Always loads directly from Firebase.
      * @param profile - A snapshot of the Firebase user profile document.
      */
@@ -543,7 +549,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
      * @param profile - A snapshot of the Firebase user profile document.
      */
     private void postsFollowersFollowing(DocumentSnapshot profile){
-        String postsString =  Long.toString(((long) profile.get("livePosts")));
+        postsString =  Long.toString(((long) profile.get("livePosts")));
         if(profile.get("followers") == null){
             mFollowers.setText("0");
             mFollowing.setText("0");
@@ -566,16 +572,17 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     //  Load the information from the local UserInfoPrivate object if the profile corresponds to that of the user using the app/
     //  Reduces amount of Firebase Queries overall.
     private void loadLocalProfile() {
-        if (retrieveAboutMe) { //  If we are allowed to retrieve this data. do so.
+
+        mUsername.setText(mUserProfile.getDisplayName());
+
+        //  If we are allowed to retrieve this data. do so.
+        //  If 'about' me section is blank then retrieve nothing.
+        if (retrieveAboutMe && !mUserProfile.getAbout().equals("")) {
             mAboutMeDesc.setText(mUserProfile.getAbout());
         } else {
             mAboutMe.setVisibility(View.GONE);
             mAboutMeDesc.setVisibility(View.GONE);
-            //LinearLayout aboutLayout = findViewById(R.id.aboutMeLayout);
-            //aboutLayout.setVisibility(View.VISIBLE);
         }
-
-        if(retrieveUsername){ mUsername.setText(mUserProfile.getDisplayName()); }
 
         if(retrieveImages) {
             if(mUserProfile.getImageURL() == null){
