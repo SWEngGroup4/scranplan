@@ -98,8 +98,6 @@ public class Home extends AppCompatActivity {
     SearchQuery query;
     SearchPrefs prefs;
 
-    @ServerTimestamp Date time;
-
     //Menu check boxes
     CheckBox mPescatarianBox;
     CheckBox mVegetarianBox;
