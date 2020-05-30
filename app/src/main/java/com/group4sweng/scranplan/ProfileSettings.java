@@ -1257,6 +1257,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                             map.put("posts", mTempUserProfile.getPosts());
                             map.put("followers", mTempUserProfile.getFollowers());
                             map.put("following", mTempUserProfile.getFollowing());
+                            map.put("numRecipes", mTempUserProfile.getRecipes());
 
                             Preferences preferences = mTempUserProfile.getPreferences();
 
