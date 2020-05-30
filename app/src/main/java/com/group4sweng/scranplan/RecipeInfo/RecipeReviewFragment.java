@@ -1,5 +1,6 @@
 package com.group4sweng.scranplan.RecipeInfo;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -9,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
@@ -45,6 +47,7 @@ import com.group4sweng.scranplan.Social.FeedFragment;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -67,6 +70,7 @@ public class RecipeReviewFragment extends FeedFragment {
     private String mRecipeDescription;
     private String docID;
     private Boolean reviewMade;
+    private Boolean urlPic = false;
     private String postID;
     private String oldUserStarRating;
     private ImageButton mReviewMenu;
@@ -123,25 +127,25 @@ public class RecipeReviewFragment extends FeedFragment {
      * review so they can edit if they wish.
      */
     private void checkReview() {
-
         mDatabase.collection("reviews").document(docID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     if (task.getResult().exists()) {
+                        loadingDialog.startLoadingDialog();
                         Log.e(TAG, "exists ");
-
                         DocumentSnapshot document = task.getResult();
                         mStars.setRating(Float.parseFloat(document.get("overallRating").toString()));
-                        postID = document.get("post").toString();
-                        oldUserStarRating = document.get("overallRating").toString();
+                        postID = document.get("docID").toString();
+                        oldUserRating = (double) document.get("overallRating");
 
                         mDatabase.collection("posts").document(postID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> nextTask) {
-
+                                Log.d(TAG, "Post data: " + nextTask.getResult());
                                 DocumentSnapshot d = nextTask.getResult();
                                 if(d.get("body") != null){
+                                    Log.d(TAG, "Adding to body: " + d.get("body").toString());
                                     mPostBodyInput.setText(d.get("body").toString());
                                 }
 
@@ -149,10 +153,12 @@ public class RecipeReviewFragment extends FeedFragment {
                                     mReviewImagelayout.setVisibility(View.VISIBLE);
                                     mRecipeReviewImage.setVisibility(View.VISIBLE);
                                     Picasso.get().load((String) d.get("uploadedImageURL")).into(mRecipeReviewImage);
+                                    mImageUri = Uri.parse(d.get("uploadedImageURL").toString());
                                     mPostPic.setChecked(true);
+                                    urlPic = true;
                                 }
 
-
+                                loadingDialog.dismissDialog();
                             }
                         });
 
@@ -163,6 +169,7 @@ public class RecipeReviewFragment extends FeedFragment {
                         Log.e("FdRc", "Unable to retrieve user document in Firestore ");
                         reviewMade = false;
                         mPostPic.setChecked(false);
+                        urlPic = false;
                     }
                 }
             }
@@ -208,6 +215,8 @@ public class RecipeReviewFragment extends FeedFragment {
     protected void initPageListeners(View layout) {
         super.initPageListeners();
 
+
+
         mPostButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -216,9 +225,10 @@ public class RecipeReviewFragment extends FeedFragment {
                 RecipeInfoFragment repInfo = (RecipeInfoFragment) getParentFragment();
                 repInfo.updateStarRating(ratingMap.get("overallRating").toString());
 
-//                mPostBodyInput.getText().clear();
-
                 addingReviewFirestore(layout);
+
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
             }
         });
@@ -236,7 +246,12 @@ public class RecipeReviewFragment extends FeedFragment {
         mStars.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
             public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
-                getNewRating = mStars.getRating();
+                if (mStars.getRating() < 1) {
+                    mStars.setRating(1);
+                    getNewRating = 1;
+                } else {
+                    getNewRating = mStars.getRating();
+                }
             }
         });
 
@@ -255,7 +270,7 @@ public class RecipeReviewFragment extends FeedFragment {
 
         if(reviewMade){
 
-            oldUserRating = Double.parseDouble(oldUserStarRating);
+//            oldUserRating = Double.parseDouble(oldUserStarRating);
 //            oldTotalRates = ratingMap.get("totalRates")-1;
 //            oldOverallRating = (((ratingMap.get("overallRating") * ratingMap.get("totalRates")) - oldUserRating)) / oldTotalRates;
 //            Log.i(TAG, "Values: "+ oldOverallRating);
@@ -416,6 +431,9 @@ public class RecipeReviewFragment extends FeedFragment {
                         // Update the UserInfoPrivate class with this new image URL.
                         POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
                         loadingDialog.dismissDialog();
+                        reviewMade = true;
+                        postID = postRef.getId();
+
                     }
                 });
 
@@ -428,64 +446,41 @@ public class RecipeReviewFragment extends FeedFragment {
             //On complete listener makes sure post has been saved on firestore before getting document ID and saving
             //in reviews collection
             if (mPostPic.isChecked()) {
-                try {
-                    checkImage(mImageUri); // Check the image doesn't throw any exceptions
+                postsMap.put("uploadedImageURL", mImageUri.toString());
 
-                    // State that the image is still uploading and therefore we shouldn't save a reference on firebase to it yet.
-
-                        /*  Create a unique reference of the format. 'image/profile/[UNIQUE UID]/profile_image.[EXTENSION].
-                            Whereby [UNIQUE UID] = the Unique id of the user, [EXTENSION] = file image extension. E.g. .jpg,.png. */
-                    StorageReference mImageStorage = mStorageReference.child("images/posts/" + mUser.getUID() + "/IMAGEID" + (mUser.getPosts() + 1)); //todo input image id
-
-                    //  Check if the upload fails
-                    mImageStorage.putFile(mImageUri).addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Failed to upload profile image.", Toast.LENGTH_SHORT).show()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            mImageStorage.getDownloadUrl().addOnSuccessListener(locationUri -> { // Successful upload.
-                                postsMap.put("uploadedImageURL", locationUri.toString());
-
-                                postRef.set(postsMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        //Document ID for review post
-                                        docID = mUser.getUID() + "-" + mRecipeID;
+                postRef.set(postsMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        //Document ID for review post
+                        docID = mUser.getUID() + "-" + mRecipeID;
 
 
-                                        reviewMap.put("mUser", mUser.getUID());
-                                        reviewMap.put("overallRating", getNewRating);
-                                        reviewMap.put("docID", postRef.getId());
-                                        reviewMap.put("timestamp", FieldValue.serverTimestamp());
+                        reviewMap.put("mUser", mUser.getUID());
+                        reviewMap.put("overallRating", getNewRating);
+                        reviewMap.put("docID", postRef.getId());
+                        reviewMap.put("timestamp", FieldValue.serverTimestamp());
 
-                                        //Saving review map to the firestore with custom document ID
+                        //Saving review map to the firestore with custom document ID
 
-                                        Log.e(TAG, "Added new post ");
-                                        reviewDocRef.set(reviewMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
+                        Log.e(TAG, "Added new post ");
+                        reviewDocRef.set(reviewMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
 //                                                mDatabase.collection("users").document(mUser.getUID()).update("posts", FieldValue.increment(1));
 //                                                mUser.setPosts(mUser.getPosts()+1);
 //                                                addPosts(layout);
-                                                postsMap.put("docID", postRef.getId());
-                                                updateFollowers(postsMap);
-                                            }
-                                        });
+                                postsMap.put("docID", postRef.getId());
+                                updateFollowers(postsMap);
+                            }
+                        });
 
-                                        // Update the mUserInfoPrivate class with this new image URL.
-                                        POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
-                                        loadingDialog.dismissDialog();
-                                        reviewMade = true;
-                                        postID = postRef.getId();
-                                    }
-                                });
-                            });
-                        }
-                    });
-                } catch (ImageException e) {
-                    Log.e(TAG, "Failed to upload photo to Firebase");
-                    Toast.makeText(getApplicationContext(), "Failed to upload photo to Firebase, please try again.", Toast.LENGTH_SHORT).show();
-                    e.printStackTrace();
-                    return;
-                }
+                        // Update the mUserInfoPrivate class with this new image URL.
+                        POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
+                        loadingDialog.dismissDialog();
+                        reviewMade = true;
+                        postID = postRef.getId();
+                    }
+                });
             }
             else {
                 postRef.set(postsMap).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -515,8 +510,12 @@ public class RecipeReviewFragment extends FeedFragment {
                         });
 
                         // Update the mUserInfoPrivate class with this new image URL.
-                        POST_IS_UPLOADING = false;// State we have finished uploading (a reference exists).
+                        POST_IS_UPLOADING = false;// State we have finis    hed uploading (a reference exists).
                         loadingDialog.dismissDialog();
+                        reviewMade = true;
+                        postID = postRef.getId();
+                        RecipeInfoFragment infoFragment = (RecipeInfoFragment) getParentFragment();
+                        infoFragment.refreshReviewFragment();
                     }
                 });
 
@@ -525,6 +524,10 @@ public class RecipeReviewFragment extends FeedFragment {
 
 
         }
+    }
+
+    private void imageUploaded(String uploadedImageUrl) {
+
     }
 
     @Override
@@ -565,6 +568,7 @@ public class RecipeReviewFragment extends FeedFragment {
                             doc.put("userImage", userImage);
                             doc.put("docID", document.getId());
                             data.add(new recipeReviewRecyclerAdapter.reviewData(doc));
+
                         }
                         rAdapter.notifyDataSetChanged();
                         // Set the last document as last mUser can see
@@ -651,7 +655,6 @@ public class RecipeReviewFragment extends FeedFragment {
      */
     protected void checkImage(Uri uri) throws ImageException {
         super.checkImage(uri);
-
     }
 
     /**
@@ -746,7 +749,6 @@ public class RecipeReviewFragment extends FeedFragment {
                                                                                                                                                                         @Override
                                                                                                                                                                         public void onComplete(@NonNull Task<Void> task) {
                                                                                                                                                                             mUser.setPosts(mUser.getPosts()+1);
-                                                                                                                                                                            mPostBodyInput.getText().clear();
                                                                                                                                                                             addPosts(layout);
                                                                                                                                                                         }
                                                                                                                                                                     }

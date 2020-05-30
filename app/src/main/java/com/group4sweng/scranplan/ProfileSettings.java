@@ -214,7 +214,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
             loadProfileData();
 
-            //
             if(mPrivateProfileEnabled.isChecked()) {
                 setPrivacyOptions(mTempUserProfile.getPublicPrivacy());
                 TabLayout.Tab tab = mProfileVisibilityTab.getTabAt(0);
