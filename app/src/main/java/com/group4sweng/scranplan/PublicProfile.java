@@ -133,6 +133,10 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         //  Gets extra UserProfilePrivate object if one is sent.
         mUserProfile = (UserInfoPrivate) getIntent().getSerializableExtra("user");
 
+        //  Hide posts initially if the user has a public-private profile.
+        mStreamTabs.setVisibility(View.GONE);
+        frameLayout.setVisibility(View.GONE);
+
         if(UID != null){ // If not instead search for the profile via the associated UID and reference Firebase.
             updateProfile(FirebaseLoadType.FULL);
         } else if(mUserProfile != null){ // Check if local data is available to reference. Don't have to grab from firebase.
@@ -211,12 +215,22 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
     /**
      * Setting up functionality to the to the follow and unfollow
+     * & adding support for switching between the 'private' > 'public' viability tabs for a local profile
      */
     private void initPageListeners(){
         mPublicPrivateTab.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 updateProfile(FirebaseLoadType.PARTIAL);
+
+                //  Determine if we should display posts.
+                if(tab.getPosition() == 0){ // Public profile
+                    mStreamTabs.setVisibility(View.GONE);
+                    frameLayout.setVisibility(View.GONE);
+                } else { // Private profile
+                    mStreamTabs.setVisibility(View.VISIBLE);
+                    frameLayout.setVisibility(View.VISIBLE);
+                }
             }
 
             @Override
@@ -496,8 +510,6 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                             loadInPrivacySettings(privacy); // Load in privacy settings first (always)
                         }
                         loadProfile(document); // Then we load the public users profile.
-                    } else if(fltFinal == FirebaseLoadType.PARTIAL){
-                        if(mUserPro)
                     }
                     postsFollowersFollowing(document);
                     loadKudosAndRecipes(document);
