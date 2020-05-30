@@ -13,6 +13,7 @@ import androidx.fragment.app.FragmentManager;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -89,8 +90,7 @@ public class RecipeCreation extends AppCompatActivity {
                             ratingMap.put("overallRating", 0f);
                             ratingMap.put("totalRates", 0f);
                             mRecipeMap.put("rating", ratingMap);
-                            mRecipeMap.put("score", 5);
-                            mRecipeMap.put("votes", 5);
+                            mRecipeMap.put("timestamp", FieldValue.serverTimestamp());
                             mRecipeMap.put("favourite", new ArrayList<>());
                             mColRef.document(mUser.getUID() + "_" +
                                     mUser.getRecipes()).set(mRecipeMap).addOnSuccessListener(aVoid -> finish());
