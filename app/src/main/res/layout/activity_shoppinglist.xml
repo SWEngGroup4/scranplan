@@ -18,26 +18,28 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:layout_marginEnd="94dp"
+        android:layout_marginEnd="94sp"
         android:text="Your weekly shopping list"
         android:textSize="20sp" />
 
     <Button
         android:id="@+id/SavedList"
-        android:layout_width="175dp"
-        android:layout_height="wrap_content"
+        android:layout_width="175sp"
+        android:layout_height="50sp"
+        android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="30dp"
-        android:layout_marginEnd="236dp"
+        android:layout_marginStart="5.5sp"
+        android:layout_marginTop="30sp"
+        android:layout_marginEnd="226dp"
         android:text="Save shopping List" />
 
     <Button
         android:id="@+id/ViewSavedList"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="175sp"
+        android:layout_height="50sp"
         android:layout_alignParentEnd="true"
-        android:layout_marginEnd="32dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="30sp"
+        android:layout_marginEnd="5.5sp"
         android:text="View Saved List" />
 
 
