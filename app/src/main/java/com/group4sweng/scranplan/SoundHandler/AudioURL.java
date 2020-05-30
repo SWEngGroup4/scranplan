@@ -12,7 +12,8 @@ package com.group4sweng.scranplan.SoundHandler;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 
-import com.group4sweng.scranplan.Exceptions.AudioPlaybackError;
+import com.group4sweng.scranplan.Exceptions.AudioPlaybackException;
+import com.group4sweng.scranplan.SupportedFormats;
 
 import java.io.IOException;
 
@@ -47,7 +48,7 @@ public class AudioURL implements SupportedFormats
      * This function allows a sound file from a URL to be played.
      * @param soundURL - The URL of the sound file.
      * */
-    public void playURLSound(String soundURL) throws AudioPlaybackError {
+    public void playURLSound(String soundURL) throws AudioPlaybackException {
 
         int counter = 0;
 
@@ -56,14 +57,14 @@ public class AudioURL implements SupportedFormats
         //  Isn't a massive issue since if the input is not readable by Android an AudioPlaybackError will still be thrown later.
 
         //  Cycles through all available formats to check if the extension outlined matches.
-        for(int i = 0; i < Formats.values().length; i++ ){
-            if(!soundURL.contains("." + Formats.values()[i])){
+        for(int i = 0; i < AudioFormats.values().length; i++ ){
+            if(!soundURL.contains("." + AudioFormats.values()[i])){
                 counter++; //Counter is log everytime a format isn't found.
             }
         }
 
-        if(counter == Formats.values().length){ //If no supported formats are found the counter will equal the length of the formats enumeration.
-            throw new AudioPlaybackError("Tried to use an invalid audio format. Please resort to using the .mp3 format.");
+        if(counter == AudioFormats.values().length){ //If no supported formats are found the counter will equal the length of the formats enumeration.
+            throw new AudioPlaybackException("Tried to use an invalid audio format. Please resort to using the .mp3 format.");
         }
 
         /* TODO - Add exceptions due to setDataSource() errors, including
@@ -116,7 +117,7 @@ public class AudioURL implements SupportedFormats
         catch (IOException | IllegalArgumentException e)
         {
             e.printStackTrace();
-            throw new AudioPlaybackError("Failed to play audio from URL: " + soundURL); //Also throw a playback error for testing purposes.
+            throw new AudioPlaybackException("Failed to play audio from URL: " + soundURL); //Also throw a playback error for testing purposes.
         }
     }
 

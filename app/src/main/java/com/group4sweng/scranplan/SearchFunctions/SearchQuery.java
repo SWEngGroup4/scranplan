@@ -1,45 +1,45 @@
 package com.group4sweng.scranplan.SearchFunctions;
 
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.Query.Direction;
+import com.algolia.search.saas.Query;
 
 /**
+ * Building search query class.
+ * Author(s): LNewman, NBillis
+ * (c) CoDev 2020
+ *
  * Builds up a search query from the preferences selected by the user.
  */
 public class SearchQuery {
 
-    final FirebaseFirestore database = FirebaseFirestore.getInstance();
-    CollectionReference ref = database.collection("recipes");
-
     public Query getQuery() {
         return query;
     }
-    com.google.firebase.firestore.Query query;
+    public String getIndex(){ return index; }
 
-    // All variables that the user is able to manipulate
-    Boolean mPescatarianBox;
-    Boolean mVegetarianBox;
-    Boolean mVeganBox;
-    Boolean mNutsBox;
-    Boolean mMilkBox;
-    Boolean mEggsBox;
-    Boolean mWheatBox;
-    Boolean mShellfishBox;
-    Boolean mSoyBox;
-    Boolean mScoreBox;
-    Boolean mVoteBox;
-    Boolean mTimeBox;
-    Boolean mIngredientsBox;
-    Boolean mNameBox;
-    Boolean mChefBox;
-
-    String mSearch;
+    private Query query;
+    private String index;
 
 
     // Constructor building the query from these parameters
     public SearchQuery(String sentSearch, SearchPrefs preference){
+        // All variables that the user is able to manipulate
+        Boolean mPescatarianBox;
+        Boolean mVegetarianBox;
+        Boolean mVeganBox;
+        Boolean mNutsBox;
+        Boolean mMilkBox;
+        Boolean mEggsBox;
+        Boolean mWheatBox;
+        Boolean mShellfishBox;
+        Boolean mSoyBox;
+        Boolean mScoreBox;
+        Boolean mVoteBox;
+        Boolean mTimeBox;
+        Boolean mIngredientsBox;
+        Boolean mNameBox;
+        Boolean mChefBox;
+        String mSearch;
+
         mPescatarianBox = preference.mpescatarianPref;
         mVegetarianBox = preference.mVegetarianPref;
         mVeganBox = preference.mVeganPref;
@@ -57,67 +57,63 @@ public class SearchQuery {
         mChefBox = preference.mChefPref;
         mSearch = sentSearch;
 
-        query = ref;
+        query = new Query(mSearch);
 
         // User diet preferences
         if(mPescatarianBox){
-            query = query.whereEqualTo("pescatarian", true);
+            query = query.setFilters("pescatarian:true");
         }else if(mVegetarianBox){
-            query = query.whereEqualTo("vegetarian", true);
+            query = query.setFilters("vegetarian:true");
         }else if(mVeganBox){
-            query = query.whereEqualTo("vegan", true);
+            query = query.setFilters("vegan:true");
         }
 
         if(mNutsBox){
-            query = query.whereEqualTo("noNuts", true);
+            query = query.setFilters("noNuts:true");
         }
 
         if(mMilkBox){
-            query = query.whereEqualTo("noMilk", true);
+            query = query.setFilters("noMilk:true");
         }
 
         if(mEggsBox){
-            query = query.whereEqualTo("noEggs", true);
+            query = query.setFilters("noEggs:true");
         }
 
         if(mWheatBox){
-            query = query.whereEqualTo("noWheat", true);
+            query = query.setFilters("noWheat:true");
         }
 
         if(mShellfishBox){
-            query = query.whereEqualTo("noShellfish", true);
+            query = query.setFilters("noShellfish:true");
         }
 
         if(mSoyBox){
-            query = query.whereEqualTo("noSoy", true);
-        }
-
-        // Only allowing the user to search for a single item
-        if(mIngredientsBox){
-            query = query.whereArrayContains("listIngredients", mSearch.toLowerCase());
-        }else if(mNameBox){
-            query = query.whereEqualTo("name", mSearch.toLowerCase());
-        }else if(mChefBox){
-            query = query.whereEqualTo("chef", mSearch.toLowerCase());
+            query = query.setFilters("noSoy:true");
         }
 
         // Only enabling a single search order
         if(mScoreBox){
-            query = query.orderBy("score", Direction.DESCENDING);
+            index = "recipe_score";
         }else if(mVoteBox){
-            query = query.orderBy("votes", Direction.DESCENDING);
+            index = "recipe_votes";
         }else if(mTimeBox){
-            query = query.orderBy("timestamp", Direction.DESCENDING);
+            index = "recipe_time";
+        }else if(mChefBox){
+            index = "SCRANPLAN_USERS";
+        }else{
+            // create a default case
         }
 
-        // Limiting the search to sets of 5 items until the user scrolls to bottom
-        query = query.limit(5);
-
-
-
-
-
-
+        // Only allowing the user to search for a single item
+        if(mIngredientsBox){
+            query = query.setRestrictSearchableAttributes("listIngredients");
+        }else if(mNameBox){
+            query = query.setRestrictSearchableAttributes("Name");
+        }else if(mChefBox){
+            query = new Query(mSearch);
+            index = "SCRANPLAN_USERS";
+        }
     }
 }
 

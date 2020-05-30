@@ -27,15 +27,23 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.group4sweng.scranplan.Administration.SuggestionBox;
 import com.group4sweng.scranplan.MealPlanner.PlannerFragment;
+import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
+import com.group4sweng.scranplan.Social.FeedFragment;
+import com.group4sweng.scranplan.Social.Notifications;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import io.sentry.core.Sentry;
@@ -48,9 +56,10 @@ public class Home extends AppCompatActivity {
     Context mContext = this;
     final static String TAG = "ScranPlanHome";
     final static int PROFILE_SETTINGS_REQUEST_CODE = 1;
+    private SuggestionBox suggestionBox;
 
     // User variable for all preferences saved to device
-    com.group4sweng.scranplan.UserInfo.UserInfoPrivate mUser;
+    private UserInfoPrivate mUser;
 
     // Firebase variables
     FirebaseAuth mAuth;
@@ -92,6 +101,9 @@ public class Home extends AppCompatActivity {
     CheckBox mChefBox;
     SideMenu mSideMenu;
 
+    String notifications;
+    MenuItem notificationMenuItem;
+
     // Side menu variable
     NavigationView navigationView;
 
@@ -113,8 +125,6 @@ public class Home extends AppCompatActivity {
             mSentryUser.setEmail(mUser.getEmail());
             Sentry.setUser(mSentryUser);
         }
-
-        fragment = new RecipeFragment(mUser);
         /*
         // Setting up the action and tab bars
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -131,6 +141,7 @@ public class Home extends AppCompatActivity {
         mSideMenu.mMenuToolbar = findViewById(R.id.toolbar);
         mSideMenu.mMenuDrawer = findViewById(R.id.drawer_layout);
         mSideMenu.mNavigationView = findViewById(R.id.side_menu);
+        notificationMenuItem = mSideMenu.mNavigationView.getMenu().getItem(1);
         setSupportActionBar(mSideMenu.mMenuToolbar);
         mSideMenu.init(this, this);
 
@@ -139,6 +150,7 @@ public class Home extends AppCompatActivity {
         initPageItems();
         initPageListeners();
         initSearchMenu();
+        checkForNotifications();
     }
 
 
@@ -164,6 +176,7 @@ public class Home extends AppCompatActivity {
                 query = new SearchQuery( s, prefs);
                 SearchListFragment searchListFragment = new SearchListFragment(mUser);
                 searchListFragment.setValue(query.getQuery());
+                searchListFragment.setIndex(query.getIndex());
                 Log.e(TAG, "User opening search");
                 searchListFragment.show(fragmentManager, "search");
                 return false;
@@ -206,6 +219,29 @@ public class Home extends AppCompatActivity {
 
     }
 
+    private void checkForNotifications(){
+        if(mUser != null){
+            database.collection("users").document(mUser.getUID()).collection("notifications").orderBy("timestamp", Query.Direction.DESCENDING).limit(6).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if(task.isSuccessful()){
+                        if(task.getResult() != null){
+                            if((task.getResult().size()) == 6){
+                                notifications = "5+";
+                            }else{
+                                notifications = Integer.toString(task.getResult().size());
+                            }
+                            notificationMenuItem.setTitle("Notifications (" + notifications + ")");
+                        }else{
+                            notificationMenuItem.setTitle("Notifications (0)");
+                        }
+
+                    }
+                }
+            });
+        }
+    }
+
     /**
      *  Connecting up elements on the screen to variable names
      */
@@ -213,13 +249,13 @@ public class Home extends AppCompatActivity {
         //Defining all relevant members of signin & register page
         tabLayout = findViewById(R.id.tabLayout);
         frameLayout = findViewById(R.id.frameLayout);
-        Fragment fragment = new RecipeFragment(mUser);
+        fragment = new RecipeFragment(mUser);
         fragmentTransaction.replace(R.id.frameLayout, fragment);
         fragmentTransaction.commit ();
         navigationView = (NavigationView) findViewById(R.id.side_menu);
         tabLayout.addTab(tabLayout.newTab().setText("Recipes"));
         tabLayout.addTab(tabLayout.newTab().setText("Meal Planner"));
-        tabLayout.addTab(tabLayout.newTab().setText("Timeline"));
+        tabLayout.addTab(tabLayout.newTab().setText("Feed"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
     }
 
@@ -243,12 +279,21 @@ public class Home extends AppCompatActivity {
                         //setResult(RESULT_OK, intentProfile);
                         startActivity(intentProfile);
                         break;
+                    case R.id.nav_notifications:
+                        Notifications notificationDialogFragment = new Notifications(mUser);
+                        notificationDialogFragment.show(fragmentManager, "Show notification dialog fragment");
+                        break;
                     case R.id.nav_editProfile:
                         Intent intentSettings = new Intent(mContext, ProfileSettings.class);
                         intentSettings.putExtra("user", mUser);
 
                         setResult(RESULT_OK, intentSettings);
                         startActivityForResult(intentSettings, PROFILE_SETTINGS_REQUEST_CODE);
+                        break;
+                    case R.id.nav_suggestionBox:
+
+                        onSuggestionBoxClick();
+
                         break;
                     case R.id.nav_logout:
                         Log.e(TAG, "Logout button has been pressed and user has been logged out.");
@@ -268,9 +313,10 @@ public class Home extends AppCompatActivity {
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
+                checkForNotifications();
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                Log.d("Test", String.valueOf(fragment));
+                Log.d(TAG, String.valueOf(fragment));
                 switch (tab.getPosition()) {
                     case 0:
                         fragment = new RecipeFragment(mUser);
@@ -279,10 +325,10 @@ public class Home extends AppCompatActivity {
                     case 1:
                         if (fragment.getClass() == RecipeFragment.class) fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         else fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
-                        fragment = new PlannerFragment();
+                        fragment = new PlannerFragment(mUser);
                         break;
                     case 2:
-                        fragment = new TimelinePlanner();
+                        fragment = new FeedFragment(mUser);
                         fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         break;
                 }
@@ -326,23 +372,23 @@ public class Home extends AppCompatActivity {
      */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
 
-        switch(requestCode) {
-            case (PROFILE_SETTINGS_REQUEST_CODE):
-                if (resultCode == RESULT_OK) {
-                    mUser = (UserInfoPrivate) getIntent().getSerializableExtra("user");
-                }
-                break;
-            default:
+        if (requestCode == PROFILE_SETTINGS_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                mUser = (UserInfoPrivate) data.getSerializableExtra("user");
+                Log.e(TAG, "ABOUT INFO IS: " + mUser.getAbout());
+            } else {
                 Log.e(TAG, "I am not returning anything. Should return new profile settings from Profile Settings Activity.");
+            }
         }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     /**
      *  Initialise all check boxes to user preferences and ensure that queries are only query that is allowed
      */
-    public void initMenuCheckBoxes(){
+    public void initMenuCheckBoxes(TabHost tabs){
         // Ensure that only the correct boxes are ticked at any one time
         mPescatarianBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
@@ -421,8 +467,16 @@ public class Home extends AppCompatActivity {
                 if (mChefBox.isChecked()) {
                     mIngredientsBox.setChecked(false);
                     mNameBox.setChecked(false);
+                    tabs.setCurrentTab(2);
+                    tabs.getCurrentTabView().setVisibility(View.GONE);
+                    tabs.setCurrentTab(1);
+                    tabs.getCurrentTabView().setVisibility(View.GONE);
+                    tabs.setCurrentTab(0);
                 }else if(!mNameBox.isChecked() && !mIngredientsBox.isChecked()){
                     mChefBox.setChecked(true);
+                    tabs.setCurrentTab(2);
+                    tabs.getCurrentTabView().setVisibility(View.GONE);
+                    tabs.setCurrentTab(0);
                 }
             }
         });
@@ -434,8 +488,16 @@ public class Home extends AppCompatActivity {
                 if (mIngredientsBox.isChecked()) {
                     mChefBox.setChecked(false);
                     mNameBox.setChecked(false);
+                    tabs.setCurrentTab(2);
+                    tabs.getCurrentTabView().setVisibility(View.VISIBLE);
+                    tabs.setCurrentTab(1);
+                    tabs.getCurrentTabView().setVisibility(View.VISIBLE);
+                    tabs.setCurrentTab(0);
                 }else if(!mNameBox.isChecked() && !mChefBox.isChecked()){
                     mIngredientsBox.setChecked(true);
+                    tabs.setCurrentTab(2);
+                    tabs.getCurrentTabView().setVisibility(View.VISIBLE);
+                    tabs.setCurrentTab(0);
                 }
             }
         });
@@ -447,8 +509,16 @@ public class Home extends AppCompatActivity {
                 if (mNameBox.isChecked()) {
                     mChefBox.setChecked(false);
                     mIngredientsBox.setChecked(false);
+                    tabs.setCurrentTab(2);
+                    tabs.getCurrentTabView().setVisibility(View.VISIBLE);
+                    tabs.setCurrentTab(1);
+                    tabs.getCurrentTabView().setVisibility(View.VISIBLE);
+                    tabs.setCurrentTab(0);
                 }else if(!mChefBox.isChecked() && !mIngredientsBox.isChecked()){
                     mNameBox.setChecked(true);
+                    tabs.setCurrentTab(2);
+                    tabs.getCurrentTabView().setVisibility(View.GONE);
+                    tabs.setCurrentTab(0);
                 }
             }
         });
@@ -494,6 +564,7 @@ public class Home extends AppCompatActivity {
         tabpage3.setContent(R.id.ScrollView03);
         tabpage3.setIndicator("Sort");
 
+
         // Adding the XML for each tab
         tabs.addTab(tabpage1);
         tabs.addTab(tabpage2);
@@ -517,7 +588,7 @@ public class Home extends AppCompatActivity {
         mChefBox = layout.findViewById(R.id.chefCheckBox);
 
         // Initialise the check boxes by filling them with users current preferences
-        initMenuCheckBoxes();
+        initMenuCheckBoxes(tabs);
 
         // add the alert dialogue to the current context
         builder = new AlertDialog.Builder(Home.this);
@@ -581,6 +652,12 @@ public class Home extends AppCompatActivity {
 
     }
 
+    public void onSuggestionBoxClick(){
+
+        suggestionBox = new SuggestionBox(Home.this, mUser.getUID());
+        suggestionBox.startSuggestionDialog();
+    }
+
     /**
      * Method to change logout when it's clicked in the side menu
      */
@@ -597,5 +674,3 @@ public class Home extends AppCompatActivity {
 
 
 }
-
-

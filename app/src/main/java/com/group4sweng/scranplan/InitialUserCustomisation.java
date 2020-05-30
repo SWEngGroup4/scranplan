@@ -140,18 +140,16 @@ public class InitialUserCustomisation extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //skip button takes user directly to the main page
-                Log.e(TAG, "Initial user returning to main activity");
+                Log.e(TAG, "Initial user returning to home");
 
-                Intent returningIntent = new Intent();
-                setResult(RESULT_OK, returningIntent);
-
-                finish();
+                finishActivity();
             }
         });
 
         mSubmitButton.setOnClickListener(new View.OnClickListener() {
              public void onClick(View view) {
                  //submit button saves the users preferences before
+                 Log.e(TAG, "Initial user returning to home");
                  savePref();
                  finishActivity();
                  Log.e(TAG, "ButtonPressed");
@@ -188,6 +186,9 @@ public class InitialUserCustomisation extends AppCompatActivity {
         updatedPrefs.put("allergy_shellfish", userDetails.getPreferences().isAllergy_shellfish());
         updatedPrefs.put("allergy_gluten", userDetails.getPreferences().isAllergy_gluten());
         updatedPrefs.put("allergy_eggs", userDetails.getPreferences().isAllergy_eggs());
+        updatedPrefs.put("vegan", userDetails.getPreferences().isVegan());
+        updatedPrefs.put("vegetarian", userDetails.getPreferences().isVegetarian());
+        updatedPrefs.put("pescatarian", userDetails.getPreferences().isPescatarian());
 
         usersRef.update("preferences", updatedPrefs); //preferences updated
         usersRef.update("firstAppLaunch", false); //first time login set to false so page wont show again

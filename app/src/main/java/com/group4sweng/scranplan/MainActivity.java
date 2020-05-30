@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Rotating method
-    public void rotateImageClockwise(View view) {
+    public static void rotateImageClockwise(View view) {
         ObjectAnimator rotate = ObjectAnimator.ofFloat(view, "rotation", 0f, 360f);
         rotate.setRepeatCount(999);
         rotate.setDuration(1000);
@@ -115,23 +115,34 @@ public class MainActivity extends AppCompatActivity {
                                     map.put("email", document.get("email"));
                                     map.put("displayName", document.get("displayName"));
                                     map.put("imageURL", document.get("imageURL"));
-                                    map.put("chefRating", document.get("chefRating"));
-                                    map.put("numRecipes", document.get("numRecipes"));
                                     map.put("preferences", document.get("preferences"));
                                     map.put("about", document.get("about"));
                                     map.put("mealPlan", document.get("mealPlan"));
                                     map.put("shortPreferences", document.get("shortPreferences"));
                                     map.put("firstAppLaunch", document.get("firstAppLaunch"));
                                     map.put("firstPresentationLaunch", document.get("firstPresentationLaunch"));
+                                    map.put("firstMealPlannerLaunch", document.get("firstMealPlannerLaunch"));
+                                    map.put("posts", document.get("posts"));
+                                    if(document.get("followers") != null){
+                                        map.put("followers", document.get("followers"));
+                                        map.put("following", document.get("following"));
+                                    }else{
+                                        map.put("followers", (long) 0);
+                                        map.put("following", (long) 0);
+                                        document.getReference().update("followers", (long) 0, "following", (long) 0);
+                                    }
 
 
+                                    map.put("privateProfileEnabled", document.get("privateProfileEnabled"));
                                     @SuppressWarnings("unchecked")
                                     HashMap<String, Object> preferences = (HashMap<String, Object>) document.get("preferences");
 
                                     @SuppressWarnings("unchecked")
-                                    HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacy");
+                                    HashMap<String, Object> privacyPublic = (HashMap<String, Object>) document.get("privacyPublic");
+                                    @SuppressWarnings("unchecked")
+                                    HashMap<String, Object> privacyPrivate = (HashMap<String, Object>) document.get("privacyPrivate");
 
-                                    mUser = new UserInfoPrivate(map, preferences, privacy);
+                                    mUser = new UserInfoPrivate(map, preferences, privacyPrivate, privacyPublic);
 
                                     Log.i(TAG, "Successfully logged back in");
                                     if(mUser.getFirstAppLaunch()){

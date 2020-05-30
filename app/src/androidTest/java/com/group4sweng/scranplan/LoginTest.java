@@ -22,9 +22,14 @@ import static org.junit.Assert.*;
 
 /**
  * LoginTest class
+ *  Author(s): LNewman
+ *  (c) CoDev 2020
  * JUnit testing for the Login class testing all components
+ *
+ * -- USER STORY TESTS LINKED WITH ---
+ * A2, A5, A3 , A1
  */
-public class LoginTest {
+public class LoginTest implements Credentials {
 
     @Rule
     public ActivityTestRule<Login> mActivityTestRule = new ActivityTestRule<Login>(Login.class);
@@ -173,9 +178,9 @@ public class LoginTest {
             public void run() {
                 loginButton.callOnClick();
                 email.requestFocus();
-                email.setText("theloupapp@gmail.com");
+                email.setText(TEST_EMAIL);
                 password.requestFocus();
-                password.setText("testuser");
+                password.setText(TEST_PASSWORD);
                 loginButton.callOnClick();
             }
         });
@@ -185,6 +190,8 @@ public class LoginTest {
     @After
     public void tearDown() throws Exception {
         mActivity = null;
+        EspressoHelper.shouldSkip = false;
+        this.mActivityTestRule.finishActivity();
     }
 
 

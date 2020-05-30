@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
@@ -20,9 +21,11 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.Home;
 import com.group4sweng.scranplan.R;
-import com.group4sweng.scranplan.RecipeFragment;
+import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
+import com.group4sweng.scranplan.ShoppingList;
+import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -45,15 +48,25 @@ public class PlannerFragment extends Fragment {
 
     //Fragment handlers
     private FragmentTransaction fragmentTransaction;
-    private RecipeFragment recipeFragment;
+    private RecipeFragment mealTimescaleFragment;
 
     //User information
-    private com.group4sweng.scranplan.UserInfo.UserInfoPrivate mUser;
+    private UserInfoPrivate mUser;
     private SearchPrefs prefs;
 
     //Menu items
     private SearchView searchView;
     private MenuItem sortButton;
+    Button mShoppingList;
+
+    //Request Code
+    private int breakfastRequestCode = 0;
+    private int lunchRequestCode = 1;
+    private int dinnerRequestCode = 2;
+
+    private Integer recipeFragmentRequest = 1;
+
+    public PlannerFragment(UserInfoPrivate userSent){mUser = userSent;}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,9 +79,24 @@ public class PlannerFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_planner, container, false);
 
+
+
         //Grabs user and user's meal planner
         mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
         if (mUser != null) plannerList = mUser.getMealPlanner();
+            View mShoppingList = view.findViewById(R.id.shoppingListButton);
+
+        if (mUser != null) {
+            mShoppingList.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent toShoppingList = new Intent(getActivity(), ShoppingList.class);
+                    toShoppingList.putExtra("user", mUser);
+                    startActivity(toShoppingList);
+                }
+
+            });
+        }
 
         Home home = (Home) getActivity();
         if (home != null) {
@@ -85,6 +113,7 @@ public class PlannerFragment extends Fragment {
             //Gets search preferences from home class
             prefs = home.getSearchPrefs();
         }
+
 
         //Generates rows of meal planners
         LinearLayout topView = view.findViewById(R.id.plannerLinearLayout);
@@ -115,14 +144,15 @@ public class PlannerFragment extends Fragment {
                 imageButton.setBackground(null);
 
                 //Sets listener for long clicks - resetting buttons to their default state
+                int finalJ = j;
                 imageButton.setOnLongClickListener(v -> {
-                    defaultButton(imageButton);
+                    mealTimescaleButton(imageButton, finalJ);
                     return true;
                 });
 
                 //If the planner doesn't have a meal entry for the time period
                 if (plannerList.get(id) == null) {
-                    defaultButton(imageButton); //Default state
+                    mealTimescaleButton(imageButton, j);
                 } else {
                     //Loads image of recipe and sets click action to open the recipe info dialog
                     Picasso.get().load(Objects.requireNonNull(plannerList.get(id).get("imageURL")).toString()).into(imageButton);
@@ -137,17 +167,19 @@ public class PlannerFragment extends Fragment {
         return view;
     }
 
+
     //Opens list fragment on searching
     private void openRecipeDialog(SearchQuery query) {
-        //Creates and launches fragment with required query
+        // Creates and launches fragment with required query
         PlannerListFragment plannerListFragment = new PlannerListFragment(mUser);
         plannerListFragment.setValue(query.getQuery());
+        plannerListFragment.setIndex(query.getIndex());
         plannerListFragment.setTargetFragment(this, 1);
         plannerListFragment.show(getParentFragmentManager(), "search");
     }
 
-    //Sets default paramters for buttons
-    private void defaultButton(final ImageButton imageButton) {
+    //Sets meal timescale parameters for buttons
+    private void mealTimescaleButton(final ImageButton imageButton, int i) {
         imageButton.setImageResource(R.drawable.add); //Default image
         imageButton.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
@@ -155,11 +187,22 @@ public class PlannerFragment extends Fragment {
             currentSelection = imageButton; //Allows tracking of button pressed
 
             //Creates and launches recipe fragment
-            recipeFragment = new RecipeFragment(mUser);
-            recipeFragment.setArguments(bundle);
-            recipeFragment.setTargetFragment(PlannerFragment.this, 1);
+            if (i == 0) {
+                mealTimescaleFragment = new RecipeFragment(mUser, breakfastRequestCode);
+                mealTimescaleFragment.setArguments(bundle);
+                mealTimescaleFragment.setTargetFragment(PlannerFragment.this, breakfastRequestCode);
+
+            }else if (i == 1){
+                mealTimescaleFragment = new RecipeFragment(mUser, lunchRequestCode);
+                mealTimescaleFragment.setArguments(bundle);
+                mealTimescaleFragment.setTargetFragment(PlannerFragment.this, lunchRequestCode);
+            }else if (i == 2){
+                mealTimescaleFragment = new RecipeFragment(mUser, dinnerRequestCode);
+                mealTimescaleFragment.setArguments(bundle);
+                mealTimescaleFragment.setTargetFragment(PlannerFragment.this, dinnerRequestCode);
+            }
             fragmentTransaction = getParentFragmentManager().beginTransaction();
-            fragmentTransaction.add(R.id.frameLayout, recipeFragment); //Overlays fragment on existing one
+            fragmentTransaction.add(R.id.frameLayout, mealTimescaleFragment); //Overlays fragment on existing one
             fragmentTransaction.commitNow(); //Waits for fragment transaction to be completed
             requireView().setVisibility(View.INVISIBLE); //Sets current fragment invisible
 
@@ -190,48 +233,59 @@ public class PlannerFragment extends Fragment {
     //Handles child fragment exit results
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK) {
-            Bundle bundle = data.getExtras();
+        //if (requestCode == recipeFragmentRequest) {
+            if (resultCode == Activity.RESULT_OK) {
+                Bundle bundle = data.getExtras();
 
-            //Hides menu options
-            sortButton.setVisible(false);
 
-            //Clears search view
-            searchView.clearFocus();
-            searchView.onActionViewCollapsed();
-            searchView.setVisibility(View.INVISIBLE);
+                HashMap<String, String> testMap = (HashMap<String, String>) bundle.getSerializable("ingredientHashMap");
 
-            //Compiles bundle into a hashmap object for serialization
-            final HashMap<String, Object> map = new HashMap<>();
-            if (bundle != null) {
-                for (String key : bundle.keySet()) {
-                    map.put(key, bundle.get(key));
+                //Hides menu options
+                sortButton.setVisible(false);
+
+                //Clears search view
+                searchView.clearFocus();
+                searchView.onActionViewCollapsed();
+                searchView.setVisibility(View.INVISIBLE);
+
+                //Compiles bundle into a hashmap object for serialization
+                final HashMap<String, Object> map = new HashMap<>();
+                if (bundle != null) {
+                    for (String key : bundle.keySet()) {
+                        map.put(key, bundle.get(key));
+                    }
+
+
+                    //  Adds the ingredient Hash Map
+                    HashMap<String, String> ingredientHashMap = (HashMap<String, String>) data.getSerializableExtra("ingredientHashMap");
+                    if(ingredientHashMap != null){ map.put("ingredientHashMap", ingredientHashMap); }
+
+                    //Sets new listener for inserted recipe to open info fragment
+                    currentSelection.setOnClickListener(v -> openRecipeInfo(map));
+
+                    //Loads recipe image
+                    Picasso.get().load(bundle.getString("imageURL")).into(currentSelection);
+
+                    //Sets and updates user planner
+                    plannerList.set(currentSelection.getId(), map);
+                    mUser.setMealPlanner(plannerList);
+                    updateMealPlan();
                 }
-
-                //Sets new listener for inserted recipe to open info fragment
-                currentSelection.setOnClickListener(v -> openRecipeInfo(map));
-
-                //Loads recipe image
-                Picasso.get().load(bundle.getString("imageURL")).into(currentSelection);
-
-                //Removes recipe fragment overlay and makes planner fragment visible
-                fragmentTransaction = getParentFragmentManager().beginTransaction();
-                fragmentTransaction.remove(recipeFragment).commitNow();
-                requireView().setVisibility(View.VISIBLE);
-
-                //Sets and updates user planner
-                plannerList.set(currentSelection.getId(), map);
-                mUser.setMealPlanner(plannerList);
-                updateMealPlan();
             }
-        }
+            //Removes recipe fragment overlay and makes planner fragment visible
+            fragmentTransaction = getParentFragmentManager().beginTransaction();
+            fragmentTransaction.remove(mealTimescaleFragment).commitNow();
+            requireView().setVisibility(View.VISIBLE);
+        //}
     }
 
     //Quick function to reset search menu functionality
     private void setSearch() {
+        Home home = (Home) getActivity();
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
+                prefs = home.getSearchPrefs();
                 SearchQuery query = new SearchQuery( s, prefs);
                 openRecipeDialog(query);
                 return false;

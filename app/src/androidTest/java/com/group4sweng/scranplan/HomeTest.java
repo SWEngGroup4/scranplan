@@ -9,7 +9,6 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
-import androidx.test.espresso.action.ViewActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
@@ -26,40 +25,37 @@ import org.junit.runner.RunWith;
 import java.util.HashMap;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.pressKey;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.RootMatchers.withDecorView;
-import static androidx.test.espresso.matcher.ViewMatchers.hasFocus;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withHint;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 
 /** Test the Home Activity.
+ * Author(s): LNewman, NBillis
+ * (c) CoDev 2020
+ *
  *  Tests are included to make sure information is displayed, user can successfully after search
  *  parameters and search for the meals they want.
+ *
+ *  Contains Tests for searching using Algolia, for recipes.
+ *  -- USER STORY TESTS LINKED WITH ---
+ *  C6, C7, C18, C2, C1, C3
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class HomeTest{
+public class HomeTest implements Credentials {
 
     //  Android Log tag.
     String TAG = "homeTest";
 
     private UserInfoPrivate testUser;
-
-    //  Default test values.
-    private static final String TEST_EMAIL = "louisnewman@live.co.uk";
-    private static String TEST_PASSWORD = "password";
 
     //  How long we should sleep when waiting for Firebase information to update. Increase this value if you have a slower machine or emulator.
     private static final int THREAD_SLEEP_TIME = 4000;
@@ -103,7 +99,35 @@ public class HomeTest{
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        onView(withText("Bacon Sandwich"))
+        onView(withText("Braised peas with bacon, lentils and cod"))
+                .check(matches(isDisplayed()));
+
+        Espresso.pressBack();
+
+    }
+
+    // Check search field can be activated and searched in, also testing results.
+    @Test
+    public void testSearchForUser() throws InterruptedException {
+        onView(withId(R.id.menuSearch)).perform(click());
+        onView(withId(R.id.menuSortButton)).perform(click());
+        onView(withId(R.id.chefCheckBox))
+                .perform(click());
+
+        // Close filter box
+        onView(withText("OK")).perform(click());
+
+
+        Thread.sleep(THREAD_SLEEP_TIME/4);
+
+        onView(isAssignableFrom(SearchView.class))
+                .perform(typeSearchViewText("nath"))
+                .perform(pressKey(KeyEvent.KEYCODE_ENTER));
+
+
+        Thread.sleep(THREAD_SLEEP_TIME/4);
+
+        onView(withText("nathan"))
                 .check(matches(isDisplayed()));
 
         Espresso.pressBack();
@@ -164,9 +188,6 @@ public class HomeTest{
         // Open up filter menu
         onView(withId(R.id.menuSortButton)).perform(click());
 
-        //  Change every switch and Checkboxes value.
-        onView(withId(R.id.chefCheckBox))
-                .perform(click());
 
         // Change tab
         onView(withText("Diet")).perform(click());
@@ -185,7 +206,7 @@ public class HomeTest{
                 .perform(click());
 
         // Change tab
-        onView(withText("Sort")).perform(click());
+        onView(withText("SORT")).perform(click());
 
         onView(withId(R.id.voteCheckBox))
                 .perform(click());
@@ -212,9 +233,9 @@ public class HomeTest{
         assertNotEquals(initialSettings.get("vote"),  mActivityTestRule.getActivity().mVoteBox.isChecked());
         assertEquals(initialSettings.get("time"),  mActivityTestRule.getActivity().mTimeBox.isChecked());
 
-        assertNotEquals(initialSettings.get("ingred"),  mActivityTestRule.getActivity().mIngredientsBox.isChecked());
+        assertEquals(initialSettings.get("ingred"),  mActivityTestRule.getActivity().mIngredientsBox.isChecked());
         assertEquals(initialSettings.get("name"),  mActivityTestRule.getActivity().mNameBox.isChecked());
-        assertNotEquals(initialSettings.get("chef"),  mActivityTestRule.getActivity().mChefBox.isChecked());
+        assertEquals(initialSettings.get("chef"),  mActivityTestRule.getActivity().mChefBox.isChecked());
 
     }
 
@@ -304,6 +325,8 @@ public class HomeTest{
 
 
     @After
-    public void finishOff() {
+    public void tearDown() {
+        EspressoHelper.shouldSkip = false;
+        this.mActivityTestRule.finishActivity();
     }
 }

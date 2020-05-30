@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".PreferencesTabs.DietaryFragment">
+
+    <TableLayout
+        android:id="@+id/settings_checkbox_table"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="16sp"
+        android:layout_marginEnd="16sp"
+        android:background="#cecce0"
+        tools:layout_editor_absoluteY="285dp">
+
+    <TableRow
+        android:layout_height="wrap_content"
+        android:padding="3sp">
+
+        <CheckBox
+            android:id="@+id/dietary_vegetarian"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="onCheckboxClicked"
+            android:text="Vegetarian"
+            android:textSize="13sp"
+            tools:ignore="OnClick" />
+
+        <CheckBox
+            android:id="@+id/dietary_vegan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="onCheckboxClicked"
+            android:text="Vegan"
+            android:textSize="13sp"
+            tools:ignore="OnClick" />
+
+
+    </TableRow>
+
+        <TableRow android:layout_height="wrap_content"
+            android:padding="3sp">
+            <CheckBox
+                android:id="@+id/dietary_pescatarian"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="onCheckboxClicked"
+                android:text="Pescatarian"
+                android:textSize="13sp"
+                tools:ignore="OnClick" />
+        </TableRow>
+
+    </TableLayout>
+</FrameLayout>

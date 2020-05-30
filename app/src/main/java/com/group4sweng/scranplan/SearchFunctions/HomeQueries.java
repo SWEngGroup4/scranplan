@@ -8,7 +8,11 @@ import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import java.util.HashMap;
 
 /**
- * This builds up the queries, taken from user preferences and feeds them into the infinate
+ * Class for the home page horizontal scroll queries.
+ * Author(s): LNewman
+ * (c) CoDev 2020
+ *
+ * This builds up the queries, taken from user preferences and feeds them into the infinite
  * horizontal scroll views on the home page
  */
 public class HomeQueries {
@@ -23,6 +27,7 @@ public class HomeQueries {
     }
 
     HashMap queries;
+    public static final int NUMBER_OF_RECIPES = 10;
     final FirebaseFirestore database = FirebaseFirestore.getInstance();
     CollectionReference ref = database.collection("recipes");
 
@@ -30,10 +35,22 @@ public class HomeQueries {
     // Constructor to build all queries in the home page
     public HomeQueries(UserInfoPrivate user){
         queries = new HashMap();
-        queries.put("score", buildQuery(user).orderBy("score", Query.Direction.DESCENDING));
-        queries.put("votes", buildQuery(user).orderBy("votes", Query.Direction.DESCENDING));
+        queries.put("score", buildQuery(user).orderBy("rating.overallRating", Query.Direction.DESCENDING));
+        queries.put("votes", buildQuery(user).orderBy("rating.totalRates", Query.Direction.DESCENDING));
         queries.put("timestamp", buildQuery(user).orderBy("timestamp", Query.Direction.DESCENDING));
         queries.put("favourite", ref.whereArrayContains("favourite", user.getUID()));
+        queries.put("breakfastScore",buildQuery(user).whereEqualTo("breakfast", true).orderBy("score", Query.Direction.DESCENDING));
+        queries.put("lunchScore",buildQuery(user).whereEqualTo("lunch", true).orderBy("score", Query.Direction.DESCENDING));
+        queries.put("dinnerScore",buildQuery(user).whereEqualTo("dinner", true).orderBy("score", Query.Direction.DESCENDING));
+        queries.put("breakfastVotes", buildQuery(user).whereEqualTo("breakfast", true).orderBy("votes", Query.Direction.DESCENDING));
+        queries.put("lunchVotes", buildQuery(user).whereEqualTo("lunch", true).orderBy("votes", Query.Direction.DESCENDING));
+        queries.put("dinnerVotes", buildQuery(user).whereEqualTo("dinner", true).orderBy("votes", Query.Direction.DESCENDING));
+        queries.put("breakfastTimestamp", buildQuery(user).whereEqualTo("breakfast", true).orderBy("timestamp", Query.Direction.DESCENDING));
+        queries.put("lunchTimestamp", buildQuery(user).whereEqualTo("lunch", true).orderBy("timestamp", Query.Direction.DESCENDING));
+        queries.put("dinnerTimestamp", buildQuery(user).whereEqualTo("dinner", true).orderBy("timestamp", Query.Direction.DESCENDING));
+        queries.put("breakfastFavourite", ref.whereEqualTo("breakfast", true).whereArrayContains("favourite", user.getUID()));
+        queries.put("lunchFavourite", ref.whereEqualTo("lunch", true).whereArrayContains("favourite", user.getUID()));
+        queries.put("dinnerFavourite", ref.whereEqualTo("dinner", true).whereArrayContains("favourite", user.getUID()));
         if(!user.getPreferences().isVegan()){
             queries.put("topVegan", buildQuery(user).whereEqualTo("vegan", true).orderBy("score", Query.Direction.DESCENDING));
             if(!user.getPreferences().isVegetarian()){
@@ -80,6 +97,6 @@ public class HomeQueries {
         if(user.getPreferences().isAllergy_soya()){
             query = query.whereEqualTo("noSoy", true);
         }
-        return query.limit(5);
+        return query.limit(NUMBER_OF_RECIPES);
     }
 }
