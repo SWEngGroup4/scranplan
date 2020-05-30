@@ -337,7 +337,7 @@ public class Home extends AppCompatActivity {
         fabRecipe.setOnClickListener(v -> {
             Intent intent = new Intent(mContext, RecipeCreation.class);
             intent.putExtra("user", mUser);
-            startActivity(intent);
+            startActivityForResult(intent, CREATE_RECIPE_REQUEST_CODE);
         });
 
         fabPost.setOnClickListener(v -> {
