@@ -84,8 +84,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
     Fragment fragment;
     FrameLayout frameLayout;
-    FragmentManager fragmentManager = getSupportFragmentManager();
-    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+    FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
     private String searchers;
 
     //  Default filter type enumeration. Types shown in 'FilterType' interface.
@@ -166,7 +165,9 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
             loadPostsAndRecipeList();
             fragment = new ProfilePosts(searchers);
+            fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.profileFrameLayout, fragment);
+            fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         } else if(UID != null){ // If not instead search for the profile via the associated UID and reference Firebase.
             Log.i(TAG, "Loading data from Firebase");
