@@ -54,6 +54,9 @@ public class BasicInfo extends Fragment {
     private Switch mFrozen;
     private EditText mReheat;
     private Button mSubmit;
+    private Switch mBreakfast;
+    private Switch mLunch;
+    private Switch mDinner;
 
     private InputMethodManager imm;
 
@@ -103,6 +106,9 @@ public class BasicInfo extends Fragment {
         mFrozen = view.findViewById(R.id.createRecipeFrozen);
         mReheat = view.findViewById(R.id.createRecipeReheatText);
         mSubmit = view.findViewById(R.id.createRecipeSubmit);
+        mBreakfast = view.findViewById(R.id.createBreakfast);
+        mLunch = view.findViewById(R.id.createLunch);
+        mDinner = view.findViewById(R.id.createDinner);
 
         mIngredientList = new ArrayList<>();
         mIngredientMap = new HashMap<>();
@@ -180,6 +186,9 @@ public class BasicInfo extends Fragment {
                 bundle.putBoolean("noShellfish", !mShellfish.isChecked());
                 bundle.putBoolean("noSoy", !mSoya.isChecked());
                 bundle.putBoolean("noWheat", !mGluten.isChecked());
+                bundle.putBoolean("breakfast", mBreakfast.isChecked());
+                bundle.putBoolean("lunch", mLunch.isChecked());
+                bundle.putBoolean("dinner", mDinner.isChecked());
                 if (mDietDropdown.getSelectedItem().toString().equals("Vegan")) {
                     bundle.putBoolean("vegan", true);
                     bundle.putBoolean("vegetarian", true);

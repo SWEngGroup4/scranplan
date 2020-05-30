@@ -133,7 +133,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/createRecipeButton"/>
+            app:layout_constraintTop_toBottomOf="@+id/createRecipeButton" />
 
         <EditText
             android:id="@+id/createRecipeIngName"
@@ -257,6 +257,54 @@
             app:layout_constraintStart_toStartOf="@+id/guideLine50" />
 
         <TextView
+            android:id="@+id/createMealTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="16dp"
+            android:text="Meal Time"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/createRecipeNuts" />
+
+        <Switch
+            android:id="@+id/createBreakfast"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="8dp"
+            android:text="Breakfast"
+            app:layout_constraintEnd_toStartOf="@+id/guideLine50"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/createMealTime" />
+
+        <Switch
+            android:id="@+id/createLunch"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="Lunch"
+            app:layout_constraintEnd_toStartOf="@+id/guideLine50"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/createBreakfast" />
+
+        <Switch
+            android:id="@+id/createDinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="Dinner"
+            app:layout_constraintEnd_toStartOf="@+id/guideLine50"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/createLunch" />
+
+        <TextView
             android:id="@+id/createRecipeDiet"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -266,7 +314,7 @@
             android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/createRecipeNuts" />
+            app:layout_constraintTop_toBottomOf="@+id/createDinner" />
 
         <Spinner
             android:id="@+id/createRecipeSpinner"
