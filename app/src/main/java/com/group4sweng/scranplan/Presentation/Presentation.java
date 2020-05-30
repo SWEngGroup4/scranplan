@@ -175,227 +175,243 @@ public class Presentation extends AppCompatActivity {
     }
 
     private void presentation (Map<String, Object> xml) {
-        List<XmlParser.Slide> xmlSlides = null;
-        CardView presentationContainer;
+        try {
+            List<XmlParser.Slide> xmlSlides = null;
+            CardView presentationContainer;
 
-        documentInfo = (XmlParser.DocumentInfo) xml.get("documentInfo");
-        xmlSlides = (List<XmlParser.Slide>) xml.get("slides");
-        presentationContainer = findViewById(R.id.presentationContainer);
+            documentInfo = (XmlParser.DocumentInfo) xml.get("documentInfo");
+            xmlSlides = (List<XmlParser.Slide>) xml.get("slides");
+            presentationContainer = findViewById(R.id.presentationContainer);
 
-        final List<PresentationSlide> slideLayouts = new ArrayList<>();
-        List<String> dropdownItems = new ArrayList<>();
+            final List<PresentationSlide> slideLayouts = new ArrayList<>();
+            List<String> dropdownItems = new ArrayList<>();
 
-        final Integer[] currentSlide = {0};
-        final Typeface[] defaultTypeFace = new Typeface[1];
+            final Integer[] currentSlide = {0};
+            final Typeface[] defaultTypeFace = new Typeface[1];
 
-        XmlParser.Defaults defaults = (XmlParser.Defaults) xml.get("defaults");
-        Integer slideHeight = defaults.slideHeight;
-        Integer slideWidth = defaults.slideWidth;
+            XmlParser.Defaults defaults = (XmlParser.Defaults) xml.get("defaults");
+            Integer slideHeight = defaults.slideHeight;
+            Integer slideWidth = defaults.slideWidth;
 
-        if(slideHeight == -1) {
-            slideHeight = findNewPresentationSize(DeviceDisplay.HEIGHT);
-        }
-        if(slideWidth == -1){
-            slideWidth = findNewPresentationSize(DeviceDisplay.WIDTH);
-        }
-
-        FontRequest request = new FontRequest(
-                "com.google.android.gms.fonts",
-                "com.google.android.gms",
-                defaults.font,
-                R.array.com_google_android_gms_fonts_certs);
-        new FontsContractCompat.FontRequestCallback() {
-            @Override
-            public void onTypefaceRetrieved(Typeface typeface) {
-                defaultTypeFace[0] = typeface;
+            if (slideHeight == -1) {
+                slideHeight = findNewPresentationSize(DeviceDisplay.HEIGHT);
             }
-        };
+            if (slideWidth == -1) {
+                slideWidth = findNewPresentationSize(DeviceDisplay.WIDTH);
+            }
 
-        int slideCount = 0;
-
-        if(documentInfo != null){
-            for (final XmlParser.Slide slide : xmlSlides) {
-                Log.d("Test", "Generating slides");
-                PresentationSlide pSlide = new PresentationSlide(getApplicationContext(),
-                        slideWidth, slideHeight);
-                pSlide.setBackgroundColor(Color.parseColor(defaults.backgroundColor));
-
-                XmlParser.Text id = new XmlParser.Text(slide.id, defaults);
-                pSlide.addText(id);
-                dropdownItems.add(id.text);
-
-                if (slide.text != null)
-                    pSlide.addText(slide.text);
-                if (slide.lines != null) {}
-                //TODO - Generate line
-                if (slide.shapes != null)
-                    for (XmlParser.Shape shape : slide.shapes)
-                        pSlide.addShape(shape);
-                if (slide.triangles != null)
-                    for (XmlParser.Triangle triangle : slide.triangles)
-                        pSlide.addTriangle(triangle);
-                if (slide.image != null)
-                    pSlide.addImage(slide.image);
-                if (slide.video != null)
-                    pSlide.addVideo(slide.video);
-                if (slide.timer != null) {
-                    slideTimers.add(slideCount, slide.timer);
-                } else
-                    slideTimers.add(slideCount, -1f);
-
-                //  Checks if the slide contains a 'non-looping' audio file. Played at end of timer countdown, or as a standalone audio file.
-                if (slide.audio != null) { //Check if audio exists within the slide.
-                    AudioURL audio = new AudioURL();
-                    audio.storeURL(slide.audio.urlName); //Store our audio for reference.
-
-                    slideAudio.add(slideCount, audio); //Add to the index that corresponds to the current slide number.
-                } else {
-                    slideAudio.add(slideCount, null);
+            FontRequest request = new FontRequest(
+                    "com.google.android.gms.fonts",
+                    "com.google.android.gms",
+                    defaults.font,
+                    R.array.com_google_android_gms_fonts_certs);
+            new FontsContractCompat.FontRequestCallback() {
+                @Override
+                public void onTypefaceRetrieved(Typeface typeface) {
+                    defaultTypeFace[0] = typeface;
                 }
+            };
 
-                //  Checks if the slide contains a 'looping' audio file. Played whilst the timer is running.
-                if (slide.audioLooping != null) {
-                    AudioURL audio = new AudioURL();
-                    audio.setLooping(true);
-                    audio.storeURL(slide.audioLooping.urlName);
+            int slideCount = 0;
 
-                    slideAudioLooping.add(slideCount, audio);
-                } else {
-                    slideAudioLooping.add(slideCount, null); //If no audio exists simply set any audioURL objects for the given slide to null.
-                }
+            if (documentInfo != null) {
+                for (final XmlParser.Slide slide : xmlSlides) {
+                    Log.d("Test", "Generating slides");
+                    PresentationSlide pSlide = new PresentationSlide(getApplicationContext(),
+                            slideWidth, slideHeight);
+                    pSlide.setBackgroundColor(Color.parseColor(defaults.backgroundColor));
 
-                // Spinner to choose the slides
-                Spinner dropdown = findViewById(R.id.presentationSpinner);
-                dropdown.setVisibility(View.VISIBLE);
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, dropdownItems);
-                dropdown.setAdapter(adapter);
+                    XmlParser.Text id = new XmlParser.Text(slide.id, defaults);
+                    pSlide.addText(id);
+                    dropdownItems.add(id.text);
 
-                dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                        Log.d("Test", String.valueOf(position));
+                    if (slide.text != null)
+                        pSlide.addText(slide.text);
+                    if (slide.lines != null) {
+                    }
+                    for (XmlParser.Line line : slide.lines)
+                        pSlide.addLine(line);
+                    if (slide.shapes != null)
+                        for (XmlParser.Shape shape : slide.shapes)
+                            pSlide.addShape(shape);
+                    if (slide.triangles != null)
+                        for (XmlParser.Triangle triangle : slide.triangles)
+                            pSlide.addTriangle(triangle);
+                    if (slide.image != null)
+                        pSlide.addImage(slide.image);
+                    if (slide.video != null)
+                        pSlide.addVideo(slide.video);
+                    if (slide.timer != null) {
+                        slideTimers.add(slideCount, slide.timer);
+                    } else
+                        slideTimers.add(slideCount, -1f);
+
+                    //  Checks if the slide contains a 'non-looping' audio file. Played at end of timer countdown, or as a standalone audio file.
+                    if (slide.audio != null) { //Check if audio exists within the slide.
+                        AudioURL audio = new AudioURL();
+                        audio.storeURL(slide.audio.urlName); //Store our audio for reference.
+
+                        slideAudio.add(slideCount, audio); //Add to the index that corresponds to the current slide number.
+                    } else {
+                        slideAudio.add(slideCount, null);
+                    }
+
+                    //  Checks if the slide contains a 'looping' audio file. Played whilst the timer is running.
+                    if (slide.audioLooping != null) {
+                        AudioURL audio = new AudioURL();
+                        audio.setLooping(true);
+                        audio.storeURL(slide.audioLooping.urlName);
+
+                        slideAudioLooping.add(slideCount, audio);
+                    } else {
+                        slideAudioLooping.add(slideCount, null); //If no audio exists simply set any audioURL objects for the given slide to null.
+                    }
+
+                    // Spinner to choose the slides
+                    Spinner dropdown = findViewById(R.id.presentationSpinner);
+                    dropdown.setVisibility(View.VISIBLE);
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, dropdownItems);
+                    dropdown.setAdapter(adapter);
+
+                    dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                            Log.d("Test", String.valueOf(position));
+                            expandableLayout.collapse();
+                            currentSlide[0] = toSlide(slideLayouts, currentSlide[0], position);
+                        }
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> parent) {
+                        }
+                    });
+
+                    Button prevSlide = findViewById(R.id.prevButton);
+                    prevSlide.setVisibility(View.VISIBLE);
+                    Button nextSlide = findViewById(R.id.nextButton);
+                    nextSlide.setVisibility(View.VISIBLE);
+                    int finalSlideCount = slideCount;
+                    nextSlide.setOnClickListener(v -> {
                         expandableLayout.collapse();
-                        currentSlide[0] = toSlide(slideLayouts, currentSlide[0], position);
-                    }
+                        if (currentSlide[0] + 1 < finalSlideCount + 1) {
+                            dropdown.setSelection(currentSlide[0] + 1);
+                        } else {
+                            currentSlide[0] = toSlide(slideLayouts, currentSlide[0], currentSlide[0] + 1);
+                        }
+                    });
 
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent) {
-                    }
-                });
+                    prevSlide.setOnClickListener(v -> {
+                        expandableLayout.collapse();
+                        if (currentSlide[0] - 1 >= 0) {
+                            dropdown.setSelection(currentSlide[0] - 1);
+                        } else {
+                            currentSlide[0] = toSlide(slideLayouts, currentSlide[0], currentSlide[0] - 1);
+                        }
+                    });
 
-                Button prevSlide = findViewById(R.id.prevButton);
-                prevSlide.setVisibility(View.VISIBLE);
-                Button nextSlide = findViewById(R.id.nextButton);
-                nextSlide.setVisibility(View.VISIBLE);
-                int finalSlideCount = slideCount;
-                nextSlide.setOnClickListener(v -> {
-                    expandableLayout.collapse();
-                    if(currentSlide[0]+1 < finalSlideCount+1){
-                        dropdown.setSelection(currentSlide[0]+1);}else{
-                        currentSlide[0] = toSlide(slideLayouts, currentSlide[0], currentSlide[0] + 1);}
-                });
+                    pSlide.hide();
+                    presentationContainer.addView(pSlide);
+                    slideLayouts.add(pSlide);
+                    expandableLayout.bringToFront();
+                    slideCount++;
 
-                prevSlide.setOnClickListener(v -> {
-                    expandableLayout.collapse();
-                    if(currentSlide[0]-1 >= 0){
-                        dropdown.setSelection(currentSlide[0]-1);}else{
-                        currentSlide[0] = toSlide(slideLayouts, currentSlide[0], currentSlide[0] - 1);}
-                });
+                }
 
-                pSlide.hide();
-                presentationContainer.addView(pSlide);
-                slideLayouts.add(pSlide);
-                expandableLayout.bringToFront();
-                slideCount++;
-
-            }
-
-            slideLayouts.get(0).show();
-            spinner.setVisibility(View.GONE);
+                slideLayouts.get(0).show();
+                spinner.setVisibility(View.GONE);
 
         /*
         The following components add the comment capability to each page of the slide show
          */
-            Button comments = findViewById(R.id.comments);
-            comments.setVisibility(View.VISIBLE);
-            ViewCompat.setTranslationZ(expandableLayout, 20);
-            expandableLayout.setVisibility(View.VISIBLE);
+                Button comments = findViewById(R.id.comments);
+                comments.setVisibility(View.VISIBLE);
+                ViewCompat.setTranslationZ(expandableLayout, 20);
+                expandableLayout.setVisibility(View.VISIBLE);
 
-            // Clicking the comments button toggles comments open and closed
-            comments.setOnClickListener(v -> expandableLayout.toggle());
+                // Clicking the comments button toggles comments open and closed
+                comments.setOnClickListener(v -> expandableLayout.toggle());
 
         /* Setting up the expandable comments listeners to download new comments
          when the view is reopened */
-            expandableLayout.setListener(new ExpandableLayoutListener() {
-                @Override
-                public void onAnimationStart() {
+                expandableLayout.setListener(new ExpandableLayoutListener() {
+                    @Override
+                    public void onAnimationStart() {
 
-                }
-                @Override
-                public void onAnimationEnd() {
-                }
-                @Override
-                public void onPreOpen() {
-                    addFirestoreComments(currentSlide[0].toString());
-                }
-                @Override
-                public void onPreClose() {
-                }
-                @Override
-                public void onOpened() {
+                    }
 
-                }
-                @Override
-                public void onClosed() {
-                    isScrolling = false;
-                    isLastItemReached = false;
-                    lastVisible = null;
-                    query  = null;
-                }
-            });
-            // Adding the functionality for users to add comments
-            Button mPostComment = findViewById(R.id.sendCommentButton);
-            EditText mInputComment = findViewById(R.id.addCommentEditText);
+                    @Override
+                    public void onAnimationEnd() {
+                    }
+
+                    @Override
+                    public void onPreOpen() {
+                        addFirestoreComments(currentSlide[0].toString());
+                    }
+
+                    @Override
+                    public void onPreClose() {
+                    }
+
+                    @Override
+                    public void onOpened() {
+
+                    }
+
+                    @Override
+                    public void onClosed() {
+                        isScrolling = false;
+                        isLastItemReached = false;
+                        lastVisible = null;
+                        query = null;
+                    }
+                });
+                // Adding the functionality for users to add comments
+                Button mPostComment = findViewById(R.id.sendCommentButton);
+                EditText mInputComment = findViewById(R.id.addCommentEditText);
 
 
         /* Setting up the post comment listener, removing the text from the box and saving
          it as a new document in the Firestore, the data is also reloaded */
-            mPostComment.setOnClickListener(v -> {
-            String content = mInputComment.getText().toString();
-            mInputComment.getText().clear();
-            CollectionReference ref = mDatabase.collection("recipes").document(recipeID).collection("slide" + currentSlide[0].toString());
-            Log.e(TAG, "Added new doc ");
-            // Saving the comment as a new document
-            HashMap<String, Object> map = new HashMap<>();
-            map.put("authorID", mUser.getUID());
-            map.put("likes", 0);
-            map.put("comment", content);
-            map.put("timestamp", FieldValue.serverTimestamp());
-            // Saving default user to Firebase Firestore database
-            ref.add(map);
-            addFirestoreComments(currentSlide[0].toString());
+                mPostComment.setOnClickListener(v -> {
+                    String content = mInputComment.getText().toString();
+                    mInputComment.getText().clear();
+                    CollectionReference ref = mDatabase.collection("recipes").document(recipeID).collection("slide" + currentSlide[0].toString());
+                    Log.e(TAG, "Added new doc ");
+                    // Saving the comment as a new document
+                    HashMap<String, Object> map = new HashMap<>();
+                    map.put("authorID", mUser.getUID());
+                    map.put("likes", 0);
+                    map.put("comment", content);
+                    map.put("timestamp", FieldValue.serverTimestamp());
+                    // Saving default user to Firebase Firestore database
+                    ref.add(map);
+                    addFirestoreComments(currentSlide[0].toString());
 
 
-            });
+                });
 
-            // Start timer listener that checks for a play/pause button press
-            playPause.setOnClickListener(v -> {
-                //  Reference the current slides corresponding timer float values and audio objects.
-                AudioURL audio = slideAudio.get(currentSlide[0]);
-                AudioURL audioLooping = slideAudioLooping.get(currentSlide[0]);
-                Float slideTimer = slideTimers.get(currentSlide[0]);
+                // Start timer listener that checks for a play/pause button press
+                playPause.setOnClickListener(v -> {
+                    //  Reference the current slides corresponding timer float values and audio objects.
+                    AudioURL audio = slideAudio.get(currentSlide[0]);
+                    AudioURL audioLooping = slideAudioLooping.get(currentSlide[0]);
+                    Float slideTimer = slideTimers.get(currentSlide[0]);
 
-                //  Choose how we handle the timer based on what audio files are retrieved from the XML document and if anything is missing or not.
-                if(audio == null & audioLooping == null){
-                    timerListenerHandler(slideTimer, null, null, false);
-                } else if (audioLooping == null || audio == null){
-                    timerListenerHandler(slideTimer, audio, null, true);
-                } else {
-                    timerListenerHandler(slideTimer, audio, audioLooping, true);
-                }
-            });
+                    //  Choose how we handle the timer based on what audio files are retrieved from the XML document and if anything is missing or not.
+                    if (audio == null & audioLooping == null) {
+                        timerListenerHandler(slideTimer, null, null, false);
+                    } else if (audioLooping == null || audio == null) {
+                        timerListenerHandler(slideTimer, audio, null, true);
+                    } else {
+                        timerListenerHandler(slideTimer, audio, audioLooping, true);
+                    }
+                });
 
-            loadFirstSlideTimer(); // Load in the timer for the first slide.
+                loadFirstSlideTimer(); // Load in the timer for the first slide.
+            }
+        } catch (Exception e) {
+            Toast.makeText(getApplicationContext(), "Error with presentation. Please report to admin", Toast.LENGTH_SHORT).show();
+            finish();
         }
     }
 
