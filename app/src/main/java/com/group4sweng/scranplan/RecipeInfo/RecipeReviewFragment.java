@@ -396,7 +396,7 @@ public class RecipeReviewFragment extends FeedFragment {
                     });
                 } catch (ImageException e) {
                     Log.e(TAG, "Failed to upload photo to Firebase");
-                    Toast.makeText(getApplicationContext(), "Failed to upload photo to Firebase, please try again.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Failed to upload photo to Firebase, please try again.", Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                     return;
                 }

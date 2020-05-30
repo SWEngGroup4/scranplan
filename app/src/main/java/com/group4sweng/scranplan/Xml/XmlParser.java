@@ -401,15 +401,26 @@ public class XmlParser {
     private Video readVideo(XmlPullParser parser) throws IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, null, "video");
 
+        Float width;
+        Float height;
+
         String urlName = parser.getAttributeValue(null, "urlname");
         Integer startTime = Integer.valueOf(parser.getAttributeValue(null, "starttime"));
         Boolean loop = Boolean.valueOf(parser.getAttributeValue(null, "loop"));
         Float xStart = Float.valueOf(parser.getAttributeValue(null, "xstart"));
         Float yStart = Float.valueOf(parser.getAttributeValue(null, "ystart"));
+        if (parser.getAttributeValue(null, "width") != null)
+            width = Float.valueOf(parser.getAttributeValue(null, "width"));
+        else
+            width = 100f - xStart;
+        if (parser.getAttributeValue(null, "height") != null)
+            height = Float.valueOf(parser.getAttributeValue(null, "height"));
+        else
+            height = 50f - yStart;
 
         parser.nextTag();
 
-        return new Video(urlName, startTime, loop, xStart, yStart);
+        return new Video(urlName, startTime, loop, xStart, yStart, width, height);
     }
 
     private String readString(XmlPullParser parser) throws IOException, XmlPullParserException {
@@ -717,18 +728,22 @@ public class XmlParser {
 
     public static class Video {
         public final String urlName;
-        public final Integer startTime;
-        public final Boolean loop;
+        final Integer startTime;
+        final Boolean loop;
         public final Float xStart;
         public final Float yStart;
+        public final Float width;
+        public final Float height;
 
         public Video(String urlName, Integer startTime, Boolean loop,
-                     Float xStart, Float yStart) {
+                     Float xStart, Float yStart, Float width, Float height) {
             this.urlName = urlName;
             this.startTime = startTime;
             this.loop = loop;
             this.xStart = xStart;
             this.yStart = yStart;
+            this.width = width;
+            this.height = height;
         }
     }
 }

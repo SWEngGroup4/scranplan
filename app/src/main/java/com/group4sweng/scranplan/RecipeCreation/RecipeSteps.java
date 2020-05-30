@@ -372,7 +372,7 @@ public class RecipeSteps extends Fragment {
                                 if (imagePresent.get(pos)) {
                                     images.set(pos, new XmlParser.Image(mediaDownloads.get(pos).toString(), 10f, 10f, 80f, 40f, 0, 0));
                                 } else if (videoPresent.get(pos)) {
-                                    videos.set(pos, new XmlParser.Video(mediaDownloads.get(pos).toString(), 0, false, 10f, 30f));
+                                    videos.set(pos, new XmlParser.Video(mediaDownloads.get(pos).toString(), 0, false, 0f, 10f, 100f, 40f));
                                 }
                                 text = new XmlParser.Text(mStepList.get(pos).getDescription(), "#" + Integer.toHexString(mFontBackground),
                                         mFont, mFontSizeInt, "#" + Integer.toHexString(mFontColor), 800,
@@ -387,7 +387,7 @@ public class RecipeSteps extends Fragment {
                             if (imagePresent.get(pos)) {
                                 images.set(pos, new XmlParser.Image(mediaDownloads.get(pos).toString(), 10f, 30f, 80f, 80f, 0, 0));
                             } else if (videoPresent.get(pos)) {
-                                videos.set(pos, new XmlParser.Video(mediaDownloads.get(pos).toString(), 0, false, 30f, 10f));
+                                videos.set(pos, new XmlParser.Video(mediaDownloads.get(pos).toString(), 0, false, 0f, 10f, 100f, 90f));
                             }
                         }
 

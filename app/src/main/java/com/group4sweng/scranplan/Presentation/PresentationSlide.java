@@ -155,7 +155,7 @@ public class PresentationSlide extends RelativeLayout {
         playerView = new PresentationPlayerView(getContext(), slideHeight, slideWidth);
         playerView.initializePlayer(video.urlName, Boolean.TRUE);
         playerView.setPos(video.xStart, video.yStart);
-
+        playerView.setDims(video.width, video.height);
         this.addView(playerView);
     }
 }

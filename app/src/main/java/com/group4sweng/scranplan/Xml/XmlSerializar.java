@@ -234,6 +234,10 @@ public class XmlSerializar {
                         slide.video.xStart.toString());
                 xmlSerializer.attribute("", "ystart",
                         slide.video.yStart.toString());
+                xmlSerializer.attribute("", "width",
+                        slide.video.width.toString());
+                xmlSerializer.attribute("", "height",
+                        slide.video.height.toString());
                 xmlSerializer.endTag("", "video");
             }
 
