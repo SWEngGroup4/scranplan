@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -54,6 +55,8 @@ public class MessengerNewChat extends MessengerMenu {
 
 
     FloatingActionButton mNewMessage;
+    TextView messangerText;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +68,10 @@ public class MessengerNewChat extends MessengerMenu {
         View view = findViewById(R.id.messageFrameLayout);
         mNewMessage = findViewById(R.id.newMessageButton);
         mNewMessage.setVisibility(View.GONE);
+
+        messangerText = findViewById(R.id.messageText);
+        messangerText.setText(R.string.new_chat);
+
         addUsers(view);
     }
 

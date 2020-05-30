@@ -107,6 +107,8 @@ public class MessengerMenu extends AppCompatActivity {
 
     FragmentManager fragmentManager;
 
+    TextView messangerText;
+
 
 
     FloatingActionButton mNewMessage;
@@ -123,6 +125,9 @@ public class MessengerMenu extends AppCompatActivity {
         fragmentManager = getSupportFragmentManager();
         initSearchMenu();
         addChats(view);
+
+        messangerText = findViewById(R.id.messageText);
+        messangerText.setText(R.string.recent_message);
 
         mNewMessage = findViewById(R.id.newMessageButton);
         mNewMessage.setVisibility(View.VISIBLE);
@@ -466,7 +471,7 @@ public class MessengerMenu extends AppCompatActivity {
         data = new ArrayList<>();
         final RecyclerView.Adapter rAdapter = new MessageMenuRecyclerAdapter(MessengerMenu.this, data, mUser, view);
         recyclerView.setAdapter(rAdapter);
-        long numberOfChats = 5;
+        long numberOfChats = 50;
         query = mMessages.orderBy("latestMessage", Query.Direction.DESCENDING).limit(numberOfChats);
         final boolean[] initalData = {true};
         // Ensure query exists and builds view with query
