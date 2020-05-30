@@ -37,9 +37,12 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.ServerTimestamp;
+import com.google.firebase.firestore.model.value.ServerTimestampValue;
 import com.group4sweng.scranplan.Administration.SuggestionBox;
 import com.group4sweng.scranplan.MealPlanner.PlannerFragment;
 import com.group4sweng.scranplan.RecipeCreation.BasicInfo;
@@ -51,6 +54,8 @@ import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
 import com.group4sweng.scranplan.Social.FeedFragment;
 import com.group4sweng.scranplan.Social.Notifications;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
+
+import java.util.Date;
 
 import io.sentry.core.Sentry;
 import io.sentry.core.protocol.User;
@@ -76,6 +81,9 @@ public class Home extends AppCompatActivity {
     // Main tab variables
     FragmentManager fragmentManager = getSupportFragmentManager();
     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+    Fragment recipeFragment;
+    Fragment plannerFragment;
+    Fragment feedFragment;
     Fragment fragment;
     TabLayout tabLayout;
     FrameLayout frameLayout;
@@ -89,6 +97,8 @@ public class Home extends AppCompatActivity {
     MenuItem sortView;
     SearchQuery query;
     SearchPrefs prefs;
+
+    @ServerTimestamp Date time;
 
     //Menu check boxes
     CheckBox mPescatarianBox;
@@ -278,6 +288,10 @@ public class Home extends AppCompatActivity {
         textViewPost = findViewById(R.id.textViewPost);
         fab_close = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_close);
         fab_open = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
+
+        recipeFragment = new RecipeFragment(mUser);
+        plannerFragment = new PlannerFragment(mUser);
+        feedFragment = new FeedFragment(mUser);
     }
 
     /**
@@ -340,20 +354,19 @@ public class Home extends AppCompatActivity {
                 Log.d(TAG, String.valueOf(fragment));
                 switch (tab.getPosition()) {
                     case 0:
-                        fragment = new RecipeFragment(mUser);
                         fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
+                        fragmentTransaction.replace(R.id.frameLayout, recipeFragment);
                         break;
                     case 1:
                         if (fragment.getClass() == RecipeFragment.class) fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         else fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
-                        fragment = new PlannerFragment(mUser);
+                        fragmentTransaction.replace(R.id.frameLayout, plannerFragment);
                         break;
                     case 2:
-                        fragment = new FeedFragment(mUser);
                         fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                        fragmentTransaction.replace(R.id.frameLayout, feedFragment);
                         break;
                 }
-                fragmentTransaction.replace(R.id.frameLayout, fragment);
                 fragmentTransaction.commit();
                 searchView.clearFocus();
                 searchView.onActionViewCollapsed();
@@ -382,10 +395,16 @@ public class Home extends AppCompatActivity {
             Intent intent = new Intent(mContext, RecipeCreation.class);
             intent.putExtra("user", mUser);
             startActivityForResult(intent, CREATE_RECIPE_REQUEST_CODE);
+            fabMainListener(true);
         });
 
         fabPost.setOnClickListener(v -> {
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+            fragmentTransaction.replace(R.id.frameLayout, feedFragment);
+            fragmentTransaction.commit();
             Toast.makeText(getApplicationContext(), "Create post", Toast.LENGTH_SHORT).show();
+            fabMainListener(true);
         });
     }
 
@@ -442,7 +461,11 @@ public class Home extends AppCompatActivity {
                 break;
             case (CREATE_RECIPE_REQUEST_CODE):
                 if (resultCode == RESULT_OK) {
-
+                        // Reloads review fragment
+                    FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                    fragmentTransaction.detach(recipeFragment);
+                    fragmentTransaction.attach(recipeFragment);
+                    fragmentTransaction.commit();
                 }
             default:
                 Log.e(TAG, "I am not returning anything. Should return new profile settings from Profile Settings Activity.");

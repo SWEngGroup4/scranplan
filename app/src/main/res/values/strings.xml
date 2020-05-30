@@ -46,8 +46,6 @@
     <string name="rcDays">days</string>
     <string name="rcFrozen">Can be frozen</string>
     <string name="rcReheat">Reheating information</string>
-    <string name="feed"> Message Feed</string>
-
     <string-array name="rcFonts">
         <item>Roboto</item>
         <item>Roboto Slab</item>

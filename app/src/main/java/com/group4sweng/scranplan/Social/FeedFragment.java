@@ -2,6 +2,7 @@ package com.group4sweng.scranplan.Social;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -14,6 +15,8 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -382,8 +385,6 @@ public class FeedFragment extends Fragment {
         mRecipeRatingText = v.findViewById(R.id.recipeRate);
         mUserUploadedImageViewLayout = v.findViewById(R.id.userUploadedImageViewLayout);
         mPostRecipeImageViewLayout = v.findViewById(R.id.postRecipeImageViewLayout);
-
-
     }
 
     /**
