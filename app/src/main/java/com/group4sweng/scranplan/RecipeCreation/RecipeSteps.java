@@ -243,7 +243,7 @@ public class RecipeSteps extends Fragment {
                         mStepList.get(mAdapterPos).setMedia(mMediaUri);
                         mAdapter.notifyDataSetChanged();
                     } else if (mMediaUri.toString().contains("video")) {
-                        imagePresent.set(mAdapterPos, true);
+                        videoPresent.set(mAdapterPos, true);
                         mMediaRefs.add(mAdapterPos, mStorageRef.child("presentations/videos/"
                                 + mUser.getUID() + "_" + mUser.getRecipes() + "_step" + mAdapterPos));
                         mStepList.get(mAdapterPos).setMedia(mMediaUri);
