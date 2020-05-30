@@ -1,6 +1,7 @@
 package com.group4sweng.scranplan.Presentation;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 

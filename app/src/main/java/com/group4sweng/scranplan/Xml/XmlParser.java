@@ -243,14 +243,14 @@ public class XmlParser {
         if (parser.getAttributeValue(null, "font") != null) {
             font = parser.getAttributeValue(null, "font");
         }
-        if (parser.getAttributeValue(null, "background") != null) {
-            background = parser.getAttributeValue(null, "background");
+        if (parser.getAttributeValue(null, "fontBackground") != null) {
+            background = parser.getAttributeValue(null, "fontBackground");
         }
         if (parser.getAttributeValue(null, "fontsize") != null) {
             fontSize = Integer.valueOf(parser.getAttributeValue(null, "fontsize"));
         }
         if (parser.getAttributeValue(null, "fontcolor") != null) {
-            font = parser.getAttributeValue(null, "fontcolor");
+            fontColor = parser.getAttributeValue(null, "fontcolor");
         }
         if (parser.getAttributeValue(null, "fontweight") != null) {
             fontWeight = Integer.valueOf(parser.getAttributeValue(null, "fontweight"));
@@ -283,7 +283,7 @@ public class XmlParser {
         String text = readString(parser);
         parser.require(XmlPullParser.END_TAG, null, "text");
 
-        return new Text(text, font, background, fontSize, fontColor, fontWeight, xPos, yPos, height, width,startTime, endTime, b, i);
+        return new Text(text, background, font, fontSize, fontColor, fontWeight, xPos, yPos, height, width,startTime, endTime, b, i);
     }
 
     private Line readLine(XmlPullParser parser) throws IOException, XmlPullParserException {
