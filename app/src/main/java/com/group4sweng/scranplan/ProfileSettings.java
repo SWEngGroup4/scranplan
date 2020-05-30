@@ -175,12 +175,10 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
     //  Initialize 'Save Settings minimum interval countdown timer.
     CountDownTimer saveCountdown = new CountDownTimer(COUNTDOWN_TIMER_MILLIS, COUNTDOWN_INTERVAL_MILLIS) {
-
         @Override
         public void onTick(long millisUntilFinished) {
             saveCountdownSecondsLeft = millisUntilFinished/1000;
         }
-
         @Override
         public void onFinish() {
             saveCountdownFinished = true;
@@ -212,32 +210,186 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             initPreferencesFragmentsTabListener();
             initProfileVisibilityTabListener();
 
-            loadProfileData();
+            //  Load in existing data present within the activity only.
+            //  Filters & the user feed are loaded differently.
+            loadProfile(mUserProfile.isPrivateProfileEnabled());
 
-            if(mPrivateProfileEnabled.isChecked()) {
-                setPrivacyOptions(mTempUserProfile.getPublicPrivacy());
-                TabLayout.Tab tab = mProfileVisibilityTab.getTabAt(0);
-                assert tab != null;
-                tab.select();
-                mProfileVisibilityTab.setVisibility(View.VISIBLE);
-            } else {
-                mPrivateMessage.setVisibility(View.GONE);
-                setPrivacyOptions(mTempUserProfile.getPrivacyPrivate());
-                mProfileVisibilityTab.setVisibility(View.GONE);
-            }
-
-            //mProfileImage;
-            if(mUserProfile.getImageURL() == null){
-                throw new NullPointerException("Unable to load Profile image URL. Image URL is null");
-            } else if(!mUserProfile.getImageURL().equals("")){
-                Glide.with(mProfileImageOld.getContext())
-                        .load(mUserProfile.getImageURL())
-                        .apply(RequestOptions.circleCropTransform())
-                        .into(mProfileImageOld);
-            }
-
-            initPageListeners();
+            initTextChangedListener(); //  Checks for a unique username input with correct formatting.
         }
+    }
+
+    /** Handle sending serializable data to tabbed fragments **/
+    private void sendSerializableToFragment(){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        // Create a new bundle, complete with the users preferences to be set as arguments for the fragment.
+        Bundle prefBundle = new Bundle();
+        prefBundle.putSerializable("preferences", mTempUserProfile.getPreferences());
+        currentFragment.setArguments(prefBundle);
+
+        //  Switch current checkbox table with our new fragment.
+        fragmentTransaction.replace(R.id.settings_checkbox_table, currentFragment);
+        fragmentTransaction.commit();
+    }
+
+    /** Listeners for preferences fragment.
+     *  Check which tab is selected, load the associated fragment and send associated serializable preference data to accommodate.
+     */
+    private void initPreferencesFragmentsTabListener(){
+
+        mPreferencesTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+
+                switch (tab.getPosition()) {
+                    case 0: // Tab order in index. 0 = leftmost element.
+                        currentFragment = new AllergensFragment(); // Create a new fragment.
+                        currentFilterType = filterType.ALLERGENS; // Set current filter type to handle 'checkbox click' actions.
+                        break;
+                    case 1:
+                        currentFragment = new DietaryFragment();
+                        currentFilterType = filterType.DIETARY;
+                        break;
+                }
+                sendSerializableToFragment();
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) { /* Nothing here */ }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) { /* Nothing here */}
+        });
+    }
+
+    /** Listeners for privacy public/private tab.
+     *  Check which tab is selected, load associated data.
+     */
+    private void initProfileVisibilityTabListener(){
+
+        mProfileVisibilityTab.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+
+                switch (tab.getPosition()) {
+                    case 0: // Tab order in index. 0 = leftmost element.
+                        setPrivacyOptions(mTempUserProfile.getPublicPrivacy());
+                        break;
+                    case 1:
+                        setPrivacyOptions(mTempUserProfile.getPrivacyPrivate());
+                        break;
+                }
+            }
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) { /* Nothing here */ }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) { /* Nothing here */}
+
+        });
+    }
+
+    /** Load basic firebase data & any data not present in fragments.
+     * @param isPrivateProfile - Should we load a private or public style profile.**/
+    private void loadProfile(boolean isPrivateProfile){
+        mUsername.setText(mTempUserProfile.getDisplayName());
+        mAboutMe.setText(mTempUserProfile.getAbout());
+        mPrivateProfileEnabled.setChecked(isPrivateProfile); //  Private profile switch.
+
+        //  Load privacy switches. Always load the public privacy info first.
+        setPrivacyOptions(mTempUserProfile.getPublicPrivacy());
+
+        if(isPrivateProfile) { // Load private profile
+            TabLayout.Tab tab = mProfileVisibilityTab.getTabAt(0); // Make sure the leftmost tab is selected.
+            if(tab != null){
+                tab.select();
+            }
+            mProfileVisibilityTab.setVisibility(View.VISIBLE);
+        } else { // Hide private profile switch and tabs if not a private profile.
+            mPrivateMessage.setVisibility(View.GONE);
+            mProfileVisibilityTab.setVisibility(View.GONE);
+        }
+
+        //  Load in the initial profile image.
+        if(mTempUserProfile.getImageURL() == null){
+            throw new NullPointerException("Unable to load Profile image URL. Image URL is null");
+        } else if(!mTempUserProfile.getImageURL().equals("")){
+            Glide.with(mProfileImageOld.getContext())
+                    .load(mUserProfile.getImageURL())
+                    .apply(RequestOptions.circleCropTransform())
+                    .into(mProfileImageOld);
+        }
+    }
+
+    /**
+     * listeners to tell user password and username follow in line with set rules with toast messaged and visual clues
+     * checker enforces unique user names what only consist of lower case letters and numbers
+     * with a maximum length of 20 characters
+     **/
+    private void initTextChangedListener(){
+        /**
+         * Username checker enforcing unique user names what only consist of lower case letters and numbers
+         * with a maximum length of 20 characters
+         */
+        mUsername.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+                if(!mUsername.getText().toString().equals("")){
+                    if(mUsername.getText().toString().matches("^[a-z0-9]+$") && mUsername.getText().toString().length() <= 20 && mUsername.getText().toString().length() >= 2){
+                        mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_autorenew_black_24dp));
+                        mCheckUsername.setVisibility(View.VISIBLE);
+                        if(!mUsername.getText().toString().equals("")){
+                            mDatabase.collection("usernames").document(mUsername.getText().toString()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if(task.getResult().exists()){
+                                        if(task.getResult().get("user").equals(mUserProfile.getUID())){
+                                            mCheckUsername.setVisibility(View.GONE);
+                                        }else{
+                                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                                            mCheckUsername.setVisibility(View.VISIBLE);
+                                        }
+                                    }else{
+                                        if(!mDisplay_username.getText().toString().equals("")){
+                                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_check_black_24dp));
+                                            mCheckUsername.setVisibility(View.VISIBLE);
+                                        }else{
+                                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                                            mCheckUsername.setVisibility(View.VISIBLE);
+                                            if (mToast != null) mToast.cancel();
+                                            mToast = Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, between 2 and 20 characters.",Toast.LENGTH_SHORT);
+                                            mToast.show();
+                                        }
+                                    }
+                                }
+                            });
+                        }else{
+                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                            mCheckUsername.setVisibility(View.GONE);
+                        }
+                    }else{
+                        mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                        mCheckUsername.setVisibility(View.VISIBLE);
+                        if (mToast != null) mToast.cancel();
+                        mToast = Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, between 2 and 20 characters.",Toast.LENGTH_SHORT);
+                        mToast.show();
+                    }
+                }else{
+                    mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                    mCheckUsername.setVisibility(View.VISIBLE);
+                    if (mToast != null) mToast.cancel();
+                    mToast = Toast.makeText(getApplicationContext(),"Username cannot be empty.",Toast.LENGTH_SHORT);
+                    mToast.show();
+                }
+            }
+        });
     }
 
     @Override
@@ -269,91 +421,15 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             });
 
             //  Create and display the dialog.
-            AlertDialog alertDialog = builder.create(); //
+            AlertDialog alertDialog = builder.create();
             alertDialog.show();
         } else {
             setResult(Activity.RESULT_OK, returnIntent);
-            finish();
+            finish(); // Close the activity.
         }
-
     }
 
-    /**
-     * listeners to tell user password and username follow in line with set rules with toast messaged and visual clues
-     */
-    private void initPageListeners(){
-        /**
-         * Username checker enforcing unique user names what only consist of lower case letters and numbers
-         * with a maximum length of 20 characters
-         */
-        mUsername.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-                if(!mUsername.getText().toString().equals("")){
-                    if(mUsername.getText().toString().matches("^[a-z0-9]+$") && mUsername.getText().toString().length() <= 20 && mUsername.getText().toString().length() >= 2){
-                        mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_autorenew_black_24dp));
-                        mCheckUsername.setVisibility(View.VISIBLE);
-                        if(!mUsername.getText().toString().equals("")){
-                            mDatabase.collection("usernames").document(mUsername.getText().toString()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if(task.getResult().exists()){
-                                        if(task.getResult().get("user").equals(mUserProfile.getUID())){
-                                            mCheckUsername.setVisibility(View.GONE);
-                                        }else{
-                                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
-                                            mCheckUsername.setVisibility(View.VISIBLE);
-                                        }
-                                    }else{
-                                        if(!mDisplay_username.getText().toString().equals("")){
-                                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_check_black_24dp));
-                                            mCheckUsername.setVisibility(View.VISIBLE);
-                                        }else{
-                                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
-                                            mCheckUsername.setVisibility(View.VISIBLE);
-                                            if (mToast != null) mToast.cancel();
-                                            mToast = Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, between 2 and 20 characters.",Toast.LENGTH_SHORT);
-                                            mToast.show();
-
-                                        }
-                                    }
-                                }
-                            });
-                        }else{
-                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
-                            mCheckUsername.setVisibility(View.GONE);
-                        }
-                    }else{
-                        mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
-                        mCheckUsername.setVisibility(View.VISIBLE);
-                        if (mToast != null) mToast.cancel();
-                        mToast = Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, between 2 and 20 characters.",Toast.LENGTH_SHORT);
-                        mToast.show();
-                    }
-                }else{
-                    mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
-                    mCheckUsername.setVisibility(View.VISIBLE);
-                    if (mToast != null) mToast.cancel();
-                    mToast = Toast.makeText(getApplicationContext(),"Username cannot be empty.",Toast.LENGTH_SHORT);
-                    mToast.show();
-                }
-
-
-
-            }
-        });
-    }
 
     /** Initiated on a 'Delete Profile' button press.
      *  Creates an alert dialog box that checks a users old password through re-authentication
@@ -719,8 +795,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
      */
     public void saveSettings(View v){
 
-        //  Ignore save button press if countdown isn't finished or isn't equal to 0s.
-
         // TEST METHODS - Checks for very specific username string input to enter test screens.
         for(HiddenViews hv : HiddenViews.values()){
             if(mUsername.getText().toString().equals(hv.getUsernameKeyWord())){
@@ -729,6 +803,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             }
         }
 
+        //  Ignore save button press if countdown isn't finished or isn't equal to 0s.
         if(saveCountdownFinished || saveCountdownSecondsLeft == 0) {
 
             //  Set all info not set in other proprietary methods.
@@ -778,14 +853,18 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
         int tabPosition = mProfileVisibilityTab.getSelectedTabPosition();
 
-        switch(tabPosition){
-            case 0:
-                tempPrivacy = mTempUserProfile.getPublicPrivacy();
-                syncVisibility(SyncType.PUBLIC);
-                break;
-            case 1:
-                tempPrivacy = mTempUserProfile.getPrivacyPrivate();
-                syncVisibility(SyncType.PRIVATE);
+        if(mTempUserProfile.isPrivateProfileEnabled()){
+            switch(tabPosition){
+                case 0:
+                    tempPrivacy = mTempUserProfile.getPublicPrivacy();
+                    syncVisibility(SyncType.PUBLIC);
+                    break;
+                case 1:
+                    tempPrivacy = mTempUserProfile.getPrivacyPrivate();
+                    syncVisibility(SyncType.PRIVATE);
+            }
+        } else {
+            tempPrivacy = mTempUserProfile.getPublicPrivacy();
         }
 
         switch(v.getId()){ // Retrieve switches unique ID.
@@ -801,11 +880,13 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                     assert tab != null;
                     tab.select();
                     mProfileVisibilityTab.setVisibility(View.VISIBLE);
+                    break;
                 } else {
                     mTempUserProfile.setIsPrivateProfileEnabled(false);
                     mPrivateMessage.setVisibility(View.GONE);
                     setPrivacyOptions(mTempUserProfile.getPublicPrivacy());
                     mProfileVisibilityTab.setVisibility(View.GONE);
+                    break;
                 }
 
             case R.id.settings_privacy_about_me:
@@ -813,12 +894,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                     tempPrivacy.put("display_about_me", true);
                 else
                     tempPrivacy.put("display_about_me", false);
-                break;
-            case R.id.settings_privacy_username:
-                if(switched)
-                    tempPrivacy.put("display_username", true);
-                else
-                    tempPrivacy.put("display_username", false);
                 break;
             case R.id.settings_privacy_profile_image:
                 if(switched)
@@ -949,7 +1024,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         //  Privacy
         mDisplay_about_me = findViewById(R.id.settings_privacy_about_me);
         mDisplay_profile_image = findViewById(R.id.settings_privacy_profile_image);
-        mDisplay_username = findViewById(R.id.settings_privacy_username);
         mDisplay_filters = findViewById(R.id.settings_privacy_filters);
 
         //  Tabbed profile listener (Public/Private)
@@ -1143,23 +1217,14 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         });
     }
 
-    /** Load basic firebase data & any data not present in fragments. **/
-    private void loadProfileData(){
-        mUsername.setText(mTempUserProfile.getDisplayName());
-        mAboutMe.setText(mTempUserProfile.getAbout());
-        mPrivateProfileEnabled.setChecked(mTempUserProfile.isPrivateProfileEnabled());
-
-        //  Load privacy switches.
-        setPrivacyOptions(mTempUserProfile.getPublicPrivacy());
-    }
-
 
     /** Set which privacy switches should be selected
      * @param privacy - HashMap of valid privacy options.
      */
     private void setPrivacyOptions(HashMap<String, Object> privacy){
-        //mDisplay_username.setChecked( (boolean) privacy.get("display_username"));
-        mDisplay_username.setVisibility(View.GONE);
+        // IMPORTANT - Username, recipe and feed privacy options ignored or implemented using the privacy switch.
+        // Collection could not be updated without breaking core functionality within Firebase.
+
         mDisplay_about_me.setChecked( (boolean) privacy.get("display_about_me"));
         mDisplay_profile_image.setChecked( (boolean) privacy.get("display_profile_image"));
         mDisplay_filters.setChecked( (boolean) privacy.get("display_filters"));
@@ -1342,77 +1407,5 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         }
     }
 
-    /** Handle sending serializable data to tabbed fragments **/
-    private void sendSerializableToFragment(){
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-        // Create a new bundle, complete with the users preferences to be set as arguments for the fragment.
-        Bundle prefBundle = new Bundle();
-        prefBundle.putSerializable("preferences", mTempUserProfile.getPreferences());
-        currentFragment.setArguments(prefBundle);
-
-        //  Switch current checkbox table with our new fragment.
-        fragmentTransaction.replace(R.id.settings_checkbox_table, currentFragment);
-        fragmentTransaction.commit();
-    }
-
-    /** Listeners for preferences fragment.
-     *  Check which tab is selected, load the associated fragment and send associated serializable preference data to accommodate.
-     */
-    private void initPreferencesFragmentsTabListener(){
-
-        mPreferencesTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-
-                switch (tab.getPosition()) {
-                    case 0: // Tab order in index. 0 = leftmost element.
-                        currentFragment = new AllergensFragment(); // Create a new fragment.
-                        currentFilterType = filterType.ALLERGENS; // Set current filter type to handle 'checkbox click' actions.
-                        break;
-                    case 1:
-                        currentFragment = new DietaryFragment();
-                        currentFilterType = filterType.DIETARY;
-                        break;
-
-                }
-                sendSerializableToFragment();
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) { /* Nothing here */ }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) { /* Nothing here */}
-
-        });
-    }
-
-    /** Listeners for privacy public/private tab.
-     *  Check which tab is selected, load associated data.
-     */
-    private void initProfileVisibilityTabListener(){
-
-        mProfileVisibilityTab.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-
-                switch (tab.getPosition()) {
-                    case 0: // Tab order in index. 0 = leftmost element.
-                            setPrivacyOptions(mTempUserProfile.getPublicPrivacy());
-                        break;
-                    case 1:
-                            setPrivacyOptions(mTempUserProfile.getPrivacyPrivate());
-                        break;
-                }
-            }
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) { /* Nothing here */ }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) { /* Nothing here */}
-
-        });
-    }
 }
