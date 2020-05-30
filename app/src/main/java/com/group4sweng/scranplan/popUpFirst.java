@@ -35,14 +35,10 @@ public class popUpFirst extends AppCompatActivity {
 
     final String TAG = "FirstpopUp";
 
-
-
     FirebaseApp mApp;
     FirebaseAuth mAuth;
-    FirebaseAuth.AuthStateListener mAuthListener;
     UserInfoPrivate userDetails;
-    final FirebaseFirestore database = FirebaseFirestore.getInstance();
-    private UserInfoPrivate mUser;
+
     Button mgoButton;
 
     @Override
@@ -52,6 +48,8 @@ public class popUpFirst extends AppCompatActivity {
         //sets the page to the initial filer page
         setContentView(R.layout.popup_firstscreen);
 
+        userDetails = (UserInfoPrivate) getIntent().getSerializableExtra("user");
+        if (userDetails != null) {
             initPageItems();
 
             getResources().getColor(R.color.colorBackground);
@@ -60,7 +58,7 @@ public class popUpFirst extends AppCompatActivity {
 
             initFirebase();
 
-
+        }
         }
 
 
@@ -77,26 +75,12 @@ public class popUpFirst extends AppCompatActivity {
 
                 Log.e(TAG,"Sending user to initial preference setup page");
                 Intent BackToMain = new Intent(getApplicationContext(), InitialUserCustomisation.class);
-                BackToMain.putExtra("user", mUser);
+                BackToMain.putExtra("user", userDetails);
                 startActivity(BackToMain);
-
             }
 
         });
 
-    }
-
-
-    private void finishActivity() {
-
-        Log.e(TAG, "Initial User Customisation returning to main activity");
-
-        // User data returned to main menu
-        Intent returningIntent = new Intent();
-        returningIntent.putExtra("user", userDetails);
-        startActivity(returningIntent);
-
-        finish();
     }
 
     // Disable user from pressing back button on main activity page
@@ -104,8 +88,6 @@ public class popUpFirst extends AppCompatActivity {
     public void onBackPressed() {
         //Do nothing
     }
-
-
 
     private void initFirebase() {
         mApp = FirebaseApp.getInstance();

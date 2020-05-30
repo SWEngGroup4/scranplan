@@ -52,6 +52,7 @@ public class InitialUserCustomisation extends AppCompatActivity {
         Log.e(TAG, "Starting initial user customisation activity");
 
         super.onCreate(savedInstanceState);
+
         //sets the page to the initial filer page
         setContentView(R.layout.activity_initial_user_customisation);
 

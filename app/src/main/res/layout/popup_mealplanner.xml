@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#ACE98A">
+    android:background="#FFFFFF">
 
     <TextView
         android:id="@+id/textView12"
@@ -28,7 +28,7 @@
         android:layout_marginBottom="43sp"
         app:layout_constraintBottom_toTopOf="@+id/textView12"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/timelinepicture" />
+        app:srcCompat="@drawable/timeline" />
 
 
     <TextView
