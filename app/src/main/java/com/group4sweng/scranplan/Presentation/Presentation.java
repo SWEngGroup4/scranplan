@@ -229,7 +229,8 @@ public class Presentation extends AppCompatActivity {
                 if (slide.lines != null) {}
                 //TODO - Generate line
                 if (slide.shapes != null) {}
-                //TODO - Generate shape
+                    for (XmlParser.Shape shape : slide.shapes)
+                        pSlide.addShape(shape);
                 if (slide.image != null)
                     pSlide.addImage(slide.image);
                 if (slide.video != null)

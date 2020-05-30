@@ -182,7 +182,7 @@ public class RecipeSteps extends Fragment {
 
     void addMedia(int position) {
         mAdapterPos = position;
-        Intent mediaSelect = new Intent(Intent.ACTION_PICK);
+        Intent mediaSelect = new Intent(Intent.ACTION_GET_CONTENT);
         mediaSelect.setType("image/* video/*");
         startActivityForResult(mediaSelect, mediaRequestCode);
     }
@@ -198,7 +198,7 @@ public class RecipeSteps extends Fragment {
 
     void addAudio(int position) {
         mAdapterPos = position;
-        Intent audioSelect = new Intent(Intent.ACTION_PICK);
+        Intent audioSelect = new Intent(Intent.ACTION_GET_CONTENT);
         audioSelect.setType("audio/*");
         startActivityForResult(audioSelect, audioRequestCode);
     }

@@ -112,7 +112,7 @@ public class GraphicsView extends View {
                     "#" + Integer.toHexString(rect.getColour()), 0, 0, null));
         }
         for (Rectangle rect : rectangles) {
-            shapes.add(new XmlParser.Shape("rectnalge", (rect.getXStart()/this.getMeasuredWidth())*100, (rect.getYStart()/this.getMeasuredHeight())*100,
+            shapes.add(new XmlParser.Shape("rectangle", (rect.getXStart()/this.getMeasuredWidth())*100, (rect.getYStart()/this.getMeasuredHeight())*100,
                     (rect.getWidth()/this.getMeasuredWidth())*100, (rect.getHeight()/this.getMeasuredHeight())*100,
                     "#" + Integer.toHexString(rect.getColour()), 0, 0, null));
         }
@@ -206,8 +206,6 @@ public class GraphicsView extends View {
             canvas.drawRect(rect.getRectF(), rect.getPaint());
 
         for (Triangle triangle : triangles) {
-            Paint test = triangle.getPaint();
-            Log.d("Test", "Drawing tri: " + triangle.getPath().toString());
             canvas.drawPath(triangle.getPath(), triangle.getPaint());
         }
 

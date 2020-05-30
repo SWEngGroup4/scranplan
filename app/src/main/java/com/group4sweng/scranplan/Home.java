@@ -37,15 +37,11 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.ServerTimestamp;
-import com.google.firebase.firestore.model.value.ServerTimestampValue;
 import com.group4sweng.scranplan.Administration.SuggestionBox;
 import com.group4sweng.scranplan.MealPlanner.PlannerFragment;
-import com.group4sweng.scranplan.RecipeCreation.BasicInfo;
 import com.group4sweng.scranplan.RecipeCreation.RecipeCreation;
 import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
@@ -54,8 +50,6 @@ import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
 import com.group4sweng.scranplan.Social.FeedFragment;
 import com.group4sweng.scranplan.Social.Notifications;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
-
-import java.util.Date;
 
 import io.sentry.core.Sentry;
 import io.sentry.core.protocol.User;
@@ -756,6 +750,4 @@ public class Home extends AppCompatActivity {
     public void onBackPressed() {
         //Do nothing
     }
-
-
 }
