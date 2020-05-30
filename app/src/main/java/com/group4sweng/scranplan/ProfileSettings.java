@@ -139,6 +139,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
     TextView mUsername;
     ImageView mCheckUsername;
     TextView mAboutMe;
+    TextView mPrivateMessage;
 
     Switch mDisplay_username;
     Switch mDisplay_about_me;
@@ -221,6 +222,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                 tab.select();
                 mProfileVisibilityTab.setVisibility(View.VISIBLE);
             } else {
+                mPrivateMessage.setVisibility(View.GONE);
                 setPrivacyOptions(mTempUserProfile.getPrivacyPrivate());
                 mProfileVisibilityTab.setVisibility(View.GONE);
             }
@@ -794,6 +796,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             case R.id.settings_private_toggle:
                 if(switched) {
                     mTempUserProfile.setIsPrivateProfileEnabled(true);
+                    mPrivateMessage.setVisibility(View.VISIBLE);
                     setPrivacyOptions(mTempUserProfile.getPublicPrivacy());
                     TabLayout.Tab tab = mProfileVisibilityTab.getTabAt(0);
                     assert tab != null;
@@ -801,6 +804,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                     mProfileVisibilityTab.setVisibility(View.VISIBLE);
                 } else {
                     mTempUserProfile.setIsPrivateProfileEnabled(false);
+                    mPrivateMessage.setVisibility(View.GONE);
                     setPrivacyOptions(mTempUserProfile.getPrivacyPrivate());
                     mProfileVisibilityTab.setVisibility(View.GONE);
                 }
@@ -958,6 +962,8 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         mProgressText = findViewById(R.id.settings_progress_text);
 
         mCheckUsername = findViewById(R.id.username_tick);
+
+        mPrivateMessage = findViewById(R.id.privateMessage);
     }
 
     /** Method called when we click to change the users profile image.

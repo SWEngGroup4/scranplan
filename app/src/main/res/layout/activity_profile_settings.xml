@@ -356,7 +356,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/settings_progress" />
 
             <TextView
-                android:id="@+id/textView"
+                android:id="@+id/privateMessage"
                 android:layout_width="193dp"
                 android:layout_height="42dp"
                 android:layout_marginStart="8dp"
