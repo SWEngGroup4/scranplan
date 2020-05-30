@@ -168,7 +168,6 @@ public class MessengerFeedRecyclerAdapter extends RecyclerView.Adapter<Messenger
                 picLayout = v.findViewById(R.id.userUploadedImageViewAdapterLayout);
                 menu = v.findViewById(R.id.postMenu);
                 commentIcon = v.findViewById(R.id.commentIcon);
-
             }
     }
 

@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
@@ -76,6 +77,8 @@ public class MessangerPostPage extends PostPage {
     private TextView numComments;
     private CheckBox likedOrNot;
     private ImageView commentButton;
+
+    LinearLayout commentLayout;
 
     private boolean likedB4;
 
@@ -166,6 +169,7 @@ public class MessangerPostPage extends PostPage {
         sendComment.setVisibility(View.GONE);
         newComment.setVisibility(View.GONE);
         commentList.setVisibility(View.GONE);
+        commentLayout.setVisibility(View.GONE);
         //TODO add menu back
         menu.setVisibility(View.GONE);
     }
@@ -193,5 +197,6 @@ public class MessangerPostPage extends PostPage {
         likedOrNot = layout.findViewById(R.id.likeIconPost);
         menu = layout.findViewById(R.id.postMenu);
         commentButton = layout.findViewById(R.id.commentIcon);
+        commentLayout = layout.findViewById(R.id.commentLayout);
     }
 }
