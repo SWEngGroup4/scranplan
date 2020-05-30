@@ -48,7 +48,9 @@ public class EspressoHelper {
     public enum SideBarElement{
         PROFILE,
         EDIT_PROFILE,
-        LOGOUT;
+        NOTIFICATION,
+        LOGOUT,
+        SUGGEST;
     }
 
     //  Matcher view for use from Recorded Espresso Tests.
@@ -81,10 +83,16 @@ public class EspressoHelper {
                 ROW_ID = 1;
                 break;
             case EDIT_PROFILE:
-                ROW_ID = 2;
+                ROW_ID = 3;
                 break;
             case LOGOUT:
-                ROW_ID = 3;
+                ROW_ID = 5;
+                break;
+            case NOTIFICATION:
+                ROW_ID = 2;
+                break;
+            case SUGGEST:
+                ROW_ID = 4;
                 break;
         }
 

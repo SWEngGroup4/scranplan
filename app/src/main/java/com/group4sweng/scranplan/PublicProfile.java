@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -18,12 +19,16 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.Social.ProfilePictures;
 import com.group4sweng.scranplan.Social.ProfilePosts;
@@ -45,10 +50,20 @@ import static com.group4sweng.scranplan.UserInfo.FilterType.filterType.DIETARY;
  * (c) CoDev 2020
  *
  *  For firebase pass an extra string via intent with ID = "UID"
- *  For local data pass a UserInfoPrivate object via intent with ID = "user"
+ *  For local data pass a UserInfoPrivate object via intent with ID = "user". Reduces Firebase queries.
  *
  *  Privacy checks are made within 'loadInPrivacySettings' to make sure we adhere to what the user wants to display.
  *  Privacy is always checked first before displaying any content.
+ *
+ *  The user feed was later added by LNewman with all social items to enable following and unfollowing
+ *  private users are able to have their following requested.
+ *  User privacy setting are taken into account:
+ *  Public users have a single set of privacy options seen by all.
+ *  Private users can hide select things to people who they have not allowed to follow them,
+ *  having similar options to public users for their followers.
+ *  Private users must hide their posts and recipes to people who do not follow them.
+ *  Three tabs of feeds display in profile, one with all normal posts, one with only picture posts
+ *  and the last with user generated recipes.
  */
 public class PublicProfile extends AppCompatActivity implements FilterType{
 
@@ -64,6 +79,8 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     //  UID for the user in which we want to retrieve data from.
     private String UID;
     protected UserInfoPrivate mUserProfile;
+    private boolean followed = false;
+    private boolean privateProfile;
 
     Fragment fragment;
     FrameLayout frameLayout;
@@ -92,10 +109,14 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     TextView mFollowers;
     TextView mFollowing;
     Button mFollowButton;
+    Button mFollowedButton;
+    Button mRequestedButton;
+    LinearLayout mIsFollowLayout;
+    String postsString;
 
     //  Whether we should retrieve different information for the user. E.g. username, about me etc...
     private boolean retrieveAboutMe = false, retrieveUsername = false,
-            retrieveImages = false, retrieveRecipes = false, retrieveFilters = false;
+            retrieveImages = false, retrieveRecipes = false, retrieveFilters = false, retrievePosts = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,10 +130,10 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         //  Gets extra UserProfilePrivate object if one is sent.
         mUserProfile = (UserInfoPrivate) getIntent().getSerializableExtra("user");
 
-        if(mUserProfile != null){ // Check if local data is available to reference. Don't have to grab from firebase.
-            updatePublicProfile(FirebaseLoadType.PARTIAL);
-        } else if(UID != null){ // If not instead search for the profile via the associated UID and reference Firebase.
+        if(UID != null){ // If not instead search for the profile via the associated UID and reference Firebase.
             updatePublicProfile(FirebaseLoadType.FULL);
+        } else if(mUserProfile != null){ // Check if local data is available to reference. Don't have to grab from firebase.
+            updatePublicProfile(FirebaseLoadType.PARTIAL);
         } else {
             Log.e(TAG, "Unable to retrieve extra UID intent string. Cannot initialize profile.");
         }
@@ -125,6 +146,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
     }
 
+    // TODO - Ability to load some info from UserInfoPrivate collection removed. See if this can be re-added.
 
     /** Update the public profile based on what has been passed via the Intent.
      * @param flt - Firebase Load Type. Either PARTIAL or FULL. FULL = all data from firebase from a UID string.
@@ -134,26 +156,28 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     private void updatePublicProfile(FirebaseLoadType flt){
         if(flt == FirebaseLoadType.PARTIAL){
             Log.i(TAG, "Loading local user data");
-            mFollowButton.setVisibility(View.GONE);
+
+            mIsFollowLayout.setVisibility(View.GONE); //  Hide followers button.
+            followed = true;
             loadInPrivacySettings(mUserProfile.getPublicPrivacy());
             loadLocalProfile();
             loadFirebase(FirebaseLoadType.PARTIAL);
             searchers = mUserProfile.getUID();
+
+            loadPostsAndRecipeList();
+            fragment = new ProfilePosts(searchers);
+            fragmentTransaction.replace(R.id.profileFrameLayout, fragment);
+            fragmentTransaction.commit();
         } else if(UID != null){ // If not instead search for the profile via the associated UID and reference Firebase.
             Log.i(TAG, "Loading data from Firebase");
-            loadFirebase(FirebaseLoadType.FULL);
             searchers = UID;
+            checkFollowed();
         } else {
             Log.e(TAG, "Unable to retrieve extra UID intent string. Cannot initialize profile.");
         }
-        fragment = new ProfilePosts(searchers);
-        fragmentTransaction.replace(R.id.profileFrameLayout, fragment);
-        fragmentTransaction.commit();
         initPageListeners();
 
     }
-
-
 
     private void initPageItems(){
         mProfileImage = findViewById(R.id.public_profile_image);
@@ -163,18 +187,93 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         mUsername = findViewById(R.id.profile_username);
         mKudos = findViewById(R.id.profile_kudos);
         mKudosIcon = findViewById(R.id.profile_kudos_icon);
+
         mStreamTabs = findViewById(R.id.profileStreamTabs);
-
         frameLayout = findViewById(R.id.profileFrameLayout);
-
         mPosts = findViewById(R.id.postsNum);
         mFollowers = findViewById(R.id.followersNum);
         mFollowing = findViewById(R.id.followingNum);
         mFollowButton = findViewById(R.id.followButton);
-
+        mFollowedButton = findViewById(R.id.followedButton);
+        mRequestedButton = findViewById(R.id.requestedButton);
+        mIsFollowLayout = findViewById(R.id.isFollowLayout);
+        //mBlankContenttext = findViewById(R.id.blank_content_text);
     }
 
+    /**
+     * Setting up functionality to the to the follow and unfollow
+     */
     private void initPageListeners(){
+
+        /**
+         * Enabling users to press follow button to either follow public users or request to follow
+         * private users
+         */
+        mFollowButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(privateProfile){
+                    mFollowButton.setVisibility(View.GONE);
+                    mRequestedButton.setVisibility(View.VISIBLE);
+                    mDatabase.collection("followers").document(UID).update("requested", FieldValue.arrayUnion(mUserProfile.getUID()));
+                    HashMap<String,Object> map = new HashMap<>();
+                    map.put("body", "has requested to follow you:");
+                    map.put("ifRequested", true);
+                    map.put("senderID", mUserProfile.getUID());
+                    map.put("timestamp", FieldValue.serverTimestamp());
+                    mDatabase.collection("users").document(UID).collection("notifications").add(map);
+                }else{
+                    mFollowButton.setVisibility(View.GONE);
+                    mFollowedButton.setVisibility(View.VISIBLE);
+                    mDatabase.collection("followers").document(UID).update("users", FieldValue.arrayUnion(mUserProfile.getUID()));
+                    mDatabase.collection("users").document(UID).update("followers", FieldValue.increment(1));
+                    String newFollowers = Integer.toString(Integer.parseInt(mFollowers.getText().toString())+1);
+                    mFollowers.setText(newFollowers);
+                    mDatabase.collection("users").document(mUserProfile.getUID()).update("following", FieldValue.increment(1));
+                }
+
+            }
+        });
+
+        /**
+         * Notifying a user they are currently requesting to follow a user, users can press this
+         * button to cancel this request
+         */
+        mRequestedButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mFollowButton.setVisibility(View.VISIBLE);
+                mRequestedButton.setVisibility(View.GONE);
+                mDatabase.collection("followers").document(UID).update("requested", FieldValue.arrayRemove(mUserProfile.getUID()));
+                mDatabase.collection("users").document(UID).collection("notifications")
+                        .whereEqualTo("ifRequested", true).whereEqualTo("senderID", mUserProfile.getUID())
+                        .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        for(DocumentSnapshot document : task.getResult()) {
+                            document.getReference().delete();
+                        }
+                    }
+                });
+            }
+        });
+
+        /**
+         * Notifying users that they currently follow a user, users can press this button
+         * to unfollow this user.
+         */
+        mFollowedButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mFollowButton.setVisibility(View.VISIBLE);
+                mFollowedButton.setVisibility(View.GONE);
+                mDatabase.collection("followers").document(UID).update("users", FieldValue.arrayRemove(mUserProfile.getUID()));
+                mDatabase.collection("users").document(UID).update("followers", FieldValue.increment(-1));
+                mDatabase.collection("users").document(mUserProfile.getUID()).update("following", FieldValue.increment(-1));
+                finish();
+                startActivity(getIntent());
+            }
+        });
         // Listener for layout tab selection
         mStreamTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -184,15 +283,18 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                 Log.d("Test", String.valueOf(fragment));
                 switch (tab.getPosition()) {
                     case 0:
+                        // Opening profile posts tab
                         fragment = new ProfilePosts(searchers);
                         fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
                         break;
                     case 1:
+                        // opening profile photos tab
                         if (fragment.getClass() == RecipeFragment.class) fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         else fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
                         fragment = new ProfilePictures(searchers, mUsername.getText().toString());
                         break;
                     case 2:
+                        // Opening user generated recipes tab
                         fragment = new ProfileRecipes(searchers);
                         fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         break;
@@ -230,13 +332,19 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
             retrieveRecipes = (boolean) privacy.get("display_recipes");
             retrieveImages = (boolean) privacy.get("display_profile_image");
             retrieveFilters = (boolean) privacy.get("display_filters");
+            retrievePosts = (boolean) privacy.get("display_feed");
         }
     }
 
     //  Load all the data grabbed from the Firebase document snapshot.
     private void loadProfile(DocumentSnapshot profile) {
-        if(retrieveAboutMe) { //  If we are allowed to retrieve this data. do so.
-            mAboutMe.setText((String) profile.get("about"));
+
+        mUsername.setText((String) profile.get("displayName"));
+
+        //  If we are allowed to retrieve this data. do so.
+        //  If 'about' me section is blank then retrieve nothing.
+        if(retrieveAboutMe && !mUserProfile.getAbout().equals("")) {
+            mAboutMeDesc.setText((String) profile.get("about"));
         } else {
             mAboutMe.setVisibility(View.GONE); // Adjust if the view is visible.
             mAboutMeDesc.setVisibility(View.GONE);
@@ -253,11 +361,6 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                         .apply(RequestOptions.circleCropTransform())
                         .into(mProfileImage); }
         }
-
-        if(retrieveUsername){ mUsername.setText((String) profile.get("displayName")); }
-
-
-
 
         if(retrieveFilters){
             @SuppressWarnings("unchecked")
@@ -291,6 +394,55 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         }
     }
 
+    public void checkFollowed(){
+        if(UID != null){
+            mDatabase.collection("followers").document(UID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if(task.isSuccessful()){
+                        if(task.getResult().exists()){
+                            DocumentSnapshot document = task.getResult();
+                            if(document != null){
+                                ArrayList followers = (ArrayList) document.get("users");
+                                if(followers.contains(mUserProfile.getUID())){
+                                    mFollowButton.setVisibility(View.GONE);
+                                    mFollowedButton.setVisibility(View.VISIBLE);
+                                    followed = true;
+                                }else{
+                                    if(document.get("requested") != null){
+                                        ArrayList requested = (ArrayList) document.get("requested");
+                                        if(requested.contains(mUserProfile.getUID())){
+                                            mFollowButton.setVisibility(View.GONE);
+                                            mRequestedButton.setVisibility(View.VISIBLE);
+                                        }
+                                    }
+                                }
+                            }
+                        }else{
+                            HashMap<String, Object> newDoc = new HashMap<>();
+                            ArrayList<String> arrayList = new ArrayList<>();
+                            arrayList.add(UID);
+                            ArrayList<String> second = new ArrayList<>();
+                            newDoc.put("mapA", (HashMap) null);
+                            newDoc.put("mapB", (HashMap) null);
+                            newDoc.put("mapC", (HashMap) null);
+                            newDoc.put("space1", "A");
+                            newDoc.put("space2", "B");
+                            newDoc.put("space3", "C");
+                            newDoc.put("lastPost", FieldValue.serverTimestamp());
+                            newDoc.put("author", UID);
+                            newDoc.put("users", arrayList);
+                            newDoc.put("requested", second);
+                            mDatabase.collection("followers").document(UID).set(newDoc);
+                        }
+
+                    }
+                    loadFirebase(FirebaseLoadType.FULL);
+                }
+            });
+        }
+    }
+
     /** Load in all associated Firebase user data either fully or partially.
      * @param flt - Firebase Load Type. Either PARTIAL or FULL. FULL = all data from firebase from a UID string.
      *            PARTIAL = some data has already been loaded from the UserInfoPrivate object so we only need to grab
@@ -312,9 +464,19 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                 if(document.exists()){ // Check a document exists.
                     if(fltFinal == FirebaseLoadType.FULL){
                         Log.i(TAG, "Loading a full user profile!");
-                        @SuppressWarnings("unchecked")
-                        HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacyPublic");
-                        loadInPrivacySettings(privacy); // Load in privacy settings first (always)
+                        privateProfile = (boolean) document.get("privateProfileEnabled");
+                        if(followed || !privateProfile){
+                            @SuppressWarnings("unchecked")
+                            HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacyPrivate");
+                            loadInPrivacySettings(privacy); // Load in privacy settings first (always)
+                            loadPostsAndRecipeList();
+                        }else{
+                            @SuppressWarnings("unchecked")
+                            HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacyPublic");
+                            mStreamTabs.setVisibility(View.GONE);
+                            frameLayout.setVisibility(View.GONE);
+                            loadInPrivacySettings(privacy); // Load in privacy settings first (always)
+                        }
                         loadProfile(document); // Then we load the public users profile.
                     }
                     postsFollowersFollowing(document);
@@ -330,7 +492,36 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         });
     }
 
-    /** Method to load in Kudos and Recipe information.
+    /**
+     * Loading recipes and posts lists if privacy setting allow and followed or public user
+     */
+    private void loadPostsAndRecipeList(){
+
+        /*int livePosts = Integer.parseInt(postsString);
+        //  If posts exist hide no posts banner.
+        if(livePosts != 0){
+            mBlankContenttext.setVisibility(View.GONE);
+        }*/
+
+        if(retrievePosts && retrieveRecipes){
+            fragment = new ProfilePosts(searchers);
+            fragmentTransaction.replace(R.id.profileFrameLayout, fragment);
+            fragmentTransaction.commit();
+        }else if(retrievePosts){
+            fragment = new ProfilePosts(searchers);
+            fragmentTransaction.replace(R.id.profileFrameLayout, fragment);
+            fragmentTransaction.commit();
+            mStreamTabs.removeTab(mStreamTabs.getTabAt(2));
+        }else if(retrieveRecipes){
+            mStreamTabs.removeTab(mStreamTabs.getTabAt(1));
+            mStreamTabs.removeTab(mStreamTabs.getTabAt(0));
+            fragment = new ProfileRecipes(searchers);
+            fragmentTransaction.replace(R.id.profileFrameLayout, fragment);
+            fragmentTransaction.commit();
+        }
+    }
+
+    /** Method to load in Kudos and Recipe number information.
      *  Always loads directly from Firebase.
      * @param profile - A snapshot of the Firebase user profile document.
      */
@@ -346,9 +537,11 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
         //  Load in number of recipes.
         String numOfRecipesString = "Recipes: " + ((long) profile.get("numRecipes")); //  Convert 'long' value to something we can use.
-        if(retrieveRecipes){ mNumRecipes.setText(numOfRecipesString);} else {
-            mNumRecipes.setText(""); // Set number of recipes to nothing if hidden.
-        }
+        //Number of recipes seen by all
+        mNumRecipes.setText(numOfRecipesString);
+//        if(retrieveRecipes){ mNumRecipes.setText(numOfRecipesString);} else {
+//            mNumRecipes.setText(""); // Set number of recipes to nothing if hidden.
+//        }
     }
 
     /** Method to load in posts, followers and following.
@@ -356,7 +549,21 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
      * @param profile - A snapshot of the Firebase user profile document.
      */
     private void postsFollowersFollowing(DocumentSnapshot profile){
-        String postsString =  Long.toString(((long) profile.get("livePosts")));
+        postsString =  Long.toString(((long) profile.get("livePosts")));
+        if(profile.get("followers") == null){
+            mFollowers.setText("0");
+            mFollowing.setText("0");
+            if(UID != null){
+                mDatabase.collection("users").document(UID).update("followers", 0, "following", 0);
+            }else{
+                mDatabase.collection("users").document(mUserProfile.getUID()).update("followers", 0, "following", 0);
+            }
+        }else{
+            String followingString =  Long.toString(((long) profile.get("following")));
+            String followersString =  Long.toString(((long) profile.get("followers")));
+            mFollowing.setText(followingString);
+            mFollowers.setText(followersString);
+        }
 
         mPosts.setText(postsString);
 
@@ -365,16 +572,17 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
     //  Load the information from the local UserInfoPrivate object if the profile corresponds to that of the user using the app/
     //  Reduces amount of Firebase Queries overall.
     private void loadLocalProfile() {
-        if (retrieveAboutMe) { //  If we are allowed to retrieve this data. do so.
+
+        mUsername.setText(mUserProfile.getDisplayName());
+
+        //  If we are allowed to retrieve this data. do so.
+        //  If 'about' me section is blank then retrieve nothing.
+        if (retrieveAboutMe && !mUserProfile.getAbout().equals("")) {
             mAboutMeDesc.setText(mUserProfile.getAbout());
         } else {
             mAboutMe.setVisibility(View.GONE);
             mAboutMeDesc.setVisibility(View.GONE);
-            //LinearLayout aboutLayout = findViewById(R.id.aboutMeLayout);
-            //aboutLayout.setVisibility(View.VISIBLE);
         }
-
-        if(retrieveUsername){ mUsername.setText(mUserProfile.getDisplayName()); }
 
         if(retrieveImages) {
             if(mUserProfile.getImageURL() == null){

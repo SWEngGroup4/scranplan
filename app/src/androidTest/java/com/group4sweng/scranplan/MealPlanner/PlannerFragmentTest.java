@@ -60,7 +60,7 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
     }
 
     //Checks correct elements appear when add button is pressed
-    @Test
+    /*@Test
     public void checkAddButton() {
         Log.d(TAG, "Testing add button");
 
@@ -71,7 +71,7 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
                 matches(isDisplayed()));
         onView(withText("Trending")).check(
                 matches(isDisplayed()));
-    }
+    }*/
 
     //Checks searching for a recipe and adding it to the planner is performed correctly
     @Test
@@ -83,7 +83,7 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
         Thread.sleep(THREAD_SLEEP_TIME / 4);
         onView(withId(0)).perform(click());
         navigateToRecipe("Avocado and black bean eggs");
-        onView(withText("Add")).perform(click());
+        onView(withId(R.id.LetsCook)).perform(click());
     }
 
     //Checks meal planner saves for user after re-logging in
@@ -93,7 +93,7 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
 
         onView(withText("Meal Planner")).perform(click());
         onView(withId(0)).perform(click());
-        onView(withText("Lets Cook!"))
+        onView(withId(R.id.LetsCook))
                 .check(matches(isDisplayed()));
     }
 
@@ -104,9 +104,53 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
 
         onView(withText("Meal Planner")).perform(click());
         onView(withId(0)).perform(longClick());
+        onView(withId(1)).perform(longClick());
+        onView(withId(2)).perform(longClick());
         onView(withId(0)).perform(click());
         onView(withId(R.id.menuSearch)).check(
                 matches(isDisplayed()));
+    }
+
+    //Checks adding breakfast to the planner is performed correctly
+    @Test
+    public void breakfastAddToPlanner() throws InterruptedException {
+        Log.d(TAG, "Testing dinner");
+
+        onView(withText("Meal Planner")).perform(click());
+        onView(withId(0)).perform(click());
+
+        Thread.sleep(THREAD_SLEEP_TIME/4);
+
+        onView(withText("Hearty pasta soup")).perform(click());
+        onView(withText("Add")).perform(click());
+    }
+
+    //Checks adding lunch to the planner is performed correctly
+    @Test
+    public void lunchAddToPlanner() throws InterruptedException {
+        Log.d(TAG, "Testing dinner");
+
+        onView(withText("Meal Planner")).perform(click());
+        onView(withId(1)).perform(click());
+
+        Thread.sleep(THREAD_SLEEP_TIME/4);
+
+        onView(withText("Avocado and black bean eggs")).perform(click());
+        onView(withText("Add")).perform(click());
+    }
+
+    //Checks adding dinner to the planner is performed correctly
+    @Test
+    public void dinnerAddToPlanner() throws InterruptedException {
+        Log.d(TAG, "Testing dinner");
+
+        onView(withText("Meal Planner")).perform(click());
+        onView(withId(2)).perform(click());
+
+        Thread.sleep(THREAD_SLEEP_TIME/4);
+
+        onView(withText("Avocado and black bean eggs")).perform(click());
+        onView(withText("Add")).perform(click());
     }
 
     @After

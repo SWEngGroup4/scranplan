@@ -1,4 +1,4 @@
-package com.group4sweng.scranplan;
+package com.group4sweng.scranplan.Administration;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -7,6 +7,10 @@ import android.view.View;
 import android.widget.ImageView;
 
 import androidx.fragment.app.Fragment;
+
+import com.group4sweng.scranplan.MainActivity;
+import com.group4sweng.scranplan.R;
+
 /**
  * Class a pop up loading dialogue that contains a spinning logo.
  * Author(s): LNewman

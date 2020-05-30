@@ -1,7 +1,6 @@
 package com.group4sweng.scranplan.Social;
 
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -13,7 +12,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.widget.NestedScrollView;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,13 +19,14 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.group4sweng.scranplan.LoadingDialog;
+import com.group4sweng.scranplan.Administration.ContentReporting;
+import com.group4sweng.scranplan.Administration.LoadingDialog;
 import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.R;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,13 +41,14 @@ import java.util.Map;
  * This class builds the vertical scroll of all selected users posts in an infinite scroll
  * using the FeedRecyclerAdapter to display posts in the same way as they are on the feed.
  */
-public class ProfilePosts extends Fragment {
+public class ProfilePosts extends FeedFragment {
 
     final String TAG = "profile Posts";
 
     PublicProfile profile;
 
     public ProfilePosts(String UID){
+        super();
         searchUID = UID;
     }
     private String searchUID;
@@ -71,7 +71,7 @@ public class ProfilePosts extends Fragment {
 
 
     //User information
-    private com.group4sweng.scranplan.UserInfo.UserInfoPrivate user;
+    private com.group4sweng.scranplan.UserInfo.UserInfoPrivate mUser;
 
 
     Query query;
@@ -103,14 +103,14 @@ public class ProfilePosts extends Fragment {
         View view = inflater.inflate(R.layout.profile_posts, container, false);
         mainView = view;
         loadingDialog = new LoadingDialog(getActivity());
-        user = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
+        mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) requireActivity().getIntent().getSerializableExtra("user");
 
 
         Log.e(TAG, "IN TO THE FRAGMENT FOR PROFILE POSTS");
         addPosts(view);
 
         // Checks users details have been provided
-        if(user != null){
+        if(mUser != null){
 
 
 
@@ -128,7 +128,7 @@ public class ProfilePosts extends Fragment {
      * postsLoaded posts at a time until end of posts are reached
      * @param view
      */
-    void addPosts(View view){
+    public void addPosts(View view){
         final RecyclerView recyclerView = view.findViewById(R.id.postsList);
         recyclerView.setNestedScrollingEnabled(false);
         // Set out the layout of this horizontal view
@@ -137,7 +137,7 @@ public class ProfilePosts extends Fragment {
         //recyclerView.setLayoutParams(new LinearLayout.LayoutParams(displayMetrics.widthPixels, displayMetrics.heightPixels));
         // Array to score downloaded data
         data = new ArrayList<>();
-        final RecyclerView.Adapter rAdapter = new FeedRecyclerAdapter( this, data, user, view);
+        final RecyclerView.Adapter rAdapter = new FeedRecyclerAdapter( this, data, mUser, view, getActivity());
         recyclerView.setAdapter(rAdapter);
         Log.e(TAG, "ERROR: Loading social feed - We were unable to find user. ->" + searchUID);
         query = mColRef.whereEqualTo("author", searchUID).orderBy("timestamp", Query.Direction.DESCENDING).limit(postsLoaded);
@@ -242,9 +242,6 @@ public class ProfilePosts extends Fragment {
 
 
 
-
-
-
     /**
      * This method checks what comment is selected and opens up a menu to either open up another
      * users profile or if the comment was made my this user, user can delete the comment.
@@ -256,7 +253,7 @@ public class ProfilePosts extends Fragment {
         PopupMenu popup = new PopupMenu(getContext(), menu);
         //Inflating the Popup using xml file
         popup.getMenuInflater().inflate(R.menu.menu_comment, popup.getMenu());
-        if(document.get("author").toString().equals(user.getUID())){
+        if(document.get("author").toString().equals(mUser.getUID())){
             popup.getMenu().getItem(0).setVisible(false);
             popup.getMenu().getItem(1).setVisible(false);
             popup.getMenu().getItem(2).setVisible(true);
@@ -274,12 +271,26 @@ public class ProfilePosts extends Fragment {
                 switch (item.getItemId()) {
                     case R.id.reportComment:
                         Log.e(TAG,"Report comment clicked!");
-                        //TODO add functionality to report this comment
+                        Log.e(TAG,"Report comment clicked!");
+
+                        //HashMap with relevant information to be sent for reporting
+                        HashMap<String, Object> reportsMap = new HashMap<>();
+                        reportsMap.put("postID", document.get("postID").toString());
+                        reportsMap.put("usersID", document.get("author").toString());
+                        reportsMap.put("issue","Reporting Content");
+
+                        //creating a dialog box on screen so that the user can report an issue
+                        String firebaseLocation = "reporting";
+                        reportContent = new ContentReporting(getActivity(), reportsMap, firebaseLocation);
+                        reportContent.startReportingDialog();
+                        reportContent.title.setText("Report Content");
+                        reportContent.message.setText("What is the issue you would like to report?");
+
                         break;
                     case R.id.deleteComment:
                         Log.e(TAG,"Clicked delete comment!");
                         final String deleteDocID = (String) document.get("docID");
-                        deletePost(deleteDocID);
+                        deletePost(deleteDocID, document, mainView);
                         break;
                 }
                 return true;
@@ -289,89 +300,22 @@ public class ProfilePosts extends Fragment {
         popup.show();//showing popup menu
     }
 
-
     /**
-     * Function to delete post on profile
+     * Adding capability to delete post from post page
      * @param deleteDocID
      */
-    public void deletePost(String deleteDocID){
-        mDatabase.collection("followers").document(user.getUID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.isSuccessful()){
-                    if(task.getResult().exists()){
-                        // Add post to followers map
-                        DocumentSnapshot doc = task.getResult();
-                        if(((HashMap)doc.get("mapA")) != null){
-                            if(((HashMap)doc.get("mapA")).get("docID").equals(deleteDocID)){
-                                String map = "mapA";
-                                mDatabase.collection("followers").document(user.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
-                                                addPosts(mainView);
-                                            }
-                                        });
-                                    }
-                                });
-                            }
-                        }else if(((HashMap)doc.get("mapB")) != null){
-                            if(((HashMap)doc.get("mapB")).get("docID").equals(deleteDocID)){
-                                String map = "mapB";
-                                mDatabase.collection("followers").document(user.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
-                                                addPosts(mainView);
-                                            }
-                                        });
-                                    }
-                                });
-                            }
-                        }else if(((HashMap)doc.get("mapC")) != null){
-                            if(((HashMap)doc.get("mapC")).get("docID").equals(deleteDocID)){
-                                String map = "mapC";
-                                mDatabase.collection("followers").document(user.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
-                                                addPosts(mainView);
-                                            }
-                                        });
-                                    }
-                                });
-                            }
-                        }else{
-                            mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
-                                    addPosts(mainView);
-                                }
-                            });
-                        }
-                    }else{
-                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                mDatabase.collection("users").document(user.getUID()).update("livePosts", FieldValue.increment(- 1));
-                                addPosts(mainView);
-                            }
-                        });
-                    }
-                }
-            }
-        });
+    public void deletePost(String deleteDocID, HashMap document, View view){
+        super.deletePost(deleteDocID, document, view);
     }
+
+    /**
+     * On click of a recipe a new recipe info fragment is opened and the document is sent through
+     * This saves on downloading the data again from the database
+     */
+    public void recipeSelected(DocumentSnapshot document, String userID){
+        super.recipeSelected(document, userID);
+    }
+
 
 
 
@@ -389,4 +333,6 @@ public class ProfilePosts extends Fragment {
 
 
     }
+
+
 }

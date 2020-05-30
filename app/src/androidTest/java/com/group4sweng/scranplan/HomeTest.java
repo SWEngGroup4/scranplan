@@ -47,7 +47,6 @@ import static org.junit.Assert.assertNotEquals;
  *  Contains Tests for searching using Algolia, for recipes.
  *  -- USER STORY TESTS LINKED WITH ---
  *  C6, C7, C18, C2, C1, C3
- *  //TODO add search by user tests
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -101,6 +100,34 @@ public class HomeTest implements Credentials {
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
         onView(withText("Braised peas with bacon, lentils and cod"))
+                .check(matches(isDisplayed()));
+
+        Espresso.pressBack();
+
+    }
+
+    // Check search field can be activated and searched in, also testing results.
+    @Test
+    public void testSearchForUser() throws InterruptedException {
+        onView(withId(R.id.menuSearch)).perform(click());
+        onView(withId(R.id.menuSortButton)).perform(click());
+        onView(withId(R.id.chefCheckBox))
+                .perform(click());
+
+        // Close filter box
+        onView(withText("OK")).perform(click());
+
+
+        Thread.sleep(THREAD_SLEEP_TIME/4);
+
+        onView(isAssignableFrom(SearchView.class))
+                .perform(typeSearchViewText("nath"))
+                .perform(pressKey(KeyEvent.KEYCODE_ENTER));
+
+
+        Thread.sleep(THREAD_SLEEP_TIME/4);
+
+        onView(withText("nathan"))
                 .check(matches(isDisplayed()));
 
         Espresso.pressBack();
@@ -161,9 +188,6 @@ public class HomeTest implements Credentials {
         // Open up filter menu
         onView(withId(R.id.menuSortButton)).perform(click());
 
-        //  Change every switch and Checkboxes value.
-        onView(withId(R.id.chefCheckBox))
-                .perform(click());
 
         // Change tab
         onView(withText("Diet")).perform(click());
@@ -182,7 +206,7 @@ public class HomeTest implements Credentials {
                 .perform(click());
 
         // Change tab
-        onView(withText("Sort")).perform(click());
+        onView(withText("SORT")).perform(click());
 
         onView(withId(R.id.voteCheckBox))
                 .perform(click());
@@ -195,7 +219,7 @@ public class HomeTest implements Credentials {
 
         //  Store all initial filters in a HashMap.
         assertNotEquals(initialSettings.get("pescatarian"),  mActivityTestRule.getActivity().mPescatarianBox.isChecked());
-        assertNotEquals(initialSettings.get("vegetarian"),  mActivityTestRule.getActivity().mVegetarianBox.isChecked());
+        assertEquals(initialSettings.get("vegetarian"),  mActivityTestRule.getActivity().mVegetarianBox.isChecked());
         assertEquals(initialSettings.get("vegan"),  mActivityTestRule.getActivity().mVeganBox.isChecked());
 
         assertNotEquals(initialSettings.get("eggs"),  mActivityTestRule.getActivity().mEggsBox.isChecked());
@@ -209,9 +233,9 @@ public class HomeTest implements Credentials {
         assertNotEquals(initialSettings.get("vote"),  mActivityTestRule.getActivity().mVoteBox.isChecked());
         assertEquals(initialSettings.get("time"),  mActivityTestRule.getActivity().mTimeBox.isChecked());
 
-        assertNotEquals(initialSettings.get("ingred"),  mActivityTestRule.getActivity().mIngredientsBox.isChecked());
+        assertEquals(initialSettings.get("ingred"),  mActivityTestRule.getActivity().mIngredientsBox.isChecked());
         assertEquals(initialSettings.get("name"),  mActivityTestRule.getActivity().mNameBox.isChecked());
-        assertNotEquals(initialSettings.get("chef"),  mActivityTestRule.getActivity().mChefBox.isChecked());
+        assertEquals(initialSettings.get("chef"),  mActivityTestRule.getActivity().mChefBox.isChecked());
 
     }
 

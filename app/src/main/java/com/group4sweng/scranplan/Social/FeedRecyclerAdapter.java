@@ -1,5 +1,7 @@
 package com.group4sweng.scranplan.Social;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +17,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -25,7 +30,10 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.group4sweng.scranplan.Administration.LoadingDialog;
 import com.group4sweng.scranplan.R;
+import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
+import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
 
@@ -50,6 +58,10 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
     private List<FeedPostPreviewData> mDataset;
     private UserInfoPrivate user;
     private View view;
+    private RecipeInfoFragment mRecipeInfoFragment;
+
+    Activity mActivity;
+    LoadingDialog loadingDialog;
 
 
 
@@ -97,7 +109,7 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
                 this.recipeTitle = (String) document.get("recipeTitle");
                 this.recipeDescription = (String) document.get("recipeDescription");
                 if(isReview){
-                    double toFloat = (double) document.get("overallRating");
+                     double toFloat = (double) document.get("overallRating");
                     this.review = (float)toFloat;
                 }
             }
@@ -134,7 +146,10 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
         private ConstraintLayout recipeLayout;
         private ConstraintLayout picLayout;
 
+
         private ImageButton menu;
+
+
 
         private ViewHolder(View v) {
             super(v);
@@ -165,9 +180,10 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
      * @param feedFragment
      * @param dataset
      */
-    public FeedRecyclerAdapter(FeedFragment feedFragment, List<FeedPostPreviewData> dataset ,UserInfoPrivate user, View view) {
+    public FeedRecyclerAdapter(FeedFragment feedFragment, List<FeedPostPreviewData> dataset ,UserInfoPrivate user, View view, Activity activity) {
         mFeedFragment = feedFragment;
         mDataset = dataset;
+        mActivity = activity;
         this.user = user;
         this.view = view;
     }
@@ -177,9 +193,10 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
      * @param profilePosts
      * @param dataset
      */
-    public FeedRecyclerAdapter(ProfilePosts profilePosts, List<FeedPostPreviewData> dataset ,UserInfoPrivate user, View mView) {
+    public FeedRecyclerAdapter(ProfilePosts profilePosts, List<FeedPostPreviewData> dataset ,UserInfoPrivate user, View mView, Activity activity) {
         mProfilePosts = profilePosts;
         mDataset = dataset;
+        mActivity = activity;
         this.user = user;
         view = mView;
     }
@@ -260,8 +277,13 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    holder.numLikes.setText(task.getResult().get("likes").toString());
-                    holder.numComments.setText(task.getResult().get("comments").toString());
+                    if(task.getResult().get("likes") != null){
+                        holder.numLikes.setText(task.getResult().get("likes").toString());
+                        holder.numComments.setText(task.getResult().get("comments").toString());
+                    }else{
+                        holder.cardView.setVisibility(View.GONE);
+                    }
+
                 }else {
                     Log.e("FdRc", "User details retrieval : Unable to retrieve user document in Firestore ");
                 }
@@ -274,6 +296,13 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
                     if(task.getResult().exists()){
                         holder.likedB4 = true;
                         holder.likedOrNot.setChecked((boolean)task.getResult().get("liked"));
+                        mDatabase.collection("posts").document(mDataset.get(position).postID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> nextTask) {
+                                DocumentSnapshot d = nextTask.getResult();
+                                holder.numLikes.setText(d.get("likes").toString());
+                            }
+                        });
                     }else{
                         holder.likedB4 = false;
                         holder.likedOrNot.setChecked(false);
@@ -330,6 +359,7 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
                         mBundle.putString("recipeDescription", mDataset.get(position).recipeDescription);
                         mBundle.putString("recipeImageURL", mDataset.get(position).recipeImageURL);
                         mBundle.putBoolean("isReview", mDataset.get(position).isReview);
+                        mBundle.putString("recipeID", mDataset.get(position).recipeID);
                         if(mDataset.get(position).isReview){
                             mBundle.putFloat("overallRating", mDataset.get(position).review);
                         }
@@ -387,6 +417,40 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
                 }else{
                     Log.e("COMMENT RECYCLER", "Issue with no component in onBindViewHolder");
                 }
+
+            }
+        });
+
+        holder.recipeImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                LoadingDialog loadingDialog = new LoadingDialog(mActivity);
+                loadingDialog.startLoadingDialog();
+
+                mDatabase.collection("recipes").document(mDataset.get(position).recipeID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            if (task.getResult().exists()) {
+
+                                DocumentSnapshot document = task.getResult();
+
+                                if(mFeedFragment != null){
+                                    mFeedFragment.recipeSelected(document, user.getUID());
+                                }else{
+                                    mProfilePosts.recipeSelected(document, user.getUID());
+                                }
+
+
+                                loadingDialog.dismissDialog();
+
+                            }
+                        }
+                    }
+                });
+
+
 
             }
         });

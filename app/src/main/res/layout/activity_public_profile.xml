@@ -18,14 +18,15 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/profileConstraintLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            tools:ignore="MissingConstraints">
 
             <ImageView
                 android:id="@+id/public_profile_image"
                 android:layout_width="0dp"
                 android:layout_height="125sp"
                 android:layout_marginStart="10dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="5dp"
                 app:layout_constraintEnd_toStartOf="@+id/guideline3"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -37,7 +38,7 @@
                 android:layout_width="258dp"
                 android:layout_height="34dp"
                 android:layout_marginStart="10dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="5dp"
                 android:gravity=""
                 android:singleLine="true"
                 android:text="Anonymous"
@@ -95,8 +96,10 @@
                 app:layout_constraintTop_toBottomOf="@+id/profile_username" />
 
             <LinearLayout
+                android:id="@+id/linearLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginTop="10dp"
                 android:orientation="vertical"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -105,7 +108,8 @@
                 <LinearLayout
                     android:id="@+id/statsFollowLayout"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50sp"
+                    android:layout_gravity="center_vertical"
                     android:background="@color/colorPrimaryLight"
                     android:orientation="horizontal"
                     android:paddingHorizontal="10sp">
@@ -189,12 +193,59 @@
                             android:text="Following" />
                     </LinearLayout>
 
-                    <Button
-                        android:id="@+id/followButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                    <LinearLayout
+                        android:id="@+id/isFollowLayout"
+                        android:layout_width="50sp"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:text="Follow" />
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingRight="10sp">
+
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1"
+                            android:minWidth="20sp"></Space>
+
+                        <Button
+                            android:id="@+id/followButton"
+                            android:layout_width="100sp"
+                            android:layout_height="40sp"
+                            android:layout_weight="3"
+                            android:background="@drawable/follow_button"
+                            android:padding="5sp"
+                            android:text="Follow"
+                            android:textColor="@color/colorWhiteText" />
+
+                        <Button
+                            android:id="@+id/requestedButton"
+                            android:layout_width="100sp"
+                            android:layout_height="40sp"
+                            android:layout_weight="3"
+                            android:background="@drawable/requested_button"
+                            android:padding="5sp"
+                            android:text="Requested"
+                            android:textColor="@color/colorWhiteText"
+                            android:visibility="gone" />
+
+                        <Button
+                            android:id="@+id/followedButton"
+                            android:layout_width="100sp"
+                            android:layout_height="40sp"
+                            android:layout_weight="3"
+                            android:background="@drawable/followed_button"
+                            android:padding="5sp"
+                            android:text="Followed"
+                            android:textColor="@color/colorWhiteText"
+                            android:visibility="gone" />
+
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1"
+                            android:minWidth="20sp"></Space>
+                    </LinearLayout>
                 </LinearLayout>
 
                 <LinearLayout
@@ -377,16 +428,19 @@
                     android:layout_height="40sp">
 
                     <com.google.android.material.tabs.TabItem
+                        android:id="@+id/postsTab"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:icon="@drawable/ic_library_books_black_24dp" />
 
                     <com.google.android.material.tabs.TabItem
+                        android:id="@+id/picsTab"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:icon="@drawable/ic_photo_library_black_24dp" />
 
                     <com.google.android.material.tabs.TabItem
+                        android:id="@+id/recipesTab"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:icon="@drawable/ic_restaurant_menu_black_24dp" />

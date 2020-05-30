@@ -8,8 +8,16 @@
             android:title="Public Profile"
             />
         <item
+            android:id="@+id/nav_notifications"
+            android:title="Notifications"
+            />
+        <item
             android:id="@+id/nav_editProfile"
             android:title="Edit Profile"
+            />
+        <item
+            android:id="@+id/nav_suggestionBox"
+            android:title="Suggestion Box"
             />
 <!--        <item-->
 <!--            android:id="@+id/nav_my_recipes"-->

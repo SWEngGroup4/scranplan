@@ -132,19 +132,6 @@ public class PresentationTest implements Credentials {
 
         onView(withText("bacon"))
                 .check(matches(isDisplayed()));
-
-
-        onView(withId(R.id.postMenu))
-                .perform(click());
-
-        onView(withText("Delete"))
-                .perform(click());
-
-        onView(withText("COMMENTS"))
-                .perform(click());
-
-
-
     }
 
     // Insert text to search bar

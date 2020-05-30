@@ -1,8 +1,6 @@
 package com.group4sweng.scranplan.SearchFunctions;
 
 import com.algolia.search.saas.Query;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
  * Building search query class.
@@ -12,9 +10,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
  * Builds up a search query from the preferences selected by the user.
  */
 public class SearchQuery {
-
-    final FirebaseFirestore database = FirebaseFirestore.getInstance();
-    CollectionReference ref = database.collection("recipes");
 
     public Query getQuery() {
         return query;
@@ -97,15 +92,6 @@ public class SearchQuery {
             query = query.setFilters("noSoy:true");
         }
 
-        // Only allowing the user to search for a single item
-        if(mIngredientsBox){
-            query = query.setRestrictSearchableAttributes("listIngredients");
-        }else if(mNameBox){
-            query = query.setRestrictSearchableAttributes("Name");
-        }else if(mChefBox){
-            query = query.setRestrictSearchableAttributes("Chef");
-        }
-
         // Only enabling a single search order
         if(mScoreBox){
             index = "recipe_score";
@@ -113,18 +99,21 @@ public class SearchQuery {
             index = "recipe_votes";
         }else if(mTimeBox){
             index = "recipe_time";
+        }else if(mChefBox){
+            index = "SCRANPLAN_USERS";
         }else{
             // create a default case
-            index = "SCRANPLAN_RECIPES";
         }
 
-
-
-
-
-
-
-
+        // Only allowing the user to search for a single item
+        if(mIngredientsBox){
+            query = query.setRestrictSearchableAttributes("listIngredients");
+        }else if(mNameBox){
+            query = query.setRestrictSearchableAttributes("Name");
+        }else if(mChefBox){
+            query = new Query(mSearch);
+            index = "SCRANPLAN_USERS";
+        }
     }
 }
 
