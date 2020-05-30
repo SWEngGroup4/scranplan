@@ -57,6 +57,14 @@ public class Rectangle extends Shape {
                 centreY + (height / 2));
     }
 
+    Float getCentreX() {
+        return (float) centreX;
+    }
+
+    Float getCentreY() {
+        return (float) centreY;
+    }
+
     public Float getXStart() {
         return centreX - (width / 2);
     }

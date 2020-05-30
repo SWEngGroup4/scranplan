@@ -105,15 +105,15 @@ public class GraphicsView extends View {
 
     public ArrayList<XmlParser.Shape> getShapes() {
         ArrayList<XmlParser.Shape> shapes = new ArrayList<>();
-        Log.d("Test", this.getMeasuredWidth() + " x " + this.getMeasuredHeight());
+        Log.d("Test", "Dims: " + mWidth + " x " + mHeight);
         for (Rectangle rect : ovals) {
-            shapes.add(new XmlParser.Shape("oval", (rect.getXStart()/this.getMeasuredWidth())*100, (rect.getYStart()/this.getMeasuredHeight())*100,
-                    (rect.getWidth()/this.getMeasuredWidth())*100, (rect.getHeight()/this.getMeasuredHeight())*100,
+            shapes.add(new XmlParser.Shape("oval", (rect.getCentreX()/mWidth)*100, (rect.getCentreY()/mHeight)*100,
+                    (rect.getWidth()/mWidth)*100, (rect.getHeight()/mHeight)*100,
                     "#" + Integer.toHexString(rect.getColour()), 0, 0, null));
         }
         for (Rectangle rect : rectangles) {
-            shapes.add(new XmlParser.Shape("rectangle", (rect.getXStart()/this.getMeasuredWidth())*100, (rect.getYStart()/this.getMeasuredHeight())*100,
-                    (rect.getWidth()/this.getMeasuredWidth())*100, (rect.getHeight()/this.getMeasuredHeight())*100,
+            shapes.add(new XmlParser.Shape("rectangle", (rect.getCentreX()/this.getMeasuredWidth())*100, (rect.getCentreY()/this.getMeasuredHeight())*100,
+                    (rect.getWidth()/this.getMeasuredWidth())*100, (rect.getHeight()/mHeight)*100,
                     "#" + Integer.toHexString(rect.getColour()), 0, 0, null));
         }
         return shapes;

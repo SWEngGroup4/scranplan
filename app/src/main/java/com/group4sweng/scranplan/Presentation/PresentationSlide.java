@@ -1,6 +1,7 @@
 package com.group4sweng.scranplan.Presentation;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -127,14 +128,10 @@ public class PresentationSlide extends RelativeLayout {
     }
 
     public void addTriangle(XmlParser.Triangle triangle) {
-//        Triangle newTriangle = new Triangle(Math.round(slideWidth * (triangle.xPos1 / 100)),
-//                Math.round(slideHeight * (triangle.yPos1 / 100)),
-//                Math.round(slideWidth * (triangle.xPos2 / 100)),
-//                Math.round(slideHeight * (triangle.yPos2 / 100)),
-//                Math.round(slideWidth * (triangle.xPos3 / 100)),
-//                Math.round(slideHeight * (triangle.yPos3 / 100)),
-//                triangle.fillColor, triangle.shading);
-//        graphicsView.addTriangle(newTriangle, triangle.startTime, triangle.endTime);
+        Triangle newTriangle = new Triangle(Math.round(slideWidth * (triangle.centreX / 100)),
+                Math.round(slideHeight * (triangle.centreY / 100)), slideWidth * (triangle.width / 100),
+                triangle.fillColor, triangle.shading);
+        graphicsView.addTriangle(newTriangle, triangle.startTime, triangle.endTime);
     }
 
     //Add image element to file

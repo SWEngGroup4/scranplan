@@ -405,7 +405,7 @@ public class XmlParser {
         Integer startTime = Integer.valueOf(parser.getAttributeValue(null, "starttime"));
         Boolean loop = Boolean.valueOf(parser.getAttributeValue(null, "loop"));
         Float xStart = Float.valueOf(parser.getAttributeValue(null, "xstart"));
-        Float yStart = Float.valueOf(parser.getAttributeValue(null, "yStart"));
+        Float yStart = Float.valueOf(parser.getAttributeValue(null, "ystart"));
 
         parser.require(XmlPullParser.END_TAG, null, "video");
 

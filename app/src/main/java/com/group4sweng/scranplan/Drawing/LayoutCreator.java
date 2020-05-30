@@ -3,11 +3,12 @@ package com.group4sweng.scranplan.Drawing;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Outline;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.ScaleGestureDetector;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewOutlineProvider;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -18,24 +19,38 @@ import com.flask.colorpicker.ColorPickerView;
 import com.flask.colorpicker.builder.ColorPickerDialogBuilder;
 import com.group4sweng.scranplan.R;
 
+import static com.group4sweng.scranplan.Drawing.LayoutCreator.DeviceDisplay.HEIGHT;
+import static com.group4sweng.scranplan.Drawing.LayoutCreator.DeviceDisplay.WIDTH;
+
 public class LayoutCreator extends AppCompatActivity {
 
-    private GraphicsView mGraphicsView;
+    //  enumerations to define if we should change the devices width or height.
+    enum DeviceDisplay {
+        WIDTH,
+        HEIGHT
+    }
 
-    private Integer screenWidth;
-    private Integer screenHeight;
+    private GraphicsView mGraphicsView;
+    private DisplayMetrics mDisplayMetrics;
+
+    private Integer width;
+    private Integer height;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.graphics);
 
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        screenWidth = displayMetrics.widthPixels;
-        screenHeight = displayMetrics.heightPixels;
+        mDisplayMetrics = new DisplayMetrics();
+        width = getGraphicsSize(WIDTH);
+        height = getGraphicsSize(HEIGHT);
 
-        GraphicsView mGraphicsView = new GraphicsView(this, screenHeight, screenWidth, true);
+        GraphicsView mGraphicsView = new GraphicsView(this, height, width, true);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(width, height);
+        layoutParams.gravity = Gravity.CENTER;
+        mGraphicsView.setLayoutParams(layoutParams);
+        mGraphicsView.setBackgroundColor(Color.WHITE);
+
         LinearLayout linearLayout = findViewById(R.id.graphicsLayout);
         linearLayout.addView(mGraphicsView);
 
@@ -44,9 +59,7 @@ public class LayoutCreator extends AppCompatActivity {
             @Override
             public void onClick(View v)
             {
-                Rectangle rect = new Rectangle(screenWidth / 2, screenHeight / 2, screenWidth / 4, screenHeight / 4);
-
-                mGraphicsView.addOval(new Rectangle(screenWidth / 2, screenHeight / 2, screenWidth / 4, screenHeight / 4), 0, 0);
+                mGraphicsView.addOval(new Rectangle(width / 2, height / 2, width / 4, height / 4), 0, 0);
             }
         });
 
@@ -56,7 +69,7 @@ public class LayoutCreator extends AppCompatActivity {
             public void onClick(View v)
             {
                 //function to do something if pressed
-                mGraphicsView.addRectangle(new Rectangle(screenWidth / 2, screenHeight / 2, screenWidth / 4, screenHeight / 4), 0, 0);
+                mGraphicsView.addRectangle(new Rectangle(width / 2, height / 2, width / 4, height / 4), 0, 0);
 
             }
         });
@@ -64,7 +77,7 @@ public class LayoutCreator extends AppCompatActivity {
         findViewById(R.id.graphicsTri).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mGraphicsView.addTriangle(new Triangle(screenWidth / 2, screenHeight / 2, 200f),0 , 0);
+                mGraphicsView.addTriangle(new Triangle(width / 2, height / 2, 200f),0 , 0);
             }
         });
 
@@ -103,66 +116,21 @@ public class LayoutCreator extends AppCompatActivity {
                 finish();
             }
         });
+    }
 
-//        findViewById(R.id.).setOnClickListener(new View.OnClickListener()
-//        {
-//            @Override
-//            public void onClick(View v)
-//            {
-//                mGraphicsView.updateLine();
-//            }
-//        });
-//
-//        findViewById(R.id.btn_fill).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v)
-//            {
-//                mGraphicsView.hollow_fill(0);
-//            }
-//        });
-//
-//        findViewById(R.id.btn_hollow).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v)
-//            {
-//                mGraphicsView.hollow_fill(1);
-//            }
-//        });
-//
-//        findViewById(R.id.btn_bigger).setOnClickListener(new View.OnClickListener()
-//        {
-//            @Override
-//            public void onClick(View v)
-//            {
-//                mGraphicsView.modify_size_selected(0);
-//            }
-//        });
-//
-//        findViewById(R.id.btn_smaller).setOnClickListener(new View.OnClickListener()
-//        {
-//            @Override
-//            public void onClick(View v)
-//            {
-//                mGraphicsView.modify_size_selected(1);
-//            }
-//        });
-//
-//        findViewById(R.id.btn_add_triangle).setOnClickListener(new View.OnClickListener()
-//        {
-//            @Override
-//            public void onClick(View v)
-//            {
-//                mGraphicsView.new_triangle();
-//            }
-//        });
-//
-//        findViewById(R.id.btn_delete_triangle).setOnClickListener(new View.OnClickListener()
-//        {
-//            @Override
-//            public void onClick(View v)
-//            {
-//                mGraphicsView.delete_triangle();
-//            }
-//        });
+    private int getGraphicsSize(DeviceDisplay displayParam) {
+        getWindowManager().getDefaultDisplay().getMetrics(mDisplayMetrics);
+        switch (displayParam) {
+            case WIDTH:
+                return Math.round(mDisplayMetrics.widthPixels * 0.8f); //Floating point represents the display percentage the presentation should take up.
+            case HEIGHT:
+                //Shrink the 'Card' presentation display size based upon the height of the device.
+                if (mDisplayMetrics.heightPixels < 1750) {
+                    return Math.round(mDisplayMetrics.heightPixels * 0.7f);
+                } else {
+                    return Math.round(mDisplayMetrics.heightPixels * 0.75f);
+                }
+        }
+        return -1;
     }
 }

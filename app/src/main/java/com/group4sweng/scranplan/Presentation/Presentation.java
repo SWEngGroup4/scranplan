@@ -76,7 +76,7 @@ import static androidx.test.InstrumentationRegistry.getContext;
 public class Presentation extends AppCompatActivity {
 
     //  enumerations to define if we should change the devices width or height.
-    enum DeviceDisplay {
+    public enum DeviceDisplay {
         WIDTH,
         HEIGHT
     }
@@ -157,7 +157,7 @@ public class Presentation extends AppCompatActivity {
      * @param displayParam - Display parameter to change. (Width/Height)
      * @return - Value of the new width/height. (in pixels)
      */
-    private int findNewPresentationSize(DeviceDisplay displayParam) {
+    public int findNewPresentationSize(DeviceDisplay displayParam) {
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics); //Get the display metrics for the device.
 
         switch (displayParam) {

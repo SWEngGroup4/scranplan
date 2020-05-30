@@ -29,7 +29,6 @@ public class RecipeCreation extends AppCompatActivity {
 
     HashMap<String, Object> mRecipeMap;
 
-    Fragment fragment;
     FragmentManager fragmentManager;
     FrameLayout frameLayout;
 
@@ -54,7 +53,6 @@ public class RecipeCreation extends AppCompatActivity {
         mRecipeMap = new HashMap<>();
 
         frameLayout = findViewById(R.id.createRecipeFrame);
-        fragment = new BasicInfo();
         fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.createRecipeFrame, new BasicInfo()).
                 setCustomAnimations(R.anim.exit_to_right, R.anim.enter_from_left).commitNow();
@@ -68,8 +66,7 @@ public class RecipeCreation extends AppCompatActivity {
                     for (String key : bundle.keySet())
                         mRecipeMap.put(key, bundle.get(key));
 
-                fragment = new RecipeSteps(mUser);
-                fragmentManager.beginTransaction().replace(R.id.createRecipeFrame, fragment).
+                fragmentManager.beginTransaction().replace(R.id.createRecipeFrame, new RecipeSteps(mUser)).
                         setCustomAnimations(R.anim.exit_to_right, R.anim.enter_from_left).commitNow();
                 break;
 
