@@ -165,9 +165,6 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
             searchers = mUserProfile.getUID();
 
             loadPostsAndRecipeList();
-            fragment = new ProfilePosts(searchers);
-            fragmentTransaction.replace(R.id.profileFrameLayout, fragment);
-            fragmentTransaction.commit();
         } else if(UID != null){ // If not instead search for the profile via the associated UID and reference Firebase.
             Log.i(TAG, "Loading data from Firebase");
             searchers = UID;

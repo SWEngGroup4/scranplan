@@ -804,7 +804,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                 } else {
                     mTempUserProfile.setIsPrivateProfileEnabled(false);
                     mPrivateMessage.setVisibility(View.GONE);
-                    setPrivacyOptions(mTempUserProfile.getPrivacyPrivate());
+                    setPrivacyOptions(mTempUserProfile.getPublicPrivacy());
                     mProfileVisibilityTab.setVisibility(View.GONE);
                 }
 
