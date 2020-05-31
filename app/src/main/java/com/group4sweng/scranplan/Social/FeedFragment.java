@@ -131,9 +131,7 @@ public class FeedFragment extends Fragment {
     RatingBar mAttachedRecipeReview;
 
 
-    protected String oldUserStarRating;
     protected double oldOverallRating;
-    protected double oldUserRating;
     protected double oldTotalRates;
 
     //Fragment handlers
@@ -1052,12 +1050,11 @@ public class FeedFragment extends Fragment {
      * @param deleteDocID
      */
     public void deletePost(String deleteDocID, HashMap doc, View view){
-        Log.e(TAG,"Clicked delete post! 1");
         loadingDialog = new LoadingDialog(getActivity());
         loadingDialog.startLoadingDialog();
         String userID = (String)doc.get("author");
         if((String)doc.get("author") != null){
-            Log.e(TAG,"Clicked delete post! 2");
+            // Delete review if one
             if(doc.get("isReview") != null){
                 if((boolean)doc.get("isReview")){
                     mDatabase.collection("recipes").document((String)doc.get("recipeID")).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -1084,13 +1081,20 @@ public class FeedFragment extends Fragment {
                     });
                 }
             }
-            Log.e(TAG,"Clicked delete post! 3");
+            // Delete pic if one
+            if(doc.get("isPic") != null){
+                if((boolean)doc.get("isPic")){
+                    if(doc.get("uploadedImageURL") != null){
+                        mStorage.getReferenceFromUrl((String)doc.get("uploadedImageURL")).delete();
+                    }
+                }
+            }
+            // Delete in followers collection if in there
             mDatabase.collection("followers").document(userID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                     if(task.isSuccessful()){
                         if(task.getResult().exists()){
-                            Log.e(TAG,"Clicked delete post! 4");
                             // Add post to followers map
                             DocumentSnapshot doc = task.getResult();
                             if(((HashMap)doc.get("mapA")) != null && ((HashMap)doc.get("mapA")).get("docID").equals(deleteDocID)){
@@ -1139,6 +1143,7 @@ public class FeedFragment extends Fragment {
                                     }
                                 });
                             }else{
+                                // Finally just delete doc
                                 mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
