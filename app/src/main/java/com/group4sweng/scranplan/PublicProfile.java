@@ -150,6 +150,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
             }
 
             updateProfile(FirebaseLoadType.PARTIAL);
+            mPublicPrivateTab.selectTab(mPublicPrivateTab.getTabAt(1));
         } else {
             Log.e(TAG, "Unable to retrieve extra UID intent string. Cannot initialize profile.");
         }
@@ -189,6 +190,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
             fragmentTransaction.replace(R.id.profileFrameLayout, fragment);
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
+
         } else if(UID != null){ // If not instead search for the profile via the associated UID and reference Firebase.
             Log.i(TAG, "Loading data from Firebase for user with UID: " + UID);
 
@@ -506,7 +508,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                     if(fltFinal == FirebaseLoadType.FULL){
                         Log.i(TAG, "Loading a full user profile!");
                         privateProfile = (boolean) document.get("privateProfileEnabled");
-                        if(followed && privateProfile) {
+                        if(followed || !privateProfile) {
                             @SuppressWarnings("unchecked")
                             HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacyPrivate");
                             loadInPrivacySettings(privacy); // Load in privacy settings first (always)
@@ -514,10 +516,8 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                         } else {
                             @SuppressWarnings("unchecked")
                             HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacyPublic");
-                            if (privateProfile){
-                                mStreamTabs.setVisibility(View.GONE);
-                                frameLayout.setVisibility(View.GONE);
-                            }
+                            mStreamTabs.setVisibility(View.GONE);
+                            frameLayout.setVisibility(View.GONE);
                             loadInPrivacySettings(privacy); // Load in privacy settings first (always)
                         }
                         loadProfile(document); // Then we load the public users profile.
