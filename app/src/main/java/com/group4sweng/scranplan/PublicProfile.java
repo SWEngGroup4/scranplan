@@ -133,13 +133,22 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         //  Gets extra UserProfilePrivate object if one is sent.
         mUserProfile = (UserInfoPrivate) getIntent().getSerializableExtra("user");
 
-        //  Hide posts initially if the user has a public-private profile.
-        mStreamTabs.setVisibility(View.GONE);
-        frameLayout.setVisibility(View.GONE);
 
         if(UID != null){ // If not instead search for the profile via the associated UID and reference Firebase.
+            //  Disable public-private local profile tab bar selector.
+            mPublicPrivateTab.setVisibility(View.GONE);
+
             updateProfile(FirebaseLoadType.FULL);
         } else if(mUserProfile != null){ // Check if local data is available to reference. Don't have to grab from firebase.
+            //  Hide posts initially if the user has a public-private profile.
+            if(mUserProfile.isPrivateProfileEnabled()){
+                mStreamTabs.setVisibility(View.GONE);
+                frameLayout.setVisibility(View.GONE);
+            } else {
+                //  Disable public-private local profile tab bar selector.
+                mPublicPrivateTab.setVisibility(View.GONE);
+            }
+
             updateProfile(FirebaseLoadType.PARTIAL);
         } else {
             Log.e(TAG, "Unable to retrieve extra UID intent string. Cannot initialize profile.");
@@ -374,7 +383,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
 
         //  If we are allowed to retrieve this data. do so.
         //  If 'about' me section is blank then retrieve nothing.
-        if(retrieveAboutMe && !mUserProfile.getAbout().equals("")) {
+        if(retrieveAboutMe && !profile.get("about").equals("")) {
             mAboutMeDesc.setText((String) profile.get("about"));
         } else {
             mAboutMe.setVisibility(View.GONE); // Adjust if the view is visible.
@@ -497,16 +506,18 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                     if(fltFinal == FirebaseLoadType.FULL){
                         Log.i(TAG, "Loading a full user profile!");
                         privateProfile = (boolean) document.get("privateProfileEnabled");
-                        if(followed || !privateProfile){
+                        if(followed && privateProfile) {
                             @SuppressWarnings("unchecked")
                             HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacyPrivate");
                             loadInPrivacySettings(privacy); // Load in privacy settings first (always)
                             loadPostsAndRecipeList();
-                        }else{
+                        } else {
                             @SuppressWarnings("unchecked")
                             HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacyPublic");
-                            mStreamTabs.setVisibility(View.GONE);
-                            frameLayout.setVisibility(View.GONE);
+                            if (privateProfile){
+                                mStreamTabs.setVisibility(View.GONE);
+                                frameLayout.setVisibility(View.GONE);
+                            }
                             loadInPrivacySettings(privacy); // Load in privacy settings first (always)
                         }
                         loadProfile(document); // Then we load the public users profile.
