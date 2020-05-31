@@ -357,7 +357,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                                             mCheckUsername.setVisibility(View.VISIBLE);
                                         }
                                     }else{
-                                        if(!mDisplay_username.getText().toString().equals("")){
+                                        if(!mUsername.getText().toString().equals("")){
                                             mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_check_black_24dp));
                                             mCheckUsername.setVisibility(View.VISIBLE);
                                         }else{
