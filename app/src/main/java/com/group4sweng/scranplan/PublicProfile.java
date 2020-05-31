@@ -314,10 +314,14 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                 mFollowButton.setVisibility(View.VISIBLE);
                 mFollowedButton.setVisibility(View.GONE);
                 mDatabase.collection("followers").document(UID).update("users", FieldValue.arrayRemove(mUserProfile.getUID()));
-                mDatabase.collection("users").document(UID).update("followers", FieldValue.increment(-1));
                 mDatabase.collection("users").document(mUserProfile.getUID()).update("following", FieldValue.increment(-1));
-                finish();
-                startActivity(getIntent());
+                mDatabase.collection("users").document(UID).update("followers", FieldValue.increment(-1)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        finish();
+                        startActivity(getIntent());
+                    }
+                });
             }
         });
         // Listener for layout tab selection
