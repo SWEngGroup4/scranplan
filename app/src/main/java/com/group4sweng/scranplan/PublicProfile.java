@@ -508,7 +508,7 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                     if(fltFinal == FirebaseLoadType.FULL){
                         Log.i(TAG, "Loading a full user profile!");
                         privateProfile = (boolean) document.get("privateProfileEnabled");
-                        if(followed || !privateProfile) {
+                        if(followed && privateProfile) {
                             @SuppressWarnings("unchecked")
                             HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacyPrivate");
                             loadInPrivacySettings(privacy); // Load in privacy settings first (always)
@@ -516,8 +516,12 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
                         } else {
                             @SuppressWarnings("unchecked")
                             HashMap<String, Object> privacy = (HashMap<String, Object>) document.get("privacyPublic");
-                            mStreamTabs.setVisibility(View.GONE);
-                            frameLayout.setVisibility(View.GONE);
+                            if(privateProfile){
+                                mStreamTabs.setVisibility(View.GONE);
+                                frameLayout.setVisibility(View.GONE);
+                            }else{
+                                loadPostsAndRecipeList();
+                            }
                             loadInPrivacySettings(privacy); // Load in privacy settings first (always)
                         }
                         loadProfile(document); // Then we load the public users profile.
