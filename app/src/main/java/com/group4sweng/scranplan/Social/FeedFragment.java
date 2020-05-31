@@ -1052,10 +1052,12 @@ public class FeedFragment extends Fragment {
      * @param deleteDocID
      */
     public void deletePost(String deleteDocID, HashMap doc, View view){
+        Log.e(TAG,"Clicked delete post! 1");
         loadingDialog = new LoadingDialog(getActivity());
         loadingDialog.startLoadingDialog();
         String userID = (String)doc.get("author");
         if((String)doc.get("author") != null){
+            Log.e(TAG,"Clicked delete post! 2");
             if(doc.get("isReview") != null){
                 if((boolean)doc.get("isReview")){
                     mDatabase.collection("recipes").document((String)doc.get("recipeID")).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -1082,64 +1084,60 @@ public class FeedFragment extends Fragment {
                     });
                 }
             }
+            Log.e(TAG,"Clicked delete post! 3");
             mDatabase.collection("followers").document(userID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                     if(task.isSuccessful()){
                         if(task.getResult().exists()){
+                            Log.e(TAG,"Clicked delete post! 4");
                             // Add post to followers map
                             DocumentSnapshot doc = task.getResult();
-                            if(((HashMap)doc.get("mapA")) != null){
-                                if(((HashMap)doc.get("mapA")).get("docID").equals(deleteDocID)){
-                                    String map = "mapA";
-                                    mDatabase.collection("followers").document(userID).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-                                                    mDatabase.collection("users").document(userID).update("livePosts", FieldValue.increment(- 1));
-                                                    addPosts(view);
-                                                    loadingDialog.dismissDialog();
-                                                }
-                                            });
-                                        }
-                                    });
-                                }
-                            }else if(((HashMap)doc.get("mapB")) != null){
-                                if(((HashMap)doc.get("mapB")).get("docID").equals(deleteDocID)){
-                                    String map = "mapB";
-                                    mDatabase.collection("followers").document(userID).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-                                                    mDatabase.collection("users").document(mUser.getUID()).update("livePosts", FieldValue.increment(- 1));
-                                                    addPosts(view);
-                                                    loadingDialog.dismissDialog();
-                                                }
-                                            });
-                                        }
-                                    });
-                                }
-                            }else if(((HashMap)doc.get("mapC")) != null){
-                                if(((HashMap)doc.get("mapC")).get("docID").equals(deleteDocID)){
-                                    String map = "mapC";
-                                    mDatabase.collection("followers").document(userID).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-                                                    mDatabase.collection("users").document(userID).update("livePosts", FieldValue.increment(- 1));
-                                                    addPosts(view);
-                                                    loadingDialog.dismissDialog();
-                                                }
-                                            });
-                                        }
-                                    });
-                                }
+                            if(((HashMap)doc.get("mapA")) != null && ((HashMap)doc.get("mapA")).get("docID").equals(deleteDocID)){
+                                String map = "mapA";
+                                mDatabase.collection("followers").document(userID).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                mDatabase.collection("users").document(userID).update("livePosts", FieldValue.increment(- 1));
+                                                addPosts(view);
+                                                loadingDialog.dismissDialog();
+                                            }
+                                        });
+                                    }
+                                });
+                            }else if(((HashMap)doc.get("mapB")) != null && ((HashMap)doc.get("mapB")).get("docID").equals(deleteDocID)){
+                                String map = "mapB";
+                                mDatabase.collection("followers").document(userID).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                mDatabase.collection("users").document(mUser.getUID()).update("livePosts", FieldValue.increment(- 1));
+                                                addPosts(view);
+                                                loadingDialog.dismissDialog();
+                                            }
+                                        });
+                                    }
+                                });
+                            }else if(((HashMap)doc.get("mapC")) != null && ((HashMap)doc.get("mapC")).get("docID").equals(deleteDocID)){
+                                String map = "mapC";
+                                mDatabase.collection("followers").document(userID).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                mDatabase.collection("users").document(userID).update("livePosts", FieldValue.increment(- 1));
+                                                addPosts(view);
+                                                loadingDialog.dismissDialog();
+                                            }
+                                        });
+                                    }
+                                });
                             }else{
                                 mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
