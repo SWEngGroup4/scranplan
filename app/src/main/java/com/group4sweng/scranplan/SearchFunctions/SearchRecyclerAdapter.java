@@ -115,7 +115,9 @@ public class SearchRecyclerAdapter extends RecyclerView.Adapter<SearchRecyclerAd
         holder.title.setText(mDataset.get(position).title);
         if(mDataset.get(position).imageURL!= null && !mDataset.get(position).imageURL.isEmpty()){
             Picasso.get().load(mDataset.get(position).imageURL).into(holder.imageView);
-        } else{
+        } else if(mDataset.get(position).imageURL != null && mDataset.get(position).imageURL.isEmpty()){
+            //TODO fix to be the same size and change the image
+        }else{
             holder.imageView.setImageDrawable(null);
         }
 

@@ -43,6 +43,7 @@ import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
 import com.group4sweng.scranplan.Social.FeedFragment;
+import com.group4sweng.scranplan.Social.Messenger.MessengerMenu;
 import com.group4sweng.scranplan.Social.Notifications;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
@@ -303,6 +304,15 @@ public class Home extends AppCompatActivity {
                         startActivity(returningIntent);
 
                         finish();
+                    case R.id.nav_messenger:
+                        Log.e(TAG, "Messenger Has been entered");
+                        Intent intentMessenger = new Intent(mContext, MessengerMenu.class);
+                        intentMessenger.putExtra("user", mUser);
+                        startActivity(intentMessenger);
+                        break;
+
+                    default:
+                        return false;
                 }
                 return false;
             }

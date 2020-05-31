@@ -488,17 +488,17 @@ public class FeedFragment extends Fragment {
      */
     protected void postComplete(){
         mDatabase.collection("users").document(mUser.getUID()).update("posts", FieldValue.increment(1), "livePosts", FieldValue.increment(1)).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                                                                                                        @Override
-                                                                                                                                                                        public void onComplete(@NonNull Task<Void> task) {
-                                                                                                                                                                            mUser.setPosts(mUser.getPosts()+1);
-                                                                                                                                                                            mPostBodyInput.getText().clear();
-                                                                                                                                                                            mPostRecipe.setChecked(false);
-                                                                                                                                                                            mPostReview.setChecked(false);
-                                                                                                                                                                            mPostPic.setChecked(false);
-                                                                                                                                                                            addPosts(mainView);
-                                                                                                                                                                            loadingDialog.dismissDialog();
-                                                                                                                                                                        }
-                                                                                                                                                                    }
+                                                                                                                                                @Override
+                                                                                                                                                public void onComplete(@NonNull Task<Void> task) {
+                                                                                                                                                    mUser.setPosts(mUser.getPosts()+1);
+                                                                                                                                                    mPostBodyInput.getText().clear();
+                                                                                                                                                    mPostRecipe.setChecked(false);
+                                                                                                                                                    mPostReview.setChecked(false);
+                                                                                                                                                    mPostPic.setChecked(false);
+                                                                                                                                                    addPosts(mainView);
+                                                                                                                                                    loadingDialog.dismissDialog();
+                                                                                                                                                }
+                                                                                                                                            }
         );
     }
 
@@ -922,7 +922,7 @@ public class FeedFragment extends Fragment {
 
 
     //Opens info dialog for selected recipe
-    private void openRecipeInfo(HashMap<String, Object> map) {
+    protected void openRecipeInfo(HashMap<String, Object> map) {
         map.put("planner", false); //Allows lauching of presentation
         Bundle bundle = new Bundle();
         bundle.putSerializable("hashmap", map);

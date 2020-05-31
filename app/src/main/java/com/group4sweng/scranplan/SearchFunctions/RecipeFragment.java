@@ -48,6 +48,8 @@ import io.sentry.core.Sentry;
 
 import static com.group4sweng.scranplan.SearchFunctions.QueryRequestCode.QueryRequestCodes;
 
+import io.sentry.core.Sentry;
+
 /**
  * Class for the home page fragment containing horizontal meals to scroll though.
  * Author(s): LNewman
@@ -130,6 +132,8 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
     private SearchView searchView;
     private MenuItem sortView;
     private SearchPrefs prefs;
+    private Home home;
+
 
     private Bundle mBundle;
     private Boolean planner = false;
@@ -173,7 +177,11 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
                             Activity.RESULT_CANCELED, null));
         }
 
-        Home home = (Home) getActivity();
+       try{ home = (Home) getActivity();}
+       catch (Exception e){
+           home = null;
+           Sentry.captureException(e);
+       }
 
         if (home != null) {
             searchView = home.getSearchView();

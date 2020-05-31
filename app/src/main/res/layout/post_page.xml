@@ -380,7 +380,8 @@
             android:layout_marginBottom="0dp"
             android:layout_weight="2"
             android:padding="10sp"
-            android:background="@drawable/rounded_corners_coloured">
+            android:background="@drawable/rounded_corners_coloured"
+            android:id="@+id/commentLayout">
 
 
             <com.google.android.material.textfield.TextInputEditText
