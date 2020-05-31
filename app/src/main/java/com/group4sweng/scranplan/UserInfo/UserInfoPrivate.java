@@ -34,6 +34,7 @@ public class UserInfoPrivate implements Serializable, Cloneable{
     private String imageURL;
     private String about;
     private String email;
+    private long recipes;
     private long posts;
     private List<HashMap<String, Object>> mealPlanner;
     private boolean shortPreferences;
@@ -67,6 +68,7 @@ public class UserInfoPrivate implements Serializable, Cloneable{
         this.posts = (long) map.get("posts");
         this.followers = (long) map.get("followers");
         this.following = (long) map.get("following");
+        this.recipes = (long) map.get("numRecipes");
         this.email = (String) map.get("email");
         this.UID = (String) map.get("UID");
         this.displayName = (String) map.get("displayName");
@@ -138,6 +140,14 @@ public class UserInfoPrivate implements Serializable, Cloneable{
 
     public void setPosts(long posts) {
         this.posts = posts;
+    }
+
+    public long getRecipes() {
+        return recipes;
+    }
+
+    public void setRecipes(long recipes) {
+        this.recipes = recipes;
     }
 
     public String getEmail() {

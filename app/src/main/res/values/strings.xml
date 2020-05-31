@@ -16,6 +16,46 @@
     <string name="review">+ Review</string>
     <string name="image">+ Image</string>
     <string name="post">Post</string>
+    <string name="submit">Submit</string>
+
+<!--    Recipe creation strings-->
+    <string name="rcBasicInfo">Basic Info</string>7
+    <string name="rcRecipeName">Recipe name</string>
+    <string name="rcServes">Serves</string>
+    <string name="rcDesc">Recipe description</string>
+    <string name="rcIng">Ingredients</string>
+    <string name="rcIngName">Ingredient name</string>
+    <string name="rcIngMeasurement">Measurement</string>
+    <string name="rcButton">+</string>
+    <string name="rcAllergens">Allergens</string>
+    <string name="rcEggs">Contains eggs</string>
+    <string name="rcLactose">Contains lactose</string>
+    <string name="rcNuts">Contains nuts</string>
+    <string name="rcShellfish">Contains shellfish</string>
+    <string name="rcSoya">Contains soya</string>
+    <string name="rcGluten">Contains gluten</string>
+    <string name="rcDiet">Diet</string>
+    <string-array name="rcDiets">
+        <item>Normal</item>
+        <item>Pescetarian</item>
+        <item>Vegetarian</item>
+        <item>Vegan</item>
+    </string-array>
+    <string name="rcAdditional">Additional Info</string>
+    <string name="rcFridge">Keep in fridge</string>
+    <string name="rcDays">days</string>
+    <string name="rcFrozen">Can be frozen</string>
+    <string name="rcReheat">Reheating information</string>
+    <string-array name="rcFonts">
+        <item>Roboto</item>
+        <item>Roboto Slab</item>
+    </string-array>
+
+    <string-array name="rcFontSize">
+        <item>Small</item>
+        <item>Medium</item>
+        <item>Large</item>
+    </string-array>
     <string name="enter_message_here">Enter Message here...</string>
     <string name="send">SEND</string>
     <string name="edit_profile">Edit Profile</string>
