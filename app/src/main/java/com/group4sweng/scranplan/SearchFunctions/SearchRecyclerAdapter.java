@@ -127,13 +127,17 @@ public class SearchRecyclerAdapter extends RecyclerView.Adapter<SearchRecyclerAd
             public void onClick(View v) {
                 if(mSearchListFragment != null && mDataset.get(position).document != null){
                     if(!mSearchListFragment.searchIndex.equals("SCRANPLAN_USERS")){
-                    mSearchListFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);}
+                    mSearchListFragment.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
+                    }
                     else {
                         // When profile is selected
                         mSearchListFragment.profileSelected(mDataset.get(holder.getAdapterPosition()).document);
                     }
+                }else if(mProfileRecipes != null && mDataset.get(position).document != null) {
+                    mProfileRecipes.recipeSelected(mDataset.get(holder.getAdapterPosition()).document);
                 }else{
                     Log.e("SEARCH RECYCLER ADAPTER", "Issue with no component in onBindViewHolder");
+
                 }
 
             }

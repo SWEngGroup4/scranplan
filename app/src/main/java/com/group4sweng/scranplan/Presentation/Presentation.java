@@ -45,7 +45,10 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.group4sweng.scranplan.Administration.ContentReporting;
+import com.group4sweng.scranplan.Administration.SuggestionBox;
 import com.group4sweng.scranplan.Exceptions.AudioPlaybackException;
+import com.group4sweng.scranplan.Home;
 import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.Social.CommentRecyclerAdapter;
@@ -82,6 +85,7 @@ public class Presentation extends AppCompatActivity {
 
     /**  Firebase **/
     FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
+    protected ContentReporting reportContent;
 
     XmlParser.DocumentInfo documentInfo; //Overall infomation about the current document.
     final static String TAG = "PRES"; //Log tag.
@@ -501,7 +505,19 @@ public class Presentation extends AppCompatActivity {
                         break;
                     case R.id.reportComment:
                         Log.e(TAG,"Report comment clicked!");
-                        //TODO add functionality to report this comment
+
+                        //HashMap with relevant information to be sent for reporting
+                        HashMap<String, Object> reportsMap = new HashMap<>();
+                        reportsMap.put("docID", document.getId());
+                        reportsMap.put("usersID", document.get("authorID").toString());
+                        reportsMap.put("issue","Reporting Content");
+
+                        //creating a dialog box on screen so that the user can report an issue
+                        String firebaseLocation = "reporting";
+                        reportContent = new ContentReporting(Presentation.this, reportsMap, firebaseLocation);
+                        reportContent.startReportingDialog();
+                        reportContent.title.setText("Report Content");
+                        reportContent.message.setText("What is the issue you would like to report?");
                         break;
                     case R.id.deleteComment:
                         Log.e(TAG,"Clicked delete comment!");
