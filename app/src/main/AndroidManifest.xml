@@ -65,6 +65,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".SideMenu" />
+        <activity android:name=".Social.Messenger.MessengerMenu" />
+        <activity android:name=".Social.Messenger.MessengerNewChat" />
 
         <meta-data
             android:name="io.sentry.debug"
@@ -76,7 +78,7 @@
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3950288177591971~6547873810"/>
         <meta-data android:name="io.sentry.session-tracking.enable" android:value="true" />
-        <meta-data android:name="io.sentry.release" android:value="com.group4sweng.scranplan@1.5.4" />
+        <meta-data android:name="io.sentry.release" android:value="com.group4sweng.scranplan@1.6.1" />
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />

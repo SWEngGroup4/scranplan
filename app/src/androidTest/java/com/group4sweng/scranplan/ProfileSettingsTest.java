@@ -105,6 +105,7 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
         activityResult = mActivityTestRule.getActivity(); // Load our activity in.
+        activityResult.isTesting = true;
     }
 
     //  Used to make sure information is reset before changing it again.
@@ -272,10 +273,8 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
 
         //  Log the results of what the switches used to be into a Hashmap. in order to reference later in testing.
         initialPrivacy.put("about_me", activityResult.mDisplay_about_me.isChecked());
-        initialPrivacy.put("recipes", activityResult.mDisplay_recipes.isChecked());
         initialPrivacy.put("profile_image", activityResult.mDisplay_profile_image.isChecked());
         initialPrivacy.put("filters", activityResult.mDisplay_filters.isChecked());
-        initialPrivacy.put("feed", activityResult.mDisplay_feed.isChecked());
 
         //  Begin switching.
         onView(withId(R.id.settings_privacy_about_me))
@@ -286,8 +285,6 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
                 .perform(click());
         onView(withId(R.id.settings_privacy_filters))
                 .perform(scrollTo())
-                .perform(click());
-        onView(withId(R.id.settings_privacy_feed))
                 .perform(click());
 
         onView(withId(R.id.settings_save_settings))
@@ -313,10 +310,8 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
         HashMap<String, Boolean> initialPrivacy = switchAllPrivacySwitches(PrivacyType.PUBLIC);
 
         assertNotEquals(initialPrivacy.get("about_me"), activityResult.mDisplay_about_me.isChecked());
-        assertNotEquals(initialPrivacy.get("recipes"), activityResult.mDisplay_recipes.isChecked());
         assertNotEquals(initialPrivacy.get("profile_image"), activityResult.mDisplay_profile_image.isChecked());
         assertNotEquals(initialPrivacy.get("filters"), activityResult.mDisplay_filters.isChecked());
-        assertNotEquals(initialPrivacy.get("feed"), activityResult.mDisplay_feed.isChecked());
     }
 
     //  Test private privacy info can be stored and retrieved.
@@ -328,10 +323,8 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
                 .perform(scrollTo())
                 .perform(click());
         assertNotEquals(initialPrivacy.get("about_me"), activityResult.mDisplay_about_me.isChecked());
-        assertNotEquals(initialPrivacy.get("recipes"), activityResult.mDisplay_recipes.isChecked());
         assertNotEquals(initialPrivacy.get("profile_image"), activityResult.mDisplay_profile_image.isChecked());
         assertNotEquals(initialPrivacy.get("filters"), activityResult.mDisplay_filters.isChecked());
-        assertNotEquals(initialPrivacy.get("feed"), activityResult.mDisplay_feed.isChecked());
     }
 
     /** Either turn on or turn off all available privacy switches before testing.
@@ -343,16 +336,12 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
             //  Checks if the filters turned off and if so switches on.
             if(!activityResult.mDisplay_filters.isChecked()){ onView(withId(R.id.settings_privacy_filters)).perform(scrollTo()).perform(click()); }
             if(!activityResult.mDisplay_profile_image.isChecked()){ onView(withId(R.id.settings_privacy_profile_image)).perform(scrollTo()).perform(click()); }
-            if(!activityResult.mDisplay_recipes.isChecked()){ onView(withId(R.id.settings_privacy_recipes)).perform(scrollTo()).perform(click()); }
             if(!activityResult.mDisplay_about_me.isChecked()){ onView(withId(R.id.settings_privacy_about_me)).perform(scrollTo()).perform(click()); }
-            if(!activityResult.mDisplay_feed.isChecked()){ onView(withId(R.id.settings_privacy_feed)).perform(scrollTo()).perform(click()); }
         } else {
             //  Checks if the filters turned on and if so switches off.
             if(activityResult.mDisplay_filters.isChecked()){ onView(withId(R.id.settings_privacy_filters)).perform(scrollTo()).perform(click()); }
             if(activityResult.mDisplay_profile_image.isChecked()){ onView(withId(R.id.settings_privacy_profile_image)).perform(scrollTo()).perform(click()); }
-            if(activityResult.mDisplay_recipes.isChecked()){ onView(withId(R.id.settings_privacy_recipes)).perform(scrollTo()).perform(click()); }
             if(activityResult.mDisplay_about_me.isChecked()){ onView(withId(R.id.settings_privacy_about_me)).perform(scrollTo()).perform(click()); }
-            if(activityResult.mDisplay_feed.isChecked()){ onView(withId(R.id.settings_privacy_feed)).perform(scrollTo()).perform(click()); }
         }
 
     }
@@ -360,9 +349,7 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
     private void switchAllPrivacySwitches(){
         onView(withId(R.id.settings_privacy_filters)).perform(scrollTo()).perform(click());
         onView(withId(R.id.settings_privacy_profile_image)).perform(scrollTo()).perform(click());
-        onView(withId(R.id.settings_privacy_recipes)).perform(scrollTo()).perform(click());
         onView(withId(R.id.settings_privacy_about_me)).perform(scrollTo()).perform(click());
-        onView(withId(R.id.settings_privacy_feed)).perform(scrollTo()).perform(click());
     }
 
     /*  Test that when we either...
@@ -382,10 +369,8 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
         assertTrue(activityResult.mDisplay_about_me.isChecked());
-        assertTrue(activityResult.mDisplay_recipes.isChecked());
         assertTrue(activityResult.mDisplay_profile_image.isChecked());
         assertTrue(activityResult.mDisplay_filters.isChecked());
-        assertTrue(activityResult.mDisplay_feed.isChecked());
 
         resetPrivacy(true); //  Set all switches on
         switchAllPrivacySwitches();
@@ -395,18 +380,15 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
                 .perform(click());
 
         assertFalse(activityResult.mDisplay_about_me.isChecked());
-        assertFalse(activityResult.mDisplay_recipes.isChecked());
         assertFalse(activityResult.mDisplay_profile_image.isChecked());
         assertFalse(activityResult.mDisplay_filters.isChecked());
-        assertFalse(activityResult.mDisplay_feed.isChecked());
     }
 
     //  Test that we can create a clone of the UserInfoPrivate class for use before saving.
     //  Tested using privacy switches since these update before the save button is pressed.
     @Test
     public void testUserInfoPrivateDeepClone() {
-        onView(withText("PRIVATE"))
-                .perform(scrollTo())
+        onView(withId(R.id.settings_private_toggle))
                 .perform(click());
         switchAllPrivacySwitches();
 
@@ -746,7 +728,7 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
     public void finishOff() {
         EspressoHelper.shouldSkip = false;
         this.mActivityTestRule.finishActivity();
-        activityResult.isTesting = false;
+//        activityResult.isTesting = false;
         activityResult = null;
     }
 }
