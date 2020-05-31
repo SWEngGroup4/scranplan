@@ -489,6 +489,7 @@ public class MessengerMenu extends AppCompatActivity {
                     Log.e("Messanger", "UID = " + mUser.getUID());
                     Log.e("Messanger", "task success");
                     ArrayList<HashMap> posts = new ArrayList<>();
+                    data.clear();
                     int size = queryDocumentSnapshots.size();
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         Log.e(TAG, "I have found a doc");
