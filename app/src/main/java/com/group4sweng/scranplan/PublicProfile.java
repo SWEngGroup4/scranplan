@@ -594,9 +594,18 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         }else{
             String followingString =  Long.toString(((long) profile.get("following")));
             String followersString =  Long.toString(((long) profile.get("followers")));
-            mFollowing.setText(followingString);
-            mFollowers.setText(followersString);
+            if(Integer.parseInt(followingString) < 0){
+                mFollowing.setText("0");
+            }else{
+                mFollowing.setText(followingString);
+            }
+            if(Integer.parseInt(followersString) < 0){
+                mFollowers.setText("0");
+            }else{
+                mFollowers.setText(followersString);
+            }
         }
+
 
         mPosts.setText(postsString);
 
