@@ -19,6 +19,7 @@ public class IngredientRecyclerAdapter extends RecyclerView.Adapter<IngredientRe
 
     private List<IngredientData> mData;
 
+    // Custom Object to store data for ingredients
     static class IngredientData implements Parcelable {
         public String ingredient;
         public String measurement;
@@ -33,6 +34,7 @@ public class IngredientRecyclerAdapter extends RecyclerView.Adapter<IngredientRe
             measurement = in.readString();
         }
 
+        // Parcelable methods for bundle insertion
         public static final Creator<IngredientData> CREATOR = new Creator<IngredientData>() {
             @Override
             public IngredientData createFromParcel(Parcel in) {
@@ -57,6 +59,7 @@ public class IngredientRecyclerAdapter extends RecyclerView.Adapter<IngredientRe
         }
     }
 
+    // Create view holder for recycler view
     static class ViewHolder extends RecyclerView.ViewHolder {
         private CardView cardView;
         private TextView ingredientName;
@@ -78,6 +81,7 @@ public class IngredientRecyclerAdapter extends RecyclerView.Adapter<IngredientRe
     @Override
     public IngredientRecyclerAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
+        // Inflate recycler view
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.ingredient_list, parent, false);
 
@@ -86,13 +90,16 @@ public class IngredientRecyclerAdapter extends RecyclerView.Adapter<IngredientRe
 
     @Override
     public void onBindViewHolder(@NonNull IngredientRecyclerAdapter.ViewHolder holder, int position) {
+        // Display ingredient data
         holder.ingredientName.setText(mData.get(position).ingredient);
         holder.ingredientMeasurement.setText(mData.get(position).measurement);
 
+        // Notifies user on deletion method on click
         holder.cardView.setOnClickListener(v -> {
             Toast.makeText(holder.cardView.getContext(), "Hold to delete", Toast.LENGTH_SHORT).show();
         });
 
+        // Removes entry on long press
         holder.cardView.setOnLongClickListener(v -> {
             mData.remove(position);
             notifyItemRemoved(position);

@@ -463,10 +463,9 @@ public class Home extends AppCompatActivity {
                 break;
             case (CREATE_RECIPE_REQUEST_CODE):
                 if (resultCode == RESULT_OK) {
-                        // Reloads review fragment
-                    FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                    fragmentTransaction.detach(recipeFragment);
-                    fragmentTransaction.attach(recipeFragment);
+                        // Reloads recipe fragment
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.replace(R.id.frameLayout, new RecipeFragment(mUser));
                     fragmentTransaction.commit();
                 }
             default:

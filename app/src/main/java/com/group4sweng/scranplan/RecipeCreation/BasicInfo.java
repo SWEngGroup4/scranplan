@@ -68,7 +68,6 @@ public class BasicInfo extends Fragment {
     private Uri imageUri;
     private Boolean imageSet = false;
 
-    // Auto-generated super method
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,6 +85,7 @@ public class BasicInfo extends Fragment {
     }
 
     private void initPageItems(View view) {
+        // Initialise page elements
         mRecipeImage = view.findViewById(R.id.recipeStepMedia);
         mRecipeName = view.findViewById(R.id.createRecipeName);
         mRecipeServes = view.findViewById(R.id.createRecipeServes);
@@ -110,6 +110,7 @@ public class BasicInfo extends Fragment {
         mLunch = view.findViewById(R.id.createLunch);
         mDinner = view.findViewById(R.id.createDinner);
 
+        // Initialise storage varibales
         mIngredientList = new ArrayList<>();
         mIngredientMap = new HashMap<>();
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
@@ -117,33 +118,39 @@ public class BasicInfo extends Fragment {
         mAdapter = new IngredientRecyclerAdapter(mIngredientList);
         mIngredients.setAdapter(mAdapter);
 
+        // Get input manager for keyboard access
         imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
     }
 
     private void initPageListeners(View view) {
+        // Adds image to recipe
         mRecipeImage.setOnClickListener(v -> {
-            Intent mediaSelect = new Intent(Intent.ACTION_PICK);
+            Intent mediaSelect = new Intent(Intent.ACTION_GET_CONTENT);
             mediaSelect.setType("image/");
-            String[] imageTypes = {"image/jpeg"};
+            String[] imageTypes = {"image/jpeg"}; // Only accept .JPG files
             mediaSelect.putExtra(Intent.EXTRA_MIME_TYPES, imageTypes);
             startActivityForResult(mediaSelect, imageRequestCode);
         });
 
+        // Adds entered ingredient to ingredient list
         mAddIngredient.setOnClickListener(v -> {
+            // Hide keyboard
             view.findViewById(R.id.createRecipeContainer).requestFocus();
             imm.hideSoftInputFromWindow(Objects.requireNonNull(requireActivity().getCurrentFocus())
                             .getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
+            // Get ingredient from fields
             String ingredientName = String.valueOf(mIngredientName.getText());
             mIngredientName.setText("");
             String ingredientMeasurement = String.valueOf(mIngredientMeasurement.getText());
             mIngredientMeasurement.setText("");
 
+            // Add to list
             mIngredientList.add(new IngredientData(ingredientName, ingredientMeasurement));
-
             mAdapter.notifyDataSetChanged();
         });
 
+        // Show option for fridge storage
         mFridge.setOnClickListener(v -> {
             if (mFridge.isChecked())
                 mFridgeDays.setVisibility(View.VISIBLE);
@@ -151,7 +158,9 @@ public class BasicInfo extends Fragment {
                 mFridgeDays.setVisibility(View.INVISIBLE);
         });
 
+        // Store all the data and return to creation page
         mSubmit.setOnClickListener(v -> {
+            // Checks for required fields being empty
             if (String.valueOf(mRecipeName.getText()).trim().equals(""))
                 Toast.makeText(getContext(), "Recipe must have a title",
                         Toast.LENGTH_SHORT).show();
@@ -171,6 +180,7 @@ public class BasicInfo extends Fragment {
                 Toast.makeText(getContext(), "Enter amount of days recipe can be stored in fridge",
                         Toast.LENGTH_SHORT).show();
             else {
+                // Create bundle and add all data
                 Bundle bundle = new Bundle();
                 bundle.putString("Name", String.valueOf(mRecipeName.getText()));
                 bundle.putFloat("serves", Float.parseFloat(String.valueOf(mRecipeServes.getText())));
@@ -189,6 +199,8 @@ public class BasicInfo extends Fragment {
                 bundle.putBoolean("breakfast", mBreakfast.isChecked());
                 bundle.putBoolean("lunch", mLunch.isChecked());
                 bundle.putBoolean("dinner", mDinner.isChecked());
+
+                // Options for diets
                 if (mDietDropdown.getSelectedItem().toString().equals("Vegan")) {
                     bundle.putBoolean("vegan", true);
                     bundle.putBoolean("vegetarian", true);
@@ -206,6 +218,7 @@ public class BasicInfo extends Fragment {
                     bundle.putBoolean("vegetarian", false);
                     bundle.putBoolean("pescatarian", false);
                 }
+
                 if (mFridge.isChecked())
                     bundle.putFloat("fridge", Float.parseFloat(String.valueOf(mFridgeDays.getText())));
                 else
@@ -213,6 +226,7 @@ public class BasicInfo extends Fragment {
                 bundle.putBoolean("freezer", mFrozen.isChecked());
                 bundle.putString("reheat", String.valueOf(mReheat.getText()));
 
+                // Return data to activity
                 ((RecipeCreation) requireActivity()).stepComplete(1, bundle);
             }
         });
@@ -222,6 +236,7 @@ public class BasicInfo extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        // Handle image callback
         if (resultCode == Activity.RESULT_OK)
             if (requestCode == imageRequestCode) {
                 imageUri = data.getData();

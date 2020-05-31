@@ -11,20 +11,25 @@ import com.group4sweng.scranplan.Xml.XmlParser.*;
 
 public class XmlSerializar {
 
+    // Create compatible XML file with provided data
     public void compile(FileOutputStream fileOutputStream, DocumentInfo documentInfo, Defaults defaults, ArrayList<Slide> slides) {
         XmlSerializer xmlSerializar = Xml.newSerializer();
 
         try {
+            // XML file settings
             xmlSerializar.setOutput(fileOutputStream, "UTF-8");
             xmlSerializar.startDocument("UTF-8", true);
             xmlSerializar.startTag("", "slideshow");
 
+            // Write document info and defaults to file
             writeDocInfo(xmlSerializar, documentInfo);
             writeDefaults(xmlSerializar, defaults);
 
+            // Write each slide as its own element to file
             for (Slide slide : slides)
                 writeSlide(xmlSerializar, slide);
 
+            // Close tags and finish document
             xmlSerializar.endTag("", "slideshow");
             xmlSerializar.endDocument();
             fileOutputStream.close();
@@ -34,6 +39,7 @@ public class XmlSerializar {
         }
     }
 
+    // Write document info into file
     private Boolean writeDocInfo(XmlSerializer xmlSerializar, DocumentInfo documentInfo) {
         try {
             xmlSerializar.startTag("", "documentinfo");
@@ -65,6 +71,7 @@ public class XmlSerializar {
         }
     }
 
+    // Write defaults into file
     private Boolean writeDefaults(XmlSerializer xmlSerializer, Defaults defaults) {
         try {
             xmlSerializer.startTag("", "defaults");
@@ -112,12 +119,14 @@ public class XmlSerializar {
         }
     }
 
+    // Write slide into file
     private Boolean writeSlide(XmlSerializer xmlSerializer, Slide slide) {
         try {
             xmlSerializer.startTag("", "slide");
             xmlSerializer.attribute("", "id", slide.id);
             xmlSerializer.attribute("", "duration", slide.duration.toString());
 
+            // Write text if present
             if (slide.text != null) {
                 xmlSerializer.startTag("", "text");
                 xmlSerializer.attribute("", "font", slide.text.font);
@@ -138,6 +147,7 @@ public class XmlSerializar {
                 xmlSerializer.endTag("", "text");
             }
 
+            // Write lines is present
             if (!slide.lines.isEmpty()) {
                 for (Line line : slide.lines) {
                     xmlSerializer.startTag("", "line");
@@ -154,6 +164,7 @@ public class XmlSerializar {
                 }
             }
 
+            // Write shapes if present
             if (!slide.shapes.isEmpty()) {
                 for (Shape shape : slide.shapes) {
                     xmlSerializer.startTag("", "shape");
@@ -175,6 +186,7 @@ public class XmlSerializar {
                 }
             }
 
+            // Write triangles if present
             if (!slide.triangles.isEmpty()) {
                 for (Triangle triangle : slide.triangles) {
                     xmlSerializer.startTag("", "triangle");
@@ -197,6 +209,7 @@ public class XmlSerializar {
                 }
             }
 
+            // Write audio is present
             if (slide.audio != null) {
                 xmlSerializer.startTag("", "audio");
                 xmlSerializer.attribute("", "urlname", slide.audio.urlName);
@@ -206,6 +219,7 @@ public class XmlSerializar {
                 xmlSerializer.endTag("", "audio");
             }
 
+            // Write image if present
             if (slide.image != null) {
                 xmlSerializer.startTag("", "image");
                 xmlSerializer.attribute("", "urlname", slide.image.urlName);
@@ -224,6 +238,7 @@ public class XmlSerializar {
                 xmlSerializer.endTag("", "image");
             }
 
+            // Write video if present
             if (slide.video != null) {
                 xmlSerializer.startTag("", "video");
                 xmlSerializer.attribute("", "urlname", slide.video.urlName);
@@ -241,6 +256,7 @@ public class XmlSerializar {
                 xmlSerializer.endTag("", "video");
             }
 
+            // Write timer if present
             if (slide.timer != null) {
                 xmlSerializer.startTag("", "timer");
                 xmlSerializer.text(String.valueOf(Math.round(slide.timer)));
@@ -254,6 +270,7 @@ public class XmlSerializar {
         }
     }
 
+    // Method to write shading element to file
     private boolean writeShading (XmlSerializer xmlSerializer, Shading shading) {
         try {
             xmlSerializer.startTag("", "shading");

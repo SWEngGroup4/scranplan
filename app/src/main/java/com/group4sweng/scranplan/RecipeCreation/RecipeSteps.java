@@ -23,8 +23,8 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.group4sweng.scranplan.Drawing.LayoutCreator;
 import com.group4sweng.scranplan.Administration.LoadingDialog;
+import com.group4sweng.scranplan.Drawing.LayoutCreator;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.RecipeCreation.RecipeStepsRecycler.StepData;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
@@ -37,7 +37,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class RecipeSteps extends Fragment {
 
@@ -100,6 +99,7 @@ public class RecipeSteps extends Fragment {
         return view;
     }
 
+    // Initialise all items on page
     private void initPageItems(View view) {
         mStorageRef = FirebaseStorage.getInstance().getReference();
         mAudioUris = new ArrayList<>();
@@ -107,11 +107,13 @@ public class RecipeSteps extends Fragment {
         mMediaUris = new ArrayList<>();
         mMediaRefs = new ArrayList<>();
 
+        // Page elements
         mStep = view.findViewById(R.id.recipeStepRecyler);
         mButtonDefaults = view.findViewById(R.id.recipeStepDefaults);
         mButtonAdd = view.findViewById(R.id.recipeStepAdd);
         mButtonSubmit = view.findViewById(R.id.recipeStepSubmit);
 
+        // App defaults
         mBackgroundColor = Color.WHITE;
         mFont = "Robotica";
         mFontSize = "Medium";
@@ -120,7 +122,6 @@ public class RecipeSteps extends Fragment {
         mFontBackground = Color.WHITE;
 
         slides = new ArrayList<>();
-
         mLoadingDialog = new LoadingDialog(getActivity());
 
         mStepList = new ArrayList<>();
@@ -142,6 +143,7 @@ public class RecipeSteps extends Fragment {
 
     private void initPageListeners(View view) {
 
+        // Store current default settings and load defaults dialog
         mButtonDefaults.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
             bundle.putInt("backColour", mBackgroundColor);
@@ -156,14 +158,17 @@ public class RecipeSteps extends Fragment {
             defaultsCreation.show(getFragmentManager(), "Show defaults fragment");
         });
 
+        // Add slide
         mButtonAdd.setOnClickListener(v -> addSlide());
 
+        // Create recipe
         mButtonSubmit.setOnClickListener(v -> {
             mLoadingDialog.startLoadingDialog();
             new CreateSlide().execute();
         });
     }
 
+    // Add slide to presentation
     private void addSlide() {
         mStepList.add(new StepData(null, null, null));
         mAdapter.notifyDataSetChanged();
@@ -176,10 +181,12 @@ public class RecipeSteps extends Fragment {
         imagePresent.add(false);
         videoPresent.add(false);
 
+        // Scroll to new slide
         smoothScroller.setTargetPosition(mAdapter.getItemCount() - 1);
         mManager.startSmoothScroll(smoothScroller);
     }
 
+    // Add media element to slide
     void addMedia(int position) {
         mAdapterPos = position;
         Intent mediaSelect = new Intent(Intent.ACTION_GET_CONTENT);
@@ -187,6 +194,7 @@ public class RecipeSteps extends Fragment {
         startActivityForResult(mediaSelect, mediaRequestCode);
     }
 
+    // Remove media element from slide
     void removeMedia(int position) {
         mStepList.get(position).removeMedia();
         mMediaRefs.remove(position);
@@ -196,6 +204,7 @@ public class RecipeSteps extends Fragment {
         mAdapter.notifyDataSetChanged();
     }
 
+    // Add audio element to slide
     void addAudio(int position) {
         mAdapterPos = position;
         Intent audioSelect = new Intent(Intent.ACTION_GET_CONTENT);
@@ -203,6 +212,7 @@ public class RecipeSteps extends Fragment {
         startActivityForResult(audioSelect, audioRequestCode);
     }
 
+    // Remove audio element from slide
     void removeAudio(int position) {
         mStepList.get(position).removeAudio();
         mAudioRefs.remove(position);
@@ -210,16 +220,19 @@ public class RecipeSteps extends Fragment {
         mAdapter.notifyDataSetChanged();
     }
 
+    // Add timer to slide
     void addTimer(int position) {
         mStepList.get(position).showTimer();
         mAdapter.notifyDataSetChanged();
     }
 
+    // Remove timer from slide
     void removeTimer(int position) {
         mStepList.get(position).removeTimer();
         mAdapter.notifyDataSetChanged();
     }
 
+    // Add user created graphics to slide
     void addGraphics(int position) {
         mAdapterPos = position;
         Intent graphicsView = new Intent(getContext(), LayoutCreator.class);
@@ -229,27 +242,38 @@ public class RecipeSteps extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d("Test", "Activity result");
         if (resultCode == Activity.RESULT_OK) {
+
+            // Returned on media requests
             if (requestCode == mediaRequestCode) {
                 Uri mMediaUri = data.getData();
                 mMediaUris.add(mAdapterPos, mMediaUri);
 
                 if (mMediaUri != null) {
+                    // Handler for images
                     if (mMediaUri.toString().contains("image")) {
                         imagePresent.set(mAdapterPos, true);
+
+                        // Create unique storage reference
                         mMediaRefs.add(mAdapterPos, mStorageRef.child("presentations/images/"
                                 + mUser.getUID() + "_" + mUser.getRecipes() + "_step" + mAdapterPos));
                         mStepList.get(mAdapterPos).setMedia(mMediaUri);
+
                         mAdapter.notifyDataSetChanged();
+
+                    // Handler for videos
                     } else if (mMediaUri.toString().contains("video")) {
                         videoPresent.set(mAdapterPos, true);
+
+                        // Create unique storage reference
                         mMediaRefs.add(mAdapterPos, mStorageRef.child("presentations/videos/"
                                 + mUser.getUID() + "_" + mUser.getRecipes() + "_step" + mAdapterPos));
                         mStepList.get(mAdapterPos).setMedia(mMediaUri);
                         mAdapter.notifyDataSetChanged();
                     }
                 }
+
+            // Returned on audio requests
             } else if (requestCode == audioRequestCode) {
                 Uri mAudioUri = data.getData();
                 mAudioUris.add(mAdapterPos, mAudioUri);
@@ -258,16 +282,20 @@ public class RecipeSteps extends Fragment {
                     mStepList.get(mAdapterPos).setAudio(mAudioUri);
                     mAdapter.notifyDataSetChanged();
 
+                    // Create unique storage reference
                     mAudioRefs.add(mAdapterPos, mStorageRef.child("presentations/audio/"
                             + mUser.getUID() + "_" + mUser.getRecipes() + "_step" + mAdapterPos));
                 }
+
+            // Returned on user create graphics requests
             } else if (requestCode == graphicsRequestCode) {
                 Bundle graphics = data.getExtras();
-                Log.d("Test", "Worked");
                 ArrayList<XmlParser.Shape> shapes = (ArrayList<XmlParser.Shape>) graphics.getSerializable("shapes");
                 ArrayList<XmlParser.Triangle> triangles = (ArrayList<XmlParser.Triangle>) graphics.getSerializable("triangles");
 
                 mStepList.get(mAdapterPos).setGraphics(shapes, triangles);
+
+            // Returned after setting defaults
             } else if (requestCode == defaultsRequestCode) {
                 Bundle bundle = data.getExtras();
                 mBackgroundColor = bundle.getInt("backColour");
@@ -276,6 +304,7 @@ public class RecipeSteps extends Fragment {
                 mFontColor = bundle.getInt("fontColour");
                 mFontBackground = bundle.getInt("fontBackground");
 
+                // Convert font size from string to int
                 switch (mFontSize) {
                     case "Small":
                         mFontSizeInt = 14;
@@ -291,6 +320,7 @@ public class RecipeSteps extends Fragment {
         }
     }
 
+    // Compiles all data for slide creation
     private class CreateSlide extends AsyncTask<Void, Void, Void> {
 
         @Override
@@ -299,38 +329,38 @@ public class RecipeSteps extends Fragment {
             return null;
         }
 
+        // Create all the elements for XML creation
         private void buildXML() {
             ArrayList<XmlParser.Audio> audios = new ArrayList<>();
-            Uri audioDownload = null;
             ArrayList<XmlParser.Image> images = new ArrayList<>();
             ArrayList<XmlParser.Video> videos = new ArrayList<>();
             ArrayList<Uri> mediaDownloads = new ArrayList<>();
 
+            // Keep track of uploads and downloads for synchronous finish
             List<UploadTask> uploadTasks = new ArrayList<>();
             List<Task<Uri>> downloadTasks = new ArrayList<>();
 
             for (int i = 0; i < mAdapter.getItemCount(); i++) {
                 int pos = i;
 
+                // Make sure arrays aren't empty for each slide
                 audios.add(null);
                 images.add(null);
                 videos.add(null);
                 mediaDownloads.add(null);
 
+                // Upload audio file
                 try {
                     UploadTask audioTask = mAudioRefs.get(pos).putFile(mAudioUris.get(pos));
-                    uploadTasks.add(audioTask);
-                    Log.d("Test", "Audio upload starting");
+                    uploadTasks.add(audioTask); // Keeps track of ongoing tasks
 
                     audioTask.addOnFailureListener(e ->
                             Toast.makeText(getContext(), "Failed to upload image", Toast.LENGTH_SHORT).show())
                             .addOnSuccessListener(audioSnapshot -> {
-                                Log.d("Test", "Audio upload done");
                                 Task<Uri> downloadTask = mAudioRefs.get(pos).getDownloadUrl();
-                                downloadTasks.add(downloadTask);
+                                downloadTasks.add(downloadTask); //Keeps track of ongoing tasks
                                 downloadTask.addOnSuccessListener(audioUri -> {
-                                    Log.d("Test", "Audio task complete");
-                                    downloadTasks.add(mAudioRefs.get(pos).getDownloadUrl());
+                                    downloadTasks.add(mAudioRefs.get(pos).getDownloadUrl()); // Retrieve download link
                                     audios.set(pos, new XmlParser.Audio(audioUri.toString(), 0, false));
                                 });
                             });
@@ -338,91 +368,104 @@ public class RecipeSteps extends Fragment {
                     e.printStackTrace();
                 }
 
+                // Upload media
                 try {
                     UploadTask mediaTask = mMediaRefs.get(i).putFile(mMediaUris.get(pos));
-                    uploadTasks.add(mediaTask);
-                    Log.d("Test", "Media[" + i + "] upload starting");
-
-                    int finalI = i;
+                    uploadTasks.add(mediaTask); // Keeps track of ongoing tasks
+                    int finalI = i; // Needed for access within class
                     mediaTask.addOnFailureListener(e ->
                             Toast.makeText(getContext(), "Failed to upload media", Toast.LENGTH_SHORT).show())
                             .addOnSuccessListener(mediaSnapshot -> {
-                                Log.d("Test", "Media[" + finalI + "] upload done");
                                 Task<Uri> downloadTask = mMediaRefs.get(pos).getDownloadUrl();
-                                downloadTasks.add(downloadTask);
+                                downloadTasks.add(downloadTask); // Keeps track of ongoing tasks
                                 downloadTask.addOnSuccessListener(mediaUri -> {
-                                    Log.d("Test", "Media[" + finalI + " task complete with uri: " + mediaUri.toString());
-                                    mediaDownloads.set(finalI, mediaUri);;
+                                    mediaDownloads.set(finalI, mediaUri); // Retrieve download link
                                 });
                             });
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
 
-                int finalI1 = i;
-                Tasks.whenAllSuccess(uploadTasks).addOnCompleteListener(uTask -> {
-                    Log.d("Test", "All uploads done for " + finalI1);
+                // When all uploads are completed
+                Tasks.whenAllSuccess(uploadTasks).addOnCompleteListener(uTask ->
+                        // When all downloads are completed
+                        Tasks.whenAllSuccess(downloadTasks).addOnCompleteListener(dTask -> {
 
-                    Tasks.whenAllSuccess(downloadTasks).addOnCompleteListener(dTask -> {
-                        Log.d("Test", "All tasks complete for " + finalI1);
+                    XmlParser.Text text = null;
 
-                        XmlParser.Text text = null;
-                        if (!mStepList.get(pos).getDescription().equals("")) {
-                            if (imagePresent.get(pos) || videoPresent.get(pos)) {
-                                if (imagePresent.get(pos)) {
-                                    images.set(pos, new XmlParser.Image(mediaDownloads.get(pos).toString(), 10f, 10f, 80f, 40f, 0, 0));
-                                } else if (videoPresent.get(pos)) {
-                                    videos.set(pos, new XmlParser.Video(mediaDownloads.get(pos).toString(), 0, false, 0f, 10f, 100f, 40f));
-                                }
-                                text = new XmlParser.Text(mStepList.get(pos).getDescription(), "#" + Integer.toHexString(mFontBackground),
-                                        mFont, mFontSizeInt, "#" + Integer.toHexString(mFontColor), 800,
-                                        10f, 60f, 30f, 80f, 0, 0, "", "");
-                            } else {
-                                text = new XmlParser.Text(mStepList.get(pos).getDescription(), "#" + Integer.toHexString(mFontBackground),
-                                        mFont, mFontSizeInt, "#" + Integer.toHexString(mFontColor), 800,
-                                        10f, 10f, 80f, 80f, 0, 0, "", "");
-                            }
-                        }
-                        else {
+                    // If text is present on slide...
+                    if (!mStepList.get(pos).getDescription().equals("")) {
+                        if (imagePresent.get(pos) || videoPresent.get(pos)) {
+                            // Create appropriate media element with correct sizing for text
                             if (imagePresent.get(pos)) {
-                                images.set(pos, new XmlParser.Image(mediaDownloads.get(pos).toString(), 10f, 30f, 80f, 80f, 0, 0));
+                                images.set(pos, new XmlParser.Image(mediaDownloads.get(pos).toString(), 10f, 10f, 80f, 40f, 0, 0));
                             } else if (videoPresent.get(pos)) {
-                                videos.set(pos, new XmlParser.Video(mediaDownloads.get(pos).toString(), 0, false, 0f, 10f, 100f, 90f));
+                                videos.set(pos, new XmlParser.Video(mediaDownloads.get(pos).toString(), 0, false, 0f, 10f, 100f, 40f));
                             }
+                            text = new XmlParser.Text(mStepList.get(pos).getDescription(), "#" + Integer.toHexString(mFontBackground),
+                                    mFont, mFontSizeInt, "#" + Integer.toHexString(mFontColor), 800,
+                                    10f, 60f, 30f, 80f, 0, 0, "", "");
+                        } else {
+                            // Create larger text box if no media present
+                            text = new XmlParser.Text(mStepList.get(pos).getDescription(), "#" + Integer.toHexString(mFontBackground),
+                                    mFont, mFontSizeInt, "#" + Integer.toHexString(mFontColor), 800,
+                                    10f, 10f, 80f, 80f, 0, 0, "", "");
                         }
-
-                        ArrayList<XmlParser.Line> lines = new ArrayList<>();
-                        ArrayList<XmlParser.Shape> shapes = mStepList.get(pos).getShapes();
-                        ArrayList<XmlParser.Triangle> triangles = mStepList.get(pos).getTriangles();
-                        Float timer = null;
-                        if (mStepList.get(pos).getTimer() != null) {
-                            timer = mStepList.get(pos).getTimer() * 6000f;
+                    }
+                    // If no text present
+                    else {
+                        // Create larger appropriate media element
+                        if (imagePresent.get(pos)) {
+                            images.set(pos, new XmlParser.Image(mediaDownloads.get(pos).toString(), 10f, 30f, 80f, 80f, 0, 0));
+                        } else if (videoPresent.get(pos)) {
+                            videos.set(pos, new XmlParser.Video(mediaDownloads.get(pos).toString(), 0, false, 0f, 10f, 100f, 80f));
                         }
+                    }
 
+                    // Lines cannot be added
+                    ArrayList<XmlParser.Line> lines = new ArrayList<>();
+                    // Get user shape locations
+                    ArrayList<XmlParser.Shape> shapes = mStepList.get(pos).getShapes();
+                    ArrayList<XmlParser.Triangle> triangles = mStepList.get(pos).getTriangles();
 
-                        slides.add(new XmlParser.Slide("Step " + (pos + 1), -1, text, lines, shapes, triangles, audios.get(pos),
-                                null, images.get(pos), videos.get(pos), timer));
-                        if (slides.size() == mAdapter.getItemCount())
-                            createXML();
-                    });
-                });
+                    // Convert timer from minutes into milliseconds
+                    Float timer = null;
+                    if (mStepList.get(pos).getTimer() != null) {
+                        timer = mStepList.get(pos).getTimer() * 60000f;
+                    }
+
+                    // Create slide element
+                    slides.add(new XmlParser.Slide("Step " + (pos + 1), -1, text, lines, shapes, triangles, audios.get(pos),
+                            null, images.get(pos), videos.get(pos), timer));
+
+                    // Once all slides are created, compile into XML
+                    if (slides.size() == mAdapter.getItemCount())
+                        createXML();
+                }));
             }
         }
 
+
+        // Creates XML file
         private void createXML() {
             XmlSerializar xmlSerializar = new XmlSerializar();
+
+            // Creates document info and defaults for XML file
             XmlParser.DocumentInfo documentInfo = new XmlParser.DocumentInfo(mUser.getUID(),
                     Calendar.getInstance().getTime().toString(), 1.0f, mAdapter.getItemCount(), "User recipe " + mUser.getRecipes());
             XmlParser.Defaults defaults = new XmlParser.Defaults("#" + Integer.toHexString(mBackgroundColor), mFont, "#" + Integer.toHexString(mFontBackground),
                     mFontSizeInt, "#" + Integer.toHexString(mFontColor), "#000000", "#000000", -1, -1);
-            Log.d("Test", "Building XML");
+
             try {
+                // Create new file in phone storage
                 File recipeXML = new File(getContext().getFilesDir().getPath() + "recipe.xml");
                 recipeXML.createNewFile();
+
+                // Compile XML
                 FileOutputStream fileOutputStream = new FileOutputStream(recipeXML);
                 xmlSerializar.compile(fileOutputStream, documentInfo, defaults, slides);
-                Log.d("Test", "XML written");
 
+                // Upload XML file to unique location and return to creation screen
                 StorageReference xmlRef = mStorageRef.child("presentations/xml/" + mUser.getUID() + "_" + mUser.getRecipes());
                 UploadTask xmlTask = xmlRef.putFile(Uri.fromFile(recipeXML));
                 xmlTask.addOnSuccessListener(taskSnapshot -> xmlRef.getDownloadUrl().addOnSuccessListener(uri -> {
@@ -433,6 +476,7 @@ public class RecipeSteps extends Fragment {
                     ((RecipeCreation) requireActivity()).stepComplete(2, bundle);
                 }));
             } catch (IOException e) {
+                Toast.makeText(getContext(), "Something went wrong, please try again", Toast.LENGTH_SHORT);
                 e.printStackTrace();
             }
         }

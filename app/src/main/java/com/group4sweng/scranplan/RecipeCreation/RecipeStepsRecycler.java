@@ -31,6 +31,7 @@ public class RecipeStepsRecycler extends RecyclerView.Adapter<RecipeStepsRecycle
     private RecipeSteps mRecipeSteps;
     private List<StepData> mData;
 
+    // Custom Object to store data for each slide
     static class StepData {
         private Uri media;
         private boolean mediaChanged = false;
@@ -72,10 +73,6 @@ public class RecipeStepsRecycler extends RecyclerView.Adapter<RecipeStepsRecycle
             this.audioChanged = false;
         }
 
-        void setTimer(Float timer) {
-            this.timer = timer;
-        }
-
         Float getTimer() {
             return this.timer;
         }
@@ -94,12 +91,14 @@ public class RecipeStepsRecycler extends RecyclerView.Adapter<RecipeStepsRecycle
             this.triangles = triangles;
         }
 
+        // Return non-null list
         ArrayList<XmlParser.Shape> getShapes() {
             if (shapes == null)
                 shapes = new ArrayList<>();
             return shapes;
         }
 
+        // Return non-null list
         ArrayList<XmlParser.Triangle> getTriangles() {
             if (triangles == null)
                 triangles = new ArrayList<>();
@@ -107,6 +106,7 @@ public class RecipeStepsRecycler extends RecyclerView.Adapter<RecipeStepsRecycle
         }
     }
 
+    // Initialise view holder for recycler view
     static class ViewHolder extends RecyclerView.ViewHolder {
         private CardView cardView;
         private TextView stepId;
@@ -125,6 +125,7 @@ public class RecipeStepsRecycler extends RecyclerView.Adapter<RecipeStepsRecycle
 
         private ViewHolder(View v, StepListener stepTextListener, TimerListener timerValueListener) {
             super(v);
+            // Assign all page elements
             cardView = v.findViewById(R.id.recipeStepCardView);
             stepId = v.findViewById(R.id.recipeStepID);
             stepRemove = v.findViewById(R.id.recipeStepRemove);
@@ -155,6 +156,8 @@ public class RecipeStepsRecycler extends RecyclerView.Adapter<RecipeStepsRecycle
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+
+        // Inflate view
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recipe_step_recycler, parent, false);
         return new ViewHolder(v, new StepListener(), new TimerListener());
@@ -162,23 +165,30 @@ public class RecipeStepsRecycler extends RecyclerView.Adapter<RecipeStepsRecycle
 
     @Override
     public void onBindViewHolder(@NonNull RecipeStepsRecycler.ViewHolder holder, int position) {
+        // Assign order to step
         holder.stepId.setText("Step " + (position + 1));
 
+        // Remove step when close button is pressed
         holder.stepRemove.setOnClickListener(v -> {
             mData.remove(position);
             notifyItemRemoved(position);
             notifyItemRangeChanged(position, mData.size());
         });
 
+        // Update step when media is loaded in
         if (mData.get(position).mediaChanged) {
+            // Load in picture fitted into dimensions
             Picasso.get().load(mData.get(position).media).fit().centerCrop().into(holder.stepMedia);
             holder.stepMedia.setVisibility(View.VISIBLE);
 
+            // Show path to uploaded file
             holder.mediaUri.setText(mData.get(position).media.toString() + " \u2713");
             holder.mediaUri.setVisibility(View.VISIBLE);
 
+            // Change button to remove media
             holder.addMedia.setText("Remove media");
             holder.addMedia.setOnClickListener(v -> mRecipeSteps.removeMedia(position));
+        // Update step when media is removed
         } else {
             holder.stepMedia.setVisibility(View.GONE);
             holder.mediaUri.setVisibility(View.GONE);
@@ -187,15 +197,20 @@ public class RecipeStepsRecycler extends RecyclerView.Adapter<RecipeStepsRecycle
             holder.addMedia.setOnClickListener(v -> mRecipeSteps.addMedia(position));
         }
 
+        // Set text of step
         holder.stepTextListener.setPosition(position);
         holder.stepText.setText(mData.get(position).description);
 
+        // Update step if audio is present
         if (mData.get(position).audioChanged) {
+            // Show path to uploaded audio
             holder.audioUri.setText(mData.get(position).audio.toString() + " \u2713");
             holder.audioUri.setVisibility(View.VISIBLE);
 
+            // Change button to remove audio
             holder.addAudio.setText("Remove audio");
             holder.addAudio.setOnClickListener(v -> mRecipeSteps.removeAudio(position));
+        // Update step is audio is removed
         } else {
             holder.audioUri.setVisibility(View.GONE);
 
@@ -203,16 +218,22 @@ public class RecipeStepsRecycler extends RecyclerView.Adapter<RecipeStepsRecycle
             holder.addAudio.setOnClickListener(v -> mRecipeSteps.addAudio(position));
         }
 
+        // Show timer field if timer is added to step
         if (mData.get(position).timerChanged) {
             holder.timerValueListener.setPosition(position);
+
+            // Show field as empty if no data is added
             if (mData.get(position).timer == null)
                 holder.timerValue.setText("");
             else
                 holder.timerValue.setText(String.format("%f", mData.get(position).timer));
+
             holder.timerValue.setVisibility(View.VISIBLE);
 
+            // Change button to remove timer
             holder.addTimer.setText("Remove timer");
             holder.addTimer.setOnClickListener(v -> mRecipeSteps.removeTimer(position));
+        // Hide timer field is no timer is present
         } else {
             holder.timerValue.setVisibility(View.GONE);
 
@@ -220,6 +241,7 @@ public class RecipeStepsRecycler extends RecyclerView.Adapter<RecipeStepsRecycle
             holder.addTimer.setOnClickListener(v -> mRecipeSteps.addTimer(position));
         }
 
+        // Graphics button functionality - does not save previous graphical configuration
         holder.addGraphics.setOnClickListener(v -> mRecipeSteps.addGraphics(position));
 
     }
@@ -229,6 +251,7 @@ public class RecipeStepsRecycler extends RecyclerView.Adapter<RecipeStepsRecycle
         return mData.size();
     }
 
+    // Listener for step description to update step
     private class StepListener implements TextWatcher {
 
         private Integer position;
@@ -253,6 +276,7 @@ public class RecipeStepsRecycler extends RecyclerView.Adapter<RecipeStepsRecycle
         }
     }
 
+    // Listener for timer value to update step
     private class TimerListener implements TextWatcher {
 
         private Integer position;
