@@ -52,6 +52,8 @@ public class RecipeSteps extends Fragment {
     private Integer mFontColor;
     private Integer mFontBackground;
 
+    private Long recipeNum;
+
     private UserInfoPrivate mUser;
     private StorageReference mStorageRef;
     private ArrayList<StorageReference> mMediaRefs;
@@ -78,8 +80,9 @@ public class RecipeSteps extends Fragment {
     private Integer graphicsRequestCode = 3;
     private Integer defaultsRequestCode = 4;
 
-    RecipeSteps(UserInfoPrivate user) {
+    RecipeSteps(UserInfoPrivate user, Long recipeNum) {
         mUser = user;
+        this.recipeNum = recipeNum;
     }
 
     @Override
@@ -256,7 +259,7 @@ public class RecipeSteps extends Fragment {
 
                         // Create unique storage reference
                         mMediaRefs.add(mAdapterPos, mStorageRef.child("presentations/images/"
-                                + mUser.getUID() + "_" + mUser.getRecipes() + "_step" + mAdapterPos));
+                                + mUser.getUID() + "_" + recipeNum + "_step" + mAdapterPos));
                         mStepList.get(mAdapterPos).setMedia(mMediaUri);
 
                         mAdapter.notifyDataSetChanged();
@@ -267,7 +270,7 @@ public class RecipeSteps extends Fragment {
 
                         // Create unique storage reference
                         mMediaRefs.add(mAdapterPos, mStorageRef.child("presentations/videos/"
-                                + mUser.getUID() + "_" + mUser.getRecipes() + "_step" + mAdapterPos));
+                                + mUser.getUID() + "_" + recipeNum + "_step" + mAdapterPos));
                         mStepList.get(mAdapterPos).setMedia(mMediaUri);
                         mAdapter.notifyDataSetChanged();
                     }
@@ -284,7 +287,7 @@ public class RecipeSteps extends Fragment {
 
                     // Create unique storage reference
                     mAudioRefs.add(mAdapterPos, mStorageRef.child("presentations/audio/"
-                            + mUser.getUID() + "_" + mUser.getRecipes() + "_step" + mAdapterPos));
+                            + mUser.getUID() + "_" + recipeNum + "_step" + mAdapterPos));
                 }
 
             // Returned on user create graphics requests
@@ -452,7 +455,7 @@ public class RecipeSteps extends Fragment {
 
             // Creates document info and defaults for XML file
             XmlParser.DocumentInfo documentInfo = new XmlParser.DocumentInfo(mUser.getUID(),
-                    Calendar.getInstance().getTime().toString(), 1.0f, mAdapter.getItemCount(), "User recipe " + mUser.getRecipes());
+                    Calendar.getInstance().getTime().toString(), 1.0f, mAdapter.getItemCount(), "User recipe " + recipeNum);
             XmlParser.Defaults defaults = new XmlParser.Defaults("#" + Integer.toHexString(mBackgroundColor), mFont, "#" + Integer.toHexString(mFontBackground),
                     mFontSizeInt, "#" + Integer.toHexString(mFontColor), "#000000", "#000000", -1, -1);
 
@@ -466,7 +469,7 @@ public class RecipeSteps extends Fragment {
                 xmlSerializar.compile(fileOutputStream, documentInfo, defaults, slides);
 
                 // Upload XML file to unique location and return to creation screen
-                StorageReference xmlRef = mStorageRef.child("presentations/xml/" + mUser.getUID() + "_" + mUser.getRecipes());
+                StorageReference xmlRef = mStorageRef.child("presentations/xml/" + mUser.getUID() + "_" + recipeNum);
                 UploadTask xmlTask = xmlRef.putFile(Uri.fromFile(recipeXML));
                 xmlTask.addOnSuccessListener(taskSnapshot -> xmlRef.getDownloadUrl().addOnSuccessListener(uri -> {
                     Bundle bundle = new Bundle();

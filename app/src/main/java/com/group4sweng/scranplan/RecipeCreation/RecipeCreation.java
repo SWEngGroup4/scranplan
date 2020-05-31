@@ -7,10 +7,15 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -33,8 +38,12 @@ public class RecipeCreation extends AppCompatActivity {
     // Firebase references
     private FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
     private CollectionReference mColRef = mDatabase.collection("recipes");
+    private CollectionReference mUserRef = mDatabase.collection("users");
+    DocumentReference documentReference;
     private StorageReference mStoreRef = FirebaseStorage.getInstance().getReference();
     private UserInfoPrivate mUser;
+
+    private Long recipeNum;
 
     private final static int BASIC_INFO_FLAG = 1;
     private final static int RECIPE_STEPS_FLAG = 2;
@@ -45,16 +54,27 @@ public class RecipeCreation extends AppCompatActivity {
         setContentView(R.layout.activity_create_recipe);
 
         mUser = (UserInfoPrivate) getIntent().getSerializableExtra("user");
+        documentReference  = mUserRef.document(mUser.getUID());
+        documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot.exists()) {
+                        recipeNum = (Long) documentSnapshot.get("numRecipes");
+                        // Loads initial recipe creation screen
+                        frameLayout = findViewById(R.id.createRecipeFrame);
+                        fragmentManager = getSupportFragmentManager();
+                        fragmentManager.beginTransaction().replace(R.id.createRecipeFrame, new BasicInfo()).
+                                setCustomAnimations(R.anim.exit_to_right, R.anim.enter_from_left).commitNow();
+                        spinner.setVisibility(View.INVISIBLE);
+                    }
+                }
+            }
+        });
 
         spinner = findViewById(R.id.createRecipeSpinner);
         mRecipeMap = new HashMap<>();
-
-        // Loads initial recipe creation screen
-        frameLayout = findViewById(R.id.createRecipeFrame);
-        fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.createRecipeFrame, new BasicInfo()).
-                setCustomAnimations(R.anim.exit_to_right, R.anim.enter_from_left).commitNow();
-        spinner.setVisibility(View.INVISIBLE);
     }
 
     public void stepComplete(int requestCode, Bundle bundle) {
@@ -66,7 +86,7 @@ public class RecipeCreation extends AppCompatActivity {
                         mRecipeMap.put(key, bundle.get(key));
 
                 //Loads presentation creation screen
-                fragmentManager.beginTransaction().replace(R.id.createRecipeFrame, new RecipeSteps(mUser)).
+                fragmentManager.beginTransaction().replace(R.id.createRecipeFrame, new RecipeSteps(mUser, recipeNum)).
                         setCustomAnimations(R.anim.exit_to_right, R.anim.enter_from_left).commitNow();
                 break;
 
@@ -78,7 +98,7 @@ public class RecipeCreation extends AppCompatActivity {
                         mRecipeMap.put(key, bundle.get(key));
 
                 // Creating unique storage reference for recipe image
-                StorageReference ref = mStoreRef.child("recipe_pictures/" + mUser.getUID() + "_" + mUser.getRecipes());
+                StorageReference ref = mStoreRef.child("recipe_pictures/" + mUser.getUID() + "_" + recipeNum);
 
                 //Upload recipe image
                 ref.putFile(Uri.parse((String) mRecipeMap.get("imageURL"))).addOnSuccessListener(
@@ -94,10 +114,11 @@ public class RecipeCreation extends AppCompatActivity {
                             mRecipeMap.put("favourite", new ArrayList<>());
 
                             // Upload hashmap data
-                            mColRef.document(mUser.getUID() + "_" +
-                                    mUser.getRecipes()).set(mRecipeMap).addOnSuccessListener(aVoid -> {
+                            mColRef.document(mUser.getUID() + "_" + recipeNum)
+                                    .set(mRecipeMap).addOnSuccessListener(aVoid -> {
                                         // Finish activity
                                         mUser.setRecipes(mUser.getRecipes() + 1);
+                                        documentReference.update("numRecipes", FieldValue.increment(1));
                                         setResult(Activity.RESULT_OK);
                                         finish();
                             });
