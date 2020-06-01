@@ -1,32 +1,7 @@
 package com.group4sweng.scranplan.Presentation;
 
-import androidx.test.core.app.ActivityScenario;
-import androidx.test.espresso.Espresso;
-import androidx.test.espresso.matcher.ViewMatchers;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.LargeTest;
-import androidx.test.rule.ActivityTestRule;
-
 import com.group4sweng.scranplan.Credentials;
 import com.group4sweng.scranplan.EspressoHelper;
-import com.group4sweng.scranplan.Home;
-import com.group4sweng.scranplan.Login;
-import com.group4sweng.scranplan.R;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.typeText;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.CoreMatchers.not;
 
 /**
  * Tests that the timer view is displayed properly for each slide within a test presentation.
@@ -39,22 +14,22 @@ import static org.hamcrest.CoreMatchers.not;
  *  -- USER STORY TESTS LINKED WITH ---
  *  C21, Audio/timer
  **/
-@RunWith(AndroidJUnit4.class)
-@LargeTest
+//@RunWith(AndroidJUnit4.class)
+//@LargeTest
 public class TimerTest extends EspressoHelper implements Credentials {
 
-
-    //  Test recipe to search for and compare our results to.
-    private static final String TEST_RECIPE = "Ultimate spaghetti carbonara recipe";
-
-    //  Timer interval in milliseconds corresponding to each slide from start to finish. E.g. slide 1 = index 0.
-    //  -1 means no timer is present.
-    private static final int[] TEST_RECIPE_TIMER_VALUES = {-1, -1, -1, 600000, -1, -1, 300000, -1, -1, -1, -1, -1};
-
-
-    @Rule
-    public ActivityTestRule<Home> mActivityTestRule = new ActivityTestRule<Home>(Home.class);
-    //TODO uncomment when XML issue is resolved with test recipe
+//
+//    //  Test recipe to search for and compare our results to.
+//    private static final String TEST_RECIPE = "Ultimate spaghetti carbonara recipe";
+//
+//    //  Timer interval in milliseconds corresponding to each slide from start to finish. E.g. slide 1 = index 0.
+//    //  -1 means no timer is present.
+//    private static final int[] TEST_RECIPE_TIMER_VALUES = {-1, -1, -1, 600000, -1, -1, 300000, -1, -1, -1, -1, -1};
+//
+//
+//    @Rule
+//    public ActivityTestRule<Home> mActivityTestRule = new ActivityTestRule<Home>(Home.class);
+//    //TODO uncomment when XML issue is resolved with test recipe
 
 //    //  Login, search for the appropriate recipe and open the presentation.
 //    @Before

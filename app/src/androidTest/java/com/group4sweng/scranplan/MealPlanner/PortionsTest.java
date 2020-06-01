@@ -24,7 +24,6 @@ import static androidx.test.espresso.action.ViewActions.longClick;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isClickable;
-import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -79,9 +78,9 @@ public class PortionsTest implements Credentials {
         Thread.sleep(THREAD_SLEEP_TIME);
 
         onView(withText("Meal Planner")).perform(click());
-        onView(withId(0)).perform(longClick());
+        onView(withId(1)).perform(longClick());
         Thread.sleep(THREAD_SLEEP_TIME/4);
-        onView(withId(0)).perform(click());
+        onView(withId(1)).perform(click());
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
@@ -95,16 +94,8 @@ public class PortionsTest implements Credentials {
     //  Checks change portions button is visible, clickable and is completely displayed.
     @Test
     public void testChangePortionsDisplayed() throws InterruptedException {
-        onView(withId(0)).perform(longClick());
-        Thread.sleep(THREAD_SLEEP_TIME/4);
-        onView(withId(0)).perform(click());
-        Thread.sleep(THREAD_SLEEP_TIME/4);
-        navigateToRecipe("Bacon sandwich");
-        onView(withText("Add")).perform(click());
-        onView(withId(0)).perform(click());
+        onView(withId(1)).perform(click());
         onView(withId(R.id.changePortions))
-                .check(matches(isDisplayed()))
-                .check(matches(isCompletelyDisplayed()))
                 .check(matches(isClickable()));
     }
 
