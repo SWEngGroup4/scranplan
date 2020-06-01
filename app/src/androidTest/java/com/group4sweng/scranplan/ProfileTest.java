@@ -8,6 +8,7 @@ import com.group4sweng.scranplan.UserInfo.Kudos;
 import com.group4sweng.scranplan.UserInfo.Preferences;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -224,5 +225,11 @@ public class ProfileTest extends EspressoHelper {
 
         onView(withText(Kudos.chefLevel))
                 .check(matches(isDisplayed()));
+    }
+
+    @After
+    public void finishOff() {
+        EspressoHelper.shouldSkip = false;
+        this.mActivityTestRule.finishActivity();
     }
 }

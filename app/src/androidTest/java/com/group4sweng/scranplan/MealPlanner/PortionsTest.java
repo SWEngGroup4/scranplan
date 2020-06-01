@@ -28,6 +28,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static com.group4sweng.scranplan.EspressoHelper.navigateToRecipe;
 
 
 /** UI Tests for portions conversion
@@ -84,7 +85,7 @@ public class PortionsTest implements Credentials {
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        EspressoHelper.navigateToRecipe(TEST_RECIPE);
+        navigateToRecipe(TEST_RECIPE);
         Thread.sleep(THREAD_SLEEP_TIME/4);
         onView(withText("ADD")).perform(click());
 
@@ -93,9 +94,14 @@ public class PortionsTest implements Credentials {
 
     //  Checks change portions button is visible, clickable and is completely displayed.
     @Test
-    public void testChangePortionsDisplayed(){
+    public void testChangePortionsDisplayed() throws InterruptedException {
+        onView(withId(0)).perform(longClick());
+        Thread.sleep(THREAD_SLEEP_TIME/4);
         onView(withId(0)).perform(click());
-
+        Thread.sleep(THREAD_SLEEP_TIME/4);
+        navigateToRecipe("Bacon sandwich");
+        onView(withText("Add")).perform(click());
+        onView(withId(0)).perform(click());
         onView(withId(R.id.changePortions))
                 .check(matches(isDisplayed()))
                 .check(matches(isCompletelyDisplayed()))
