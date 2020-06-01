@@ -74,7 +74,7 @@ public class PresentationTextView extends ScrollView {
 
     // Sets background colour of text box
     public void setBackgroundColour(String colour) {
-        this.setBackgroundColor(Color.parseColor(colour));
+        textView.setBackgroundColor(Color.parseColor(colour));
     }
 
     // Sets text in text box (Handles <b> and <i> tags within string)
@@ -160,14 +160,12 @@ public class PresentationTextView extends ScrollView {
     public void stopTimers() {
         try {
             startTimer.cancel();
-            startTimer = null;
         }
         catch (Exception e) {
             e.printStackTrace();
         }
         try {
             endTimer.cancel();
-            endTimer = null;
         }
         catch (Exception e) {
             e.printStackTrace();

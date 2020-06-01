@@ -17,6 +17,7 @@ import com.group4sweng.scranplan.Login;
  */
 public enum HiddenViews {
 
+//    LAYOUT_TEST("AccioLayoutCreator2020", LayoutCreator.class);
     LOGIN("AccioLogin2020", Login.class);
 
     private String usernamekeyWord;

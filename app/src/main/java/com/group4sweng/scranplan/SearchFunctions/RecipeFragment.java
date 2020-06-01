@@ -42,8 +42,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+
+import io.sentry.core.Sentry;
 
 import static com.group4sweng.scranplan.SearchFunctions.QueryRequestCode.QueryRequestCodes;
+
+import io.sentry.core.Sentry;
 
 /**
  * Class for the home page fragment containing horizontal meals to scroll though.
@@ -127,6 +132,8 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
     private SearchView searchView;
     private MenuItem sortView;
     private SearchPrefs prefs;
+    private Home home;
+
 
     private Bundle mBundle;
     private Boolean planner = false;
@@ -170,7 +177,11 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
                             Activity.RESULT_CANCELED, null));
         }
 
-        Home home = (Home) getActivity();
+       try{ home = (Home) getActivity();}
+       catch (Exception e){
+           home = null;
+           Sentry.captureException(e);
+       }
 
         if (home != null) {
             searchView = home.getSearchView();
@@ -321,8 +332,12 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
                                                         ));
                                                     }
                                                     if(dataScore != null){
-                                                        scoreAdIndex[0] = totalItemCount;
-                                                        loadNativeAds(scoreAdIndex[0],SCORE_ADS);
+                                                        try {
+                                                            scoreAdIndex[0] = totalItemCount;
+                                                            loadNativeAds(scoreAdIndex[0], SCORE_ADS);
+                                                        }                                                        catch (Exception e){
+                                                            Sentry.captureException(e);
+                                                        }
                                                     }
                                                     if(isLastItemReachedScore){
                                                         // Add end here
@@ -427,8 +442,12 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
                                                         ));
                                                     }
                                                     if(dataVotes != null){
+                                                        try{
                                                         votesAdIndex[0] = totalItemCount;
-                                                        loadNativeAds(votesAdIndex[0],VOTES_ADS);
+                                                        loadNativeAds(votesAdIndex[0],VOTES_ADS);}
+                                                        catch (Exception e){
+                                                            Sentry.captureException(e);
+                                                        }
                                                     }
                                                     if(isLastItemReachedVotes){
                                                         // Add end here
@@ -534,8 +553,12 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
                                                                 (HashMap) d.getData().get("rating")
                                                         ));}
                                                     if(dataTime != null){
+                                                        try{
                                                         timeAdIndex[0] = totalItemCount;
-                                                        loadNativeAds(timeAdIndex[0],TIME_ADS);
+                                                        loadNativeAds(timeAdIndex[0],TIME_ADS);}
+                                                        catch (Exception e){
+                                                            Sentry.captureException(e);
+                                                        }
                                                     }
                                                     if(isLastItemReachedTime){
                                                         // Add end here

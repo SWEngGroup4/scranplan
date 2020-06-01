@@ -19,6 +19,7 @@ import java.util.Objects;
 //Extends functionality of search results
 public class PlannerListFragment extends SearchListFragment {
 
+
     private Bundle mBundle;
 
     public PlannerListFragment(UserInfoPrivate userSent) {

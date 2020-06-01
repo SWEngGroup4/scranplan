@@ -18,7 +18,8 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/profileConstraintLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            tools:ignore="MissingConstraints">
 
             <ImageView
                 android:id="@+id/public_profile_image"
@@ -28,7 +29,7 @@
                 android:layout_marginTop="10dp"
                 app:layout_constraintEnd_toStartOf="@+id/guideline3"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/public_private_tab"
                 app:srcCompat="@drawable/temp_settings_profile_image"
                 tools:srcCompat="@drawable/temp_settings_profile_image" />
 
@@ -37,7 +38,7 @@
                 android:layout_width="258dp"
                 android:layout_height="34dp"
                 android:layout_marginStart="10dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="10dp"
                 android:gravity=""
                 android:singleLine="true"
                 android:text="Anonymous"
@@ -46,7 +47,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toEndOf="@+id/public_profile_image"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/public_private_tab" />
 
             <TextView
                 android:id="@+id/profile_recipes"
@@ -95,8 +96,10 @@
                 app:layout_constraintTop_toBottomOf="@+id/profile_username" />
 
             <LinearLayout
+                android:id="@+id/linearLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginTop="10dp"
                 android:orientation="vertical"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -106,9 +109,9 @@
                     android:id="@+id/statsFollowLayout"
                     android:layout_width="match_parent"
                     android:layout_height="50sp"
+                    android:layout_gravity="center_vertical"
                     android:background="@color/colorPrimaryLight"
                     android:orientation="horizontal"
-                    android:layout_gravity="center_vertical"
                     android:paddingHorizontal="10sp">
 
                     <LinearLayout
@@ -195,54 +198,53 @@
                         android:layout_width="50sp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
+                        android:gravity="center"
                         android:orientation="vertical"
-                        android:paddingRight="10sp"
-                        android:gravity="center">
+                        android:paddingRight="10sp">
+
                         <Space
                             android:layout_width="0dp"
                             android:layout_height="1dp"
-                            android:minWidth="20sp"
-                            android:layout_weight="1" >
-                        </Space>
+                            android:layout_weight="1"
+                            android:minWidth="20sp" />
 
                         <Button
                             android:id="@+id/followButton"
                             android:layout_width="100sp"
                             android:layout_height="40sp"
-                            android:textColor="@color/colorWhiteText"
-                            android:background="@drawable/follow_button"
                             android:layout_weight="3"
+                            android:background="@drawable/follow_button"
                             android:padding="5sp"
-                            android:text="Follow" />
+                            android:text="Follow"
+                            android:textColor="@color/colorWhiteText" />
 
                         <Button
                             android:id="@+id/requestedButton"
                             android:layout_width="100sp"
                             android:layout_height="40sp"
                             android:layout_weight="3"
-                            android:textColor="@color/colorWhiteText"
                             android:background="@drawable/requested_button"
                             android:padding="5sp"
                             android:text="Requested"
-                            android:visibility="gone"/>
+                            android:textColor="@color/colorWhiteText"
+                            android:visibility="gone" />
 
                         <Button
                             android:id="@+id/followedButton"
                             android:layout_width="100sp"
                             android:layout_height="40sp"
                             android:layout_weight="3"
-                            android:textColor="@color/colorWhiteText"
                             android:background="@drawable/followed_button"
                             android:padding="5sp"
                             android:text="Followed"
-                            android:visibility="gone"/>
+                            android:textColor="@color/colorWhiteText"
+                            android:visibility="gone" />
 
                         <Space
                             android:layout_width="0dp"
                             android:layout_height="1dp"
-                            android:minWidth="20sp"
-                            android:layout_weight="1" >
-                        </Space>
+                            android:layout_weight="1"
+                            android:minWidth="20sp" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -452,6 +454,33 @@
                     app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
             </LinearLayout>
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/public_private_tab"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="#D1D1E6"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tabGravity="fill"
+                app:tabIndicator="@color/colorDarkerWidget"
+                app:tabIndicatorGravity="bottom"
+                app:tabIndicatorHeight="3sp">
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="public"
+                    android:textSize="10sp" />
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="private (followers)"
+                    android:textSize="10sp" />
+
+            </com.google.android.material.tabs.TabLayout>
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

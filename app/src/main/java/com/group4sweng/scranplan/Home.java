@@ -14,12 +14,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.SearchView;
 import android.widget.TabHost;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,6 +32,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
@@ -38,11 +42,13 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.group4sweng.scranplan.Administration.SuggestionBox;
 import com.group4sweng.scranplan.MealPlanner.PlannerFragment;
+import com.group4sweng.scranplan.RecipeCreation.RecipeCreation;
 import com.group4sweng.scranplan.SearchFunctions.RecipeFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchListFragment;
 import com.group4sweng.scranplan.SearchFunctions.SearchPrefs;
 import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
 import com.group4sweng.scranplan.Social.FeedFragment;
+import com.group4sweng.scranplan.Social.Messenger.MessengerMenu;
 import com.group4sweng.scranplan.Social.Notifications;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
@@ -57,6 +63,7 @@ public class Home extends AppCompatActivity {
     final static String TAG = "ScranPlanHome";
     final static int PROFILE_SETTINGS_REQUEST_CODE = 1;
     private SuggestionBox suggestionBox;
+    final static int CREATE_RECIPE_REQUEST_CODE = 2;
 
     // User variable for all preferences saved to device
     private UserInfoPrivate mUser;
@@ -69,6 +76,9 @@ public class Home extends AppCompatActivity {
     // Main tab variables
     FragmentManager fragmentManager = getSupportFragmentManager();
     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+    Fragment recipeFragment;
+    Fragment plannerFragment;
+    Fragment feedFragment;
     Fragment fragment;
     TabLayout tabLayout;
     FrameLayout frameLayout;
@@ -103,6 +113,12 @@ public class Home extends AppCompatActivity {
 
     String notifications;
     MenuItem notificationMenuItem;
+
+    //Floating action button menu
+    private FloatingActionButton fabMain, fabRecipe, fabPost;
+    private TextView textViewRecipe, textViewPost;
+    private Animation fab_open, fab_close;
+    private Boolean isOpen = false;
 
     // Side menu variable
     NavigationView navigationView;
@@ -258,6 +274,18 @@ public class Home extends AppCompatActivity {
         tabLayout.addTab(tabLayout.newTab().setText("Meal Planner"));
         tabLayout.addTab(tabLayout.newTab().setText("Feed"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+
+        fabMain = findViewById(R.id.fabMain);
+        fabRecipe = findViewById(R.id.fabRecipe);
+        fabPost = findViewById(R.id.fabPost);
+        textViewRecipe = findViewById(R.id.textViewRecipe);
+        textViewPost = findViewById(R.id.textViewPost);
+        fab_close = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_close);
+        fab_open = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
+
+        recipeFragment = new RecipeFragment(mUser);
+        plannerFragment = new PlannerFragment(mUser);
+        feedFragment = new FeedFragment(mUser);
     }
 
     /**
@@ -304,6 +332,15 @@ public class Home extends AppCompatActivity {
                         startActivity(returningIntent);
 
                         finish();
+                    case R.id.nav_messenger:
+                        Log.e(TAG, "Messenger Has been entered");
+                        Intent intentMessenger = new Intent(mContext, MessengerMenu.class);
+                        intentMessenger.putExtra("user", mUser);
+                        startActivity(intentMessenger);
+                        break;
+
+                    default:
+                        return false;
                 }
                 return false;
             }
@@ -320,20 +357,19 @@ public class Home extends AppCompatActivity {
                 Log.d(TAG, String.valueOf(fragment));
                 switch (tab.getPosition()) {
                     case 0:
-                        fragment = new RecipeFragment(mUser);
                         fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
+                        fragmentTransaction.replace(R.id.frameLayout, recipeFragment);
                         break;
                     case 1:
                         if (fragment.getClass() == RecipeFragment.class) fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         else fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
-                        fragment = new PlannerFragment(mUser);
+                        fragmentTransaction.replace(R.id.frameLayout, plannerFragment);
                         break;
                     case 2:
-                        fragment = new FeedFragment(mUser);
                         fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                        fragmentTransaction.replace(R.id.frameLayout, feedFragment);
                         break;
                 }
-                fragmentTransaction.replace(R.id.frameLayout, fragment);
                 fragmentTransaction.commit();
                 searchView.clearFocus();
                 searchView.onActionViewCollapsed();
@@ -349,6 +385,50 @@ public class Home extends AppCompatActivity {
 
             }
         });
+
+        fabMain.setOnClickListener(v -> {
+            fabMainListener(isOpen);
+        });
+
+        fabMain.setOnFocusChangeListener((v, hasFocus) -> {
+            fabMainListener(hasFocus);
+        });
+
+        fabRecipe.setOnClickListener(v -> {
+            Intent intent = new Intent(mContext, RecipeCreation.class);
+            intent.putExtra("user", mUser);
+            startActivityForResult(intent, CREATE_RECIPE_REQUEST_CODE);
+            fabMainListener(true);
+        });
+
+        fabPost.setOnClickListener(v -> {
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+            fragmentTransaction.replace(R.id.frameLayout, feedFragment);
+            fragmentTransaction.commit();
+            Toast.makeText(getApplicationContext(), "Create post", Toast.LENGTH_SHORT).show();
+            fabMainListener(true);
+        });
+    }
+
+    void fabMainListener(Boolean condition) {
+        if (condition) {
+            textViewRecipe.setVisibility(View.INVISIBLE);
+            textViewPost.setVisibility(View.INVISIBLE);
+            fabRecipe.startAnimation(fab_close);
+            fabRecipe.setClickable(false);
+            fabPost.startAnimation(fab_close);
+            fabPost.setClickable(false);
+            isOpen = false;
+        } else {
+            textViewRecipe.setVisibility(View.VISIBLE);
+            textViewPost.setVisibility(View.VISIBLE);
+            fabRecipe.startAnimation(fab_open);
+            fabRecipe.setClickable(true);
+            fabPost.startAnimation(fab_open);
+            fabPost.setClickable(true);
+            isOpen = true;
+        }
     }
 
     // Quick function for getting the search menu in other fragments
@@ -373,17 +453,25 @@ public class Home extends AppCompatActivity {
      */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        if (requestCode == PROFILE_SETTINGS_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                mUser = (UserInfoPrivate) data.getSerializableExtra("user");
-                Log.e(TAG, "ABOUT INFO IS: " + mUser.getAbout());
-            } else {
-                Log.e(TAG, "I am not returning anything. Should return new profile settings from Profile Settings Activity.");
-            }
-        }
-
         super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case (PROFILE_SETTINGS_REQUEST_CODE):
+                if (resultCode == RESULT_OK) {
+                    mUser = (UserInfoPrivate) data.getSerializableExtra("user");
+                    Log.e(TAG, "ABOUT INFO IS: " + mUser.getAbout());
+                }
+                break;
+            case (CREATE_RECIPE_REQUEST_CODE):
+                if (resultCode == RESULT_OK) {
+                        // Reloads recipe fragment
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.replace(R.id.frameLayout, new RecipeFragment(mUser));
+                    fragmentTransaction.commit();
+                }
+            default:
+                Log.e(TAG, "I am not returning anything. Should return new profile settings from Profile Settings Activity.");
+        }
     }
 
     /**
@@ -672,6 +760,4 @@ public class Home extends AppCompatActivity {
     public void onBackPressed() {
         //Do nothing
     }
-
-
 }

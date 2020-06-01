@@ -26,7 +26,7 @@ import com.group4sweng.scranplan.Administration.ContentReporting;
 import com.group4sweng.scranplan.Administration.LoadingDialog;
 import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.R;
-
+import com.group4sweng.scranplan.RecipeInfo.RecipeInfoFragment;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

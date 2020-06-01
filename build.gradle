@@ -24,7 +24,7 @@ allprojects {
     repositories {
         google()
         jcenter()
-        
+        maven { url "https://jitpack.io" }
     }
 }
 
@@ -39,4 +39,3 @@ junitJacoco {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
-
