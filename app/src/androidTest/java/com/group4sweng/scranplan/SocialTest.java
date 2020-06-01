@@ -1,6 +1,8 @@
 package com.group4sweng.scranplan;
 
 import android.util.Log;
+import android.view.KeyEvent;
+import android.widget.SearchView;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.Espresso;
@@ -8,25 +10,27 @@ import androidx.test.espresso.ViewInteraction;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
 
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import java.util.Random;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.pressKey;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.isNotChecked;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.group4sweng.scranplan.EspressoHelper.childAtPosition;
-import static com.group4sweng.scranplan.EspressoHelper.navigateToRecipe;
 import static com.group4sweng.scranplan.EspressoHelper.openSideBar;
+import static com.group4sweng.scranplan.HomeTest.typeSearchViewText;
 import static org.hamcrest.Matchers.allOf;
 
 /**
@@ -106,17 +110,18 @@ public class SocialTest implements Credentials  {
     @Test
     public void testRecipeAndRating() throws InterruptedException {
         Log.d(TAG, "Testing navigate to add recipe");
+        mActivityTestRule.getActivity().resetFilters();
 
 
         onView(withId(R.id.recipeIcon))
                 .perform(click());
         Thread.sleep(THREAD_SLEEP_TIME/4);
-        onView(withId(R.id.menuSearch)).check(
-                matches(isDisplayed()));
-        navigateToRecipe("Braised peas with bacon, lentils and cod");
+
+        onView(withText("Hearty pasta soup"))
+                .perform(click());
+
         Thread.sleep(THREAD_SLEEP_TIME);
         onView(withText("Add")).perform(click());
-        pressBack();
 
         Thread.sleep(THREAD_SLEEP_TIME);
         onView(withId(R.id.reviewIcon))

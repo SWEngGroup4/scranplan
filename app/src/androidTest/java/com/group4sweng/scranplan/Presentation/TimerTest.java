@@ -5,14 +5,17 @@ import androidx.test.espresso.Espresso;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.rule.ActivityTestRule;
 
 import com.group4sweng.scranplan.Credentials;
 import com.group4sweng.scranplan.EspressoHelper;
+import com.group4sweng.scranplan.Home;
 import com.group4sweng.scranplan.Login;
 import com.group4sweng.scranplan.R;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -48,6 +51,9 @@ public class TimerTest extends EspressoHelper implements Credentials {
     //  -1 means no timer is present.
     private static final int[] TEST_RECIPE_TIMER_VALUES = {-1, -1, -1, 600000, -1, -1, 300000, -1, -1, -1, -1, -1};
 
+
+    @Rule
+    public ActivityTestRule<Home> mActivityTestRule = new ActivityTestRule<Home>(Home.class);
 
     //  Login, search for the appropriate recipe and open the presentation.
     @Before
@@ -192,6 +198,8 @@ public class TimerTest extends EspressoHelper implements Credentials {
     }
     @After
     public void tearDown() throws Exception {
+        mActivityTestRule.getActivity().resetFilters();
+        mActivityTestRule.finishActivity();
         EspressoHelper.shouldSkip = false;
     }
 }

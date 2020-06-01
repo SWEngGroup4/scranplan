@@ -160,6 +160,7 @@ public class PresentationTest implements Credentials {
 
     @After
     public void tearDown() throws Exception {
+        mActivityTestRule.getActivity().resetFilters();
         EspressoHelper.shouldSkip = false;
         this.mActivityTestRule.finishActivity();
     }

@@ -32,6 +32,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withHint;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.core.IsNot.not;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
@@ -141,7 +142,7 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
                 .perform(scrollTo())
                 .check(matches(isDisplayed()));
 
-        onView(withText("PRIVATE"))
+        onView(withId(R.id.settings_private_toggle))
                 .perform(click());
 
         onView(withId(R.id.settings_privacy))
@@ -319,7 +320,7 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
     public void testPrivatePrivacyInfoIsStoredAndRetrieved() throws InterruptedException {
         HashMap<String, Boolean> initialPrivacy = switchAllPrivacySwitches(PrivacyType.PRIVATE);
 
-        onView(withText("PRIVATE"))
+        onView(withId(R.id.settings_private_toggle))
                 .perform(scrollTo())
                 .perform(click());
         assertNotEquals(initialPrivacy.get("about_me"), activityResult.mDisplay_about_me.isChecked());
@@ -359,7 +360,7 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
     @Test
     public void testPrivacyOptionsSync() throws InterruptedException {
 
-        onView(withText("PRIVATE"))
+        onView(withId(R.id.settings_private_toggle))
                 .perform(scrollTo())
                 .perform(click());
 
@@ -397,7 +398,7 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
 
         boolean displayFeed = (boolean) tempPrivacy.get("display_feed");
 
-        assertNotEquals(displayFeed, actualPrivacy.get("display_feed"));
+        assertEquals(displayFeed, actualPrivacy.get("display_feed"));
     }
 
 

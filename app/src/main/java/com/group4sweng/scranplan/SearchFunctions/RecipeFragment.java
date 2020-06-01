@@ -514,7 +514,10 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
                                         (HashMap) document.getData().get("rating")
                                 ));
                             }
-                            if(dataTime != null){ loadNativeAds(timeAdIndex[0], TIME_ADS);}
+                            if(dataTime != null){ try{loadNativeAds(timeAdIndex[0], TIME_ADS);}
+                            catch(Exception e){
+                            Sentry.captureException(e);}
+                            }
                             rAdapterTime.notifyDataSetChanged();
                             if(task.getResult().size() != 0){
                                 lastVisibleTime = task.getResult().getDocuments().get(task.getResult().size() - 1);
