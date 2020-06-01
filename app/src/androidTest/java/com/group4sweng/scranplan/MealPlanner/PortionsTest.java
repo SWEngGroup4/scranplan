@@ -1,15 +1,21 @@
 package com.group4sweng.scranplan.MealPlanner;
 
+import android.util.Log;
+
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.matcher.ViewMatchers;
+import androidx.test.rule.ActivityTestRule;
 
 import com.group4sweng.scranplan.Credentials;
 import com.group4sweng.scranplan.EspressoHelper;
+import com.group4sweng.scranplan.Home;
 import com.group4sweng.scranplan.Login;
 import com.group4sweng.scranplan.R;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -48,6 +54,9 @@ public class PortionsTest implements Credentials {
     /*  Login > Switch to Mealplanner Tab > Remove existing recipe at top left > Add recipe at top left
         Search for test recipe > Add recipe > Return to Mealplanner.
      */
+
+    @Rule
+    public ActivityTestRule<Home> mActivityTestRule = new ActivityTestRule<Home>(Home.class);
     @Before
     public void setUp() throws InterruptedException {
         EspressoHelper.shouldSkip = false;
@@ -136,6 +145,12 @@ public class PortionsTest implements Credentials {
                     .check(matches(isDisplayed()));
         }
     }
+
+    @After
+    public void tearDown() {
+        EspressoHelper.shouldSkip = false;
+        this.mActivityTestRule.finishActivity();
+        Log.d(TAG, "Tests complete"); }
 
 
 }
