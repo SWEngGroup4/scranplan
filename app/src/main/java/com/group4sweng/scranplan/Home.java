@@ -113,6 +113,8 @@ public class Home extends AppCompatActivity {
     CheckBox mNameBox;
     CheckBox mChefBox;
     SideMenu mSideMenu;
+    int previousTab;
+
 
     String notifications;
     MenuItem notificationMenuItem;
@@ -292,6 +294,8 @@ public class Home extends AppCompatActivity {
         recipeFragment = new RecipeFragment(mUser);
         plannerFragment = new PlannerFragment(mUser);
         feedFragment = new FeedFragment(mUser);
+
+        previousTab = 0;
     }
 
     /**
@@ -362,15 +366,24 @@ public class Home extends AppCompatActivity {
                     case 0:
                         fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
                         fragmentTransaction.replace(R.id.frameLayout, recipeFragment);
+                        fabMain.setVisibility(View.VISIBLE);
+                        previousTab = 0;
                         break;
                     case 1:
-                        if (fragment.getClass() == RecipeFragment.class) fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
-                        else fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
+                        if(previousTab == 0){
+                            fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+                        } else if (previousTab == 2){
+                            fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
+                        }
                         fragmentTransaction.replace(R.id.frameLayout, plannerFragment);
+                        fabMain.setVisibility(View.GONE);
+                        previousTab = 1;
                         break;
                     case 2:
                         fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         fragmentTransaction.replace(R.id.frameLayout, feedFragment);
+                        fabMain.setVisibility(View.GONE);
+                        previousTab = 2;
                         break;
                 }
                 fragmentTransaction.commit();
@@ -403,12 +416,10 @@ public class Home extends AppCompatActivity {
         });
 
         fabPost.setOnClickListener(v -> {
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
-            fragmentTransaction.replace(R.id.frameLayout, feedFragment);
-            fragmentTransaction.commit();
+            tabLayout.getTabAt(2).select();
             Toast.makeText(getApplicationContext(), "Create post", Toast.LENGTH_SHORT).show();
             fabMainListener(true);
+            fabMain.setVisibility(View.GONE);
         });
     }
 
