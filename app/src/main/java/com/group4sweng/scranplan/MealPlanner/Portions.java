@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 class Portions implements Warning {
     private final static String TAG = "portions";
     private final static int[] servesAmounts = {1,2,4,6,10,20}; // All possible variants of 'serves' amounts for a Recipe.
-    private final static float MAX_SERVINGS_MULTIPLIER = 5f; // Limit to how much we can scale a recipes portions before it is considered in-accurate.
+    private final static float MAX_SERVINGS_MULTIPLIER = 6f; // Limit to how much we can scale a recipes portions before it is considered in-accurate.
 
     //  Common Alcohol text matchers. If an ingredient is matched with the following in it's text then the amounts of this ingredient are scaled differently.
     private final static String[] commonAlcohol = {"pinot grigio","pinot gris","sauvignon blanc", "chardonnay", "sherry", "madeira", "vermouth", "vinsanto",
