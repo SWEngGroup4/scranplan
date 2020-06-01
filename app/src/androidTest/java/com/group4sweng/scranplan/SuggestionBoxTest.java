@@ -78,7 +78,7 @@ public class SuggestionBoxTest implements Credentials{
 
 
     @Test
-    public void suggestionBoxTest() {
+    public void suggestionBoxTest() throws InterruptedException {
 
         ViewInteraction appCompatImageButton = onView(
                 allOf(withContentDescription("Open Nav Drawer"),
@@ -97,7 +97,7 @@ public class SuggestionBoxTest implements Credentials{
                                 childAtPosition(
                                         withId(R.id.side_menu),
                                         0)),
-                        3),
+                        5),
                         isDisplayed()));
         navigationMenuItemView.perform(click());
 
@@ -116,7 +116,7 @@ public class SuggestionBoxTest implements Credentials{
                                 childAtPosition(
                                         withId(R.id.side_menu),
                                         0)),
-                        3),
+                        5),
                         isDisplayed()));
         navigationMenuItemView2.perform(click());
 
@@ -129,6 +129,8 @@ public class SuggestionBoxTest implements Credentials{
                                 3)));
         appCompatButton6.perform(scrollTo(), click());
 
+        Thread.sleep(THREAD_SLEEP_TIME);
+
         ViewInteraction editText = onView(
                 allOf(childAtPosition(
                         allOf(withId(android.R.id.custom),
@@ -138,6 +140,8 @@ public class SuggestionBoxTest implements Credentials{
                         0),
                         isDisplayed()));
         editText.perform(replaceText("test"), closeSoftKeyboard());
+
+        Thread.sleep(THREAD_SLEEP_TIME);
 
         ViewInteraction appCompatButton7 = onView(
                 allOf(withId(android.R.id.button1), withText("Submit"),
