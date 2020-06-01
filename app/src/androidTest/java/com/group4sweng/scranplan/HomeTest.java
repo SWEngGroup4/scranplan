@@ -229,8 +229,8 @@ public class HomeTest implements Credentials {
         assertEquals(initialSettings.get("shellfish"),  mActivityTestRule.getActivity().mShellfishBox.isChecked());
         assertNotEquals(initialSettings.get("nuts"),  mActivityTestRule.getActivity().mNutsBox.isChecked());
 
-        assertNotEquals(initialSettings.get("score"),  mActivityTestRule.getActivity().mScoreBox.isChecked());
-        assertNotEquals(initialSettings.get("vote"),  mActivityTestRule.getActivity().mVoteBox.isChecked());
+        assertEquals(initialSettings.get("score"),  mActivityTestRule.getActivity().mScoreBox.isChecked());
+        assertEquals(initialSettings.get("vote"),  mActivityTestRule.getActivity().mVoteBox.isChecked());
         assertEquals(initialSettings.get("time"),  mActivityTestRule.getActivity().mTimeBox.isChecked());
 
         assertEquals(initialSettings.get("ingred"),  mActivityTestRule.getActivity().mIngredientsBox.isChecked());
@@ -246,6 +246,8 @@ public class HomeTest implements Credentials {
         // Open up filter menu
         onView(withId(R.id.menuSortButton)).perform(click());
 
+        onView(withId(R.id.ingredientCheckBox))
+                .perform(click());
 
         // Change tab
         onView(withText("Diet")).perform(click());
@@ -287,6 +289,8 @@ public class HomeTest implements Credentials {
         // Open up filter menu
         onView(withId(R.id.menuSortButton)).perform(click());
 
+        onView(withId(R.id.ingredientCheckBox))
+                .perform(click());
 
         // Change tab
         onView(withText("Diet")).perform(click());

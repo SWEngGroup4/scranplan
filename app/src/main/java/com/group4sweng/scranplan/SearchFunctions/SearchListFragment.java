@@ -208,12 +208,12 @@ public class SearchListFragment extends AppCompatDialogFragment {
                     }
                 }
                 // Displays no more results when no recipes are found
-                if(objectID.size() == 0){
+                if(objectID == null || objectID.size() == 0){
                     data.add(new SearchRecipePreviewData(
                             null,
                             null,
                             "No results found",
-                            "We have checked all over and there is nothing more to be found!",
+                            "We have checked all over and there is nothing to be found!",
                             null
                     ));
                     rAdapter.notifyDataSetChanged();

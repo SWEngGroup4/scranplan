@@ -131,9 +131,10 @@ public class EspressoHelper {
                 .perform(click());
 
         //  Switches to 'name' sort instead of the default 'ingredient' sort.
+        if(withId(R.id.nameCheckBox).matches(isNotChecked())){
         onView(withId(R.id.nameCheckBox))
                 .check(matches(isNotChecked()))
-                .perform(click());
+                .perform(click());}
 
         onView(withText("OK"))
                 .perform(click());

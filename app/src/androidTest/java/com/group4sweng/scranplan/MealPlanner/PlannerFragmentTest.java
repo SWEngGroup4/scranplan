@@ -60,7 +60,7 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
     }
 
     //Checks correct elements appear when add button is pressed
-    /*@Test
+    @Test
     public void checkAddButton() {
         Log.d(TAG, "Testing add button");
 
@@ -71,7 +71,7 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
                 matches(isDisplayed()));
         onView(withText("Trending")).check(
                 matches(isDisplayed()));
-    }*/
+    }
 
     //Checks searching for a recipe and adding it to the planner is performed correctly
     @Test
@@ -121,7 +121,7 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        onView(withText("Hearty pasta soup")).perform(click());
+        onView(withText("Avocado and black bean eggs")).perform(click());
         onView(withText("Add")).perform(click());
     }
 
