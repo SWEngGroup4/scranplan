@@ -148,6 +148,7 @@ public class PortionsTest implements Credentials {
 
     @After
     public void tearDown() {
+        mActivityTestRule.getActivity().resetFilters();
         EspressoHelper.shouldSkip = false;
         this.mActivityTestRule.finishActivity();
         Log.d(TAG, "Tests complete"); }

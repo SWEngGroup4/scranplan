@@ -284,7 +284,11 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
                                         (HashMap) document.getData().get("rating")
                                 ));
                             }
-                            if(dataScore != null){ loadNativeAds(scoreAdIndex[0], SCORE_ADS);}
+                            if(dataScore != null){ try{
+                                loadNativeAds(scoreAdIndex[0], SCORE_ADS);}
+                                catch (Exception e) {
+                                Sentry.captureException(e);
+                            }}
                             rAdapterScore.notifyDataSetChanged();
                             if(task.getResult().size() != 0){
                                 lastVisibleScore = task.getResult().getDocuments().get(task.getResult().size() - 1);
@@ -395,7 +399,11 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
                                         (HashMap) document.getData().get("rating")
                                 ));
                             }
-                            if(dataVotes != null){ loadNativeAds(votesAdIndex[0], VOTES_ADS);}
+                            if(dataVotes != null){ try{
+                                loadNativeAds(votesAdIndex[0], VOTES_ADS);}
+                                catch (Exception e){
+                                Sentry.captureException(e);
+                            }}
                             rAdapterVotes.notifyDataSetChanged();
                             if(task.getResult().size() != 0){
                                 lastVisibleVotes = task.getResult().getDocuments().get(task.getResult().size() - 1);

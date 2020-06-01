@@ -102,6 +102,7 @@ public class HomeTest implements Credentials {
         onView(withText("Braised peas with bacon, lentils and cod"))
                 .check(matches(isDisplayed()));
 
+
         Espresso.pressBack();
 
     }
@@ -229,8 +230,8 @@ public class HomeTest implements Credentials {
         assertEquals(initialSettings.get("shellfish"),  mActivityTestRule.getActivity().mShellfishBox.isChecked());
         assertNotEquals(initialSettings.get("nuts"),  mActivityTestRule.getActivity().mNutsBox.isChecked());
 
-        assertEquals(initialSettings.get("score"),  mActivityTestRule.getActivity().mScoreBox.isChecked());
-        assertEquals(initialSettings.get("vote"),  mActivityTestRule.getActivity().mVoteBox.isChecked());
+        assertNotEquals(initialSettings.get("score"),  mActivityTestRule.getActivity().mScoreBox.isChecked());
+        assertNotEquals(initialSettings.get("vote"),  mActivityTestRule.getActivity().mVoteBox.isChecked());
         assertEquals(initialSettings.get("time"),  mActivityTestRule.getActivity().mTimeBox.isChecked());
 
         assertEquals(initialSettings.get("ingred"),  mActivityTestRule.getActivity().mIngredientsBox.isChecked());
@@ -276,7 +277,7 @@ public class HomeTest implements Credentials {
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        onView(withText("No more results"))
+        onView(withText("No results found"))
                 .check(matches(isDisplayed()));
 
         Espresso.pressBack();
@@ -330,6 +331,7 @@ public class HomeTest implements Credentials {
 
     @After
     public void tearDown() {
+        this.mActivityTestRule.getActivity().resetFilters();
         EspressoHelper.shouldSkip = false;
         this.mActivityTestRule.finishActivity();
     }

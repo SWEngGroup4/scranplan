@@ -729,6 +729,34 @@ public class Home extends AppCompatActivity {
         tv = (TextView)tabs.getTabWidget().getChildAt(2).findViewById(android.R.id.title);
         tv.setTextColor(Color.GRAY);
     }
+    public void resetFilters(){
+        // RESET filters for testing DO NOT USE IN PROD.
+        //  Store checkbox values within shared preferences.
+        SharedPreferences Preference = getSharedPreferences("filter_preferences", Activity.MODE_PRIVATE);
+        SharedPreferences.Editor e = Preference.edit();
+
+        //  Filters
+        e.putBoolean("vegetarian_filter", false);
+        e.putBoolean("vegan_filter", false);
+        e.putBoolean("pesc_filter", false);
+        e.putBoolean("allergy_nuts", false);
+        e.putBoolean("allergy_eggs", false);
+        e.putBoolean("allergy_shellfish", false);
+        e.putBoolean("allergy_soy", false);
+        e.putBoolean("allergy_gluten", false);
+
+        //  Sorting
+        e.putBoolean("sorting_score", true);
+        e.putBoolean("sorting_votes", false);
+        e.putBoolean("sorting_timestamp", false);
+
+        //  Type
+        e.putBoolean("type_ingredients", true);
+        e.putBoolean("type_name", false);
+        e.putBoolean("type_chef", false);
+
+        e.apply();
+    }
 
     /** Store shared preferences search options */
     private void storeSearchOptions(){
