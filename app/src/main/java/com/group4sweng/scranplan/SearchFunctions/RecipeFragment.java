@@ -275,6 +275,7 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+                            dataScore.clear();
                             for (DocumentSnapshot document : task.getResult()) {
                                 dataScore.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                         document,
@@ -386,6 +387,7 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+                            dataVotes.clear();
                             for (DocumentSnapshot document : task.getResult()) {
                                 dataVotes.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                         document,
@@ -497,6 +499,7 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+                            dataTime.clear();
                             for (DocumentSnapshot document : task.getResult()) {
                                 dataTime.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                         document,
@@ -608,6 +611,7 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+                            dataFave.clear();
                             for (DocumentSnapshot document : task.getResult()) {
                                 dataFave.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                         document,
