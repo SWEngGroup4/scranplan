@@ -61,11 +61,13 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
 
     //Checks correct elements appear when add button is pressed
     @Test
-    public void checkAddButton() {
+    public void checkAddButton() throws InterruptedException {
         Log.d(TAG, "Testing add button");
 
         onView(withText("Meal Planner")).perform(click());
-        onView(withId(0)).perform(click());
+        onView(withId(2)).perform(longClick());
+        Thread.sleep(THREAD_SLEEP_TIME / 4);
+        onView(withId(2)).perform(click());
 
         onView(withId(R.id.menuSearch)).check(
                 matches(isDisplayed()));
@@ -78,21 +80,23 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
     public void searchAndAddToPlanner() throws InterruptedException {
         Log.d(TAG, "Testing searching");
 
+        mActivityTestRule.getActivity().resetFilters();
         onView(withText("Meal Planner")).perform(click());
-        onView(withId(0)).perform(longClick());
+        onView(withId(4)).perform(longClick());
         Thread.sleep(THREAD_SLEEP_TIME / 4);
-        onView(withId(0)).perform(click());
-        navigateToRecipe("Avocado and black bean eggs");
+        onView(withId(4)).perform(click());
+        Thread.sleep(THREAD_SLEEP_TIME / 4);
+        navigateToRecipe("Hearty pasta soup");
         onView(withId(R.id.LetsCook)).perform(click());
     }
 
     //Checks meal planner saves for user after re-logging in
     @Test
-    public void checkMealPlannerSaves() {
+    public void checkMealPlannerSaves() throws InterruptedException {
         Log.d(TAG, "Testing saving");
 
         onView(withText("Meal Planner")).perform(click());
-        onView(withId(0)).perform(click());
+        onView(withId(4)).perform(click());
         onView(withId(R.id.LetsCook))
                 .check(matches(isDisplayed()));
     }
@@ -117,11 +121,11 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
         Log.d(TAG, "Testing dinner");
 
         onView(withText("Meal Planner")).perform(click());
-        onView(withId(0)).perform(click());
-
+        onView(withId(0)).perform(longClick());
         Thread.sleep(THREAD_SLEEP_TIME/4);
-
-        onView(withText("Avocado and black bean eggs")).perform(click());
+        onView(withId(0)).perform(click());
+        Thread.sleep(THREAD_SLEEP_TIME/4);
+        navigateToRecipe("Bacon sandwich");
         onView(withText("Add")).perform(click());
     }
 
@@ -131,8 +135,9 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
         Log.d(TAG, "Testing dinner");
 
         onView(withText("Meal Planner")).perform(click());
+        onView(withId(1)).perform(longClick());
+        Thread.sleep(THREAD_SLEEP_TIME/4);
         onView(withId(1)).perform(click());
-
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
         onView(withText("Avocado and black bean eggs")).perform(click());
@@ -145,8 +150,9 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
         Log.d(TAG, "Testing dinner");
 
         onView(withText("Meal Planner")).perform(click());
+        onView(withId(2)).perform(longClick());
+        Thread.sleep(THREAD_SLEEP_TIME/4);
         onView(withId(2)).perform(click());
-
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
         onView(withText("Avocado and black bean eggs")).perform(click());
@@ -155,7 +161,8 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
 
     @After
     public void tearDown() {
-            EspressoHelper.shouldSkip = false;
-            this.mActivityTestRule.finishActivity();
+        this.mActivityTestRule.getActivity().resetFilters();
+        EspressoHelper.shouldSkip = false;
+        this.mActivityTestRule.finishActivity();
         Log.d(TAG, "Tests complete"); }
 }
