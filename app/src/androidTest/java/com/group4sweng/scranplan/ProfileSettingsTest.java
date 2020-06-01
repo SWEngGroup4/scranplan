@@ -318,11 +318,12 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
     //  Test private privacy info can be stored and retrieved.
     @Test
     public void testPrivatePrivacyInfoIsStoredAndRetrieved() throws InterruptedException {
-        HashMap<String, Boolean> initialPrivacy = switchAllPrivacySwitches(PrivacyType.PRIVATE);
-
         onView(withId(R.id.settings_private_toggle))
                 .perform(scrollTo())
                 .perform(click());
+
+        HashMap<String, Boolean> initialPrivacy = switchAllPrivacySwitches(PrivacyType.PRIVATE);
+
         assertNotEquals(initialPrivacy.get("about_me"), activityResult.mDisplay_about_me.isChecked());
         assertNotEquals(initialPrivacy.get("profile_image"), activityResult.mDisplay_profile_image.isChecked());
         assertNotEquals(initialPrivacy.get("filters"), activityResult.mDisplay_filters.isChecked());

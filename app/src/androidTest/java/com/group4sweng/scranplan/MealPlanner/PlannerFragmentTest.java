@@ -79,7 +79,6 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
     @Test
     public void searchAndAddToPlanner() throws InterruptedException {
         Log.d(TAG, "Testing searching");
-
         mActivityTestRule.getActivity().resetFilters();
         onView(withText("Meal Planner")).perform(click());
         onView(withId(4)).perform(longClick());
