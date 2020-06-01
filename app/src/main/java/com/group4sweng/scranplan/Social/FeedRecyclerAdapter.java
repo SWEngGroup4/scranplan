@@ -254,6 +254,9 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
             holder.picLayout.setVisibility(View.VISIBLE);
             holder.uploadedImageView.setVisibility(View.VISIBLE);
             Picasso.get().load(mDataset.get(position).uploadedImageURL).into(holder.uploadedImageView);
+        }else{
+            holder.picLayout.setVisibility(View.GONE);
+            holder.uploadedImageView.setVisibility(View.GONE);
         }
         if(mDataset.get(position).isRecipe){
             holder.recipeLayout.setVisibility(View.VISIBLE);
@@ -270,7 +273,15 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
             if(mDataset.get(position).isReview){
                 holder.recipeRating.setVisibility(View.VISIBLE);
                 holder.recipeRating.setRating(mDataset.get(position).review);
+            }else{
+                holder.recipeRating.setVisibility(View.GONE);
             }
+        }else{
+            holder.recipeLayout.setVisibility(View.GONE);
+            holder.recipeTitle.setVisibility(View.GONE);
+            holder.recipeDescription.setVisibility(View.GONE);
+            holder.recipeImageView.setVisibility(View.GONE);
+            holder.recipeRating.setVisibility(View.GONE);
         }
         Log.e("FdRc", "searching for post: " + mDataset.get(position).postID);
         try{
