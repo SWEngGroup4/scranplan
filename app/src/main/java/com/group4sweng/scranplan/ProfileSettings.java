@@ -108,6 +108,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
     private static final int MAX_IMAGE_FILE_SIZE_IN_MB = 4; // Max storage image size for the profile picture.
     protected static boolean IMAGE_IS_UPLOADING = false; // Boolean to determine if the image is uploading currently.
+    private boolean filtersChanged = false; // Determine if user has changed filter settings. If so update RecipeView upon return.
     private String currentImageURI = null;
 
     //  Default filter type enumeration. Types shown in 'FilterType' interface.
@@ -394,7 +395,13 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
     @Override
     public void onBackPressed() {
-        Intent returnIntent = new Intent();
+        Intent returnIntent;
+        if(filtersChanged){ //  If filters have been changed return to the recipes tab and update recipe scrollviews.
+            returnIntent = new Intent(this, Home.class);
+            returnIntent.putExtra("updateFilters", true);
+        } else { //  Otherwise just return.
+            returnIntent = new Intent();
+        }
         returnIntent.putExtra("user", mUserProfile); // Send Serializable UserInfoPrivate class data back when leaving the activity.
 
         //  If an image is still uploading create a dialog box that asks if the user wants to continue existing.
@@ -425,7 +432,13 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             alertDialog.show();
         } else {
             setResult(Activity.RESULT_OK, returnIntent);
-            finish(); // Close the activity.
+
+            if(filtersChanged){ // If filters change, go back to the 'recipes' page.
+                startActivity(returnIntent);
+                finish();
+            } else {
+                finish(); // Close the activity.
+            }
         }
     }
 
@@ -923,6 +936,8 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
      * @param v - Filters checkbox view.
      */
     public void onCheckboxClicked(View v) {
+        filtersChanged = true;
+
         // Is the Checkbox Checked?
         boolean checked = ((CheckBox) v).isChecked();
 
@@ -1159,7 +1174,8 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
     protected void uploadImage(Uri uri) throws ProfileImageException {
         String extension = getExtension(this, uri);
 
-        if(!isTesting){ // Check if we are testing, if not check the image.
+        // Check if we are testing, pick image uri dosen't work when testing.
+        if(!isTesting){
             checkImage(uri); // Check the image doesn't throw any exceptions
         }
 

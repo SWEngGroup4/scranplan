@@ -12,7 +12,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
-import com.group4sweng.scranplan.Administration.SuggestionBox;
+
 
 public class SideMenu extends Activity implements NavigationView.OnNavigationItemSelectedListener {
     public Toolbar mMenuToolbar;
@@ -24,7 +24,7 @@ public class SideMenu extends Activity implements NavigationView.OnNavigationIte
 
     private com.group4sweng.scranplan.UserInfo.UserInfoPrivate mUser;
 
-    public void init(Activity activity, Context context){
+    public void init(Activity activity, Context context) {
         this.mActivity = activity;
         this.mContext = context;
         startMenu();
