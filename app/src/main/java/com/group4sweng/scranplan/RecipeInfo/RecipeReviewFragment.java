@@ -165,13 +165,13 @@ public class RecipeReviewFragment extends FeedFragment {
                         reviewMade = true;
 
 
-                    } else {
+                    }} else {
                         Log.e("FdRc", "Unable to retrieve user document in Firestore ");
                         reviewMade = false;
                         mPostPic.setChecked(false);
                         urlPic = false;
                     }
-                }}
+                }
             }
 
         });
