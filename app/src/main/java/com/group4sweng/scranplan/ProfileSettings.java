@@ -83,7 +83,12 @@ import static java.util.Objects.requireNonNull;
  *  - Profile Image
  *  - About Me Info
  *  - Filters
- *  - Privacy options.
+ *  - Privacy options
+ *  - User Feed
+ *
+ *  A deep clone is created of the UserInfoPrivate class. Any changes made within this activity update this temporary class (mTempUserProfile)
+ *  If an image is saved wait for this image to upload and then save to firebase, otherwise just save immediately to firebase.
+ *
  */
 public class ProfileSettings extends AppCompatActivity implements FilterType, SupportedFormats {
 
@@ -93,14 +98,12 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         PUBLIC
     }
     private LoadingDialog loading;
-
     private Toast mToast = null;
 
     private final static String TAG = "ProfileSettings"; // Tag for 'Log'.
 
     // Unique codes for image & permission request activity callbacks.
     private static final int IMAGE_REQUEST_CODE = 2;
-    private static final int PROFILE_SETTINGS_REQUEST_CODE = 1;
     private static final int PERMISSION_CODE = 1001;
 
     private static final int MAX_IMAGE_FILE_SIZE_IN_MB = 4; // Max storage image size for the profile picture.
@@ -124,10 +127,9 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
     private Uri mImageUri; // Unique image uri.
 
     UserInfoPrivate mUserProfile; // Local user info data. Not edited directly, assigned on return from 'mTempUserProfile' if settings have been saved.
-    UserInfoPrivate mTempUserProfile; // Local User info. Accessible only within this Activity
+    UserInfoPrivate mTempUserProfile; // Local User info. Accessible only within this Activity.
 
-    //  TODO - Add valid network connection checks.
-
+    //  Progress bar.
     ProgressBar mProgress;
     TextView mProgressText;
 
@@ -137,13 +139,12 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
     TextView mUsername;
     ImageView mCheckUsername;
     TextView mAboutMe;
+    TextView mPrivateMessage;
 
     Switch mDisplay_username;
     Switch mDisplay_about_me;
-    Switch mDisplay_recipes;
     Switch mDisplay_profile_image;
     Switch mDisplay_filters;
-    Switch mDisplay_feed;
     Switch mPrivateProfileEnabled;
 
     //  Input fields (Delete profile & Change password)
@@ -174,12 +175,10 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
     //  Initialize 'Save Settings minimum interval countdown timer.
     CountDownTimer saveCountdown = new CountDownTimer(COUNTDOWN_TIMER_MILLIS, COUNTDOWN_INTERVAL_MILLIS) {
-
         @Override
         public void onTick(long millisUntilFinished) {
             saveCountdownSecondsLeft = millisUntilFinished/1000;
         }
-
         @Override
         public void onFinish() {
             saveCountdownFinished = true;
@@ -211,33 +210,186 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             initPreferencesFragmentsTabListener();
             initProfileVisibilityTabListener();
 
-            loadProfileData();
+            //  Load in existing data present within the activity only.
+            //  Filters & the user feed are loaded differently.
+            loadProfile(mUserProfile.isPrivateProfileEnabled());
 
-            if(mPrivateProfileEnabled.isChecked()) {
-                setPrivacyOptions(mTempUserProfile.getPublicPrivacy());
-                TabLayout.Tab tab = mProfileVisibilityTab.getTabAt(0);
-                assert tab != null;
-                tab.select();
-                mProfileVisibilityTab.setVisibility(View.VISIBLE);
-                mDisplay_feed.setVisibility(View.GONE);
-                mDisplay_recipes.setVisibility(View.GONE);
-            } else {
-                setPrivacyOptions(mTempUserProfile.getPrivacyPrivate());
-                mProfileVisibilityTab.setVisibility(View.GONE);
-            }
-
-            //mProfileImage;
-            if(mUserProfile.getImageURL() == null){
-                throw new NullPointerException("Unable to load Profile image URL. Image URL is null");
-            } else if(!mUserProfile.getImageURL().equals("")){
-                Glide.with(mProfileImageOld.getContext())
-                        .load(mUserProfile.getImageURL())
-                        .apply(RequestOptions.circleCropTransform())
-                        .into(mProfileImageOld);
-            }
-
-            initPageListeners();
+            initTextChangedListener(); //  Checks for a unique username input with correct formatting.
         }
+    }
+
+    /** Handle sending serializable data to tabbed fragments **/
+    private void sendSerializableToFragment(){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        // Create a new bundle, complete with the users preferences to be set as arguments for the fragment.
+        Bundle prefBundle = new Bundle();
+        prefBundle.putSerializable("preferences", mTempUserProfile.getPreferences());
+        currentFragment.setArguments(prefBundle);
+
+        //  Switch current checkbox table with our new fragment.
+        fragmentTransaction.replace(R.id.settings_checkbox_table, currentFragment);
+        fragmentTransaction.commit();
+    }
+
+    /** Listeners for preferences fragment.
+     *  Check which tab is selected, load the associated fragment and send associated serializable preference data to accommodate.
+     */
+    private void initPreferencesFragmentsTabListener(){
+
+        mPreferencesTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+
+                switch (tab.getPosition()) {
+                    case 0: // Tab order in index. 0 = leftmost element.
+                        currentFragment = new AllergensFragment(); // Create a new fragment.
+                        currentFilterType = filterType.ALLERGENS; // Set current filter type to handle 'checkbox click' actions.
+                        break;
+                    case 1:
+                        currentFragment = new DietaryFragment();
+                        currentFilterType = filterType.DIETARY;
+                        break;
+                }
+                sendSerializableToFragment();
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) { /* Nothing here */ }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) { /* Nothing here */}
+        });
+    }
+
+    /** Listeners for privacy public/private tab.
+     *  Check which tab is selected, load associated data.
+     */
+    private void initProfileVisibilityTabListener(){
+
+        mProfileVisibilityTab.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+
+                switch (tab.getPosition()) {
+                    case 0: // Tab order in index. 0 = leftmost element.
+                        setPrivacyOptions(mTempUserProfile.getPublicPrivacy());
+                        break;
+                    case 1:
+                        setPrivacyOptions(mTempUserProfile.getPrivacyPrivate());
+                        break;
+                }
+            }
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) { /* Nothing here */ }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) { /* Nothing here */}
+
+        });
+    }
+
+    /** Load basic firebase data & any data not present in fragments.
+     * @param isPrivateProfile - Should we load a private or public style profile.**/
+    private void loadProfile(boolean isPrivateProfile){
+        mUsername.setText(mTempUserProfile.getDisplayName());
+        mAboutMe.setText(mTempUserProfile.getAbout());
+        mPrivateProfileEnabled.setChecked(isPrivateProfile); //  Private profile switch.
+
+        //  Load privacy switches. Always load the public privacy info first.
+        setPrivacyOptions(mTempUserProfile.getPublicPrivacy());
+
+        if(isPrivateProfile) { // Load private profile
+            TabLayout.Tab tab = mProfileVisibilityTab.getTabAt(0); // Make sure the leftmost tab is selected.
+            if(tab != null){
+                tab.select();
+            }
+            mProfileVisibilityTab.setVisibility(View.VISIBLE);
+        } else { // Hide private profile switch and tabs if not a private profile.
+            mPrivateMessage.setVisibility(View.GONE);
+            mProfileVisibilityTab.setVisibility(View.GONE);
+        }
+
+        //  Load in the initial profile image.
+        if(mTempUserProfile.getImageURL() == null){
+            throw new NullPointerException("Unable to load Profile image URL. Image URL is null");
+        } else if(!mTempUserProfile.getImageURL().equals("")){
+            Glide.with(mProfileImageOld.getContext())
+                    .load(mUserProfile.getImageURL())
+                    .apply(RequestOptions.circleCropTransform())
+                    .into(mProfileImageOld);
+        }
+    }
+
+    /**
+     * listeners to tell user password and username follow in line with set rules with toast messaged and visual clues
+     * checker enforces unique user names what only consist of lower case letters and numbers
+     * with a maximum length of 20 characters
+     **/
+    private void initTextChangedListener(){
+        /**
+         * Username checker enforcing unique user names what only consist of lower case letters and numbers
+         * with a maximum length of 20 characters
+         */
+        mUsername.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+                if(!mUsername.getText().toString().equals("")){
+                    if(mUsername.getText().toString().matches("^[a-z0-9]+$") && mUsername.getText().toString().length() <= 20 && mUsername.getText().toString().length() >= 2){
+                        mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_autorenew_black_24dp));
+                        mCheckUsername.setVisibility(View.VISIBLE);
+                        if(!mUsername.getText().toString().equals("")){
+                            mDatabase.collection("usernames").document(mUsername.getText().toString()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if(task.getResult().exists()){
+                                        if(task.getResult().get("user").equals(mUserProfile.getUID())){
+                                            mCheckUsername.setVisibility(View.GONE);
+                                        }else{
+                                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                                            mCheckUsername.setVisibility(View.VISIBLE);
+                                        }
+                                    }else{
+                                        if(!mUsername.getText().toString().equals("")){
+                                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_check_black_24dp));
+                                            mCheckUsername.setVisibility(View.VISIBLE);
+                                        }else{
+                                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                                            mCheckUsername.setVisibility(View.VISIBLE);
+                                            if (mToast != null) mToast.cancel();
+                                            mToast = Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, between 2 and 20 characters.",Toast.LENGTH_SHORT);
+                                            mToast.show();
+                                        }
+                                    }
+                                }
+                            });
+                        }else{
+                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                            mCheckUsername.setVisibility(View.GONE);
+                        }
+                    }else{
+                        mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                        mCheckUsername.setVisibility(View.VISIBLE);
+                        if (mToast != null) mToast.cancel();
+                        mToast = Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, between 2 and 20 characters.",Toast.LENGTH_SHORT);
+                        mToast.show();
+                    }
+                }else{
+                    mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
+                    mCheckUsername.setVisibility(View.VISIBLE);
+                    if (mToast != null) mToast.cancel();
+                    mToast = Toast.makeText(getApplicationContext(),"Username cannot be empty.",Toast.LENGTH_SHORT);
+                    mToast.show();
+                }
+            }
+        });
     }
 
     @Override
@@ -269,91 +421,15 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             });
 
             //  Create and display the dialog.
-            AlertDialog alertDialog = builder.create(); //
+            AlertDialog alertDialog = builder.create();
             alertDialog.show();
         } else {
             setResult(Activity.RESULT_OK, returnIntent);
-            finish();
+            finish(); // Close the activity.
         }
-
     }
 
-    /**
-     * listeners to tell user password and username follow in line with set rules with toast messaged and visual clues
-     */
-    private void initPageListeners(){
-        /**
-         * Username checker enforcing unique user names what only consist of lower case letters and numbers
-         * with a maximum length of 20 characters
-         */
-        mUsername.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-                if(!mUsername.getText().toString().equals("")){
-                    if(mUsername.getText().toString().matches("^[a-z0-9]+$") && mUsername.getText().toString().length() <= 20 && mUsername.getText().toString().length() >= 2){
-                        mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_autorenew_black_24dp));
-                        mCheckUsername.setVisibility(View.VISIBLE);
-                        if(!mUsername.getText().toString().equals("")){
-                            mDatabase.collection("usernames").document(mUsername.getText().toString()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if(task.getResult().exists()){
-                                        if(task.getResult().get("user").equals(mUserProfile.getUID())){
-                                            mCheckUsername.setVisibility(View.GONE);
-                                        }else{
-                                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
-                                            mCheckUsername.setVisibility(View.VISIBLE);
-                                        }
-                                    }else{
-                                        if(!mDisplay_username.getText().toString().equals("")){
-                                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_check_black_24dp));
-                                            mCheckUsername.setVisibility(View.VISIBLE);
-                                        }else{
-                                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
-                                            mCheckUsername.setVisibility(View.VISIBLE);
-                                            if (mToast != null) mToast.cancel();
-                                            mToast = Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, between 2 and 20 characters.",Toast.LENGTH_SHORT);
-                                            mToast.show();
-
-                                        }
-                                    }
-                                }
-                            });
-                        }else{
-                            mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
-                            mCheckUsername.setVisibility(View.GONE);
-                        }
-                    }else{
-                        mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
-                        mCheckUsername.setVisibility(View.VISIBLE);
-                        if (mToast != null) mToast.cancel();
-                        mToast = Toast.makeText(getApplicationContext(),"Usernames must be unique consisting of only lowercase letters and numbers, between 2 and 20 characters.",Toast.LENGTH_SHORT);
-                        mToast.show();
-                    }
-                }else{
-                    mCheckUsername.setImageDrawable(getApplicationContext().getDrawable(R.drawable.ic_clear_black_24dp));
-                    mCheckUsername.setVisibility(View.VISIBLE);
-                    if (mToast != null) mToast.cancel();
-                    mToast = Toast.makeText(getApplicationContext(),"Username cannot be empty.",Toast.LENGTH_SHORT);
-                    mToast.show();
-                }
-
-
-
-            }
-        });
-    }
 
     /** Initiated on a 'Delete Profile' button press.
      *  Creates an alert dialog box that checks a users old password through re-authentication
@@ -471,13 +547,15 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                                                 }
                                             }
 
-
-
                                             //Finally delete actual user
                                             mDatabase.collection("users").document(mAuth.getCurrentUser().getUid()).delete().addOnSuccessListener(aVoid1 -> {
-                                                mUserProfile = null;
+                                                //  Delete reference to the users username. Makes it un-searchable.
+                                                mDatabase.collection("usernames").document(mUserProfile.getDisplayName()).delete();
+
+                                                mUserProfile = null; // Clear user profile collection.
                                                 mAuth.getCurrentUser().delete().addOnCompleteListener(task -> {
                                                     if (task.isSuccessful()) {
+
                                                         loading.dismissDialog();
                                                         Log.d(TAG, "User account deleted.");
 
@@ -493,11 +571,13 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                                             });
 
 
-
                                             //If user has no following no followers then just delete user
                                         }else{
                                             mDatabase.collection("users").document(mAuth.getCurrentUser().getUid()).delete().addOnSuccessListener(aVoid1 -> {
-                                                mUserProfile = null;
+                                                //  Delete reference to the users username. Makes it un-searchable.
+                                                mDatabase.collection("usernames").document(mUserProfile.getDisplayName()).delete();
+
+                                                mUserProfile = null; // Clear user profile collection.
                                                 mAuth.getCurrentUser().delete().addOnCompleteListener(task -> {
                                                     if (task.isSuccessful()) {
                                                         loading.dismissDialog();
@@ -715,8 +795,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
      */
     public void saveSettings(View v){
 
-        //  Ignore save button press if countdown isn't finished or isn't equal to 0s.
-
         // TEST METHODS - Checks for very specific username string input to enter test screens.
         for(HiddenViews hv : HiddenViews.values()){
             if(mUsername.getText().toString().equals(hv.getUsernameKeyWord())){
@@ -725,18 +803,39 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             }
         }
 
+        //  Ignore save button press if countdown isn't finished or isn't equal to 0s.
         if(saveCountdownFinished || saveCountdownSecondsLeft == 0) {
 
             //  Set all info not set in other proprietary methods.
             mTempUserProfile.setAbout(mAboutMe.getText().toString());
             mTempUserProfile.setDisplayName(mUsername.getText().toString());
 
-            //  Update the server relative to the client or throw an exception if a valid user isn't found.
-            try {
-                updateFirebase();
-            } catch (InvalidUserException | ProfileImageException e) {
-                e.printStackTrace();
+            //  Check if our profile image has changed. In which case upload the image before doing anything else.
+            //  Return if image is not of a supported format & of the correct size. Else throw an exception and prevent saving of settings.
+            if(mImageUri != null && !currentImageURI.equals(mUserProfile.getImageURL())){
+                Log.e(TAG, "I am checking and uploading the image image");
+                try {
+                    checkImage(mImageUri); // Check the image URI object for it's file type and file size. Throw an error and exit if an issue is present.
+                } catch (ProfileImageException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    uploadImage(mImageUri); // Attempt to upload the image in storage to Firebase.
+                } catch (ProfileImageException e) {
+                    e.printStackTrace();
+                    return;
+                }
             }
+
+            if(!IMAGE_IS_UPLOADING){ //  Prevent saving to firebase if an image is currently uploading.
+                //  Update the server relative to the client or throw an exception if a valid user isn't found.
+                try {
+                    updateFirebase();
+                } catch (InvalidUserException | ProfileImageException e) {
+                    e.printStackTrace();
+                }
+            }
+
         } else {
             Toast.makeText(getApplicationContext(), "Please wait " + saveCountdownSecondsLeft + " second(s) before pressing save again", Toast.LENGTH_LONG).show();
         }
@@ -754,14 +853,18 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
         int tabPosition = mProfileVisibilityTab.getSelectedTabPosition();
 
-        switch(tabPosition){
-            case 0:
-                tempPrivacy = mTempUserProfile.getPublicPrivacy();
-                syncVisibility(SyncType.PUBLIC);
-                break;
-            case 1:
-                tempPrivacy = mTempUserProfile.getPrivacyPrivate();
-                syncVisibility(SyncType.PRIVATE);
+        if(mTempUserProfile.isPrivateProfileEnabled()){
+            switch(tabPosition){
+                case 0:
+                    tempPrivacy = mTempUserProfile.getPublicPrivacy();
+                    syncVisibility(SyncType.PUBLIC);
+                    break;
+                case 1:
+                    tempPrivacy = mTempUserProfile.getPrivacyPrivate();
+                    syncVisibility(SyncType.PRIVATE);
+            }
+        } else {
+            tempPrivacy = mTempUserProfile.getPublicPrivacy();
         }
 
         switch(v.getId()){ // Retrieve switches unique ID.
@@ -770,18 +873,20 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             //  Otherwise makes sure the profile privacy settings tab bar is shown.
             case R.id.settings_private_toggle:
                 if(switched) {
+                    mTempUserProfile.setIsPrivateProfileEnabled(true);
+                    mPrivateMessage.setVisibility(View.VISIBLE);
                     setPrivacyOptions(mTempUserProfile.getPublicPrivacy());
                     TabLayout.Tab tab = mProfileVisibilityTab.getTabAt(0);
                     assert tab != null;
                     tab.select();
                     mProfileVisibilityTab.setVisibility(View.VISIBLE);
-                    mDisplay_feed.setVisibility(View.GONE);
-                    mDisplay_recipes.setVisibility(View.GONE);
+                    break;
                 } else {
-                    setPrivacyOptions(mTempUserProfile.getPrivacyPrivate());
+                    mTempUserProfile.setIsPrivateProfileEnabled(false);
+                    mPrivateMessage.setVisibility(View.GONE);
+                    setPrivacyOptions(mTempUserProfile.getPublicPrivacy());
                     mProfileVisibilityTab.setVisibility(View.GONE);
-                    mDisplay_feed.setVisibility(View.VISIBLE);
-                    mDisplay_recipes.setVisibility(View.VISIBLE);
+                    break;
                 }
 
             case R.id.settings_privacy_about_me:
@@ -789,18 +894,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                     tempPrivacy.put("display_about_me", true);
                 else
                     tempPrivacy.put("display_about_me", false);
-                break;
-            case R.id.settings_privacy_recipes:
-                if(switched)
-                    tempPrivacy.put("display_recipes", true);
-                else
-                    tempPrivacy.put("display_recipes", false);
-                break;
-            case R.id.settings_privacy_username:
-                if(switched)
-                    tempPrivacy.put("display_username", true);
-                else
-                    tempPrivacy.put("display_username", false);
                 break;
             case R.id.settings_privacy_profile_image:
                 if(switched)
@@ -813,12 +906,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                     tempPrivacy.put("display_filters", true);
                 else
                     tempPrivacy.put("display_filters", false);
-                break;
-            case R.id.settings_privacy_feed:
-                if(switched)
-                    tempPrivacy.put("display_feed", true);
-                else
-                    tempPrivacy.put("display_feed", false);
                 break;
         }
 
@@ -937,10 +1024,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         //  Privacy
         mDisplay_about_me = findViewById(R.id.settings_privacy_about_me);
         mDisplay_profile_image = findViewById(R.id.settings_privacy_profile_image);
-        mDisplay_recipes = findViewById(R.id.settings_privacy_recipes);
-        mDisplay_username = findViewById(R.id.settings_privacy_username);
         mDisplay_filters = findViewById(R.id.settings_privacy_filters);
-        mDisplay_feed = findViewById(R.id.settings_privacy_feed);
 
         //  Tabbed profile listener (Public/Private)
         mProfileVisibilityTab = findViewById(R.id.profile_visibility_tab_bar);
@@ -951,6 +1035,8 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         mProgressText = findViewById(R.id.settings_progress_text);
 
         mCheckUsername = findViewById(R.id.username_tick);
+
+        mPrivateMessage = findViewById(R.id.privateMessage);
     }
 
     /** Method called when we click to change the users profile image.
@@ -1012,9 +1098,8 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
         //   Check for a valid request code and successful result.
         if(requestCode == IMAGE_REQUEST_CODE && resultCode==RESULT_OK){
+            mProfileImage.setImageResource(R.drawable.temp_settings_profile_image); // Set to a default image if image uploading fails.
             if(data!=null && data.getData()!= null){
-                mProfileImage.setImageResource(R.drawable.temp_settings_profile_image); // Set to a default image if image uploading fails.
-
                 mImageUri = data.getData();
                 currentImageURI = mImageUri.toString();
 
@@ -1106,9 +1191,14 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                     })
                 .addOnSuccessListener(taskSnapshot -> mImageStorage.getDownloadUrl()
                         .addOnSuccessListener(locationUri -> { // Successful upload.
-                            mUserProfile.setImageURL(locationUri.toString()); // Update the UserInfoPrivate class with this new image URL.
+                            mTempUserProfile.setImageURL(locationUri.toString()); // Update the UserInfoPrivate class with this new image URL.
                             IMAGE_IS_UPLOADING = false; // State we have finished uploading (a reference exists).
                             currentImageURI = locationUri.toString();
+                            try {
+                                updateFirebase();
+                            } catch (InvalidUserException | ProfileImageException e) {
+                                e.printStackTrace();
+                            }
                         }).addOnFailureListener(e -> {
                             mProgress.setVisibility(View.GONE);
                             mProgressText.setVisibility(View.GONE);
@@ -1127,28 +1217,17 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         });
     }
 
-    /** Load basic firebase data & any data not present in fragments. **/
-    private void loadProfileData(){
-        mUsername.setText(mTempUserProfile.getDisplayName());
-        mAboutMe.setText(mTempUserProfile.getAbout());
-        mPrivateProfileEnabled.setChecked(mTempUserProfile.isPrivateProfileEnabled());
-
-        //  Load privacy switches.
-        setPrivacyOptions(mTempUserProfile.getPublicPrivacy());
-    }
-
 
     /** Set which privacy switches should be selected
      * @param privacy - HashMap of valid privacy options.
      */
     private void setPrivacyOptions(HashMap<String, Object> privacy){
-        //mDisplay_username.setChecked( (boolean) privacy.get("display_username"));
-        mDisplay_username.setVisibility(View.GONE);
+        // IMPORTANT - Username, recipe and feed privacy options ignored or implemented using the privacy switch.
+        // Collection could not be updated without breaking core functionality within Firebase.
+
         mDisplay_about_me.setChecked( (boolean) privacy.get("display_about_me"));
         mDisplay_profile_image.setChecked( (boolean) privacy.get("display_profile_image"));
-        mDisplay_recipes.setChecked( (boolean) privacy.get("display_recipes"));
         mDisplay_filters.setChecked( (boolean) privacy.get("display_filters"));
-        mDisplay_feed.setChecked( (boolean) privacy.get("display_feed"));
     }
 
     /** Update the server relative to the client on a valid 'Save Settings' button press
@@ -1188,11 +1267,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
 
                             String usersEmail = requireNonNull(mAuth.getCurrentUser()).getEmail();
 
-                            if(IMAGE_IS_UPLOADING){ //  Prevent saving to firebase if an image is currently uploading.
-                                Toast.makeText(getApplicationContext(), "We are still uploading your profile image. Try again in a second.", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-
                             //  If the 'saveCountdown' countdown has finished. Restart it.
                             if(saveCountdownFinished){
                                 saveCountdown.start();
@@ -1208,22 +1282,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                                 }
                             } else {
                                 throw new RuntimeException("Unable to find associated email address of the user");
-                            }
-
-                            //  Return if image is not of a supported format & of the correct size. Else throw an exception and prevent saving of settings.
-                            if(mImageUri != null && !currentImageURI.equals(mUserProfile.getImageURL())){
-                                Log.e(TAG, "I am checking and uploading the image image");
-                                try {
-                                    checkImage(mImageUri); // Check the image URI object for it's file type and file size. Throw an error and exit if an issue is present.
-                                } catch (ProfileImageException e) {
-                                    e.printStackTrace();
-                                }
-                                try {
-                                    uploadImage(mImageUri); // Attempt to upload the image in storage to Firebase.
-                                } catch (ProfileImageException e) {
-                                    e.printStackTrace();
-                                    return;
-                                }
                             }
 
                             //  Create maps to store associated data.
@@ -1245,6 +1303,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
                             map.put("posts", mTempUserProfile.getPosts());
                             map.put("followers", mTempUserProfile.getFollowers());
                             map.put("following", mTempUserProfile.getFollowing());
+                            map.put("numRecipes", mTempUserProfile.getRecipes());
 
                             Preferences preferences = mTempUserProfile.getPreferences();
 
@@ -1349,81 +1408,5 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         }
     }
 
-    /** Handle sending serializable data to tabbed fragments **/
-    private void sendSerializableToFragment(){
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-        // Create a new bundle, complete with the users preferences to be set as arguments for the fragment.
-        Bundle prefBundle = new Bundle();
-        prefBundle.putSerializable("preferences", mTempUserProfile.getPreferences());
-        currentFragment.setArguments(prefBundle);
-
-        //  Switch current checkbox table with our new fragment.
-        fragmentTransaction.replace(R.id.settings_checkbox_table, currentFragment);
-        fragmentTransaction.commit();
-    }
-
-    /** Listeners for preferences fragment.
-     *  Check which tab is selected, load the associated fragment and send associated serializable preference data to accommodate.
-     */
-    private void initPreferencesFragmentsTabListener(){
-
-        mPreferencesTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-
-                switch (tab.getPosition()) {
-                    case 0: // Tab order in index. 0 = leftmost element.
-                        currentFragment = new AllergensFragment(); // Create a new fragment.
-                        currentFilterType = filterType.ALLERGENS; // Set current filter type to handle 'checkbox click' actions.
-                        break;
-                    case 1:
-                        currentFragment = new DietaryFragment();
-                        currentFilterType = filterType.DIETARY;
-                        break;
-
-                }
-                sendSerializableToFragment();
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) { /* Nothing here */ }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) { /* Nothing here */}
-
-        });
-    }
-
-    /** Listeners for privacy public/private tab.
-     *  Check which tab is selected, load associated data.
-     */
-    private void initProfileVisibilityTabListener(){
-
-        mProfileVisibilityTab.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-
-                switch (tab.getPosition()) {
-                    case 0: // Tab order in index. 0 = leftmost element.
-                            setPrivacyOptions(mTempUserProfile.getPublicPrivacy());
-                            mDisplay_feed.setVisibility(View.GONE);
-                            mDisplay_recipes.setVisibility(View.GONE);
-                        break;
-                    case 1:
-                            setPrivacyOptions(mTempUserProfile.getPrivacyPrivate());
-                        mDisplay_feed.setVisibility(View.VISIBLE);
-                        mDisplay_recipes.setVisibility(View.VISIBLE);
-                        break;
-                }
-            }
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) { /* Nothing here */ }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) { /* Nothing here */}
-
-        });
-    }
 }

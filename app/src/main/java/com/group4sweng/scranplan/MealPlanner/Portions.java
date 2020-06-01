@@ -41,7 +41,7 @@ class Portions implements Warning {
      * @return - Numerical value of portion. Returns -1 if a value cannot be found or the
      *      String input is invalid.
      */
-    public static float retrieveQuantity(String portionDisplayed){
+    static float retrieveQuantity(String portionDisplayed){
         boolean quantityFound = false; // Has a numerical value been found.
         boolean decimalFound = false; // Has a decimal been found.
         float quantity; // final quantity.
