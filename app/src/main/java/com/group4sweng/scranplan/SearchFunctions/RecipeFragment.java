@@ -42,13 +42,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import io.sentry.core.Sentry;
 
 import static com.group4sweng.scranplan.SearchFunctions.QueryRequestCode.QueryRequestCodes;
-
-import io.sentry.core.Sentry;
 
 /**
  * Class for the home page fragment containing horizontal meals to scroll though.
@@ -61,8 +58,6 @@ import io.sentry.core.Sentry;
  * scroll listeners to check where the user is interacting with these scrolls.
  */
 public class RecipeFragment extends Fragment implements QueryRequestCodes {
-
-
 
     final String TAG = "Home horizontal queries";
     // User preferences passed into scroll views via constructor
