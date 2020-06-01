@@ -76,7 +76,7 @@ public class EspressoHelper {
     //  Opens the correct side menu element based on an enumeration which is translated into the corresponding side menu row.
     //  to be used by the test recorder output.
     public static void openSideBar(SideBarElement element){
-        int ROW_ID = 1; //By default make this the top element in the side menu.
+        int ROW_ID; //By default make this the top element in the side menu.
 
         switch(element) {
             case PROFILE:
@@ -94,12 +94,14 @@ public class EspressoHelper {
             case SUGGEST:
                 ROW_ID = 4;
                 break;
+            default:
+                ROW_ID = 1;
         }
 
         //  Test recorder output.
         if(!shouldSkip){
             ViewInteraction appCompatImageButton = onView(
-                    allOf(withContentDescription("Open Nav Drawer"),
+                    allOf(withContentDescription(R.string.nav_drawer_open),
                             childAtPosition(
                                     allOf(withId(R.id.toolbar),
                                             childAtPosition(
