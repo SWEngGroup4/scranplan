@@ -40,8 +40,6 @@ import com.squareup.picasso.Picasso;
 import java.util.HashMap;
 import java.util.List;
 
-import io.sentry.core.Sentry;
-
 /**
  * Class for the feed recycler adapter used in both the feed fragment and posts fragment of profile.
  * Author(s): LNewman
@@ -74,8 +72,8 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
      * The holder for the card with variables required
      */
     public static class FeedPostPreviewData {
-        public String authorUID;
         private String postID;
+        private String authorUID;
         private String timeStamp;
         private String body;
         private boolean isPic;
@@ -123,7 +121,7 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
      * Building the card and image view
      */
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        public String authorName;
+        private String authorName;
         private String authorPicURL;
 
         private CardView cardView;
@@ -150,6 +148,8 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
 
 
         private ImageButton menu;
+
+
 
         private ViewHolder(View v) {
             super(v);
@@ -273,26 +273,22 @@ public class FeedRecyclerAdapter extends RecyclerView.Adapter<FeedRecyclerAdapte
             }
         }
         Log.e("FdRc", "searching for post: " + mDataset.get(position).postID);
-        try{
         mDatabase.collection("posts").document(mDataset.get(position).postID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    //TODO handle the null exeption
-                    try{
-                    holder.numLikes.setText(task.getResult().get("likes").toString());
-                    holder.numComments.setText(task.getResult().get("comments").toString());}
-                    catch (Exception e){
-                        Sentry.captureException(e);
+                    if(task.getResult().get("likes") != null){
+                        holder.numLikes.setText(task.getResult().get("likes").toString());
+                        holder.numComments.setText(task.getResult().get("comments").toString());
+                    }else{
+                        holder.cardView.setVisibility(View.GONE);
                     }
+
                 }else {
                     Log.e("FdRc", "User details retrieval : Unable to retrieve user document in Firestore ");
                 }
             }
-        });}
-        catch (Exception e){
-            Sentry.captureException(e);
-        }
+        });
         mDatabase.collection("likes").document(mDataset.get(position).postID + "-" + user.getUID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {

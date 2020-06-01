@@ -27,7 +27,7 @@ public class Ingredient {
      * @param mIcon - Ingredient Icon.
      * @param mWarning - Warning if ingredient isn't converted properly.
      */
-    Ingredient(String mName, String mPortion, int mIcon, String mWarning){
+    public Ingredient(String mName, String mPortion, int mIcon, String mWarning){
         this(mName, mPortion);
         setWarning(mWarning);
         this.mIcon = mIcon;
@@ -55,9 +55,9 @@ public class Ingredient {
         return mIcon;
     }
 
-    void setWarning(String mWarning){ this.mWarning = mWarning;}
+    public void setWarning(String mWarning){ this.mWarning = mWarning;}
 
-    String getWarning(){
+    public String getWarning(){
         return mWarning;
     }
 }

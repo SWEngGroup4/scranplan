@@ -34,7 +34,6 @@ public class UserInfoPrivate implements Serializable, Cloneable{
     private String imageURL;
     private String about;
     private String email;
-    private long recipes;
     private long posts;
     private List<HashMap<String, Object>> mealPlanner;
     private boolean shortPreferences;
@@ -68,7 +67,6 @@ public class UserInfoPrivate implements Serializable, Cloneable{
         this.posts = (long) map.get("posts");
         this.followers = (long) map.get("followers");
         this.following = (long) map.get("following");
-        this.recipes = (long) map.get("numRecipes");
         this.email = (String) map.get("email");
         this.UID = (String) map.get("UID");
         this.displayName = (String) map.get("displayName");
@@ -109,16 +107,12 @@ public class UserInfoPrivate implements Serializable, Cloneable{
         this.privacyPublic = privacyPublic;
     }
 
-    //  Produce a deep clone of the UserInfoPrivate class to editing purposes. Java is inherently pass-by-reference.
-    //  This provides a way of getting around this at least for temporary storage of user settings whilst editing profile settings.
     public UserInfoPrivate deepClone() {
         try {
-            //  Setup byte and object streams.
             ByteArrayOutputStream byteArrayOut = new ByteArrayOutputStream();
             ObjectOutputStream objectOutStream = new ObjectOutputStream(byteArrayOut);
-            objectOutStream.writeObject(this); //   Write the object
+            objectOutStream.writeObject(this);
 
-            //  Make a copy from the original serializable bytecode and return this.
             ByteArrayInputStream byteArrayIn = new ByteArrayInputStream(byteArrayOut.toByteArray());
             ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayIn);
             return (UserInfoPrivate) objectInputStream.readObject();
@@ -127,12 +121,50 @@ public class UserInfoPrivate implements Serializable, Cloneable{
         }
     }
 
-    //  Weak clone.
     @NotNull
     public Object clone()throws CloneNotSupportedException{
         return super.clone();
     }
 
+    /*TODO
+        Instead of implementing shared preferences for user profile. Use instead for Saved Recipes and any other locally stored info.
+        Likely to come in iteration 2/3.
+     */
+    /*
+    private void loadSharedPreferences(){
+        SharedPreferences userInfo = getApplicationContext().getSharedPreferences(USER_INFO_SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        UID = userInfo.getString(UID_KEY, null);
+        displayName = userInfo.getString(DISPLAY_NAME_KEY, null);
+        imageURL = userInfo.getString(IMAGEURL_KEY, null);
+        about = userInfo.getString(ABOUT_KEY, null);
+        numRecipes = userInfo.getInt(NUM_OF_RECIPES, -1);
+        chefRating = userInfo.getInt(CHEF_RATING_KEY, -1);
+        preferences.setAllergy_nuts(userInfo.getBoolean("ALLERGY_NUTS_KEY", false));
+        preferences.setAllergy_shellfish(userInfo.getBoolean("ALLERGY_SHELLFISH_KEY", false));
+        preferences.setAllergy_milk(userInfo.getBoolean("ALLERGY_MILK_KEY", false));
+        preferences.setAllergy_soya(userInfo.getBoolean("ALLERGY_SOYA_KEY", false));
+        preferences.setAllergy_eggs(userInfo.getBoolean("ALLERGY_EGGS_KEY", false));
+    }
+     */
+
+    /*
+    private void saveSharedPreferences(){
+        SharedPreferences userInfo = getApplicationContext().getSharedPreferences(USER_INFO_SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = userInfo.edit();
+        editor.putString(UID_KEY, getUID());
+        editor.putString(DISPLAY_NAME_KEY, getDisplayName());
+        editor.putString(IMAGEURL_KEY, getImageURL());
+        editor.putString(ABOUT_KEY, getAbout());
+        editor.putInt(NUM_OF_RECIPES, (int) getNumRecipes());
+        editor.putInt(CHEF_RATING_KEY, (int) getChefRating());
+        editor.putBoolean("ALLERGY_NUTS_KEY", getPreferences().isAllergy_nuts());
+        editor.putBoolean("ALLERGY_SHELLFISH_KEY", getPreferences().isAllergy_shellfish());
+        editor.putBoolean("ALLERGY_MILK", getPreferences().isAllergy_milk());
+        editor.putBoolean("ALLERGY_SOYA", getPreferences().isAllergy_soya());
+        editor.putBoolean("ALLERGY_EGGS", getPreferences().isAllergy_eggs());
+        editor.apply();
+    }
+    */
 
     public long getPosts() {
         return posts;
@@ -140,14 +172,6 @@ public class UserInfoPrivate implements Serializable, Cloneable{
 
     public void setPosts(long posts) {
         this.posts = posts;
-    }
-
-    public long getRecipes() {
-        return recipes;
-    }
-
-    public void setRecipes(long recipes) {
-        this.recipes = recipes;
     }
 
     public String getEmail() {
@@ -212,7 +236,7 @@ public class UserInfoPrivate implements Serializable, Cloneable{
 
     public void setIsPrivateProfileEnabled(boolean isPrivateProfileEnabled ){ this.isPrivateProfileEnabled = isPrivateProfileEnabled; }
 
-    void setPrivacyPublic(HashMap<String, Object> privacy) {
+    public void setPrivacyPublic(HashMap<String, Object> privacy) {
         //  Check the HashMap has been properly initialized with all valid privacy parameters., otherwise return a runtime exception.
         if (privacy.containsKey("display_username") && privacy.containsKey("display_profile_image") && privacy.containsKey("display_about_me") && privacy.containsKey("display_recipes") && privacy.containsKey("display_filters") && privacy.containsKey("display_feed")) {
             this.privacyPublic = privacy;
@@ -221,7 +245,7 @@ public class UserInfoPrivate implements Serializable, Cloneable{
         }
     }
 
-    void setPrivatePrivacy(HashMap<String, Object> privacy) {
+    public void setPrivatePrivacy(HashMap<String, Object> privacy) {
         //  Check the HashMap has been properly initialized with all valid privacy parameters., otherwise return a runtime exception.
         if (privacy.containsKey("display_username") && privacy.containsKey("display_profile_image") && privacy.containsKey("display_about_me") && privacy.containsKey("display_recipes") && privacy.containsKey("display_filters") && privacy.containsKey("display_feed")) {
             this.privacyPrivate = privacy;
@@ -230,25 +254,25 @@ public class UserInfoPrivate implements Serializable, Cloneable{
         }
     }
 
-    void setShortPreferences(boolean shortTrue) { shortPreferences = shortTrue; }
+    public void setShortPreferences(boolean shortTrue) { shortPreferences = shortTrue; }
 
     public boolean getShortPreferences(){
         return shortPreferences;
     }
 
-    void setFirstAppLaunch(boolean firstLaunch)  {firstAppLaunch = firstLaunch; }
+    public void setFirstAppLaunch(boolean firstLaunch)  {firstAppLaunch = firstLaunch; }
 
     public boolean getFirstAppLaunch() {
         return firstAppLaunch;
     }
 
-    void setFirstPresentationLaunch(boolean firstLaunch) {firstPresentationLaunch = firstLaunch; }
+    public void setFirstPresentationLaunch(boolean firstLaunch) {firstPresentationLaunch = firstLaunch; }
 
     public boolean getFirstPresentationLaunch() {
         return firstPresentationLaunch;
     }
 
-    void setFirstMealPlannerLaunch(boolean firstLaunch) {firstMealPlannerLaunch = firstLaunch; }
+    public void setFirstMealPlannerLaunch(boolean firstLaunch) {firstMealPlannerLaunch = firstLaunch; }
 
     public boolean getFirstMealPlannerLaunch() {
         return firstMealPlannerLaunch;

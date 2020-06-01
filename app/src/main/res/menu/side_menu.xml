@@ -5,7 +5,7 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_publicProfile"
-            android:title="@string/public_profile"
+            android:title="Public Profile"
             />
         <item
             android:id="@+id/nav_notifications"
@@ -13,11 +13,7 @@
             />
         <item
             android:id="@+id/nav_editProfile"
-            android:title="@string/edit_profile"
-            />
-        <item
-            android:id="@+id/nav_messenger"
-            android:title="@string/messenger"
+            android:title="Edit Profile"
             />
         <item
             android:id="@+id/nav_suggestionBox"
@@ -39,6 +35,6 @@
     <!-- TODO - MOVE THIS TO SOMEWHERE ELSE, IE presentation-->
     <item
         android:id="@+id/nav_logout"
-        android:title="@string/log_out"/>
+        android:title="Log Out"/>
 
 </menu>

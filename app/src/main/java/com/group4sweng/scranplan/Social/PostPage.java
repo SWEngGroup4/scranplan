@@ -31,15 +31,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.group4sweng.scranplan.Administration.ContentReporting;
-import com.group4sweng.scranplan.Presentation.Presentation;
 import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.Administration.LoadingDialog;
 import com.group4sweng.scranplan.R;
@@ -62,13 +58,11 @@ import java.util.Map;
 public class PostPage extends AppCompatDialogFragment {
 
     final static String TAG = "POST"; //Log tag.
-    protected ContentReporting reportContent;
     LoadingDialog loadingDialog;
     int numLoad = 15;
 
     /**  Firebase **/
     FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
-    FirebaseStorage mStorage = FirebaseStorage.getInstance();
 
     public PostPage(TextView likes, CheckBox likedOrNot, TextView numComments, View view){
         lastPageLikedOrNot = likedOrNot;
@@ -97,7 +91,6 @@ public class PostPage extends AppCompatDialogFragment {
     private String authorPicURL;
     private String authorID;
     private String recipeID;
-    private String uploadedImageURL;
 
     private Button sendComment;
     private EditText newComment;
@@ -120,7 +113,6 @@ public class PostPage extends AppCompatDialogFragment {
 
     private RatingBar recipeRating;
     private boolean isReview;
-    private boolean isPic;
 
     private ImageView menu;
 
@@ -186,10 +178,8 @@ public class PostPage extends AppCompatDialogFragment {
         author.setText(bundle.getString("authorName"));
         body.setText(bundle.getString("body"));
         if(bundle.getString("uploadedImageURL") != null){
-            isPic = true;
             uploadedImageView.setVisibility(View.VISIBLE);
             Picasso.get().load(bundle.getString("uploadedImageURL")).into(uploadedImageView);
-            uploadedImageURL = bundle.getString("uploadedImageURL");
         }
         if(bundle.getBoolean("isRecipe")){
             recipeTitle.setVisibility(View.VISIBLE);
@@ -240,28 +230,11 @@ public class PostPage extends AppCompatDialogFragment {
                         switch (item.getItemId()) {
                             case R.id.viewCommentProfile:
                                 Log.e(TAG,"Clicked open profile!");
-                                Intent intentProfile = new Intent(getContext(), PublicProfile.class);
-
-                                intentProfile.putExtra("UID", authorID);
-                                intentProfile.putExtra("user", mUser);
-                                //setResult(RESULT_OK, intentProfile);
-                                startActivity(intentProfile);
+                                //TODO add functionality to open users profile in new fragment
                                 break;
                             case R.id.reportComment:
-                                Log.e(TAG,"Report post clicked!");
-
-                                //HashMap with relevant information to be sent for reporting
-                                HashMap<String, Object> reportsMap = new HashMap<>();
-                                reportsMap.put("docID", postID);
-                                reportsMap.put("usersID", authorID);
-                                reportsMap.put("issue","Reporting Content");
-
-                                //creating a dialog box on screen so that the user can report an issue
-                                String firebaseLocation = "reporting";
-                                ContentReporting reportContent = new ContentReporting(getActivity(), reportsMap, firebaseLocation);
-                                reportContent.startReportingDialog();
-                                reportContent.title.setText("Report Content");
-                                reportContent.message.setText("What is the issue you would like to report?");
+                                Log.e(TAG,"Report comment clicked!");
+                                //TODO add functionality to report this comment
                                 break;
                             case R.id.deleteComment:
                                 Log.e(TAG,"Clicked delete comment! &&&&&& post ID = " + postID);
@@ -357,98 +330,69 @@ public class PostPage extends AppCompatDialogFragment {
     }
 
     /**
-     * Adding capability to delete post from post page
+     *  Adding capabilities to delete post from post page
      * @param deleteDocID
      */
     public void deletePost(String deleteDocID){
-        loadingDialog = new LoadingDialog(getActivity());
-        loadingDialog.startLoadingDialog();
-        String userID = authorID;
-        if(authorID != null){
-            // Delete review if one
-            if(isReview){
-                mDatabase.collection("recipes").document(recipeID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.getResult() != null){
-                            HashMap<String, Double> ratingMap = (HashMap) task.getResult().get("rating");
-                            revertRating(ratingMap, recipeID, recipeRating.getRating());
-                        }
-                    }
-                });
-                // UserID-RecipeID
-                mDatabase.collection("reviews").document(authorID + "-" + recipeID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.getResult().exists()){
-                            task.getResult().getReference().delete();
-                        }
-                    }
-                });
-            }
-            // Delete pic if one
-            if(isPic){
-                if(uploadedImageURL != null){
-                    mStorage.getReferenceFromUrl(uploadedImageURL).delete();
-                }
-            }
-            // Delete in followers collection if in there
-            mDatabase.collection("followers").document(userID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        if(isReview){
+            mDatabase.collection("reviews").document(authorID + "-" + recipeID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if(task.isSuccessful()){
-                        if(task.getResult().exists()){
-                            // Add post to followers map
-                            DocumentSnapshot doc = task.getResult();
-                            if(((HashMap)doc.get("mapA")) != null && ((HashMap)doc.get("mapA")).get("docID").equals(deleteDocID)){
+                    if(task.getResult().exists()){
+                        task.getResult().getReference().delete();
+                    }
+                }
+            });
+        }
+        mDatabase.collection("followers").document(mUser.getUID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()){
+                    if(task.getResult().exists()){
+                        // Add post to followers map
+                        DocumentSnapshot doc = task.getResult();
+                        if(((HashMap)doc.get("mapA")) != null){
+                            if(((HashMap)doc.get("mapA")).get("docID").equals(deleteDocID)){
                                 String map = "mapA";
-                                mDatabase.collection("followers").document(userID).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                mDatabase.collection("users").document(userID).update("livePosts", FieldValue.increment(- 1));
-                                                loadingDialog.dismissDialog();
-                                            }
-                                        });
-                                    }
-                                });
-                            }else if(((HashMap)doc.get("mapB")) != null && ((HashMap)doc.get("mapB")).get("docID").equals(deleteDocID)){
-                                String map = "mapB";
-                                mDatabase.collection("followers").document(userID).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                mDatabase.collection("followers").document(mUser.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
                                                 mDatabase.collection("users").document(mUser.getUID()).update("livePosts", FieldValue.increment(- 1));
-                                                loadingDialog.dismissDialog();
                                             }
                                         });
                                     }
                                 });
-                            }else if(((HashMap)doc.get("mapC")) != null && ((HashMap)doc.get("mapC")).get("docID").equals(deleteDocID)){
-                                String map = "mapC";
-                                mDatabase.collection("followers").document(userID).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            }
+                        }else if(((HashMap)doc.get("mapB")) != null){
+                            if(((HashMap)doc.get("mapB")).get("docID").equals(deleteDocID)){
+                                String map = "mapB";
+                                mDatabase.collection("followers").document(mUser.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
-                                                mDatabase.collection("users").document(userID).update("livePosts", FieldValue.increment(- 1));
-                                                loadingDialog.dismissDialog();
+                                                mDatabase.collection("users").document(mUser.getUID()).update("livePosts", FieldValue.increment(- 1));
                                             }
                                         });
                                     }
                                 });
-                            }else{
-                                // Finally just delete doc
-                                mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            }
+                        }else if(((HashMap)doc.get("mapC")) != null){
+                            if(((HashMap)doc.get("mapC")).get("docID").equals(deleteDocID)){
+                                String map = "mapC";
+                                mDatabase.collection("followers").document(mUser.getUID()).update(map, null).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
-                                        mDatabase.collection("users").document(userID).update("livePosts", FieldValue.increment(- 1));
-                                        loadingDialog.dismissDialog();
+                                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                mDatabase.collection("users").document(mUser.getUID()).update("livePosts", FieldValue.increment(- 1));
+                                            }
+                                        });
                                     }
                                 });
                             }
@@ -456,31 +400,21 @@ public class PostPage extends AppCompatDialogFragment {
                             mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
-                                    mDatabase.collection("users").document(userID).update("livePosts", FieldValue.increment(- 1));
-                                    loadingDialog.dismissDialog();
+                                    mDatabase.collection("users").document(mUser.getUID()).update("livePosts", FieldValue.increment(- 1));
                                 }
                             });
                         }
+                    }else{
+                        mDatabase.collection("posts").document(deleteDocID).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                mDatabase.collection("users").document(mUser.getUID()).update("livePosts", FieldValue.increment(- 1));
+                            }
+                        });
                     }
                 }
-            });
-        }
-        loadingDialog.dismissDialog();
-    }
-
-    protected void revertRating(HashMap<String,Double> ratingMap, String recipeID, float oldUserRating){
-        double oldOverallRating;
-        double oldTotalRates;
-        oldTotalRates = ratingMap.get("totalRates")-1;
-        oldOverallRating = (((ratingMap.get("overallRating") * ratingMap.get("totalRates")) - oldUserRating)) / oldTotalRates;
-        Log.i(TAG, "Values: "+ oldOverallRating);
-        ratingMap.put("overallRating", oldOverallRating);
-        ratingMap.put("totalRates", oldTotalRates);
-        HashMap<String, Object> updateMap = new HashMap<>();
-        CollectionReference ref = mDatabase.collection("recipes");
-        DocumentReference documentReference = ref.document(recipeID);
-        updateMap.put("rating", ratingMap);
-        documentReference.update(updateMap);
+            }
+        });
     }
 
 
@@ -545,19 +479,7 @@ public class PostPage extends AppCompatDialogFragment {
                         break;
                     case R.id.reportComment:
                         Log.e(TAG,"Report comment clicked!");
-
-                        //HashMap with relevant information to be sent for reporting
-                        HashMap<String, Object> reportsMap = new HashMap<>();
-                        reportsMap.put("docID", document.getId());
-                        reportsMap.put("usersID", document.get("authorID").toString());
-                        reportsMap.put("issue","Reporting Content");
-
-                        //creating a dialog box on screen so that the user can report an issue
-                        String firebaseLocation = "reporting";
-                        reportContent = new ContentReporting(getActivity(), reportsMap, firebaseLocation);
-                        reportContent.startReportingDialog();
-                        reportContent.title.setText("Report Content");
-                        reportContent.message.setText("What is the issue you would like to report?");
+                        //TODO add functionality to report this comment
                         break;
                     case R.id.deleteComment:
                         Log.e(TAG,"Clicked delete comment!");

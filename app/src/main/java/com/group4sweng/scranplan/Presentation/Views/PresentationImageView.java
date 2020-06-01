@@ -24,16 +24,15 @@ public class PresentationImageView extends AppCompatImageView {
 
         this.slideHeight = slideHeight;
         this.slideWidth = slideWidth;
-        setLayoutParams(layoutParams);
     }
 
     public void setDims(Float width, Float height) {
-        layoutParams.width = Math.round(slideWidth * (80f / 100));
-        layoutParams.height = Math.round(slideHeight * (40f / 100));
+        layoutParams.width = Math.round(slideWidth * (width / 100));
+        layoutParams.height = Math.round(slideHeight * (height / 100));
     }
 
     public void setImage(String url) {
-        Picasso.get().load(url).fit().centerCrop().into(this);
+        Picasso.get().load(url).into(this);
     }
 
     public void setPos(Float xPos, Float yPos) {
@@ -54,7 +53,7 @@ public class PresentationImageView extends AppCompatImageView {
         };
     }
 
-    public void setEndTime(Integer endTime) {
+    public void setEndTimer(Integer endTime) {
         endTimer = new CountDownTimer(endTime, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {}
@@ -67,22 +66,22 @@ public class PresentationImageView extends AppCompatImageView {
     }
 
     public void startTimers() {
-        if (startTimer != null)
-            startTimer.start();
-        if (endTimer != null)
-            endTimer.start();
+        startTimer.start();
+        endTimer.start();
     }
 
     // Stops timers running in case of slide change/transition
     public void stopTimers() {
         try {
             startTimer.cancel();
+            startTimer = null;
         }
         catch (Exception e) {
             e.printStackTrace();
         }
         try {
             endTimer.cancel();
+            endTimer = null;
         }
         catch (Exception e) {
             e.printStackTrace();

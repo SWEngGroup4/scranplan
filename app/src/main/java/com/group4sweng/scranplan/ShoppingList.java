@@ -85,10 +85,11 @@ public class ShoppingList extends AppCompatActivity implements RecyclerViewAdapt
                     HashMap<String, String> updateIngredientList = new HashMap<>();
                     updateIngredientList = (HashMap<String, String>) ShoppingList.get(a).get("ingredientHashMap");
                     assert updateIngredientList != null;
-                    ArrayList<String> ingredientArray = RecipeHelpers.convertToIngredientList(updateIngredientList);
-                    for (String ingredient : ingredientArray) {
+                    ArrayList<Ingredient> ingredientArray = RecipeHelpers.convertToIngredientFormat(updateIngredientList);
+                    for (Ingredient ingredient : ingredientArray) {
                         //add each individual ingredient in each recipe
-                        ingredientList.add(ingredient);
+                        String ingredientName = ingredient.getName();
+                        ingredientList.add(ingredientName);
                     }
 
                 }

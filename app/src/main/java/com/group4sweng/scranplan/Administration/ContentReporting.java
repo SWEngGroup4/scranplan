@@ -2,7 +2,6 @@ package com.group4sweng.scranplan.Administration;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +21,6 @@ import java.util.HashMap;
 public class ContentReporting {
 
     Activity activity;
-    Context context;
     private HashMap<String, Object> document;
     private FirebaseFirestore mDatabase = FirebaseFirestore.getInstance();
     private String location;
@@ -37,19 +35,8 @@ public class ContentReporting {
         this.location = location;
     }
 
-    public ContentReporting(Context thisActivity, HashMap<String, Object> map, String location){
-        context = thisActivity;
-        this.document = map;
-        this.location = location;
-    }
-
     public void startReportingDialog(){
-        AlertDialog.Builder report;
-        if (activity != null) {
-            report = new AlertDialog.Builder(activity);
-        }else{
-            report = new AlertDialog.Builder(context);
-        }
+        AlertDialog.Builder report = new AlertDialog.Builder(activity);
         LayoutInflater inflater = activity.getLayoutInflater();
         View view = inflater.inflate(R.layout.content_reporting, null);
 

@@ -170,14 +170,14 @@
                 android:id="@+id/settings_input_about_me"
                 style="@style/Widget.AppCompat.EditText"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="75sp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="5sp"
                 android:layout_marginEnd="16sp"
                 android:background="@drawable/rounded_corners"
                 android:ems="10"
+                android:maxLines="4"
                 android:padding="5.5sp"
-                android:minHeight="68sp"
                 android:text="Input Field"
                 android:textAppearance="@style/TextAppearance.AppCompat.Display1"
                 android:textColor="#353236"
@@ -189,7 +189,7 @@
             <TableLayout
                 android:id="@+id/settings_privacy_table"
                 android:layout_width="match_parent"
-                android:layout_height="0sp"
+                android:layout_height="120sp"
                 android:layout_marginStart="16sp"
                 android:layout_marginTop="6dp"
                 android:layout_marginEnd="16sp"
@@ -200,6 +200,20 @@
                 app:layout_constraintTop_toBottomOf="@+id/profile_visibility_tab_bar">
 
                 <TableRow android:padding="1sp">
+
+                    <Switch
+                        android:id="@+id/settings_privacy_username"
+                        android:layout_width="match_parent"
+                        android:layout_margin="4sp"
+                        android:layout_weight="1"
+                        android:background="#36675B7A"
+                        android:checked="false"
+                        android:onClick="onSwitchClicked"
+                        android:padding="6sp"
+                        android:text="Username"
+                        android:textSize="13sp"
+                        tools:checked="true"
+                        tools:visibility="gone" />
 
                     <Switch
                         android:id="@+id/settings_privacy_about_me"
@@ -213,6 +227,8 @@
                         android:text="About Me"
                         android:textSize="13sp"
                         tools:checked="true" />
+
+
                 </TableRow>
 
                 <TableRow>
@@ -243,6 +259,35 @@
 
 
                 </TableRow>
+
+                <TableRow>
+
+                    <Switch
+                        android:id="@+id/settings_privacy_feed"
+                        android:layout_margin="4sp"
+                        android:layout_weight="1"
+                        android:background="#36675B7A"
+                        android:checked="false"
+                        android:onClick="onSwitchClicked"
+                        android:padding="6sp"
+                        android:text="Posts"
+                        android:textSize="13sp"
+                        tools:checked="true" />
+
+                    <Switch
+                        android:id="@+id/settings_privacy_recipes"
+                        android:layout_margin="4sp"
+                        android:layout_weight="1"
+                        android:background="#36675B7A"
+                        android:checked="false"
+                        android:onClick="onSwitchClicked"
+                        android:padding="6sp"
+                        android:text="Recipes"
+                        android:textSize="13sp"
+                        tools:checked="true" />
+                </TableRow>
+
+                <TableRow></TableRow>
 
             </TableLayout>
 
@@ -335,17 +380,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/settings_progress" />
-
-            <TextView
-                android:id="@+id/privateMessage"
-                android:layout_width="0dp"
-                android:layout_height="55dp"
-                android:layout_marginStart="8dp"
-                android:text="(Only followers can see private posts and recipes)"
-                android:textSize="14sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/settings_private_toggle"
-                app:layout_constraintTop_toBottomOf="@+id/settings_privacy" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
