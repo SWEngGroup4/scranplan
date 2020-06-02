@@ -336,6 +336,9 @@ public class Home extends AppCompatActivity {
                         setResult(RESULT_OK, intentSettings);
                         startActivityForResult(intentSettings, PROFILE_SETTINGS_REQUEST_CODE);
                         break;
+                    case R.id.nav_gold:
+                        onGoldClick();
+                        break;
                     case R.id.nav_suggestionBox:
 
                         onSuggestionBoxClick();
@@ -861,6 +864,7 @@ public class Home extends AppCompatActivity {
     }
 
     public void onGoldClick() {
+        Log.d("Test", "Gold");
         GoldMembership goldMembership = new GoldMembership();
         goldMembership.show(getSupportFragmentManager(), "Show defaults fragment");
     }
