@@ -564,6 +564,11 @@ public class PublicProfile extends AppCompatActivity implements FilterType{
         Kudos.setKudos((long) profile.get("kudos"));
         Kudos.updateKudos(); // Update the kudos icon + chef descriptor.
 
+        // Update Kudos descriptor
+        Kudos.updateKudos();
+        TextView kudosDesc = findViewById(R.id.profile_chef_rank_desc);
+        kudosDesc.setText(Kudos.chefLevel);
+
         // Assign Kudos icon + chef descriptor.
         mKudosIcon.setImageResource(Kudos.chefLevelIcon);
         mKudos.setText(kudosString);

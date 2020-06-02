@@ -264,10 +264,9 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
                 // Give the view a title
                 TextView textView = new TextView(view.getContext());
                 String testString = "Top picks";
-                textView.setTextSize(25);
+                textView.setTextSize(20);
                 textView.setPadding(20, 5, 5, 5);
-                textView.setTextColor(Color.WHITE);
-                textView.setShadowLayer(4, 0, 0, Color.BLACK);
+                textView.setTextColor(Color.BLACK);
                 textView.setText(testString);
                 // Query listener to add data to view
                 queryScore
@@ -380,10 +379,9 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
 
                 TextView textView = new TextView(view.getContext());
                 String testString = "Trending";
-                textView.setTextSize(25);
+                textView.setTextSize(20);
                 textView.setPadding(20, 5, 5, 5);
-                textView.setTextColor(Color.WHITE);
-                textView.setShadowLayer(4, 0, 0, Color.BLACK);
+                textView.setTextColor(Color.BLACK);
                 textView.setText(testString);
 
                 queryVotes
@@ -496,10 +494,9 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
 
                 TextView textView = new TextView(view.getContext());
                 String testString = "New tastes";
-                textView.setTextSize(25);
+                textView.setTextSize(20);
                 textView.setPadding(20, 5, 5, 5);
-                textView.setTextColor(Color.WHITE);
-                textView.setShadowLayer(4, 0, 0, Color.BLACK);
+                textView.setTextColor(Color.BLACK);
                 textView.setText(testString);
 
                 queryTime
@@ -611,10 +608,9 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
 
                 TextView textView = new TextView(view.getContext());
                 String testString = "My favourites";
-                textView.setTextSize(25);
+                textView.setTextSize(20);
                 textView.setPadding(20, 5, 5, 5);
-                textView.setTextColor(Color.WHITE);
-                textView.setShadowLayer(4, 0, 0, Color.BLACK);
+                textView.setTextColor(Color.BLACK);
                 textView.setText(testString);
 
                 queryFave

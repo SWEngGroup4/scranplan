@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:id="@+id/FrameLayoutid"
     tools:context="com.group4sweng.scranplan.Social.ProfileRecipes"
-    android:background="#A6AAC9">
+    android:background="@color/colorWindow">
 
 
 
