@@ -176,7 +176,17 @@ public class Home extends AppCompatActivity {
 
     protected void onResume() {
         super.onResume();
-        loadSearchOptions(); // Reload shared preferences search options.
+        if(mUser != null){
+            mPescatarianBox.setChecked(mUser.getPreferences().isPescatarian());
+            mVegetarianBox.setChecked(mUser.getPreferences().isVegetarian());
+            mVeganBox.setChecked(mUser.getPreferences().isVegan());
+            mNutsBox.setChecked(mUser.getPreferences().isAllergy_nuts());
+            mEggsBox.setChecked(mUser.getPreferences().isAllergy_eggs());
+            mMilkBox.setChecked(mUser.getPreferences().isAllergy_milk());
+            mWheatBox.setChecked(mUser.getPreferences().isAllergy_gluten());
+            mShellfishBox.setChecked(mUser.getPreferences().isAllergy_shellfish());
+            mSoyBox.setChecked(mUser.getPreferences().isAllergy_soya());
+        }
     }
 
     /**
