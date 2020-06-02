@@ -434,7 +434,7 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             setResult(Activity.RESULT_OK, returnIntent);
 
             if(filtersChanged){ // If filters change, go back to the 'recipes' page.
-                startActivity(returnIntent);
+                //startActivity(returnIntent);
                 finish();
             } else {
                 finish(); // Close the activity.

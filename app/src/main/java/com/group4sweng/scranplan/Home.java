@@ -52,6 +52,7 @@ import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
 import com.group4sweng.scranplan.Social.FeedFragment;
 import com.group4sweng.scranplan.Social.Messenger.MessengerMenu;
 import com.group4sweng.scranplan.Social.Notifications;
+import com.group4sweng.scranplan.UserInfo.Preferences;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import io.sentry.core.Sentry;
@@ -176,16 +177,15 @@ public class Home extends AppCompatActivity {
 
     protected void onResume() {
         super.onResume();
-        if(mUser != null){
-            mPescatarianBox.setChecked(mUser.getPreferences().isPescatarian());
-            mVegetarianBox.setChecked(mUser.getPreferences().isVegetarian());
-            mVeganBox.setChecked(mUser.getPreferences().isVegan());
-            mNutsBox.setChecked(mUser.getPreferences().isAllergy_nuts());
-            mEggsBox.setChecked(mUser.getPreferences().isAllergy_eggs());
-            mMilkBox.setChecked(mUser.getPreferences().isAllergy_milk());
-            mWheatBox.setChecked(mUser.getPreferences().isAllergy_gluten());
-            mShellfishBox.setChecked(mUser.getPreferences().isAllergy_shellfish());
-            mSoyBox.setChecked(mUser.getPreferences().isAllergy_soya());
+
+        //  Load filter shared preferences, if UID of user has changed, IE new user logged in, update search options
+        //  based on initial preferences.
+        SharedPreferences sp = getSharedPreferences("filter_preferences", Activity.MODE_PRIVATE);
+        String UID = sp.getString("UID", "noUID");
+        if(!UID.contains("noUID")) {
+            if (UID.equals(mUser.getUID())) {
+                loadSearchOptions(); // Reload shared preferences search options.
+            }
         }
     }
 
@@ -489,11 +489,23 @@ public class Home extends AppCompatActivity {
                         recipeFragment = null;
 
                         recipeFragment = new RecipeFragment(mUser);
-                        /*plannerFragment = new PlannerFragment(mUser);
-                        feedFragment = new FeedFragment(mUser);*/
                         fragmentTransaction = getSupportFragmentManager().beginTransaction();
                         fragmentTransaction.replace(R.id.frameLayout, recipeFragment);
                         fragmentTransaction.commit();
+
+                        Preferences pref = mUser.getPreferences();
+
+                        //  Update Search options.
+                        mVegetarianBox.setChecked(pref.isVegetarian());
+                        mVeganBox.setChecked(pref.isVegan());
+                        mPescatarianBox.setChecked(pref.isPescatarian());
+                        mEggsBox.setChecked(pref.isAllergy_eggs());
+                        mWheatBox.setChecked(pref.isAllergy_gluten());
+                        mMilkBox.setChecked(pref.isAllergy_milk());
+                        mSoyBox.setChecked(pref.isAllergy_soya());
+                        mNutsBox.setChecked(pref.isAllergy_nuts());
+                        mShellfishBox.setChecked(pref.isAllergy_shellfish());
+                        storeSearchOptions();
                     }
                 }
                 break;
@@ -785,6 +797,9 @@ public class Home extends AppCompatActivity {
         SharedPreferences Preference = getSharedPreferences("filter_preferences", Activity.MODE_PRIVATE);
         SharedPreferences.Editor e = Preference.edit();
 
+        //  UID
+        e.putString("UID", mUser.getUID());
+
         //  Filters
         e.putBoolean("vegetarian_filter", mVegetarianBox.isChecked());
         e.putBoolean("vegan_filter", mVeganBox.isChecked());
@@ -806,8 +821,9 @@ public class Home extends AppCompatActivity {
         e.putBoolean("type_name", mNameBox.isChecked());
         e.putBoolean("type_chef", mChefBox.isChecked());
 
-        e.apply();
+        e.commit();
     }
+
 
     /** Load in shared preferences for search options. */
     private void loadSearchOptions(){
