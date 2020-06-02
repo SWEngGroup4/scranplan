@@ -71,4 +71,10 @@
     <string name="deleted_user">deleted_user</string>
     <string name="new_chat">New Chat</string>
     <string name="recent_message">Recent Messages</string>
+
+    <string-array name="goldList">
+        <item>1 month</item>
+        <item>3 months</item>
+        <item>1 year</item>
+    </string-array>
 </resources>

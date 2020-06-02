@@ -860,6 +860,11 @@ public class Home extends AppCompatActivity {
 
     }
 
+    public void onGoldClick() {
+        GoldMembership goldMembership = new GoldMembership();
+        goldMembership.show(getSupportFragmentManager(), "Show defaults fragment");
+    }
+
     public void onSuggestionBoxClick(){
 
         suggestionBox = new SuggestionBox(Home.this, mUser.getUID());
