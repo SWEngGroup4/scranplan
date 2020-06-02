@@ -497,9 +497,16 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
 
                             if (task.isSuccessful()) {
 
-                                //Takes objects from the firestore and assigns them to their relevant variables
-                                DocumentSnapshot userDocument = task.getResult();
-                                mChefName.setText("Chef: " + (userDocument.getData().get("displayName").toString()));
+                                if(mChefName != null){
+
+                                    //Takes objects from the firestore and assigns them to their relevant variables
+                                    DocumentSnapshot userDocument = task.getResult();
+                                    mChefName.setText("Chef: " + (userDocument.getData().get("displayName").toString()));
+
+                                }else{
+                                    mChefName.setText("Deleted");
+                                }
+
 
                             }
                         }
