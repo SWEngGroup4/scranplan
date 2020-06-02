@@ -226,6 +226,8 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
     //  Test that upon changing our username/about me and logging out our username/about me is able to be stored and retrieved properly.
     @Test
     public void testUsernameAndAboutMeIsStoredAndRetrieved() throws InterruptedException {
+        
+        testUser = (UserInfoPrivate) mActivityTestRule.getActivity().getIntent().getSerializableExtra("user");
 
         onView(withId(R.id.settings_input_username))
                 .check(matches(withText(testUser.getDisplayName())));
