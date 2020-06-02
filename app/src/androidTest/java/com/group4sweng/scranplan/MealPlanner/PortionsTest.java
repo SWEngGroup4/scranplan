@@ -120,7 +120,7 @@ public class PortionsTest implements Credentials {
                 .perform(click());
 
         //  Expected serving portion conversion amounts.
-        final String[] TEST_RECIPE_SERVINGS = {"1", "2", "6", "10"};
+        final String[] TEST_RECIPE_SERVINGS = {"2", "6", "10"};
 
         //  Cycle through each button portion amount in the array.
         for (String portionAmount : TEST_RECIPE_SERVINGS){

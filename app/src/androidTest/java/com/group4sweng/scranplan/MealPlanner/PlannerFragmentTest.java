@@ -85,7 +85,7 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
         Thread.sleep(THREAD_SLEEP_TIME / 4);
         onView(withId(4)).perform(click());
         Thread.sleep(THREAD_SLEEP_TIME / 4);
-        navigateToRecipe("Hearty pasta soup");
+        navigateToRecipe("Parmesan spring chicken");
         onView(withId(R.id.LetsCook)).perform(click());
     }
 
@@ -138,8 +138,7 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
         Thread.sleep(THREAD_SLEEP_TIME/4);
         onView(withId(1)).perform(click());
         Thread.sleep(THREAD_SLEEP_TIME/4);
-
-        onView(withText("Avocado and black bean eggs")).perform(click());
+        navigateToRecipe("Super smoky bacon and tomato spaghetti");
         onView(withText("Add")).perform(click());
     }
 
@@ -154,7 +153,7 @@ public class PlannerFragmentTest extends EspressoHelper implements Credentials {
         onView(withId(2)).perform(click());
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        onView(withText("Avocado and black bean eggs")).perform(click());
+        navigateToRecipe("Super smoky bacon and tomato spaghetti");
         onView(withText("Add")).perform(click());
     }
 
