@@ -784,6 +784,7 @@ public class Home extends AppCompatActivity {
         e.putBoolean("allergy_shellfish", mShellfishBox.isChecked());
         e.putBoolean("allergy_soy", mSoyBox.isChecked());
         e.putBoolean("allergy_gluten", mWheatBox.isChecked());
+        e.putBoolean("allergy_milk", mMilkBox.isChecked());
 
         //  Sorting
         e.putBoolean("sorting_score", mScoreBox.isChecked());
