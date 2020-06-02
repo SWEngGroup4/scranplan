@@ -2,7 +2,6 @@ package com.group4sweng.scranplan.RecipeInfo;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -239,7 +238,6 @@ public class RecipeReviewFragment extends FeedFragment {
 
         //Setting background colour to match that of the fragment
         FrameLayout root = layout.findViewById(R.id.FrameLayoutid);
-        root.setBackgroundColor(Color.parseColor("#bdb5c7"));
 
         //Makes the star rating visible and stores the value of the given rating
         mStars.setVisibility(View.VISIBLE);
