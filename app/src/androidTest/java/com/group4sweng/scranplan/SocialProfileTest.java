@@ -19,12 +19,9 @@ import java.util.Random;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.group4sweng.scranplan.EspressoHelper.childAtPosition;
-import static com.group4sweng.scranplan.EspressoHelper.navigateToRecipe;
 import static com.group4sweng.scranplan.EspressoHelper.openSideBar;
 import static org.hamcrest.Matchers.allOf;
 
@@ -151,5 +148,7 @@ public class SocialProfileTest implements Credentials  {
 
     @After
     public void finishOff() {
+        EspressoHelper.shouldSkip = false;
+        this.mActivityTestRule.finishActivity();
     }
 }
