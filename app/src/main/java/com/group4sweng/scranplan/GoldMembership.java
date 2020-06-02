@@ -1,5 +1,7 @@
 package com.group4sweng.scranplan;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,6 +43,8 @@ public class GoldMembership extends AppCompatDialogFragment {
         mGoldPrice = v.findViewById(R.id.gold_price);
         mGoldSubscribe = v.findViewById(R.id.gold_subscribe);
     }
+
+
 
     private void initPageListeners() {
         mGoldDropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
