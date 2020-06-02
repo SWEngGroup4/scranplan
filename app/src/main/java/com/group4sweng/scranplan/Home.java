@@ -371,6 +371,7 @@ public class Home extends AppCompatActivity {
                         if (fragment.getClass() == RecipeFragment.class) fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         else fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
                         if(mUser.getFirstMealPlannerLaunch()){
+                            //if its the first time the user has clicked on meal planner a information page will apear
                             Log.e(TAG,"Sending user to initial preference setup page");
                             Intent infoscreen = new Intent(getApplicationContext(), popUpMealPlanner.class);
                             infoscreen.putExtra("user", mUser);

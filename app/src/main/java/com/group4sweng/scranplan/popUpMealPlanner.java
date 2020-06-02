@@ -34,6 +34,7 @@ import java.util.HashMap;
 
 
 public class popUpMealPlanner extends AppCompatActivity {
+    //initial page that introduces the meal planner and shows the user how to use it
 
     final String TAG = "FirstpopUp";
 
@@ -47,7 +48,7 @@ public class popUpMealPlanner extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         getSupportActionBar().hide();
         super.onCreate(savedInstanceState);
-        //sets the page to the initial filer page
+        //sets the page to the information screen
         setContentView(R.layout.popup_mealplanner);
 
         userDetails = (UserInfoPrivate) getIntent().getSerializableExtra("user");
@@ -57,8 +58,6 @@ public class popUpMealPlanner extends AppCompatActivity {
             getResources().getColor(R.color.colorBackground);
 
             initPageListeners();
-
-            initFirebase();
 
         }
     }
@@ -78,10 +77,10 @@ public class popUpMealPlanner extends AppCompatActivity {
                 FirebaseFirestore database = FirebaseFirestore.getInstance();
                 CollectionReference colRef = database.collection("users");
                 DocumentReference usersRef = colRef.document(mAuth.getCurrentUser().getUid()); //gets the current user ID
-                usersRef.update("firstMealPlannerLaunch", false); //first time login set to false so page wont show again
+                usersRef.update("firstMealPlannerLaunch", false); //first time seeing the meal planner set to false so page wont show again
 
-                Log.e(TAG,"Sending user to initial preference setup page");
-                Intent BackToMain = new Intent(getApplicationContext(), Home.class);
+                Log.e(TAG,"Sending user to home page");
+                Intent BackToMain = new Intent(getApplicationContext(), Home.class);//sends user back to home oage
                 BackToMain.putExtra("user", userDetails);
                 BackToMain.putExtra("fromPopUpMealPlanner" ,true);
                 userDetails.setFirstMealPlannerLaunch(false);
@@ -98,7 +97,4 @@ public class popUpMealPlanner extends AppCompatActivity {
         //Do nothing
     }
 
-    private void initFirebase() {
-        mApp = FirebaseApp.getInstance();
-        mAuth = FirebaseAuth.getInstance();
-    }}
+}

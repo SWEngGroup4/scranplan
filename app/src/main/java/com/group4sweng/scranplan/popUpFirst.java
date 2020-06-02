@@ -32,6 +32,7 @@ import java.util.HashMap;
 
 
 public class popUpFirst extends AppCompatActivity {
+    //displays the initial information page of the app
 
     final String TAG = "FirstpopUp";
 
@@ -45,7 +46,8 @@ public class popUpFirst extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         getSupportActionBar().hide();
         super.onCreate(savedInstanceState);
-        //sets the page to the initial filer page
+
+        //sets the page to the initial info page
         setContentView(R.layout.popup_firstscreen);
 
         userDetails = (UserInfoPrivate) getIntent().getSerializableExtra("user");
@@ -55,8 +57,6 @@ public class popUpFirst extends AppCompatActivity {
             getResources().getColor(R.color.colorBackground);
 
             initPageListeners();
-
-            initFirebase();
 
         }
         }
@@ -74,7 +74,7 @@ public class popUpFirst extends AppCompatActivity {
             public void onClick(View view) {
 
                 Log.e(TAG,"Sending user to initial preference setup page");
-                Intent BackToMain = new Intent(getApplicationContext(), InitialUserCustomisation.class);
+                Intent BackToMain = new Intent(getApplicationContext(), InitialUserCustomisation.class);//sends users to the inital filters bage
                 BackToMain.putExtra("user", userDetails);
                 startActivity(BackToMain);
             }
@@ -89,7 +89,4 @@ public class popUpFirst extends AppCompatActivity {
         //Do nothing
     }
 
-    private void initFirebase() {
-        mApp = FirebaseApp.getInstance();
-        mAuth = FirebaseAuth.getInstance();
-    }}
+    }
