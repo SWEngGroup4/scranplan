@@ -20,6 +20,10 @@
             android:title="@string/messenger"
             />
         <item
+            android:id="@+id/nav_gold"
+            android:title="Gold subscription"
+            />
+        <item
             android:id="@+id/nav_suggestionBox"
             android:title="Suggestion Box"
             />

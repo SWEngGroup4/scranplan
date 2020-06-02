@@ -24,7 +24,7 @@
             android:textStyle="bold" />
 
         <Spinner
-            android:id="@+id/spinner"
+            android:id="@+id/gold_dropdown"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
@@ -53,7 +53,7 @@
             app:srcCompat="@drawable/gpay" />
 
         <Button
-            android:id="@+id/button4"
+            android:id="@+id/gold_subscribe"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"

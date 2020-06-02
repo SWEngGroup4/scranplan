@@ -65,6 +65,10 @@ public class SideMenu extends Activity implements NavigationView.OnNavigationIte
                     ((Home)mContext).onProfileEditClick();
                 }
                 break;
+            case R.id.nav_gold:
+                if (mContext instanceof Home) {
+                    ((Home)mContext).onGoldClick();
+                }
             case R.id.nav_suggestionBox:
                 if(mContext instanceof Home) {
                     ((Home)mContext).onSuggestionBoxClick();
