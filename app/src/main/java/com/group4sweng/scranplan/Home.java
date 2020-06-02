@@ -183,8 +183,10 @@ public class Home extends AppCompatActivity {
         String UID = sp.getString("UID", "noUID");
         boolean updateFilters = sp.getBoolean("update_filters", false);
         if(!UID.contains("noUID")) {
+            if(mUser != null){
             if (UID.equals(mUser.getUID())) {
                 loadSearchOptions(); // Reload shared preferences search options.
+            }
             }
         }
     }
