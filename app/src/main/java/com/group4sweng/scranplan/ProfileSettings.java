@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -398,7 +399,6 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
         Intent returnIntent;
         if(filtersChanged){ //  If filters have been changed return to the recipes tab and update recipe scrollviews.
             returnIntent = new Intent(this, Home.class);
-            returnIntent.putExtra("updateFilters", true);
         } else { //  Otherwise just return.
             returnIntent = new Intent();
         }
@@ -434,8 +434,26 @@ public class ProfileSettings extends AppCompatActivity implements FilterType, Su
             setResult(Activity.RESULT_OK, returnIntent);
 
             if(filtersChanged){ // If filters change, go back to the 'recipes' page.
-                //startActivity(returnIntent);
-                finish();
+                //  Store checkbox values within shared preferences.
+                SharedPreferences Preference = getSharedPreferences("filter_preferences", Activity.MODE_PRIVATE);
+                SharedPreferences.Editor e = Preference.edit();
+
+                Preferences pref = mUserProfile.getPreferences();
+
+                //  Update shared preferences filters for Search Options.
+                e.putBoolean("vegetarian_filter", pref.isVegetarian());
+                e.putBoolean("vegan_filter", pref.isVegan());
+                e.putBoolean("pesc_filter", pref.isPescatarian());
+                e.putBoolean("allergy_nuts", pref.isAllergy_nuts());
+                e.putBoolean("allergy_eggs", pref.isAllergy_eggs());
+                e.putBoolean("allergy_shellfish", pref.isAllergy_shellfish());
+                e.putBoolean("allergy_soy", pref.isAllergy_soya());
+                e.putBoolean("allergy_gluten", pref.isAllergy_gluten());
+                e.putBoolean("allergy_milk", pref.isAllergy_milk());
+
+                e.commit();
+
+                startActivity(returnIntent);
             } else {
                 finish(); // Close the activity.
             }

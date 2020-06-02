@@ -52,7 +52,6 @@ import com.group4sweng.scranplan.SearchFunctions.SearchQuery;
 import com.group4sweng.scranplan.Social.FeedFragment;
 import com.group4sweng.scranplan.Social.Messenger.MessengerMenu;
 import com.group4sweng.scranplan.Social.Notifications;
-import com.group4sweng.scranplan.UserInfo.Preferences;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
 import io.sentry.core.Sentry;
@@ -182,6 +181,7 @@ public class Home extends AppCompatActivity {
         //  based on initial preferences.
         SharedPreferences sp = getSharedPreferences("filter_preferences", Activity.MODE_PRIVATE);
         String UID = sp.getString("UID", "noUID");
+        boolean updateFilters = sp.getBoolean("update_filters", false);
         if(!UID.contains("noUID")) {
             if (UID.equals(mUser.getUID())) {
                 loadSearchOptions(); // Reload shared preferences search options.
@@ -481,32 +481,6 @@ public class Home extends AppCompatActivity {
             case (PROFILE_SETTINGS_REQUEST_CODE):
                 if (resultCode == RESULT_OK) {
                     mUser = (UserInfoPrivate) data.getSerializableExtra("user");
-
-                    // If user edited filters in edit profile. Update all recipes in scrollview.
-                    boolean updateFilters = data.getBooleanExtra("updateFilters", false);
-
-                    if(updateFilters){ // If filters have updated, reload the recipe fragment with new user info.
-                        recipeFragment = null;
-
-                        recipeFragment = new RecipeFragment(mUser);
-                        fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                        fragmentTransaction.replace(R.id.frameLayout, recipeFragment);
-                        fragmentTransaction.commit();
-
-                        Preferences pref = mUser.getPreferences();
-
-                        //  Update Search options.
-                        mVegetarianBox.setChecked(pref.isVegetarian());
-                        mVeganBox.setChecked(pref.isVegan());
-                        mPescatarianBox.setChecked(pref.isPescatarian());
-                        mEggsBox.setChecked(pref.isAllergy_eggs());
-                        mWheatBox.setChecked(pref.isAllergy_gluten());
-                        mMilkBox.setChecked(pref.isAllergy_milk());
-                        mSoyBox.setChecked(pref.isAllergy_soya());
-                        mNutsBox.setChecked(pref.isAllergy_nuts());
-                        mShellfishBox.setChecked(pref.isAllergy_shellfish());
-                        storeSearchOptions();
-                    }
                 }
                 break;
             case (CREATE_RECIPE_REQUEST_CODE):
@@ -821,7 +795,7 @@ public class Home extends AppCompatActivity {
         e.putBoolean("type_name", mNameBox.isChecked());
         e.putBoolean("type_chef", mChefBox.isChecked());
 
-        e.commit();
+        e.apply();
     }
 
 
