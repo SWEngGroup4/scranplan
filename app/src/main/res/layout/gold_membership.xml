@@ -7,26 +7,38 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/reporting_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:clickable="false"
-        android:textAlignment="center"
-        android:textStyle="bold"
-        android:textAllCaps="true"
-        android:text="Title" />
+    <LinearLayout
+        android:layout_width="334dp"
+        android:layout_height="57dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/reporting_title"
+            android:layout_width="139dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:clickable="false"
+            android:text="Gold Membership Monthly Subscription"
+            android:textAlignment="center"
+            android:textAllCaps="true"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/reporting_message"
-        android:layout_width="match_parent"
+        android:layout_width="340dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:clickable="false"
-        android:textAlignment="center"
         android:padding="5sp"
-        android:text="Message" />
+        android:text="You agree that your purchase will be available immediately and that (except for services) you waive your statutory right of withdrawl. Your refund rights vary by product type: Google play Terms of Service and Refund Policy"
+        android:textAlignment="center" />
 
     <LinearLayout
         android:layout_width="352dp"
@@ -38,7 +50,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            app:srcCompat="@drawable/common_google_signin_btn_text_light_focused" />
+            app:srcCompat="@drawable/gpay" />
 
         <Button
             android:id="@+id/button4"
