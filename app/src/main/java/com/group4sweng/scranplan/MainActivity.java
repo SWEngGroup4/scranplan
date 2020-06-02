@@ -181,7 +181,6 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(signIn);
                     mUser = (UserInfoPrivate) getIntent().getSerializableExtra("user");
 
-
                 }
             }
         };

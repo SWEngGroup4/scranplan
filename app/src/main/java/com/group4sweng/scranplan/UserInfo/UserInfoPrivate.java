@@ -1,7 +1,5 @@
 package com.group4sweng.scranplan.UserInfo;
 
-import android.util.Log;
-
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayInputStream;
@@ -87,7 +85,6 @@ public class UserInfoPrivate implements Serializable, Cloneable{
                     (boolean) prefs.get("allergy_gluten"), (boolean)prefs.get("vegetarian"),
                     (boolean) prefs.get("vegan"), (boolean) prefs.get("pescatarian"));
         } else {
-            Log.e(TAG, "REACHING LONG PREFERENCES FOR SOME WEIRD REASON");
             this.preferences = new Preferences((boolean) prefs.get("allergy_celery"),
                     (boolean) prefs.get("allergy_crustacean"), (boolean) prefs.get("allergy_eggs"),
                     (boolean) prefs.get("allergy_fish"), (boolean) prefs.get("allergy_gluten"),

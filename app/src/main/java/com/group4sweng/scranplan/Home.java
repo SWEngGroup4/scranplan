@@ -1,10 +1,12 @@
 
 package com.group4sweng.scranplan;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -67,6 +69,7 @@ public class Home extends AppCompatActivity {
 
     // User variable for all preferences saved to device
     private UserInfoPrivate mUser;
+    boolean updateFilters = false;
 
     // Firebase variables
     FirebaseAuth mAuth;
@@ -133,7 +136,7 @@ public class Home extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         // Passed in user information
-        if(getIntent().getSerializableExtra("user") != null){
+        if (getIntent().getSerializableExtra("user") != null) {
             mUser = (com.group4sweng.scranplan.UserInfo.UserInfoPrivate) getIntent().getSerializableExtra("user");
             prefs = new SearchPrefs(mUser);
 
@@ -173,6 +176,10 @@ public class Home extends AppCompatActivity {
 
     }
 
+    protected void onResume() {
+        super.onResume();
+        loadSearchOptions(); // Reload shared preferences search options.
+    }
 
     /**
      *  Setting up the search menu within the action bar
@@ -303,12 +310,9 @@ public class Home extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.nav_publicProfile:
-                        Log.e(TAG,"Clicked public profile!");
-
                         Intent intentProfile = new Intent(mContext, PublicProfile.class);
 
                         intentProfile.putExtra("user", mUser);
-                        //setResult(RESULT_OK, intentProfile);
                         startActivity(intentProfile);
                         break;
                     case R.id.nav_notifications:
@@ -388,12 +392,10 @@ public class Home extends AppCompatActivity {
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
-
             }
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-
             }
         });
 
@@ -470,7 +472,20 @@ public class Home extends AppCompatActivity {
             case (PROFILE_SETTINGS_REQUEST_CODE):
                 if (resultCode == RESULT_OK) {
                     mUser = (UserInfoPrivate) data.getSerializableExtra("user");
-                    Log.e(TAG, "ABOUT INFO IS: " + mUser.getAbout());
+
+                    // If user edited filters in edit profile. Update all recipes in scrollview.
+                    boolean updateFilters = data.getBooleanExtra("updateFilters", false);
+
+                    if(updateFilters){ // If filters have updated, reload the recipe fragment with new user info.
+                        recipeFragment = null;
+
+                        recipeFragment = new RecipeFragment(mUser);
+                        /*plannerFragment = new PlannerFragment(mUser);
+                        feedFragment = new FeedFragment(mUser);*/
+                        fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                        fragmentTransaction.replace(R.id.frameLayout, recipeFragment);
+                        fragmentTransaction.commit();
+                    }
                 }
                 break;
             case (CREATE_RECIPE_REQUEST_CODE):
@@ -703,7 +718,7 @@ public class Home extends AppCompatActivity {
                                         mMilkBox.isChecked(), mEggsBox.isChecked(), mWheatBox.isChecked(), mShellfishBox.isChecked(), mSoyBox.isChecked(),
                                         mScoreBox.isChecked(), mVoteBox.isChecked(), mTimeBox.isChecked(),mIngredientsBox.isChecked(), mNameBox.isChecked(),
                                         mChefBox.isChecked());
-
+                                storeSearchOptions();
                             }
                         })
                 .setNegativeButton("Cancel",
@@ -725,6 +740,61 @@ public class Home extends AppCompatActivity {
         tv.setTextColor(Color.GRAY);
         tv = (TextView)tabs.getTabWidget().getChildAt(2).findViewById(android.R.id.title);
         tv.setTextColor(Color.GRAY);
+    }
+
+    /** Store shared preferences search options */
+    private void storeSearchOptions(){
+        //  Store checkbox values within shared preferences.
+        SharedPreferences Preference = getSharedPreferences("filter_preferences", Activity.MODE_PRIVATE);
+        SharedPreferences.Editor e = Preference.edit();
+
+        //  Filters
+        e.putBoolean("vegetarian_filter", mVegetarianBox.isChecked());
+        e.putBoolean("vegan_filter", mVeganBox.isChecked());
+        e.putBoolean("pesc_filter", mPescatarianBox.isChecked());
+        e.putBoolean("allergy_nuts", mNutsBox.isChecked());
+        e.putBoolean("allergy_eggs", mEggsBox.isChecked());
+        e.putBoolean("allergy_shellfish", mShellfishBox.isChecked());
+        e.putBoolean("allergy_soy", mSoyBox.isChecked());
+        e.putBoolean("allergy_gluten", mWheatBox.isChecked());
+
+        //  Sorting
+        e.putBoolean("sorting_score", mScoreBox.isChecked());
+        e.putBoolean("sorting_votes", mVoteBox.isChecked());
+        e.putBoolean("sorting_timestamp", mTimeBox.isChecked());
+
+        //  Type
+        e.putBoolean("type_ingredients", mIngredientsBox.isChecked());
+        e.putBoolean("type_name", mNameBox.isChecked());
+        e.putBoolean("type_chef", mChefBox.isChecked());
+
+        e.apply();
+    }
+
+    /** Load in shared preferences for search options. */
+    private void loadSearchOptions(){
+        SharedPreferences sp = getSharedPreferences("filter_preferences", Activity.MODE_PRIVATE);
+
+        //  Filters
+        mVeganBox.setChecked(sp.getBoolean("vegan_filter", false));
+        mVegetarianBox.setChecked(sp.getBoolean("vegetarian_filter", false));
+        mPescatarianBox.setChecked(sp.getBoolean("pesc_filter", false));
+        mNutsBox.setChecked(sp.getBoolean("allergy_nuts", false));
+        mMilkBox.setChecked(sp.getBoolean("allergy_milk", false));
+        mShellfishBox.setChecked(sp.getBoolean("allergy_shellfish", false));
+        mSoyBox.setChecked(sp.getBoolean("allergy_soy", false));
+        mWheatBox.setChecked(sp.getBoolean("allergy_gluten", false));
+        mEggsBox.setChecked(sp.getBoolean("allergy_eggs", false));
+
+        //  Sorting
+        mScoreBox.setChecked(sp.getBoolean("sorting_score", false));
+        mVoteBox.setChecked(sp.getBoolean("sorting_votes", false));
+        mTimeBox.setChecked(sp.getBoolean("sorting_timestamp", false));
+
+        //  Type
+        mIngredientsBox.setChecked(sp.getBoolean("type_ingredients", false));
+        mNameBox.setChecked(sp.getBoolean("type_name", false));
+        mChefBox.setChecked(sp.getBoolean("type_chef", false));
     }
 
     /**
