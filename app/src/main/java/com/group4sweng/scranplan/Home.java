@@ -142,6 +142,7 @@ public class Home extends AppCompatActivity {
             mSentryUser.setEmail(mUser.getEmail());
             Sentry.setUser(mSentryUser);
         }
+
         /*
         // Setting up the action and tab bars
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -168,6 +169,8 @@ public class Home extends AppCompatActivity {
         initPageListeners();
         initSearchMenu();
         checkForNotifications();
+
+
     }
 
 
@@ -363,7 +366,15 @@ public class Home extends AppCompatActivity {
                     case 1:
                         if (fragment.getClass() == RecipeFragment.class) fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         else fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
-                        fragmentTransaction.replace(R.id.frameLayout, plannerFragment);
+                        if(mUser.getFirstMealPlannerLaunch()){
+                            Log.e(TAG,"Sending user to initial preference setup page");
+                            Intent infoscreen = new Intent(getApplicationContext(), popUpMealPlanner.class);
+                            infoscreen.putExtra("user", mUser);
+                            startActivity(infoscreen);
+                        }
+                        else {
+                            fragmentTransaction.replace(R.id.frameLayout, plannerFragment);
+                        }
                         break;
                     case 2:
                         fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);

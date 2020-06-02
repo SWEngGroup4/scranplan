@@ -248,7 +248,7 @@ public class UserInfoPrivate implements Serializable, Cloneable{
         return firstPresentationLaunch;
     }
 
-    void setFirstMealPlannerLaunch(boolean firstLaunch) {firstMealPlannerLaunch = firstLaunch; }
+    public void setFirstMealPlannerLaunch(boolean firstLaunch) {firstMealPlannerLaunch = firstLaunch; }
 
     public boolean getFirstMealPlannerLaunch() {
         return firstMealPlannerLaunch;
