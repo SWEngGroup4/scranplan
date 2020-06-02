@@ -18,8 +18,8 @@ import java.util.regex.Pattern;
  **/
 class Portions implements Warning {
     private final static String TAG = "portions";
-    private final static int[] servesAmounts = {1,2,4,6,10,20}; // All possible variants of 'serves' amounts for a Recipe.
-    private final static float MAX_SERVINGS_MULTIPLIER = 4f; // Limit to how much we can scale a recipes portions before it is considered in-accurate.
+    private final static int[] servesAmounts = {1,2,4,6,10}; // All possible variants of 'serves' amounts for a Recipe.
+    private final static float MAX_SERVINGS_MULTIPLIER = 10f; // Limit to how much we can scale a recipes portions before it is considered in-accurate.
 
     //  Common Alcohol text matchers. If an ingredient is matched with the following in it's text then the amounts of this ingredient are scaled differently.
     private final static String[] commonAlcohol = {"pinot grigio","pinot gris","sauvignon blanc", "chardonnay", "sherry", "madeira", "vermouth", "vinsanto",
@@ -75,7 +75,7 @@ class Portions implements Warning {
                 return -1;
             }
 
-            if (quantity > 0) {
+            if (quantity >= 0) {
                 return quantity;
             } else if (quantity < 0) { // Is the quantity negative. Take Absolute value if so.
                 return Math.abs(quantity);
@@ -148,8 +148,12 @@ class Portions implements Warning {
             }
 
             //  Create decimal format options for integers and float values. Makes it so ingredient portions are displayed better.
-            DecimalFormat dfInteger = new DecimalFormat();   DecimalFormat dfFloat = new DecimalFormat();
-            dfInteger.setMaximumFractionDigits(0);           dfFloat.setMaximumFractionDigits(2);
+            DecimalFormat dfInteger = new DecimalFormat();
+            DecimalFormat dfFloat = new DecimalFormat();
+            dfInteger.setMaximumFractionDigits(0);
+            dfFloat.setMaximumFractionDigits(2);
+            dfInteger.setGroupingUsed(false);
+            dfFloat.setGroupingUsed(false);
 
             String scaledPortion;
             String newQuantityString; // Check if the new quantity can be considered an integer value.

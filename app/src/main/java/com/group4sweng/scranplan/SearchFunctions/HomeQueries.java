@@ -39,12 +39,12 @@ public class HomeQueries {
         queries.put("votes", buildQuery(user).orderBy("rating.totalRates", Query.Direction.DESCENDING));
         queries.put("timestamp", buildQuery(user).orderBy("timestamp", Query.Direction.DESCENDING));
         queries.put("favourite", ref.whereArrayContains("favourite", user.getUID()));
-        queries.put("breakfastScore",buildQuery(user).whereEqualTo("breakfast", true).orderBy("score", Query.Direction.DESCENDING));
-        queries.put("lunchScore",buildQuery(user).whereEqualTo("lunch", true).orderBy("score", Query.Direction.DESCENDING));
-        queries.put("dinnerScore",buildQuery(user).whereEqualTo("dinner", true).orderBy("score", Query.Direction.DESCENDING));
-        queries.put("breakfastVotes", buildQuery(user).whereEqualTo("breakfast", true).orderBy("votes", Query.Direction.DESCENDING));
-        queries.put("lunchVotes", buildQuery(user).whereEqualTo("lunch", true).orderBy("votes", Query.Direction.DESCENDING));
-        queries.put("dinnerVotes", buildQuery(user).whereEqualTo("dinner", true).orderBy("votes", Query.Direction.DESCENDING));
+        queries.put("breakfastScore",buildQuery(user).whereEqualTo("breakfast", true).orderBy("rating.overallRating", Query.Direction.DESCENDING));
+        queries.put("lunchScore",buildQuery(user).whereEqualTo("lunch", true).orderBy("rating.overallRating", Query.Direction.DESCENDING));
+        queries.put("dinnerScore",buildQuery(user).whereEqualTo("dinner", true).orderBy("rating.overallRating", Query.Direction.DESCENDING));
+        queries.put("breakfastVotes", buildQuery(user).whereEqualTo("breakfast", true).orderBy("rating.totalRates", Query.Direction.DESCENDING));
+        queries.put("lunchVotes", buildQuery(user).whereEqualTo("lunch", true).orderBy("rating.totalRates", Query.Direction.DESCENDING));
+        queries.put("dinnerVotes", buildQuery(user).whereEqualTo("dinner", true).orderBy("rating.totalRates", Query.Direction.DESCENDING));
         queries.put("breakfastTimestamp", buildQuery(user).whereEqualTo("breakfast", true).orderBy("timestamp", Query.Direction.DESCENDING));
         queries.put("lunchTimestamp", buildQuery(user).whereEqualTo("lunch", true).orderBy("timestamp", Query.Direction.DESCENDING));
         queries.put("dinnerTimestamp", buildQuery(user).whereEqualTo("dinner", true).orderBy("timestamp", Query.Direction.DESCENDING));
@@ -52,11 +52,11 @@ public class HomeQueries {
         queries.put("lunchFavourite", ref.whereEqualTo("lunch", true).whereArrayContains("favourite", user.getUID()));
         queries.put("dinnerFavourite", ref.whereEqualTo("dinner", true).whereArrayContains("favourite", user.getUID()));
         if(!user.getPreferences().isVegan()){
-            queries.put("topVegan", buildQuery(user).whereEqualTo("vegan", true).orderBy("score", Query.Direction.DESCENDING));
+            queries.put("topVegan", buildQuery(user).whereEqualTo("vegan", true).orderBy("rating.overallRating", Query.Direction.DESCENDING));
             if(!user.getPreferences().isVegetarian()){
-                queries.put("topVegetarian", buildQuery(user).whereEqualTo("vegetarian", true).orderBy("score", Query.Direction.DESCENDING));
+                queries.put("topVegetarian", buildQuery(user).whereEqualTo("vegetarian", true).orderBy("rating.overallRating", Query.Direction.DESCENDING));
                 if(!user.getPreferences().isPescatarian()){
-                    queries.put("topPescatarian", buildQuery(user).whereEqualTo("pescatarian", true).orderBy("score", Query.Direction.DESCENDING));
+                    queries.put("topPescatarian", buildQuery(user).whereEqualTo("pescatarian", true).orderBy("rating.overallRating", Query.Direction.DESCENDING));
                 }
             }
         }

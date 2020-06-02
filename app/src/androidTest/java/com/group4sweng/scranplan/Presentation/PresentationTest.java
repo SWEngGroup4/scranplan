@@ -1,7 +1,6 @@
 package com.group4sweng.scranplan.Presentation;
 
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.SearchView;
 
@@ -14,6 +13,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 
+import com.google.firebase.Timestamp;
 import com.group4sweng.scranplan.Credentials;
 import com.group4sweng.scranplan.EspressoHelper;
 import com.group4sweng.scranplan.Home;
@@ -30,13 +30,14 @@ import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.pressKey;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static com.group4sweng.scranplan.EspressoHelper.navigateToRecipe;
 import static org.hamcrest.Matchers.allOf;
 
 /**
@@ -93,17 +94,9 @@ public class PresentationTest implements Credentials {
     // Checking all parts of the slide comments
     // Author: LNewman
     @Test
-    public void testBaconComment() throws InterruptedException {
+    public void testComment() throws InterruptedException {
         onView(withId(R.id.menuSearch)).perform(click());
-        onView(isAssignableFrom(SearchView.class))
-                .perform(typeSearchViewText("bacon"))
-                .perform(pressKey(KeyEvent.KEYCODE_ENTER));
-
-
-        Thread.sleep(THREAD_SLEEP_TIME/4);
-
-        onView(withText("Braised peas with bacon, lentils and cod"))
-                .perform(click());
+        navigateToRecipe("Vegan Breakfast Smoothie");
 
         onView(withText("LETS COOK!"))
                 .perform(click());
@@ -118,8 +111,9 @@ public class PresentationTest implements Credentials {
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
+        String time = Timestamp.now().toString();
         onView(withId(R.id.addCommentEditText))
-                .perform(typeText("bacon"));
+                .perform(typeText("Looks great!" + time ));
         Espresso.closeSoftKeyboard();
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
@@ -129,8 +123,8 @@ public class PresentationTest implements Credentials {
 
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
-
-        onView(withText("bacon"))
+        onView(withText("Looks great!" + time)).perform(scrollTo());
+        onView(withText("Looks great!" + time))
                 .check(matches(isDisplayed()));
     }
 
@@ -160,6 +154,7 @@ public class PresentationTest implements Credentials {
 
     @After
     public void tearDown() throws Exception {
+        mActivityTestRule.getActivity().resetFilters();
         EspressoHelper.shouldSkip = false;
         this.mActivityTestRule.finishActivity();
     }

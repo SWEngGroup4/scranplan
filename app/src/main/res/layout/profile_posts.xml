@@ -6,7 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/FrameLayoutid"
     tools:context="com.group4sweng.scranplan.Social.ProfilePosts"
-    android:background="#A6AAC9">
+    android:background="@color/colorWindow">
 
 
 

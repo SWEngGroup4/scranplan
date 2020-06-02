@@ -2,7 +2,6 @@ package com.group4sweng.scranplan.RecipeInfo;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -39,15 +38,14 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.group4sweng.scranplan.Administration.ContentReporting;
-import com.group4sweng.scranplan.Exceptions.ImageException;
 import com.group4sweng.scranplan.Administration.LoadingDialog;
+import com.group4sweng.scranplan.Exceptions.ImageException;
 import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.Social.FeedFragment;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -131,6 +129,7 @@ public class RecipeReviewFragment extends FeedFragment {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
+                    if(task.getResult().get("docID")!= null){
                     if (task.getResult().exists()) {
                         loadingDialog.startLoadingDialog();
                         Log.e(TAG, "exists ");
@@ -165,7 +164,7 @@ public class RecipeReviewFragment extends FeedFragment {
                         reviewMade = true;
 
 
-                    } else {
+                    }} else {
                         Log.e("FdRc", "Unable to retrieve user document in Firestore ");
                         reviewMade = false;
                         mPostPic.setChecked(false);
@@ -239,7 +238,6 @@ public class RecipeReviewFragment extends FeedFragment {
 
         //Setting background colour to match that of the fragment
         FrameLayout root = layout.findViewById(R.id.FrameLayoutid);
-        root.setBackgroundColor(Color.parseColor("#bdb5c7"));
 
         //Makes the star rating visible and stores the value of the given rating
         mStars.setVisibility(View.VISIBLE);

@@ -26,6 +26,7 @@
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tabLayout"
+                app:tabIndicatorHeight="4sp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
@@ -54,7 +55,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_marginBottom="186dp"
                 android:layout_marginEnd="88dp"
-                android:background="@color/colorBackground"
+                android:background="#E1FFFFFF"
                 android:padding="8dp"
                 android:text="Create post"
                 android:visibility="invisible" />
@@ -82,7 +83,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_marginBottom="116dp"
                 android:layout_marginEnd="88dp"
-                android:background="@color/colorBackground"
+                android:background="#E1FFFFFF"
                 android:padding="8dp"
                 android:text="Create recipe"
                 android:visibility="invisible" />

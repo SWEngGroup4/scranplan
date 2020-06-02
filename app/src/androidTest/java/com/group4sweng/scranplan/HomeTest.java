@@ -102,6 +102,7 @@ public class HomeTest implements Credentials {
         onView(withText("Braised peas with bacon, lentils and cod"))
                 .check(matches(isDisplayed()));
 
+
         Espresso.pressBack();
 
     }
@@ -246,6 +247,8 @@ public class HomeTest implements Credentials {
         // Open up filter menu
         onView(withId(R.id.menuSortButton)).perform(click());
 
+        onView(withId(R.id.ingredientCheckBox))
+                .perform(click());
 
         // Change tab
         onView(withText("Diet")).perform(click());
@@ -274,7 +277,7 @@ public class HomeTest implements Credentials {
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        onView(withText("No more results"))
+        onView(withText("No results found"))
                 .check(matches(isDisplayed()));
 
         Espresso.pressBack();
@@ -287,6 +290,8 @@ public class HomeTest implements Credentials {
         // Open up filter menu
         onView(withId(R.id.menuSortButton)).perform(click());
 
+        onView(withId(R.id.ingredientCheckBox))
+                .perform(click());
 
         // Change tab
         onView(withText("Diet")).perform(click());
@@ -326,6 +331,7 @@ public class HomeTest implements Credentials {
 
     @After
     public void tearDown() {
+        this.mActivityTestRule.getActivity().resetFilters();
         EspressoHelper.shouldSkip = false;
         this.mActivityTestRule.finishActivity();
     }

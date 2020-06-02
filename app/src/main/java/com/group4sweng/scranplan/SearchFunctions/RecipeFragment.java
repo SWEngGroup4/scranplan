@@ -264,10 +264,9 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
                 // Give the view a title
                 TextView textView = new TextView(view.getContext());
                 String testString = "Top picks";
-                textView.setTextSize(25);
+                textView.setTextSize(20);
                 textView.setPadding(20, 5, 5, 5);
-                textView.setTextColor(Color.WHITE);
-                textView.setShadowLayer(4, 0, 0, Color.BLACK);
+                textView.setTextColor(Color.BLACK);
                 textView.setText(testString);
                 // Query listener to add data to view
                 queryScore
@@ -275,6 +274,7 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+                            dataScore.clear();
                             for (DocumentSnapshot document : task.getResult()) {
                                 dataScore.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                         document,
@@ -284,7 +284,11 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
                                         (HashMap) document.getData().get("rating")
                                 ));
                             }
-                            if(dataScore != null){ loadNativeAds(scoreAdIndex[0], SCORE_ADS);}
+                            if(dataScore != null){ try{
+                                loadNativeAds(scoreAdIndex[0], SCORE_ADS);}
+                                catch (Exception e) {
+                                Sentry.captureException(e);
+                            }}
                             rAdapterScore.notifyDataSetChanged();
                             if(task.getResult().size() != 0){
                                 lastVisibleScore = task.getResult().getDocuments().get(task.getResult().size() - 1);
@@ -375,10 +379,9 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
 
                 TextView textView = new TextView(view.getContext());
                 String testString = "Trending";
-                textView.setTextSize(25);
+                textView.setTextSize(20);
                 textView.setPadding(20, 5, 5, 5);
-                textView.setTextColor(Color.WHITE);
-                textView.setShadowLayer(4, 0, 0, Color.BLACK);
+                textView.setTextColor(Color.BLACK);
                 textView.setText(testString);
 
                 queryVotes
@@ -386,6 +389,7 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+                            dataVotes.clear();
                             for (DocumentSnapshot document : task.getResult()) {
                                 dataVotes.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                         document,
@@ -395,7 +399,11 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
                                         (HashMap) document.getData().get("rating")
                                 ));
                             }
-                            if(dataVotes != null){ loadNativeAds(votesAdIndex[0], VOTES_ADS);}
+                            if(dataVotes != null){ try{
+                                loadNativeAds(votesAdIndex[0], VOTES_ADS);}
+                                catch (Exception e){
+                                Sentry.captureException(e);
+                            }}
                             rAdapterVotes.notifyDataSetChanged();
                             if(task.getResult().size() != 0){
                                 lastVisibleVotes = task.getResult().getDocuments().get(task.getResult().size() - 1);
@@ -486,10 +494,9 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
 
                 TextView textView = new TextView(view.getContext());
                 String testString = "New tastes";
-                textView.setTextSize(25);
+                textView.setTextSize(20);
                 textView.setPadding(20, 5, 5, 5);
-                textView.setTextColor(Color.WHITE);
-                textView.setShadowLayer(4, 0, 0, Color.BLACK);
+                textView.setTextColor(Color.BLACK);
                 textView.setText(testString);
 
                 queryTime
@@ -497,6 +504,7 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+                            dataTime.clear();
                             for (DocumentSnapshot document : task.getResult()) {
                                 dataTime.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                         document,
@@ -506,7 +514,10 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
                                         (HashMap) document.getData().get("rating")
                                 ));
                             }
-                            if(dataTime != null){ loadNativeAds(timeAdIndex[0], TIME_ADS);}
+                            if(dataTime != null){ try{loadNativeAds(timeAdIndex[0], TIME_ADS);}
+                            catch(Exception e){
+                            Sentry.captureException(e);}
+                            }
                             rAdapterTime.notifyDataSetChanged();
                             if(task.getResult().size() != 0){
                                 lastVisibleTime = task.getResult().getDocuments().get(task.getResult().size() - 1);
@@ -597,10 +608,9 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
 
                 TextView textView = new TextView(view.getContext());
                 String testString = "My favourites";
-                textView.setTextSize(25);
+                textView.setTextSize(20);
                 textView.setPadding(20, 5, 5, 5);
-                textView.setTextColor(Color.WHITE);
-                textView.setShadowLayer(4, 0, 0, Color.BLACK);
+                textView.setTextColor(Color.BLACK);
                 textView.setText(testString);
 
                 queryFave
@@ -608,6 +618,7 @@ public class RecipeFragment extends Fragment implements QueryRequestCodes {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+                            dataFave.clear();
                             for (DocumentSnapshot document : task.getResult()) {
                                 dataFave.add(new HomeRecyclerAdapter.HomeRecipePreviewData(
                                         document,

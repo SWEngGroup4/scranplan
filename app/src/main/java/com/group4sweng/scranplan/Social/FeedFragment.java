@@ -175,6 +175,16 @@ public class FeedFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        if(mPostRecipe != null){
+            mPostRecipe.setChecked(false);
+            mPostReview.setChecked(false);
+            mPostPic.setChecked(false);
+        }
+    }
+
     // Auto-generated onCreate method (everything happens here)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

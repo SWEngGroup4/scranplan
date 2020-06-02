@@ -8,6 +8,7 @@ import com.group4sweng.scranplan.UserInfo.Kudos;
 import com.group4sweng.scranplan.UserInfo.Preferences;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,11 +30,9 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
  *  =====MANUAL TESTS=====
  *  Tests for if data is able to be properly retrieved for multiple users. Also included tests that an appropriate image is displayed
  *  when the user updates this in there profile settings.*/
-public class ProfileTest extends EspressoHelper {
+public class ProfileTest extends EspressoHelper implements Credentials {
 
     //  Default test values.
-    private static final String TEST_EMAIL = "jb2200@york.ac.uk";
-    private static String TEST_PASSWORD = "password";
     private static final int THREAD_SLEEP_TIME = 4000; //How long Espresso should wait for Firebase data to update.
     UserInfoPrivate testUser;
 
@@ -92,11 +91,7 @@ public class ProfileTest extends EspressoHelper {
 
     //  Test the username and about me info matches what is expected from the local UserInfoPrivate object.
     @Test
-    public void testUsernameAndAboutMeMatchAndDisplayed(){
-        if((boolean) testUser.getPublicPrivacy().get("display_username")) {
-            onView(withText(testUser.getDisplayName()))
-                    .check(matches(isDisplayed()));
-        }
+    public void testAboutMeMatchAndDisplayed(){
 
         if((boolean) testUser.getPublicPrivacy().get("display_about_me")){
             onView(withText(testUser.getAbout()))
@@ -209,7 +204,7 @@ public class ProfileTest extends EspressoHelper {
     @Test
     public void testKudosRetrieved(){
         onView(withId(R.id.profile_kudos))
-                .check(matches(withText("Kudos: " + Kudos.getKudos())));
+                .check(matches(isDisplayed()));
     }
 
     //  Test that the kudos icon & dialog contents, including chef level retrieved matches the contents contained within the static Kudos class.
@@ -224,5 +219,11 @@ public class ProfileTest extends EspressoHelper {
 
         onView(withText(Kudos.chefLevel))
                 .check(matches(isDisplayed()));
+    }
+
+    @After
+    public void finishOff() {
+        EspressoHelper.shouldSkip = false;
+        this.mActivityTestRule.finishActivity();
     }
 }

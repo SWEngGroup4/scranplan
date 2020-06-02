@@ -2,6 +2,7 @@ package com.group4sweng.scranplan;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -65,6 +66,10 @@ public class SideMenu extends Activity implements NavigationView.OnNavigationIte
                     ((Home)mContext).onProfileEditClick();
                 }
                 break;
+            case R.id.nav_gold:
+                if (mContext instanceof Home) {
+                    ((Home)mContext).onGoldClick();
+                }
             case R.id.nav_suggestionBox:
                 if(mContext instanceof Home) {
                     ((Home)mContext).onSuggestionBoxClick();

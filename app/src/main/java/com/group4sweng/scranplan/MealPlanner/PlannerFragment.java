@@ -119,6 +119,8 @@ public class PlannerFragment extends Fragment {
         LinearLayout topView = view.findViewById(R.id.plannerLinearLayout);
         for (int i = 0; i < 7; i++) {
             TextView textView = new TextView(view.getContext());
+            textView.setPadding(10, 0,0,0);
+            textView.setTextSize(17);
             textView.setText(days.get(i)); //Sets text to day string
 
             //Creates and formats linear layout container for recipes

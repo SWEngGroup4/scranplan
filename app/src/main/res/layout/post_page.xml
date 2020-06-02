@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Social.PostPage"
-    android:background="#A6AAC9">
+    tools:context=".Social.PostPage">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -389,6 +388,7 @@
                 android:layout_width="351dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="3"
+                android:textSize="14sp"
                 android:background="@drawable/boarder"
                 android:hint="Enter comment here..."
                 android:padding="5sp" />
@@ -398,7 +398,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:padding="5sp"
+                android:padding="0sp"
                 android:layout_gravity="center"
                 android:text="Send"
                 android:textColor="@color/colorWhiteText"

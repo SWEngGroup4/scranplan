@@ -113,6 +113,8 @@ public class Home extends AppCompatActivity {
     CheckBox mNameBox;
     CheckBox mChefBox;
     SideMenu mSideMenu;
+    int previousTab;
+
 
     String notifications;
     MenuItem notificationMenuItem;
@@ -178,7 +180,17 @@ public class Home extends AppCompatActivity {
 
     protected void onResume() {
         super.onResume();
-        loadSearchOptions(); // Reload shared preferences search options.
+
+        //  Load filter shared preferences, if UID of user has changed, IE new user logged in, update search options
+        //  based on initial preferences.
+        SharedPreferences sp = getSharedPreferences("filter_preferences", Activity.MODE_PRIVATE);
+        String UID = sp.getString("UID", "noUID");
+        boolean updateFilters = sp.getBoolean("update_filters", false);
+        if(!UID.contains("noUID")) {
+            if (UID.equals(mUser.getUID())) {
+                loadSearchOptions(); // Reload shared preferences search options.
+            }
+        }
     }
 
     /**
@@ -296,6 +308,8 @@ public class Home extends AppCompatActivity {
         recipeFragment = new RecipeFragment(mUser);
         plannerFragment = new PlannerFragment(mUser);
         feedFragment = new FeedFragment(mUser);
+
+        previousTab = 0;
     }
 
     /**
@@ -325,6 +339,9 @@ public class Home extends AppCompatActivity {
 
                         setResult(RESULT_OK, intentSettings);
                         startActivityForResult(intentSettings, PROFILE_SETTINGS_REQUEST_CODE);
+                        break;
+                    case R.id.nav_gold:
+                        onGoldClick();
                         break;
                     case R.id.nav_suggestionBox:
 
@@ -366,6 +383,8 @@ public class Home extends AppCompatActivity {
                     case 0:
                         fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
                         fragmentTransaction.replace(R.id.frameLayout, recipeFragment);
+                        fabMain.setVisibility(View.VISIBLE);
+                        previousTab = 0;
                         break;
                     case 1:
                         if (fragment.getClass() == RecipeFragment.class) fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
@@ -380,10 +399,14 @@ public class Home extends AppCompatActivity {
                         else {
                             fragmentTransaction.replace(R.id.frameLayout, plannerFragment);
                         }
+                        fabMain.setVisibility(View.GONE);
+                        previousTab = 1;
                         break;
                     case 2:
                         fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
                         fragmentTransaction.replace(R.id.frameLayout, feedFragment);
+                        fabMain.setVisibility(View.GONE);
+                        previousTab = 2;
                         break;
                 }
                 fragmentTransaction.commit();
@@ -416,12 +439,10 @@ public class Home extends AppCompatActivity {
         });
 
         fabPost.setOnClickListener(v -> {
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
-            fragmentTransaction.replace(R.id.frameLayout, feedFragment);
-            fragmentTransaction.commit();
+            tabLayout.getTabAt(2).select();
             Toast.makeText(getApplicationContext(), "Create post", Toast.LENGTH_SHORT).show();
             fabMainListener(true);
+            fabMain.setVisibility(View.GONE);
         });
     }
 
@@ -473,20 +494,6 @@ public class Home extends AppCompatActivity {
             case (PROFILE_SETTINGS_REQUEST_CODE):
                 if (resultCode == RESULT_OK) {
                     mUser = (UserInfoPrivate) data.getSerializableExtra("user");
-
-                    // If user edited filters in edit profile. Update all recipes in scrollview.
-                    boolean updateFilters = data.getBooleanExtra("updateFilters", false);
-
-                    if(updateFilters){ // If filters have updated, reload the recipe fragment with new user info.
-                        recipeFragment = null;
-
-                        recipeFragment = new RecipeFragment(mUser);
-                        /*plannerFragment = new PlannerFragment(mUser);
-                        feedFragment = new FeedFragment(mUser);*/
-                        fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                        fragmentTransaction.replace(R.id.frameLayout, recipeFragment);
-                        fragmentTransaction.commit();
-                    }
                 }
                 break;
             case (CREATE_RECIPE_REQUEST_CODE):
@@ -742,12 +749,43 @@ public class Home extends AppCompatActivity {
         tv = (TextView)tabs.getTabWidget().getChildAt(2).findViewById(android.R.id.title);
         tv.setTextColor(Color.GRAY);
     }
+    public void resetFilters(){
+        // RESET filters for testing DO NOT USE IN PROD.
+        //  Store checkbox values within shared preferences.
+        SharedPreferences Preference = getSharedPreferences("filter_preferences", Activity.MODE_PRIVATE);
+        SharedPreferences.Editor e = Preference.edit();
+
+        //  Filters
+        e.putBoolean("vegetarian_filter", false);
+        e.putBoolean("vegan_filter", false);
+        e.putBoolean("pesc_filter", false);
+        e.putBoolean("allergy_nuts", false);
+        e.putBoolean("allergy_eggs", false);
+        e.putBoolean("allergy_shellfish", false);
+        e.putBoolean("allergy_soy", false);
+        e.putBoolean("allergy_gluten", false);
+
+        //  Sorting
+        e.putBoolean("sorting_score", true);
+        e.putBoolean("sorting_votes", false);
+        e.putBoolean("sorting_timestamp", false);
+
+        //  Type
+        e.putBoolean("type_ingredients", true);
+        e.putBoolean("type_name", false);
+        e.putBoolean("type_chef", false);
+
+        e.apply();
+    }
 
     /** Store shared preferences search options */
     private void storeSearchOptions(){
         //  Store checkbox values within shared preferences.
         SharedPreferences Preference = getSharedPreferences("filter_preferences", Activity.MODE_PRIVATE);
         SharedPreferences.Editor e = Preference.edit();
+
+        //  UID
+        e.putString("UID", mUser.getUID());
 
         //  Filters
         e.putBoolean("vegetarian_filter", mVegetarianBox.isChecked());
@@ -758,6 +796,7 @@ public class Home extends AppCompatActivity {
         e.putBoolean("allergy_shellfish", mShellfishBox.isChecked());
         e.putBoolean("allergy_soy", mSoyBox.isChecked());
         e.putBoolean("allergy_gluten", mWheatBox.isChecked());
+        e.putBoolean("allergy_milk", mMilkBox.isChecked());
 
         //  Sorting
         e.putBoolean("sorting_score", mScoreBox.isChecked());
@@ -771,6 +810,7 @@ public class Home extends AppCompatActivity {
 
         e.apply();
     }
+
 
     /** Load in shared preferences for search options. */
     private void loadSearchOptions(){
@@ -821,6 +861,12 @@ public class Home extends AppCompatActivity {
         setResult(RESULT_OK, intentProfile);
         startActivityForResult(intentProfile, PROFILE_SETTINGS_REQUEST_CODE);
 
+    }
+
+    public void onGoldClick() {
+        Log.d("Test", "Gold");
+        GoldMembership goldMembership = new GoldMembership();
+        goldMembership.show(getSupportFragmentManager(), "Show defaults fragment");
     }
 
     public void onSuggestionBoxClick(){

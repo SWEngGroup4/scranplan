@@ -2,6 +2,8 @@ package com.group4sweng.scranplan.SearchFunctions;
 
 import com.algolia.search.saas.Query;
 
+import java.util.ArrayList;
+
 /**
  * Building search query class.
  * Author(s): LNewman, NBillis
@@ -12,12 +14,27 @@ import com.algolia.search.saas.Query;
 public class SearchQuery {
 
     public Query getQuery() {
+        if(!index.equals("SCRANPLAN_USERS") && !searchFacets.isEmpty()){
+            query = query.setFilters(getFilters(searchFacets));
+        }
         return query;
     }
     public String getIndex(){ return index; }
 
     private Query query;
     private String index;
+    private ArrayList<String> searchFacets;
+
+    private String getFilters(ArrayList<String> searchFacets){
+        StringBuilder filters = new StringBuilder();
+        for (String filter : searchFacets) {
+            filters.append(filter);
+            filters.append("AND");
+        }
+        // remove final "AND"
+        filters.delete(filters.length() - 3, filters.length());
+        return filters.toString();
+    }
 
 
     // Constructor building the query from these parameters
@@ -56,40 +73,42 @@ public class SearchQuery {
         mNameBox = preference.mNamePref;
         mChefBox = preference.mChefPref;
         mSearch = sentSearch;
+        searchFacets = new ArrayList<>();
+
 
         query = new Query(mSearch);
 
         // User diet preferences
         if(mPescatarianBox){
-            query = query.setFilters("pescatarian:true");
+            searchFacets.add("pescatarian:true");
         }else if(mVegetarianBox){
-            query = query.setFilters("vegetarian:true");
+            searchFacets.add("vegetarian:true");
         }else if(mVeganBox){
-            query = query.setFilters("vegan:true");
+            searchFacets.add("vegan:true");
         }
 
         if(mNutsBox){
-            query = query.setFilters("noNuts:true");
+            searchFacets.add("noNuts:true");
         }
 
         if(mMilkBox){
-            query = query.setFilters("noMilk:true");
+            searchFacets.add("noMilk:true");
         }
 
         if(mEggsBox){
-            query = query.setFilters("noEggs:true");
+            searchFacets.add("noEggs:true");
         }
 
         if(mWheatBox){
-            query = query.setFilters("noWheat:true");
+            searchFacets.add("noWheat:true");
         }
 
         if(mShellfishBox){
-            query = query.setFilters("noShellfish:true");
+            searchFacets.add("noShellfish:true");
         }
 
         if(mSoyBox){
-            query = query.setFilters("noSoy:true");
+            searchFacets.add("noSoy:true");
         }
 
         // Only enabling a single search order

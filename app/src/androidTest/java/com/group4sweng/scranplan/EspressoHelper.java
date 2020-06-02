@@ -50,7 +50,9 @@ public class EspressoHelper {
         EDIT_PROFILE,
         NOTIFICATION,
         LOGOUT,
-        SUGGEST;
+        SUGGEST,
+        GOLD,
+        MESSAGE
     }
 
     //  Matcher view for use from Recorded Espresso Tests.
@@ -76,7 +78,7 @@ public class EspressoHelper {
     //  Opens the correct side menu element based on an enumeration which is translated into the corresponding side menu row.
     //  to be used by the test recorder output.
     public static void openSideBar(SideBarElement element){
-        int ROW_ID = 1; //By default make this the top element in the side menu.
+        int ROW_ID; //By default make this the top element in the side menu.
 
         switch(element) {
             case PROFILE:
@@ -86,20 +88,28 @@ public class EspressoHelper {
                 ROW_ID = 3;
                 break;
             case LOGOUT:
-                ROW_ID = 5;
+                ROW_ID = 7;
                 break;
             case NOTIFICATION:
                 ROW_ID = 2;
                 break;
             case SUGGEST:
+                ROW_ID = 6;
+                break;
+            case GOLD:
+                ROW_ID = 5;
+                break;
+            case MESSAGE:
                 ROW_ID = 4;
                 break;
+            default:
+                ROW_ID = 1;
         }
 
         //  Test recorder output.
         if(!shouldSkip){
             ViewInteraction appCompatImageButton = onView(
-                    allOf(withContentDescription("Open Nav Drawer"),
+                    allOf(withContentDescription(R.string.nav_drawer_open),
                             childAtPosition(
                                     allOf(withId(R.id.toolbar),
                                             childAtPosition(

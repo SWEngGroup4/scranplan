@@ -4,22 +4,16 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -44,14 +38,12 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.group4sweng.scranplan.Administration.ContentReporting;
-import com.group4sweng.scranplan.Administration.SuggestionBox;
 import com.group4sweng.scranplan.Helper.ImageHelpers;
 import com.group4sweng.scranplan.Helper.RecipeHelpers;
 import com.group4sweng.scranplan.MealPlanner.Ingredients.Ingredient;
 import com.group4sweng.scranplan.Presentation.Presentation;
 import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.R;
-import com.group4sweng.scranplan.Social.FeedFragment;
 import com.group4sweng.scranplan.UserInfo.FilterType;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.squareup.picasso.Picasso;
@@ -505,9 +497,16 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
 
                             if (task.isSuccessful()) {
 
-                                //Takes objects from the firestore and assigns them to their relevant variables
-                                DocumentSnapshot userDocument = task.getResult();
-                                mChefName.setText("Chef: " + (userDocument.getData().get("displayName").toString()));
+                                if(mChefName != null){
+
+                                    //Takes objects from the firestore and assigns them to their relevant variables
+                                    DocumentSnapshot userDocument = task.getResult();
+                                    mChefName.setText("Chef: " + (userDocument.getData().get("displayName").toString()));
+
+                                }else{
+                                    mChefName.setText("Deleted");
+                                }
+
 
                             }
                         }
@@ -650,9 +649,9 @@ public class RecipeInfoFragment extends AppCompatDialogFragment implements Filte
                 break;
             case DIETARY:
                 title = "Dietary";
-                filterValues.add(mPescatarian);
-                filterValues.add(mVegan);
-                filterValues.add(mVegetarian);
+                filterValues.add(!mPescatarian);
+                filterValues.add(!mVegan);
+                filterValues.add(!mVegetarian);
 
                 filterIcons.add(layout.findViewById(R.id.recipeInfoPesc));
                 filterIcons.add(layout.findViewById(R.id.recipeInfoVegan));
