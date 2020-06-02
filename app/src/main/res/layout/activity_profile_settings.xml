@@ -132,12 +132,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16sp"
-                android:layout_marginTop="9dp"
                 android:layout_marginEnd="16sp"
-                android:background="#cecce0"
+                android:background="@color/colorPrimaryLight"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/preferences_tab_bar" />
+
+            <!--android:background="#36675B7A"-->
 
             <TextView
                 android:id="@+id/profile_about_me"
@@ -191,9 +192,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="0sp"
                 android:layout_marginStart="16sp"
-                android:layout_marginTop="6dp"
                 android:layout_marginEnd="16sp"
                 android:showDividers="middle"
+                android:background="@color/colorPrimaryLight"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.52"
                 app:layout_constraintStart_toStartOf="parent"
@@ -206,7 +207,7 @@
                         android:layout_width="match_parent"
                         android:layout_margin="4sp"
                         android:layout_weight="1"
-                        android:background="#36675B7A"
+                        android:background="#1788898E"
                         android:checked="false"
                         android:onClick="onSwitchClicked"
                         android:padding="6sp"
@@ -221,7 +222,7 @@
                         android:id="@+id/settings_privacy_profile_image"
                         android:layout_margin="4sp"
                         android:layout_weight="1"
-                        android:background="#36675B7A"
+                        android:background="#1788898E"
                         android:checked="false"
                         android:onClick="onSwitchClicked"
                         android:padding="6sp"
@@ -233,7 +234,7 @@
                         android:id="@+id/settings_privacy_filters"
                         android:layout_margin="4sp"
                         android:layout_weight="1"
-                        android:background="#36675B7A"
+                        android:background="#1788898E"
                         android:checked="false"
                         android:onClick="onSwitchClicked"
                         android:padding="6sp"
@@ -248,15 +249,17 @@
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/preferences_tab_bar"
-                android:layout_width="209dp"
+                android:layout_width="250dp"
                 android:layout_height="40dp"
                 android:layout_marginStart="16dp"
-
                 android:layout_marginTop="15dp"
+                android:background="@color/colorPrimary"
+                app:tabTextColor="#ffffff"
                 app:layout_constraintBottom_toTopOf="@+id/settings_checkbox_table"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/settings_input_about_me"
-                app:layout_constraintVertical_bias="0.49">
+                app:layout_constraintVertical_bias="0.49"
+                app:tabIndicatorHeight="4sp">
 
                 <com.google.android.material.tabs.TabItem
                     android:layout_width="wrap_content"
@@ -276,9 +279,12 @@
                 android:layout_height="40sp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="10dp"
+                app:tabTextColor="#ffffff"
+                android:background="@color/colorPrimary"
                 app:layout_constraintBottom_toTopOf="@+id/settings_privacy_table"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/settings_private_toggle">
+                app:layout_constraintTop_toBottomOf="@+id/settings_private_toggle"
+                app:tabIndicatorHeight="4sp">
 
                 <com.google.android.material.tabs.TabItem
                     android:layout_width="wrap_content"

@@ -11,7 +11,6 @@
         android:layout_height="match_parent"
         android:layout_marginStart="16sp"
         android:layout_marginEnd="16sp"
-        android:background="#cecce0"
         tools:layout_editor_absoluteY="285dp">
 
         <TableRow
