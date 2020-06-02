@@ -97,7 +97,7 @@ public class SuggestionBoxTest implements Credentials{
                                 childAtPosition(
                                         withId(R.id.side_menu),
                                         0)),
-                        5),
+                        6),
                         isDisplayed()));
         navigationMenuItemView.perform(click());
 
@@ -116,7 +116,7 @@ public class SuggestionBoxTest implements Credentials{
                                 childAtPosition(
                                         withId(R.id.side_menu),
                                         0)),
-                        5),
+                        6),
                         isDisplayed()));
         navigationMenuItemView2.perform(click());
 

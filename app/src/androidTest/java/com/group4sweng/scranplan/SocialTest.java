@@ -111,7 +111,7 @@ public class SocialTest implements Credentials  {
                 .perform(click());
         Thread.sleep(THREAD_SLEEP_TIME/4);
 
-        onView(withText("Hearty pasta soup"))
+        onView(withText("Parmesan spring chicken"))
                 .perform(click());
 
         Thread.sleep(THREAD_SLEEP_TIME);

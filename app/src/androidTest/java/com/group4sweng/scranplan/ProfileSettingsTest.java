@@ -4,6 +4,7 @@ import android.net.Uri;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.Espresso;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
@@ -87,7 +88,7 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
 
         ActivityScenario.launch(Login.class); //Launch the login screen
 
-        onView(withId(R.id.loginButton))
+        onView(ViewMatchers.withId(R.id.loginButton))
                 .perform(click());
 
         onView(withId(R.id.emailEditText))
@@ -100,7 +101,6 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
                 .perform(click());
 
         Thread.sleep(THREAD_SLEEP_TIME);
-
         openSideBar(SideBarElement.EDIT_PROFILE);
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
@@ -248,9 +248,6 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
 
         EspressoHelper.shouldSkip = true; // Declares that we should skip pressing the button that opens the sidebar.
 
-        openSideBar(SideBarElement.LOGOUT); // Logout
-
-        setUp(); // Restart from scratch, logging in and entering the profile settings view.
 
         onView(withId(R.id.settings_input_username))
                 .check(matches(withText("qwertyu1")));
@@ -265,6 +262,12 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
      * @return - A hashmap of the previous switch states for comparison
      */
     private HashMap<String, Boolean> switchAllPrivacySwitches(PrivacyType pt) throws InterruptedException {
+        if(!activityResult.mPrivateProfileEnabled.isChecked()){
+            onView(withId(R.id.settings_private_toggle))
+                    .perform(scrollTo())
+                    .perform(click());
+        }
+
         if(pt == PrivacyType.PRIVATE){ // Check if we need to press the 'PRIVATE' tab selector to assign 'private' privacy values only.
             onView(withText("PRIVATE"))
                     .perform(scrollTo())
@@ -294,12 +297,6 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
 
         Espresso.pressBack();
         Thread.sleep(THREAD_SLEEP_TIME/4);
-
-        EspressoHelper.shouldSkip = true;
-
-        openSideBar(SideBarElement.LOGOUT);
-
-        setUp(); // Relaunch the login screen.
 
         return initialPrivacy;
     }
@@ -731,6 +728,6 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
         EspressoHelper.shouldSkip = false;
         this.mActivityTestRule.finishActivity();
 //        activityResult.isTesting = false;
-        activityResult = null;
+//        activityResult = null;
     }
 }

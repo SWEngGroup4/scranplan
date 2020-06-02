@@ -204,7 +204,7 @@ public class ProfileTest extends EspressoHelper implements Credentials {
     @Test
     public void testKudosRetrieved(){
         onView(withId(R.id.profile_kudos))
-                .check(matches(withText("Kudos: " + Kudos.getKudos())));
+                .check(matches(isDisplayed()));
     }
 
     //  Test that the kudos icon & dialog contents, including chef level retrieved matches the contents contained within the static Kudos class.
