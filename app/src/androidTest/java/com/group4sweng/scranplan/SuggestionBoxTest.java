@@ -17,6 +17,7 @@ import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -171,4 +172,10 @@ public class SuggestionBoxTest implements Credentials{
             }
         };
     }
+
+    @After
+    public void tearDown() {
+        EspressoHelper.shouldSkip = false;
+        this.mActivityTestRule.finishActivity();
+        Log.d(TAG, "Tests complete"); }
 }

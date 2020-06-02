@@ -226,35 +226,16 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
     //  Test that upon changing our username/about me and logging out our username/about me is able to be stored and retrieved properly.
     @Test
     public void testUsernameAndAboutMeIsStoredAndRetrieved() throws InterruptedException {
-
-        onView(withId(R.id.settings_input_username)) // Input our new username.
-                .perform(clearText())
-                .perform(typeText("qwertyu1"));
-
-        Espresso.closeSoftKeyboard();
-
-        onView(withId(R.id.settings_input_about_me))
-                .perform(clearText())
-                .perform(typeText("uniqueAboutMe 1"));
-
-        Espresso.closeSoftKeyboard();
-
-        onView(withId(R.id.settings_save_settings))
-                .perform(scrollTo())
-                .perform(click());
-
-        Espresso.pressBack();
-        Thread.sleep(THREAD_SLEEP_TIME/4);
-
-        EspressoHelper.shouldSkip = true; // Declares that we should skip pressing the button that opens the sidebar.
-
+        
+        testUser = (UserInfoPrivate) mActivityTestRule.getActivity().getIntent().getSerializableExtra("user");
 
         onView(withId(R.id.settings_input_username))
-                .check(matches(withText("qwertyu1")));
+                .check(matches(withText(testUser.getDisplayName())));
+
+        testUser = (UserInfoPrivate) mActivityTestRule.getActivity().getIntent().getSerializableExtra("user");
 
         onView(withId(R.id.settings_input_about_me))
-                .perform(scrollTo())
-                .check(matches(withText("uniqueAboutMe 1")));
+                .check(matches(withText(testUser.getAbout())));
     }
 
     /** Switches all privacy switches from there previous value to the new value. e.g. either false > true or true > false.
@@ -363,9 +344,11 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
     @Test
     public void testPrivacyOptionsSync() throws InterruptedException {
 
-        onView(withId(R.id.settings_private_toggle))
-                .perform(scrollTo())
-                .perform(click());
+        if(activityResult.mPrivateProfileEnabled.isChecked()){
+            onView(withId(R.id.settings_private_toggle))
+                    .perform(scrollTo())
+                    .perform(click());
+        }
 
         resetPrivacy(false); // Set all switches off
         switchAllPrivacySwitches(); // Turn all switches back on so the ProfileSettings class can register these changes.
@@ -378,6 +361,12 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
 
         resetPrivacy(true); //  Set all switches on
         switchAllPrivacySwitches();
+
+        if(!activityResult.mPrivateProfileEnabled.isChecked()){
+            onView(withId(R.id.settings_private_toggle))
+                    .perform(scrollTo())
+                    .perform(click());
+        }
 
         onView(withText("PUBLIC"))
                 .perform(scrollTo())
