@@ -30,6 +30,7 @@ import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
@@ -122,7 +123,7 @@ public class PresentationTest implements Credentials {
 
 
         Thread.sleep(THREAD_SLEEP_TIME/4);
-
+        onView(withText("Looks great!" + time)).perform(scrollTo());
         onView(withText("Looks great!" + time))
                 .check(matches(isDisplayed()));
     }

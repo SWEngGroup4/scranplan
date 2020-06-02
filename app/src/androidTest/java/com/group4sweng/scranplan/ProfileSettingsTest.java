@@ -262,13 +262,18 @@ public class ProfileSettingsTest extends EspressoHelper implements Credentials {
      * @return - A hashmap of the previous switch states for comparison
      */
     private HashMap<String, Boolean> switchAllPrivacySwitches(PrivacyType pt) throws InterruptedException {
-        if(!activityResult.mPrivateProfileEnabled.isChecked()){
+        if(activityResult.mPrivateProfileEnabled.isChecked()){
             onView(withId(R.id.settings_private_toggle))
                     .perform(scrollTo())
                     .perform(click());
         }
 
         if(pt == PrivacyType.PRIVATE){ // Check if we need to press the 'PRIVATE' tab selector to assign 'private' privacy values only.
+            if(!activityResult.mPrivateProfileEnabled.isChecked()){
+                onView(withId(R.id.settings_private_toggle))
+                        .perform(scrollTo())
+                        .perform(click());
+            }
             onView(withText("PRIVATE"))
                     .perform(scrollTo())
                     .perform(click());
