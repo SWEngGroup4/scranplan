@@ -178,9 +178,11 @@ public class FeedFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        mPostRecipe.setChecked(false);
-        mPostReview.setChecked(false);
-        mPostPic.setChecked(false);
+        if(mPostRecipe != null){
+            mPostRecipe.setChecked(false);
+            mPostReview.setChecked(false);
+            mPostPic.setChecked(false);
+        }
     }
 
     // Auto-generated onCreate method (everything happens here)
