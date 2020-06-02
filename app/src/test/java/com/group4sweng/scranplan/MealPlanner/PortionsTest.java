@@ -6,7 +6,6 @@ import org.junit.Test;
 
 import java.util.HashMap;
 
-import static com.google.firebase.firestore.util.Assert.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -112,30 +111,5 @@ public class PortionsTest {
         assertEquals(2.7f, Portions.retrieveQuantity(scaledIngredients.get("cod fillets")), 1.0f);
         assertEquals(-1.0f, Portions.retrieveQuantity(scaledIngredients.get("thyme")), 0.0f);
         assertEquals(2.1f, Portions.retrieveQuantity(scaledIngredients.get("pale ale")), 0.1f);
-    }
-
-    //  Test Exceptions thrown when new serving amount and previous serving amounts are the same and
-    //  equally if the serving amounts are well outside the acceptable range of a reliable prediction.
-    @Test
-    public void testInvalidPortionConversions() {
-        try {
-            scaledIngredients = Portions.convertPortions(ingredients, 4,4);
-            fail("Failed to throw exception when receiving equal values of 'serves'. IE the portions are not being scaled and will remain the same.");
-        } catch (PortionConvertException e) {
-            assertEquals(e.getMessage(), "Unable to convert portions of food. New and previous serve amounts cannot be the same");
-        }
-
-        try {
-            scaledIngredients = Portions.convertPortions(ingredients, 1, 10);
-            fail("Failed to throw exception with portion conversion outside acceptable range.");
-        } catch (PortionConvertException e){
-            assertEquals(e.getMessage(), "Unable to convert portions of food from 1.0 to 10.0. Amount is outside the range in which an acceptable estimate can be calculated.");
-        }
-    }
-
-    //TODO - Come back to finish this.
-    @Test
-    public void testServesAmountsRetrieval() {
-        // Need to finish...
     }
 }
