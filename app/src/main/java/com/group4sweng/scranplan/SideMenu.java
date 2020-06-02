@@ -2,6 +2,7 @@ package com.group4sweng.scranplan;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
