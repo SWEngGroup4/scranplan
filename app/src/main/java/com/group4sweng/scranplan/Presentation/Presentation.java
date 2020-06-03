@@ -233,8 +233,6 @@ public class Presentation extends AppCompatActivity {
                     XmlParser.Text id = new XmlParser.Text(slide.id, defaults);
                     pSlide.addText(id);
                     dropdownItems.add(id.text);
-//                    slideTimers.add(null);
-//                    slideAudio.add(null);
 
 
                     if (slide.text != null)
@@ -254,7 +252,7 @@ public class Presentation extends AppCompatActivity {
                     if (slide.video != null)
                         pSlide.addVideo(slide.video);
                     if (slide.timer != null) {
-                        slideTimers.add(slideCount, slide.timer);
+                        slideTimers.add(slide.timer);
                         AudioURL audio = new AudioURL();
                         AudioURL audioLooping = new AudioURL();
                         audioLooping.setLooping(true);
