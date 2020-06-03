@@ -68,6 +68,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import io.sentry.core.Sentry;
+
 /**
  *  All parts of the presentation, taking the XML document and separating it out into its slide that
  *  are then conveniently displayed for the user. User can go forward and backwards along with
@@ -231,6 +233,9 @@ public class Presentation extends AppCompatActivity {
                     XmlParser.Text id = new XmlParser.Text(slide.id, defaults);
                     pSlide.addText(id);
                     dropdownItems.add(id.text);
+//                    slideTimers.add(null);
+//                    slideAudio.add(null);
+
 
                     if (slide.text != null)
                         pSlide.addText(slide.text);
@@ -257,10 +262,10 @@ public class Presentation extends AppCompatActivity {
                         audioLooping.storeURL(StockSounds.EGG_TIMER.getSoundURL());
                         audio.storeURL(StockSounds.DING.getSoundURL());
 
-                        timerAudio.add(slideCount, audio);
-                        timerAudioLooping.add(slideCount, audioLooping);
-                    } else
-                        slideTimers.add(slideCount, -1f);
+                        timerAudio.add(audio);
+                        timerAudioLooping.add(audioLooping);
+                    } else{
+                        slideTimers.add(-1f);}
 
                     if(slide.audio != null){
                         AudioURL audio = new AudioURL();
@@ -268,9 +273,9 @@ public class Presentation extends AppCompatActivity {
                         audio.storeURL(slide.audio.urlName);
                         audio.setStartTime(slide.audio.startTime);
 
-                        slideAudio.add(slideCount, audio);
+                        slideAudio.add(audio);
                     } else {
-                        slideAudio.add(slideCount, null);
+                        slideAudio.add(null);
                     }
 
                     // Spinner to choose the slides
@@ -320,7 +325,6 @@ public class Presentation extends AppCompatActivity {
                     slideLayouts.add(pSlide);
                     expandableLayout.bringToFront();
                     slideCount++;
-
                 }
 
                 slideLayouts.get(0).show();
@@ -415,6 +419,7 @@ public class Presentation extends AppCompatActivity {
             }
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "Error with presentation. Please report to admin", Toast.LENGTH_SHORT).show();
+            Sentry.captureException(e);
             finish();
         }
     }

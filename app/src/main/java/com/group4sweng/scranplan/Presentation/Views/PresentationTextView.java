@@ -1,7 +1,6 @@
 package com.group4sweng.scranplan.Presentation.Views;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -9,21 +8,15 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.text.Html;
-import android.util.Log;
 import android.view.Gravity;
-import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.core.provider.FontRequest;
 import androidx.core.provider.FontsContractCompat;
 
 import com.group4sweng.scranplan.R;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 @SuppressLint("ViewConstructor")
 public class PresentationTextView extends ScrollView {
@@ -158,18 +151,20 @@ public class PresentationTextView extends ScrollView {
 
     // Stops timers running in case of slide change/transition
     public void stopTimers() {
+        if(startTimer != null ){
         try {
             startTimer.cancel();
         }
         catch (Exception e) {
             e.printStackTrace();
-        }
+        }}
+        if(endTimer != null){
         try {
             endTimer.cancel();
         }
         catch (Exception e) {
             e.printStackTrace();
-        }
+        }}
     }
 
     // Used for asynchronous retrieval of fonts from google API
