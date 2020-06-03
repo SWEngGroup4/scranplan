@@ -6,7 +6,7 @@ package com.group4sweng.scranplan.SoundHandler;
  *      To retrieve the sounds URL simply use StockSounds.NAME.getSoundURL().
  */
 public enum StockSounds {
-    DING("https://bigsoundbank.com/UPLOAD/mp3/1631.mp3"),
+    DING("https://firebasestorage.googleapis.com/v0/b/scran-plan-bc521.appspot.com/o/sounds%2F1631.mp3?alt=media&token=ca10a783-66a3-40cf-8415-f7606ae0c4ad"),
 
     //  Credits: https://freesound.org/people/V4cuum/sounds/348628/
     EGG_TIMER("https://firebasestorage.googleapis.com/v0/b/scran-plan-bc521.appspot.com/o/sounds%2Feggtimer.mp3?alt=media&token=6cedcd96-fb54-44e3-87a9-ec1d0b68f6fb"),

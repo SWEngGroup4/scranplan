@@ -72,7 +72,7 @@ android:layout_height="wrap_content">
                 android:hint="Timer length in minutes"
                 android:inputType="numberDecimal"
                 android:visibility="visible"
-                app:layout_constraintBottom_toTopOf="@+id/recipeStepAddGraphics"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 tools:visibility="visible" />
@@ -107,7 +107,7 @@ android:layout_height="wrap_content">
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:text="Add audio"
-                app:layout_constraintBottom_toTopOf="@+id/recipeStepAudioUri"
+                app:layout_constraintBottom_toTopOf="@+id/loopingToggle"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
@@ -118,9 +118,10 @@ android:layout_height="wrap_content">
                 android:layout_marginStart="8dp"
                 android:gravity="center_horizontal"
                 android:text="TextView"
-                app:layout_constraintBottom_toTopOf="@+id/recipeStepAddTimer"
+                app:layout_constraintBottom_toTopOf="@+id/recipeStepAddGraphics"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
+
 
             <Button
                 android:id="@+id/recipeStepAddTimer"
@@ -139,10 +140,10 @@ android:layout_height="wrap_content">
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
                 android:text="Add graphics"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/recipeStepAddTimer"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <ImageButton
@@ -158,6 +159,41 @@ android:layout_height="wrap_content">
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@android:drawable/ic_menu_close_clear_cancel" />
 
+            <Switch
+                android:id="@+id/loopingToggle"
+                android:layout_width="100sp"
+                android:layout_height="40sp"
+                android:adjustViewBounds="true"
+                android:text="Looping"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toTopOf="@+id/recipeStepAudioUri"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.80"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <EditText
+                android:id="@+id/startTime"
+                android:layout_width="70sp"
+                android:layout_height="40sp"
+                android:ems="10"
+                android:inputType="numberDecimal"
+                android:text="start time"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toTopOf="@+id/recipeStepAudioUri"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.30"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/startTimeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Start Time:"
+                app:layout_constraintBottom_toTopOf="@+id/recipeStepAudioUri"
+                app:layout_constraintEnd_toStartOf="@+id/startTime"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/recipeStepAddAudio" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 </androidx.core.widget.NestedScrollView>

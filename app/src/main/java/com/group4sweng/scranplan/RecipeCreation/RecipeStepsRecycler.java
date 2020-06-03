@@ -3,7 +3,6 @@ package com.group4sweng.scranplan.RecipeCreation;
 import android.net.Uri;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Xml;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,14 +10,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.group4sweng.scranplan.Drawing.Rectangle;
-import com.group4sweng.scranplan.Drawing.Triangle;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.Xml.XmlParser;
 import com.squareup.picasso.Picasso;
@@ -37,16 +35,20 @@ public class RecipeStepsRecycler extends RecyclerView.Adapter<RecipeStepsRecycle
         private boolean mediaChanged = false;
         private String description;
         private Uri audio;
+        private boolean audioLooping;
+        private Integer audioStartTime;
         private boolean audioChanged = false;
         private Float timer;
         private boolean timerChanged = false;
         private ArrayList<XmlParser.Shape> shapes;
         private ArrayList<XmlParser.Triangle> triangles;
 
-        StepData(Uri media, String description, Float timer) {
+        StepData(Uri media, String description, Float timer, boolean audioLooping, Integer audioStartTime) {
             this.media = media;
             this.description = description;
             this.timer = timer;
+            this.audioLooping = audioLooping;
+            this.audioStartTime = audioStartTime;
         }
 
         String getDescription() {
@@ -70,12 +72,18 @@ public class RecipeStepsRecycler extends RecyclerView.Adapter<RecipeStepsRecycle
 
         void removeAudio() {
             this.audio = null;
+            this.audioLooping = false;
+            this.audioStartTime = null;
             this.audioChanged = false;
         }
 
         Float getTimer() {
             return this.timer;
         }
+
+        boolean isLooping() { return this.audioLooping; }
+
+        Integer getStartTime() { return this.audioStartTime; }
 
         void showTimer() {
             timerChanged = true;
@@ -120,10 +128,14 @@ public class RecipeStepsRecycler extends RecyclerView.Adapter<RecipeStepsRecycle
         private TextView mediaUri;
         private Button addAudio;
         private TextView audioUri;
+        private EditText audioStartTime;
+        private Switch audioLooping;
+        private TextView audioStartTimeText;
+        private StartTimeListener startTimeListener;
         private Button addTimer;
         private Button addGraphics;
 
-        private ViewHolder(View v, StepListener stepTextListener, TimerListener timerValueListener) {
+        private ViewHolder(View v, StepListener stepTextListener, TimerListener timerValueListener, StartTimeListener startTimeListener) {
             super(v);
             // Assign all page elements
             cardView = v.findViewById(R.id.recipeStepCardView);
@@ -141,8 +153,15 @@ public class RecipeStepsRecycler extends RecyclerView.Adapter<RecipeStepsRecycle
 
             addMedia = v.findViewById(R.id.recipeStepAddMedia);
             mediaUri = v.findViewById(R.id.recipeStepMediaUri);
+
             addAudio = v.findViewById(R.id.recipeStepAddAudio);
             audioUri = v.findViewById(R.id.recipeStepAudioUri);
+            audioStartTime = v.findViewById(R.id.startTime);
+            this.startTimeListener = startTimeListener;
+            audioStartTime.addTextChangedListener(startTimeListener);
+            audioLooping = v.findViewById(R.id.loopingToggle);
+            audioStartTimeText = v.findViewById(R.id.startTimeText);
+
             addTimer = v.findViewById(R.id.recipeStepAddTimer);
             addGraphics = v.findViewById(R.id.recipeStepAddGraphics);
         }
@@ -160,7 +179,7 @@ public class RecipeStepsRecycler extends RecyclerView.Adapter<RecipeStepsRecycle
         // Inflate view
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recipe_step_recycler, parent, false);
-        return new ViewHolder(v, new StepListener(), new TimerListener());
+        return new ViewHolder(v, new StepListener(), new TimerListener(), new StartTimeListener());
     }
 
     @Override
@@ -173,6 +192,21 @@ public class RecipeStepsRecycler extends RecyclerView.Adapter<RecipeStepsRecycle
             mData.remove(position);
             notifyItemRemoved(position);
             notifyItemRangeChanged(position, mData.size());
+        });
+
+        holder.audioLooping.setOnClickListener(v -> {
+            boolean switched = ((Switch) v).isChecked();
+
+            mData.get(position).audioLooping = switched;
+
+            if(switched){
+                holder.audioStartTime.setText("");
+                holder.audioStartTime.setVisibility(View.GONE);
+                holder.audioStartTimeText.setVisibility(View.GONE);
+            } else {
+                holder.audioStartTime.setVisibility(View.VISIBLE);
+                holder.audioStartTimeText.setVisibility(View.VISIBLE);
+            }
         });
 
         // Update step when media is loaded in
@@ -205,7 +239,18 @@ public class RecipeStepsRecycler extends RecyclerView.Adapter<RecipeStepsRecycle
         if (mData.get(position).audioChanged) {
             // Show path to uploaded audio
             holder.audioUri.setText(mData.get(position).audio.toString() + " \u2713");
+            holder.startTimeListener.setPosition(position);
+
+            // Show field as empty if no data is added
+            if (mData.get(position).audioStartTime == null)
+                holder.audioStartTime.setText("");
+            else
+                holder.audioStartTime.setText(String.format("%d", mData.get(position).audioStartTime));
+
             holder.audioUri.setVisibility(View.VISIBLE);
+            holder.audioLooping.setVisibility(View.VISIBLE);
+            holder.audioStartTime.setVisibility(View.VISIBLE);
+            holder.audioStartTimeText.setVisibility(View.VISIBLE);
 
             // Change button to remove audio
             holder.addAudio.setText("Remove audio");
@@ -213,10 +258,14 @@ public class RecipeStepsRecycler extends RecyclerView.Adapter<RecipeStepsRecycle
         // Update step is audio is removed
         } else {
             holder.audioUri.setVisibility(View.GONE);
+            holder.audioLooping.setVisibility(View.GONE);
+            holder.audioStartTime.setVisibility(View.GONE);
+            holder.audioStartTimeText.setVisibility(View.GONE);
 
             holder.addAudio.setText("Add audio");
             holder.addAudio.setOnClickListener(v -> mRecipeSteps.addAudio(position));
         }
+
 
         // Show timer field if timer is added to step
         if (mData.get(position).timerChanged) {
@@ -240,6 +289,7 @@ public class RecipeStepsRecycler extends RecyclerView.Adapter<RecipeStepsRecycle
             holder.addTimer.setText("Add timer");
             holder.addTimer.setOnClickListener(v -> mRecipeSteps.addTimer(position));
         }
+
 
         // Graphics button functionality - does not save previous graphical configuration
         holder.addGraphics.setOnClickListener(v -> mRecipeSteps.addGraphics(position));
@@ -268,6 +318,30 @@ public class RecipeStepsRecycler extends RecyclerView.Adapter<RecipeStepsRecycle
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
             mData.get(position).description = s.toString();
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+
+        }
+    }
+
+    // Listener for audio start time
+    private class StartTimeListener implements TextWatcher {
+
+        private Integer position;
+
+        public void setPosition (Integer position) { this.position = position; }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if (!s.toString().equals(""))
+                mData.get(position).audioStartTime = Integer.parseInt(s.toString());
         }
 
         @Override
