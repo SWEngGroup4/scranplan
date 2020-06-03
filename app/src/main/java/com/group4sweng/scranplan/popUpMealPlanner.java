@@ -5,31 +5,15 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
-
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.group4sweng.scranplan.Home;
-import com.group4sweng.scranplan.InitialUserCustomisation;
-import com.group4sweng.scranplan.Login;
-import com.group4sweng.scranplan.MainActivity;
-import com.group4sweng.scranplan.MealPlanner.PlannerFragment;
-import com.group4sweng.scranplan.R;
-
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
-
-import java.util.HashMap;
 
 
 
@@ -41,6 +25,8 @@ public class popUpMealPlanner extends AppCompatActivity {
     FirebaseApp mApp;
     FirebaseAuth mAuth;
     UserInfoPrivate userDetails;
+    FirebaseFirestore database = FirebaseFirestore.getInstance();
+    CollectionReference colRef = database.collection("users");
 
     Button mgoButton;
 
@@ -74,9 +60,7 @@ public class popUpMealPlanner extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                FirebaseFirestore database = FirebaseFirestore.getInstance();
-                CollectionReference colRef = database.collection("users");
-                DocumentReference usersRef = colRef.document(mAuth.getCurrentUser().getUid()); //gets the current user ID
+                DocumentReference usersRef = colRef.document(userDetails.getUID()); //gets the current user ID
                 usersRef.update("firstMealPlannerLaunch", false); //first time seeing the meal planner set to false so page wont show again
 
                 Log.e(TAG,"Sending user to home page");
