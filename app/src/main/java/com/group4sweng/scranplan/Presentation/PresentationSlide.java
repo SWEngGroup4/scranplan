@@ -1,20 +1,16 @@
 package com.group4sweng.scranplan.Presentation;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.util.Log;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
-import com.group4sweng.scranplan.Drawing.Line;
 import com.group4sweng.scranplan.Drawing.GraphicsView;
+import com.group4sweng.scranplan.Drawing.Line;
 import com.group4sweng.scranplan.Drawing.Rectangle;
 import com.group4sweng.scranplan.Drawing.Shape;
 import com.group4sweng.scranplan.Drawing.Triangle;
 import com.group4sweng.scranplan.Presentation.Views.PresentationImageView;
 import com.group4sweng.scranplan.Presentation.Views.PresentationPlayerView;
 import com.group4sweng.scranplan.Presentation.Views.PresentationTextView;
-import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.Xml.XmlParser;
 
 import java.util.ArrayList;
@@ -158,4 +154,5 @@ public class PresentationSlide extends RelativeLayout {
         playerView.setDims(video.width, video.height);
         this.addView(playerView);
     }
+
 }

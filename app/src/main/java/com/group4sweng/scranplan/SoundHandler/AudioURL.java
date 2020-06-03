@@ -28,6 +28,7 @@ public class AudioURL implements SupportedFormats
     //  The Android media player.
     private MediaPlayer player_URL;
     private String stored_URL = null;
+    private Integer startTime = 0;
 
     //  Sets the initial state to be playing no sound.
     private Boolean play_URL = false;
@@ -57,7 +58,7 @@ public class AudioURL implements SupportedFormats
         //  Isn't a massive issue since if the input is not readable by Android an AudioPlaybackError will still be thrown later.
 
         //  Cycles through all available formats to check if the extension outlined matches.
-        for(int i = 0; i < AudioFormats.values().length; i++ ){
+        /*for(int i = 0; i < AudioFormats.values().length; i++ ){
             if(!soundURL.contains("." + AudioFormats.values()[i])){
                 counter++; //Counter is log everytime a format isn't found.
             }
@@ -65,7 +66,7 @@ public class AudioURL implements SupportedFormats
 
         if(counter == AudioFormats.values().length){ //If no supported formats are found the counter will equal the length of the formats enumeration.
             throw new AudioPlaybackException("Tried to use an invalid audio format. Please resort to using the .mp3 format.");
-        }
+        }*/
 
         /* TODO - Add exceptions due to setDataSource() errors, including
             Unsupported media, poorly interleaved audio, resolution too high, streaming timeout.
@@ -188,4 +189,12 @@ public class AudioURL implements SupportedFormats
     }
 
     Boolean getPlay_URL() { return play_URL; }
+
+    public void setStartTime(Integer startTime){
+        this.startTime = startTime;
+    }
+
+    public Integer getStartTime(){
+        return startTime;
+    }
 }

@@ -1,6 +1,5 @@
 package com.group4sweng.scranplan.Xml;
 
-import android.util.Log;
 import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -167,7 +166,6 @@ public class XmlParser {
         ArrayList<Shape> shapes = new ArrayList<>();
         ArrayList<Triangle> triangles = new ArrayList<>();
         Audio audio = null;
-        Audio audioLooping = null;
         Image image = null;
         Video video = null;
         Float timer = null;
@@ -192,17 +190,7 @@ public class XmlParser {
                     triangles.add(readTriangle(parser));
                     break;
                 case "audio":
-                    /* Can read in up to 2 audio files. (one looping, one non-looping) Takes priority from highest to lowest.
-                       'audio' tag in the file hierarchy. */
-
-                    //  Store a copy of the audio class from the xml parser.
-                    final Audio tempAudio = readAudio(parser);
-
-                    if(!tempAudio.loop && audio == null){ //Check if the audio is looping or not and if a file has already been stored.
-                        audio = tempAudio; //Assign the audio file to info read in through the parser.
-                    } else if(tempAudio.loop && audioLooping == null){
-                        audioLooping = tempAudio;
-                    }
+                    audio = readAudio(parser);
                     break;
                 case "image":
                     image = readImage(parser);
@@ -219,7 +207,7 @@ public class XmlParser {
             }
         }
 
-        return new Slide(id, duration, text, lines, shapes, triangles, audio, audioLooping, image, video, timer);
+        return new Slide(id, duration, text, lines, shapes, triangles, audio, image, video, timer);
     }
 
     // TODO - as b and i are elements might need loop check
@@ -533,7 +521,7 @@ public class XmlParser {
         public Slide() {}
 
         public Slide(String id, Integer duration, Text text, ArrayList<Line> lines, ArrayList<Shape> shapes,
-                     ArrayList<Triangle> triangles, Audio audio, Audio audioLooping, Image image, Video video, Float timer) {
+                     ArrayList<Triangle> triangles, Audio audio, Image image, Video video, Float timer) {
             this.id = id;
             this.duration = duration;
             this.text = text;
@@ -541,7 +529,6 @@ public class XmlParser {
             this.shapes = shapes;
             this.triangles = triangles;
             this.audio = audio;
-            this.audioLooping = audioLooping;
             this.image = image;
             this.video = video;
             this.timer = timer;

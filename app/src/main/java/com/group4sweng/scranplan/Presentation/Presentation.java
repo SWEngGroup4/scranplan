@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MenuItem;
@@ -46,13 +47,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.group4sweng.scranplan.Administration.ContentReporting;
-import com.group4sweng.scranplan.Administration.SuggestionBox;
 import com.group4sweng.scranplan.Exceptions.AudioPlaybackException;
-import com.group4sweng.scranplan.Home;
 import com.group4sweng.scranplan.PublicProfile;
 import com.group4sweng.scranplan.R;
 import com.group4sweng.scranplan.Social.CommentRecyclerAdapter;
 import com.group4sweng.scranplan.SoundHandler.AudioURL;
+import com.group4sweng.scranplan.SoundHandler.StockSounds;
 import com.group4sweng.scranplan.UserInfo.UserInfoPrivate;
 import com.group4sweng.scranplan.Xml.XmlParser;
 
@@ -67,8 +67,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import static androidx.test.InstrumentationRegistry.getContext;
 
 /**
  *  All parts of the presentation, taking the XML document and separating it out into its slide that
@@ -108,8 +106,13 @@ public class Presentation extends AppCompatActivity {
     /**  Lists containing references to timers (total duration) & audio objects if they exist for each slide by index (corresponding to slide number).
      If a timer or audio object isn't present for the slide a 'null' value or for numbers -1 is present. **/
     private ArrayList<Float> slideTimers = new ArrayList<>();
-    private ArrayList<AudioURL> slideAudioLooping = new ArrayList<>();
+    private ArrayList<AudioURL> timerAudioLooping = new ArrayList<>();
+    private ArrayList<AudioURL> timerAudio = new ArrayList<>();
+
+    /**  Slide audio objects. Placed in Presentation.java to handle slide transitions. **/
     private ArrayList<AudioURL> slideAudio = new ArrayList<>();
+    private CountDownTimer slideAudioCountdown = null;
+    AudioURL currentAudio = new AudioURL();
 
     private ProgressBar spinner;
 
@@ -247,28 +250,27 @@ public class Presentation extends AppCompatActivity {
                         pSlide.addVideo(slide.video);
                     if (slide.timer != null) {
                         slideTimers.add(slideCount, slide.timer);
+                        AudioURL audio = new AudioURL();
+                        AudioURL audioLooping = new AudioURL();
+                        audioLooping.setLooping(true);
+
+                        audioLooping.storeURL(StockSounds.EGG_TIMER.getSoundURL());
+                        audio.storeURL(StockSounds.DING.getSoundURL());
+
+                        timerAudio.add(slideCount, audio);
+                        timerAudioLooping.add(slideCount, audioLooping);
                     } else
                         slideTimers.add(slideCount, -1f);
 
-                    //  Checks if the slide contains a 'non-looping' audio file. Played at end of timer countdown, or as a standalone audio file.
-                    if (slide.audio != null) { //Check if audio exists within the slide.
+                    if(slide.audio != null){
                         AudioURL audio = new AudioURL();
-                        audio.storeURL(slide.audio.urlName); //Store our audio for reference.
+                        audio.setLooping(slide.audio.loop);
+                        audio.storeURL(slide.audio.urlName);
+                        audio.setStartTime(slide.audio.startTime);
 
-                        slideAudio.add(slideCount, audio); //Add to the index that corresponds to the current slide number.
+                        slideAudio.add(slideCount, audio);
                     } else {
                         slideAudio.add(slideCount, null);
-                    }
-
-                    //  Checks if the slide contains a 'looping' audio file. Played whilst the timer is running.
-                    if (slide.audioLooping != null) {
-                        AudioURL audio = new AudioURL();
-                        audio.setLooping(true);
-                        audio.storeURL(slide.audioLooping.urlName);
-
-                        slideAudioLooping.add(slideCount, audio);
-                    } else {
-                        slideAudioLooping.add(slideCount, null); //If no audio exists simply set any audioURL objects for the given slide to null.
                     }
 
                     // Spinner to choose the slides
@@ -340,7 +342,6 @@ public class Presentation extends AppCompatActivity {
                 expandableLayout.setListener(new ExpandableLayoutListener() {
                     @Override
                     public void onAnimationStart() {
-
                     }
 
                     @Override
@@ -390,18 +391,16 @@ public class Presentation extends AppCompatActivity {
                     // Saving default user to Firebase Firestore database
                     ref.add(map);
                     addFirestoreComments(currentSlide[0].toString());
-
-
                 });
 
                 // Start timer listener that checks for a play/pause button press
                 playPause.setOnClickListener(v -> {
                     //  Reference the current slides corresponding timer float values and audio objects.
-                    AudioURL audio = slideAudio.get(currentSlide[0]);
-                    AudioURL audioLooping = slideAudioLooping.get(currentSlide[0]);
+                    AudioURL audio = timerAudio.get(currentSlide[0]);
+                    AudioURL audioLooping = timerAudioLooping.get(currentSlide[0]);
                     Float slideTimer = slideTimers.get(currentSlide[0]);
 
-                    //  Choose how we handle the timer based on what audio files are retrieved from the XML document and if anything is missing or not.
+                    //  Choose how we handle the timer based on what audio files are added to the presentation.
                     if (audio == null & audioLooping == null) {
                         timerListenerHandler(slideTimer, null, null, false);
                     } else if (audioLooping == null || audio == null) {
@@ -412,6 +411,7 @@ public class Presentation extends AppCompatActivity {
                 });
 
                 loadFirstSlideTimer(); // Load in the timer for the first slide.
+                //loadSlideAudio(0);
             }
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "Error with presentation. Please report to admin", Toast.LENGTH_SHORT).show();
@@ -432,6 +432,11 @@ public class Presentation extends AppCompatActivity {
             } else {
                 timerLayout.setVisibility(View.GONE);
                 timerSlideTransition(slideNumber);
+            }
+            try {
+                loadSlideAudio(slideNumber);
+            } catch (AudioPlaybackException e){
+                e.printStackTrace();
             }
             slides.get(slideNumber).show();
             slides.get(currentSlide).hide();
@@ -754,6 +759,42 @@ public class Presentation extends AppCompatActivity {
         }
     }
 
+    /** Load the audio for a slide. Stop previous audio beforehand **/
+    private void loadSlideAudio(int slideNumber) throws AudioPlaybackException {
+        AudioURL audio = slideAudio.get(slideNumber);
+
+        if(currentAudio != null){
+            if(slideAudioCountdown != null){
+                slideAudioCountdown.cancel();
+                slideAudioCountdown = null;
+                currentAudio.stopURLSound();
+            }
+        }
+
+        if(audio != null){
+            if(audio.isLooping()){
+                currentAudio.storeURL(audio.getStoredURL());
+                currentAudio.playURLSound(currentAudio.getStoredURL());
+            } else {
+                slideAudioCountdown = new CountDownTimer(audio.getStartTime() * 1000, COUNTDOWN_INTERVAL) {
+                    @Override
+                    public void onTick(long millisUntilFinished) { }
+
+                    @Override
+                    public void onFinish() {
+                        currentAudio.storeURL(audio.getStoredURL());
+                        try {
+                            currentAudio.playURLSound(currentAudio.getStoredURL());
+                        } catch (AudioPlaybackException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                };
+                slideAudioCountdown.start();
+            }
+
+        }
+    }
 
     /** Common updates for all timers
      * @param millisUntilFinished - Time until finished. (in milliseconds)
@@ -839,5 +880,24 @@ public class Presentation extends AppCompatActivity {
         } else {
             timerLayout.setVisibility(View.GONE); //Hide the timer if no timer needs to be loaded.
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        //  Stop URL sounds and stop the timer when exiting.
+        if(currentAudio != null){
+            currentAudio.stopURLSound();
+            currentAudio = null;
+        }
+        if(timer != null){
+            try {
+                timer.forceStopTimer();
+            } catch (AudioPlaybackException e) {
+                e.printStackTrace();
+            }
+        }
+        
+        finish();
     }
 }

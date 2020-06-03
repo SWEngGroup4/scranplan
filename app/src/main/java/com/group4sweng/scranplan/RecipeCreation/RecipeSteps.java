@@ -1,12 +1,12 @@
 package com.group4sweng.scranplan.RecipeCreation;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,7 +61,7 @@ public class RecipeSteps extends Fragment {
 
     private ArrayList<XmlParser.Slide> slides;
 
-    LoadingDialog mLoadingDialog;
+    private LoadingDialog mLoadingDialog;
 
     private ArrayList<Uri> mMediaUris;
     private ArrayList<Uri> mAudioUris;
@@ -173,7 +173,7 @@ public class RecipeSteps extends Fragment {
 
     // Add slide to presentation
     private void addSlide() {
-        mStepList.add(new StepData(null, null, null));
+        mStepList.add(new StepData(null, null, null, false, null));
         mAdapter.notifyDataSetChanged();
 
         mMediaUris.add(null);
@@ -289,7 +289,6 @@ public class RecipeSteps extends Fragment {
                     mAudioRefs.add(mAdapterPos, mStorageRef.child("presentations/audio/"
                             + mUser.getUID() + "_" + recipeNum + "_step" + mAdapterPos));
                 }
-
             // Returned on user create graphics requests
             } else if (requestCode == graphicsRequestCode) {
                 Bundle graphics = data.getExtras();
@@ -324,6 +323,7 @@ public class RecipeSteps extends Fragment {
     }
 
     // Compiles all data for slide creation
+    @SuppressLint("StaticFieldLeak")
     private class CreateSlide extends AsyncTask<Void, Void, Void> {
 
         @Override
@@ -358,13 +358,20 @@ public class RecipeSteps extends Fragment {
                     uploadTasks.add(audioTask); // Keeps track of ongoing tasks
 
                     audioTask.addOnFailureListener(e ->
-                            Toast.makeText(getContext(), "Failed to upload image", Toast.LENGTH_SHORT).show())
+                            Toast.makeText(getContext(), "Failed to upload audio", Toast.LENGTH_SHORT).show())
                             .addOnSuccessListener(audioSnapshot -> {
                                 Task<Uri> downloadTask = mAudioRefs.get(pos).getDownloadUrl();
                                 downloadTasks.add(downloadTask); //Keeps track of ongoing tasks
                                 downloadTask.addOnSuccessListener(audioUri -> {
                                     downloadTasks.add(mAudioRefs.get(pos).getDownloadUrl()); // Retrieve download link
-                                    audios.set(pos, new XmlParser.Audio(audioUri.toString(), 0, false));
+
+                                    boolean looping = mStepList.get(pos).isLooping();
+                                    Integer startTime = mStepList.get(pos).getStartTime();
+                                    if(startTime == null){
+                                        audios.set(pos, new XmlParser.Audio(audioUri.toString(), 0, looping));
+                                    } else {
+                                        audios.set(pos, new XmlParser.Audio(audioUri.toString(), startTime, looping));
+                                    }
                                 });
                             });
                 } catch (Exception e) {
@@ -438,8 +445,7 @@ public class RecipeSteps extends Fragment {
                     }
 
                     // Create slide element
-                    slides.add(new XmlParser.Slide("Step " + (pos + 1), -1, text, lines, shapes, triangles, audios.get(pos),
-                            null, images.get(pos), videos.get(pos), timer));
+                    slides.add(new XmlParser.Slide("Step " + (pos + 1), -1, text, lines, shapes, triangles, audios.get(pos), images.get(pos), videos.get(pos), timer));
 
                     // Once all slides are created, compile into XML
                     if (slides.size() == mAdapter.getItemCount())

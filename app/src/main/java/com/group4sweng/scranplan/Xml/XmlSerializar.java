@@ -2,12 +2,18 @@ package com.group4sweng.scranplan.Xml;
 
 import android.util.Xml;
 
+import com.group4sweng.scranplan.Xml.XmlParser.Defaults;
+import com.group4sweng.scranplan.Xml.XmlParser.DocumentInfo;
+import com.group4sweng.scranplan.Xml.XmlParser.Line;
+import com.group4sweng.scranplan.Xml.XmlParser.Shading;
+import com.group4sweng.scranplan.Xml.XmlParser.Shape;
+import com.group4sweng.scranplan.Xml.XmlParser.Slide;
+import com.group4sweng.scranplan.Xml.XmlParser.Triangle;
+
 import org.xmlpull.v1.XmlSerializer;
 
 import java.io.FileOutputStream;
 import java.util.ArrayList;
-
-import com.group4sweng.scranplan.Xml.XmlParser.*;
 
 public class XmlSerializar {
 
@@ -216,6 +222,16 @@ public class XmlSerializar {
                 xmlSerializer.attribute("", "starttime",
                         slide.audio.startTime.toString());
                 xmlSerializer.attribute("", "loop", slide.audio.loop.toString());
+                xmlSerializer.endTag("", "audio");
+            }
+
+            // Write looping audio is present
+            if (slide.audioLooping != null) {
+                xmlSerializer.startTag("", "audio");
+                xmlSerializer.attribute("", "urlname", slide.audioLooping.urlName);
+                xmlSerializer.attribute("", "starttime",
+                        slide.audioLooping.startTime.toString());
+                xmlSerializer.attribute("", "loop", slide.audioLooping.loop.toString());
                 xmlSerializer.endTag("", "audio");
             }
 
