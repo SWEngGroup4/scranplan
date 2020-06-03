@@ -7,41 +7,25 @@
     android:layout_height="match_parent"
     android:background="#FFFF">
 
-    <TextView
-        android:id="@+id/textView12"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="26sp"
-        android:layout_marginEnd="163sp"
-        android:layout_marginBottom="47sp"
-        android:text="Ready to get started?"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
 
     <ImageView
         android:id="@+id/imageView4"
         android:layout_width="189dp"
         android:layout_height="305dp"
         android:layout_marginStart="12dp"
-        android:layout_marginTop="280dp"
+        android:layout_marginTop="25dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView"
         app:srcCompat="@drawable/timelinepicture" />
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="50sp"
-        android:layout_marginTop="64dp"
-        android:layout_marginEnd="56sp"
+        android:layout_marginTop="50dp"
         android:text="Welcome to the meal planner"
         android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.471"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -50,59 +34,77 @@
         android:layout_width="108sp"
         android:layout_height="118sp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="140dp"
+        android:layout_marginTop="10dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/WarningTouser"
         app:srcCompat="@drawable/add" />
 
     <TextView
         android:id="@+id/textView8"
         android:layout_width="263sp"
         android:layout_height="60sp"
-        android:layout_marginStart="132dp"
-        android:layout_marginTop="168dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="20dp"
         android:text="Press the plus button to add Recipies to your meal plan."
         android:textSize="18sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toEndOf="@+id/imageView"
+        app:layout_constraintTop_toBottomOf="@+id/WarningTouser" />
 
     <TextView
         android:id="@+id/textView10"
         android:layout_width="199dp"
         android:layout_height="169dp"
         android:layout_marginStart="13dp"
-        android:layout_marginTop="332dp"
+        android:layout_marginTop="55dp"
         android:layout_marginEnd="8dp"
         android:text="Select from a range of recipies to suit your tastes and create your own plan. Access your plan at any time."
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/imageView4"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/goButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="23sp"
-        android:layout_marginEnd="45sp"
-        android:layout_marginBottom="40sp"
-        android:background="#7C4DFF"
-        android:text="GO"
-        android:textColor="#FFFFFF"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView6" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
     <TextView
         android:id="@+id/WarningTouser"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="47dp"
+        android:layout_marginTop="5dp"
         android:text="This is a paid feature, only gold memebers have access to it"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/textView" />
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView4">
+
+        <TextView
+            android:id="@+id/textView12"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ready to get started?"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/goButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:background="#7C4DFF"
+            android:text="GO"
+            android:textColor="#FFFFFF"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/textView12"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
