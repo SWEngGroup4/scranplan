@@ -19,7 +19,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-		<activity android:name=".Social.PostPage"></activity>
+        <activity android:name=".Social.PostPage"></activity>
         <activity android:name=".PublicProfile"
             android:theme="@style/AppTheme.NoActionBar"/>
         <meta-data
@@ -29,6 +29,9 @@
 
         <activity android:name=".ShoppingList" />
         <activity android:name=".savedList" />
+        <activity android:name=".popUpFirst" />
+        <activity android:name=".popUpMealPlanner" />
+
 
         <activity android:name=".RecyclerViewAdaptor" />
         <activity android:name=".Presentation.Presentation"
