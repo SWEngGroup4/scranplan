@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF">
+    android:background="#FFFF">
 
     <TextView
         android:id="@+id/textView12"
@@ -29,7 +29,7 @@
         android:layout_marginTop="280dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/timeline" />
+        app:srcCompat="@drawable/timelinepicture" />
 
     <TextView
         android:id="@+id/textView"
@@ -61,7 +61,7 @@
         android:layout_height="60sp"
         android:layout_marginStart="132dp"
         android:layout_marginTop="168dp"
-        android:text="Press the plus button to add recipies to your meal plan"
+        android:text="Press the plus button to add Recipies to your meal plan."
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -99,7 +99,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="47dp"
-        android:text="This is a paid feature, only gold memebers have acces to it"
+        android:text="This is a paid feature, only gold memebers have access to it"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/textView" />
